@@ -1,0 +1,24 @@
+<ion-view title="Executive Offices">
+  <ion-content>
+    <div class="card" ng-repeat="execOffAddr in region.execOffAddrList">
+	  <div class="item item-divider">
+	    {{execOffAddr.officeName}}
+	  </div>
+	  <div class="item item-text-wrap">
+	    <div>
+	    	{{execOffAddr.addressLine1}},<br>
+	    	{{execOffAddr.addressLine2}}
+	    </div>
+	    <p>
+		    <i class="icon ion-iphone"></i>
+		    <span ng-repeat="phNo in execOffAddr.phoneNumberList">
+		    	{{phNo}}
+		    </span>
+	    </p>
+	      <div ng-repeat="admin in execOffAddr.execAdmin">
+	        {{admin.title}} : {{admin.name}}
+	      </div>	    	
+	  </div>
+	</div>
+  </ion-content>
+</ion-view>

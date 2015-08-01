@@ -1,0 +1,76 @@
+[
+	{
+		"name": "Dowlaiswaram", 
+		"uniqueName": "dowlaiswaram", 
+		"type": "town", 
+		"thumbnail": "img/dowlaiswaram.png",
+		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
+		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
+		"population": "23423",
+		"area": "12",
+		"pinCodes": ["533124", "533125"],
+		"execOffAddrList":[
+			{
+				"officeName": "Gram Panchat Office",
+				"addressLine1": "100 Main road",
+				"addressLine2": "",
+				"phoneNumberList":["9834343434"],
+				"execAdmin" : [
+					{
+						"title": "Secretary",
+						"name": "Nageswara Rao"
+					}
+				]
+			},
+			{
+				"officeName": "Post Office",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"],
+				"execAdmin" : [
+					{
+						"title": "Postman",
+						"name": "Nageswara Rao"
+					}
+				]
+			}			
+		],
+		"legiRepList" : [
+			{
+				"title": "Sarpanch",
+				"name": "Buchi babu"
+			}
+		]
+	},
+	{
+		"name": "Sri Krishna Patnam", 
+		"uniqueName": "srikrishnapatnam", 
+		"type": "village", 
+		"thumbnail": "http://placehold.it/100x100",
+		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
+		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
+		"population": "23423",
+		"area": "12",
+		"pinCodes": ["533124", "533125"],
+		"execOffAddrList":[
+			{
+				"officeName": "Gram Panchat Office",
+				"addressLine1": "100 Main road",
+				"addressLine2": "",
+				"phoneNumberList":["9834343434"],
+				"execAdmin" : [
+					{
+						"title": "Secretary",
+						"name": "Nageswara Rao"
+					}
+				]
+			}
+		],
+		"legiRepList" : [
+			{
+				"legiRepTitle": "Sarpanch",
+				"legiRepName": "Buchi babu"
+			}
+		]
+	}
+]

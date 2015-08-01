@@ -1,0 +1,21 @@
+<ion-view view-title="Account">
+  <ion-content>
+    <ion-list>
+      <ion-item>
+              First name <p>{{user.firstName}}</p>
+      </ion-item>
+      <ion-item>
+              Last name <p>{{user.lastName}}</p>
+      </ion-item>
+      <ion-item>
+              Mobile <p>{{user.phoneNo}}</p>
+      </ion-item>
+      <ion-item>
+              Residency <p>{{user.residency.name}}</p>
+      </ion-item>                        
+      <ion-toggle ng-model="user.settings.notifications">
+          Notifications
+      </ion-toggle>
+    </ion-list>
+  </ion-content>
+</ion-view>

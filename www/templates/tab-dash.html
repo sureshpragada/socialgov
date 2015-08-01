@@ -1,0 +1,17 @@
+<ion-view view-title="Activity">
+  <ion-nav-buttons side="primary">
+    <a class="button button-icon icon ion-compose" href="#/tab/post"></a>
+  </ion-nav-buttons>
+  <ion-content>
+    <div class="list card" ng-repeat="activity in activities">
+      <div class="item item-body">
+        <div>
+          {{activity.notification.message}}
+        </div>
+        <h4>
+          Posted by : {{activity.notificationSentBy.userName}}&nbsp;&nbsp;{{activity.notificationSentBy.title}}
+        </h4>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

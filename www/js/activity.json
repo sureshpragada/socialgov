@@ -1,0 +1,123 @@
+[
+	{
+		"type": "notification",
+		"region": "Dowliaswaram",
+		"notification": {
+			"message": "Water connection will be open from 10 AM to 12PM on 10/12/2015"
+		},
+		"notificationSentBy": {
+			"userName": "Yenumula Subba Rao",
+			"title": "Executive assistant"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Rajahmundry",
+		"notification": {
+			"message": "Main road will be closed for repairs on 10/23/2015. Please follow detours."
+		},
+		"notificationSentBy": {
+			"userName": "Rajiv Sharma",
+			"title": "Municipal commissioner"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+
+	{
+		"type": "notification",
+		"region": "Dowliaswaram",
+		"notification": {
+			"message": "Water connection will be open from 10 AM to 12PM on 10/12/2015"
+		},
+		"notificationSentBy": {
+			"userName": "Yenumula Subba Rao",
+			"title": "Executive assistant"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Rajahmundry",
+		"notification": {
+			"message": "Main road will be closed for repairs on 10/23/2015. Please follow detours."
+		},
+		"notificationSentBy": {
+			"userName": "Rajiv Sharma",
+			"title": "Municipal commissioner"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Dowliaswaram",
+		"notification": {
+			"message": "Water connection will be open from 10 AM to 12PM on 10/12/2015"
+		},
+		"notificationSentBy": {
+			"userName": "Yenumula Subba Rao",
+			"title": "Executive assistant"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Rajahmundry",
+		"notification": {
+			"message": "Main road will be closed for repairs on 10/23/2015. Please follow detours."
+		},
+		"notificationSentBy": {
+			"userName": "Rajiv Sharma",
+			"title": "Municipal commissioner"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Dowliaswaram",
+		"notification": {
+			"message": "Water connection will be open from 10 AM to 12PM on 10/12/2015"
+		},
+		"notificationSentBy": {
+			"userName": "Yenumula Subba Rao",
+			"title": "Executive assistant"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Rajahmundry",
+		"notification": {
+			"message": "Main road will be closed for repairs on 10/23/2015. Please follow detours."
+		},
+		"notificationSentBy": {
+			"userName": "Rajiv Sharma",
+			"title": "Municipal commissioner"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Dowliaswaram",
+		"notification": {
+			"message": "Water connection will be open from 10 AM to 12PM on 10/12/2015"
+		},
+		"notificationSentBy": {
+			"userName": "Yenumula Subba Rao",
+			"title": "Executive assistant"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	},
+	{
+		"type": "notification",
+		"region": "Rajahmundry",
+		"notification": {
+			"message": "Main road will be closed for repairs on 10/23/2015. Please follow detours."
+		},
+		"notificationSentBy": {
+			"userName": "Rajiv Sharma",
+			"title": "Municipal commissioner"
+		},
+		"notificationSentOn": "10/12/2015 12:15 PM"
+	}	
+]

@@ -1,0 +1,40 @@
+<ion-view>
+<ion-nav-title>
+      {{region.name}}
+    </ion-nav-title>
+  <ion-content>
+
+    <div class="list card">
+      <div class="item item-image">
+        <img src="img/{{region.uniqueName}}.png">
+      </div>
+    </div>
+
+  	<ion-list>
+  		<ion-item>
+  			      Area <p>{{region.area}} SqKm </p>
+  		</ion-item>
+  		<ion-item>
+  			      Population <p>{{region.population}}</p>
+  		</ion-item>
+  		<ion-item>
+	      Pincodes
+        <p>
+  	      <span ng-repeat="pincode in region.pinCodes">
+  	      	{{pincode}} ,
+  	      </span>
+        </p>
+  		</ion-item>
+
+      <ion-item href="#/tab/offices/{{region.uniqueName}}">
+          Civil Offices
+        <span class="badge badge-assertive">{{region.execOffAddrList.length}}</span>
+      </ion-item>
+
+      <ion-item ng-repeat="legiRep in region.legiRepList">
+        {{legiRep.title}} : {{legiRep.name}}
+      </ion-item>
+
+  	</ion-list>
+  </ion-content>
+</ion-view>
