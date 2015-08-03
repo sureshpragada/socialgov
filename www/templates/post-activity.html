@@ -1,42 +1,34 @@
 <ion-view view-title="Post Activity">
 	<ion-content>
-		<form name="postActivityForm" ng-submit="submitPost()">
 			<div class="list">
-				<div ng-show="formValid">{{formValidationMessage}}</div>
+				<div ng-show="postError">{{postErrorMessage}}</div>
 				<label class="item item-input item-select">
 				    <div class="input-label">
 				      Activity Type
 				    </div>
-				    <select ng-model="post.type">
-				      <option>Service Disruption</option>
-				      <option selected>Service Announcement</option>
+				    <select ng-model="post.activityType">
+				      <option value="NOTF" selected>Notification</option>
 				    </select>
 				  </label>
 				<label class="item item-input item-select">
 				    <div class="input-label">
 				      Region
 				    </div>
-				    <select ng-model="post.region">
-				      <option>Dowlaiswaram</option>
-				      <option selected>Sri Krishna Patnam</option>
+				    <select ng-model="post.regionUniqueName">
+				      <option value="dowlaiswaram">Dowlaiswaram</option>
+				      <option value="srikrishnapatnam" selected>Sri Krishna Patnam</option>
 				    </select>
 				  </label>
 
 				  <label class="item item-input">
-				    <input name="firstName" type="text" placeholder="First Name" ng-model="post.firstName" required/>
-				  </label>
-
-				  <label class="item item-input">
-				    <input name="lastName" type="text" placeholder="Last Name" ng-model="post.lastName" required/>
-				  </label>
-
-				  <label class="item item-input">
-				    <textarea placeholder="Message" rows="5" ng-model="post.message"></textarea>
+				    <textarea placeholder="Message" rows="5" ng-model="post.notifyMessage"></textarea>
 				  </label>
 			</div>
 			<div class="padding">
-				<button class="button button-block button-calm">Post Activity</button>
+				<button class="button button-block button-calm" ng-click="submitPost()">Post Activity</button>
 			</div>
-		</form>
+			<div class="padding">
+				<button class="button button-block button-assertive" ng-click="cancelPost()">Cancel</button>
+			</div>
 	</ion-content>
 </ion-view>

@@ -6,10 +6,11 @@
     <div class="list card" ng-repeat="activity in activities">
       <div class="item item-body">
         <div>
-          {{activity.notification.message}}
+          {{activity.get("notifyMessage")}}
         </div>
         <h4>
-          Posted by : {{activity.notificationSentBy.userName}}&nbsp;&nbsp;{{activity.notificationSentBy.title}}
+          <!-- Posted by : {{activity.notificationSentBy.userName}}&nbsp;&nbsp;{{activity.notificationSentBy.title}} -->
+          Posted on : {{activity.createdAt}}
         </h4>
       </div>
     </div>
