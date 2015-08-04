@@ -1,14 +1,15 @@
 <ion-view view-title="Account">
   <ion-content>
-    <ion-list>
+    <button ng-show="{{!userLoggedIn}}" class="button button-block button-assertive" ng-click="login()">Login</button>
+    <ion-list ng-show="{{userLoggedIn}}">
       <ion-item>
-              First name <p>{{user.firstName}}</p>
+              First name <p>{{user.get("firstName")}}</p>
       </ion-item>
       <ion-item>
-              Last name <p>{{user.lastName}}</p>
+              Last name <p>{{user.get("lastName")}}</p>
       </ion-item>
       <ion-item>
-              Mobile <p>{{user.phoneNo}}</p>
+              Email <p>{{user.get("email")}}</p>
       </ion-item>
       <ion-item>
               Residency <p>{{user.residency.name}}</p>

@@ -9,8 +9,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
-
-    Parse.initialize("kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW", "3lB86jPpc6gfCdyZ8RvplqPwjHv5401pPwHWTNTJ");
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
     if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {

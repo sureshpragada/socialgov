@@ -17,13 +17,36 @@
 
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
-    
+
     <!-- your app's js -->
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
     <script src="js/services.js"></script>
   </head>
   <body ng-app="starter">
+
+  <script>
+  Parse.initialize("kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW", "3lB86jPpc6gfCdyZ8RvplqPwjHv5401pPwHWTNTJ");  
+  window.fbAsyncInit = function() {
+      Parse.FacebookUtils.init({ // this line replaces FB.init({
+        appId      : '807039946083520', // Facebook App ID
+        status     : true,  // check Facebook Login status
+        cookie     : true,  // enable cookies to allow Parse to access the session
+        xfbml      : true,  // initialize Facebook social plugins on the page
+        version    : 'v2.4' // point to the latest Facebook Graph API version
+      });
+          // Run code after the Facebook SDK is loaded.
+    };
+
+    (function(d, s, id){
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+  </script>
+
     <!--
       The nav bar that will be updated as we navigate between views.
     -->

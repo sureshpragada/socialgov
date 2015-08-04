@@ -9,9 +9,15 @@
           {{activity.get("notifyMessage")}}
         </div>
         <h4>
-          <!-- Posted by : {{activity.notificationSentBy.userName}}&nbsp;&nbsp;{{activity.notificationSentBy.title}} -->
+          Posted by : {{activity.get("user").get("firstName")}}
           Posted on : {{activity.createdAt}}
         </h4>
+        <div
+          class="fb-like"
+          data-share="true"
+          data-width="450"
+          data-show-faces="true">
+        </div>
       </div>
     </div>
   </ion-content>

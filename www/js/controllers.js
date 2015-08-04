@@ -10,6 +10,7 @@ angular.module('starter.controllers', [])
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
   query.equalTo("regionUniqueName", "dowlaiswaram");
+  query.include("user");
   query.find({
     success: function(results) {
     $scope.activities=results;
@@ -46,6 +47,7 @@ angular.module('starter.controllers', [])
       // activity.set("notifyMessage", post.message);
       // activity.set("regionUniqueName", post.region)
 
+      $scope.post.user=Parse.User.current();
       activity.save($scope.post, {
       success: function(activity) {
         // Push the new notification to the top of activity chart, probably through Activity service
@@ -79,13 +81,52 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AccountCtrl', function($scope) {
-  $scope.user={
-    firstName: 'Suresh', 
-    lastName: 'Pragada', 
-    phoneNo: '4088324304', 
-    residency: {name: 'Dowlaiswaram', uniqueName: 'dowlaiswaram'},
-    settings: {
-      notifications: true
-    }
+
+  $scope.userLoggedIn=false;
+  var currentUser = Parse.User.current();
+  if (currentUser) {
+    $scope.userLoggedIn=true;
+    $scope.user=currentUser;
+    if(currentUser.get("email")==null) {
+      FB.api('/me', {fields: 'first_name, last_name, email'}, function(response) {
+        console.log(response);
+        currentUser.set("firstName", response.first_name);
+        currentUser.set("lastName", response.last_name);
+        currentUser.set("email", response.email);
+        currentUser.save(null, {
+          success: function(userAgain) {
+            $scope.user=userAgain;
+          },
+          error: function(error) {
+          }
+        });
+      });      
+    } 
+  } 
+  
+  $scope.login=function() {
+    
+    Parse.FacebookUtils.logIn("public_profile,email", {
+      success: function(user) {
+        $scope.userLoggedIn=true;
+        $scope.user=user;
+      },
+      error: function(user, error) {
+        alert("User cancelled the Facebook login or did not fully authorize.");
+      }
+    });
+
   };
+
+  // $scope.user={
+  //   firstName: 'Suresh', 
+  //   lastName: 'Pragada', 
+  //   phoneNo: '4088324304', 
+  //   residency: {name: 'Dowlaiswaram', uniqueName: 'dowlaiswaram'},
+  //   settings: {
+  //     notifications: true
+  //   }
+  // };
+
+
 });
