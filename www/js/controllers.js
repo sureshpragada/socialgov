@@ -63,30 +63,76 @@ angular.module('starter.controllers', [])
 .controller('RegisterCtrl', function($scope, $location) {
 
   $scope.user={};
+  $scope.phoneVerified=false;
+  $scope.registerError=false;
+  $scope.registerErrorMessage="";
+
+  $scope.authPhoneNum=function() {
+
+  Digits.logIn()
+    .done(function(response){
+
+      // if(response.status=="authorized")
+
+      console.log("Response from done : " + JSON.stringify(response));
+      var credentials = response.oauth_echo_headers['X-Verify-Credentials-Authorization'];
+      var apiUrl = response.oauth_echo_headers['X-Auth-Service-Provider'];
+      console.log(response.status + " " + credentials + " " + apiUrl);
+
+      Parse.Cloud.run('validateDigits', {authToken: credentials, digitsUrl: apiUrl}, {
+        success: function(data) {
+          console.log("Cloud response : " + JSON.stringify(data));
+          // Query to verify whether this user is already registered
+          Parse.User.logIn($scope.user.phoneNum, "digits", {
+            success: function(user) {
+              console.log("User exists in the system. Skipping registration flow.");
+              $location.path("/tab/dash");  
+            },
+            error: function(user, error) {
+              console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
+              $scope.user.phoneNum=data.phone_number;
+              $scope.phoneVerified=true;
+              $scope.$apply();
+            }
+          });
+
+        },
+        error: function(error) {
+          console.log("Digits cloud call error : " + error);
+          $scope.registerError=true;
+          $scope.registerErrorMessage=error;          
+          $scope.$apply();
+        }
+      });
+    })
+    .fail(function(error){
+      console.log("Digits login failure. " + error.type + " " + error.message);
+      $scope.registerError=true;
+      $scope.registerErrorMessage=error.message;                
+      $scope.$apply();
+    });
+    
+  };
+
   $scope.register=function() {
 
     var user=new Parse.User();
     user.set("username", $scope.user.phoneNum);
-    user.set("password", "custom");
+    user.set("password", "digits");
     user.set("firstName", $scope.user.firstName);
     user.set("lastName", $scope.user.lastName);
     user.set("residency", $scope.user.residency);
 
     user.signUp(null, {
       success: function(user) {
+        console.log("Signup is success");
         $location.path("/tab/dash");
       },
       error: function(user, error) {
-        // TODO :: Login the user for now and validate later on
-        alert("Error signup : " + error.code + " message : " + error.message);
-        Parse.User.logIn($scope.user.phoneNum, "custom", {
-          success: function(user) {
-            $location.path("/tab/dash");  
-          },
-          error: function(user, error) {
-            alert("Error login : " + error.code + " message : " + error.message);
-          }
-        });
+        console.log("Signup error  : " + error.code + " " + error.message);
+        $scope.registerError=true;
+        $scope.registerErrorMessage=error.message;
+        $scope.apply();
       }
     });
   }

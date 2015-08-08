@@ -10,13 +10,15 @@ Residency -->
 
 <ion-view view-title="Register">
 	<ion-content>
-			<div class="list">
-				<div ng-show="registerError">{{registerErrorMessage}}</div>
+			<div ng-show="registerError" class="padding">
+				{{registerErrorMessage}}
+			</div>	
+			<div class="list" ng-show="phoneVerified">
 				<label class="item item-input">
 				    <span class="input-label">
 				      Phone number
 				    </span>
-				    <input type="text" name="phoneNum" ng-model="user.phoneNum">
+				    <input type="tel" name="phoneNum" ng-model="user.phoneNum" disabled="">
 				  </label>
 				<label class="item item-input">
 				    <span class="input-label">
@@ -39,10 +41,13 @@ Residency -->
 				      <option value="srikrishnapatnam" selected>Sri Krishna Patnam</option>
 				    </select>
 				  </label>
+				<div class="padding">
+					<button class="button button-block button-balanced" ng-click="register()">Register</button>
+				</div>				  
 			</div>
-			<div class="padding">
-				<button class="button button-block button-balanced" ng-click="register()">Register</button>
-			</div>
+			<div class="padding" ng-hide="phoneVerified">
+				<button class="button button-block button-balanced" ng-click="authPhoneNum()">Verify Phone Number</button>
+			</div>			
 	</ion-content>
 </ion-view>
 
