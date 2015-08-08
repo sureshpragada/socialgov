@@ -22,92 +22,115 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 })
 .config(function($stateProvider, $urlRouterProvider) {
 
-  // Ionic uses AngularUI Router which uses the concept of states
-  // Learn more here: https://github.com/angular-ui/ui-router
-  // Set up the various states which the app can be in.
-  // Each state's controller can be found in controllers.js
-  $stateProvider
+  var user=Parse.User.current();
+  if(user) {
 
-  // setup an abstract state for the tabs directive
-    .state('tab', {
-    url: "/tab",
-    abstract: true,
-    templateUrl: "templates/tabs.html"
-  })
+    // Ionic uses AngularUI Router which uses the concept of states
+    // Learn more here: https://github.com/angular-ui/ui-router
+    // Set up the various states which the app can be in.
+    // Each state's controller can be found in controllers.js
+    $stateProvider
 
-  // Each tab has its own nav history stack:
+    // setup an abstract state for the tabs directive
+      .state('tab', {
+      url: "/tab",
+      abstract: true,
+      templateUrl: "templates/tabs.html"
+    })
 
-  .state('tab.dash', {
-    url: '/dash',
-    views: {
-      'tab-dash': {
-        templateUrl: 'templates/tab-dash.html',
-        controller: 'ActivityCtrl'
+    // Each tab has its own nav history stack:
+
+    .state('tab.dash', {
+      url: '/dash',
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/tab-dash.html',
+          controller: 'ActivityCtrl'
+        }
       }
-    }
-  })
+    })
 
-  .state('tab.post', {
-    url: '/post',
-    views: {
-      'tab-dash': {
-        templateUrl: 'templates/post-activity.html',
-        controller: 'PostActivityCtrl'
+    .state('tab.post', {
+      url: '/post',
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/post-activity.html',
+          controller: 'PostActivityCtrl'
+        }
       }
-    }
-  })
+    })
 
-  .state('tab.regions', {
-    url: '/regions',
-    views: {
-      'tab-region': {
-        templateUrl: 'templates/region-list.html',
-        controller: 'RegionListCtrl'
-      }
-    }
-  })
-
-  .state('tab.region', {
-    url: '/region/{regionUniqueName}',
-    views: {
-      'tab-region': {
-        templateUrl: 'templates/region-detail.html',
-        controller: 'RegionDetailCtrl'
-      }
-    }
-  })
-
-  .state('tab.offices', {
-    url: '/offices/{regionUniqueName}',
+    .state('tab.regions', {
+      url: '/regions',
       views: {
         'tab-region': {
-          templateUrl: 'templates/region-offices.html',
+          templateUrl: 'templates/region-list.html',
+          controller: 'RegionListCtrl'
+        }
+      }
+    })
+
+    .state('tab.region', {
+      url: '/region/{regionUniqueName}',
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region-detail.html',
           controller: 'RegionDetailCtrl'
         }
       }
-  })
+    })
 
-  // .state('tab.account.settings', {
-  //   url: '/settings',
-  //   views: {
-  //     "tab-account@tab": {
-  //       templateUrl: 'templates/account-detail.html',
-  //       controller: 'AccountDetailCtrl'              
-  //     }
-  //   }
-  // })
+    .state('tab.offices', {
+      url: '/offices/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region-offices.html',
+            controller: 'RegionDetailCtrl'
+          }
+        }
+    })
 
-  .state('tab.account', {
-    url: '/account',
-    views: {
-      "tab-account": {
-        templateUrl: 'templates/tab-account.html',
-        controller: 'AccountCtrl'        
+    // .state('tab.account.settings', {
+    //   url: '/settings',
+    //   views: {
+    //     "tab-account@tab": {
+    //       templateUrl: 'templates/account-detail.html',
+    //       controller: 'AccountDetailCtrl'              
+    //     }
+    //   }
+    // })
+
+
+    .state('tab.account', {
+      url: '/account',
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/tab-account.html',
+          controller: 'AccountCtrl'        
+        }
       }
-    }
-  });
+    });
+    // if none of the above states are matched, use this as the fallback
+    $urlRouterProvider.otherwise('/tab/dash');
+  } else {
 
-  // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+    $stateProvider
+      .state('tab', {
+      url: "/tab",
+      abstract: true,
+      templateUrl: "templates/tabs.html"
+    })
+    .state('tab.register', {
+      url: '/register',
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/register.html',
+          controller: 'RegisterCtrl'        
+        }
+      }
+    });
+
+    $urlRouterProvider.otherwise('/tab/register');
+  }  
 
 });

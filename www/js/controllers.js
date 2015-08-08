@@ -1,30 +1,16 @@
 angular.module('starter.controllers', [])
 
 .controller('ActivityCtrl', function($scope, $http) {
-  // $http.get("js/activity.json").success(function(data) {
-  //   $scope.activities=data;
-  // });
 
-  //$scope.activities=[];
+  var user=Parse.User.current();
 
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
-  query.equalTo("regionUniqueName", "dowlaiswaram");
+  query.equalTo("regionUniqueName", user.get("residency"));
   query.include("user");
   query.find({
     success: function(results) {
-    $scope.activities=results;
-
-      // for(var i=0;i<results.length;i++) {
-      //   var object=results[i];
-      //   var activity={"activityType": object.get("activityType"), 
-      //     "notifyMessage": object.get("notifyMessage"), 
-      //     "regionUniqueName": object.get("regionUniqueName"),
-      //     "createdAt": object.createdAt};
-      //   $scope.activities.push(activity);
-      // }
-
-
+      $scope.activities=results;
     }, 
     error: function(error) {
       alert("Unable to get activities");
@@ -37,15 +23,8 @@ angular.module('starter.controllers', [])
   $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":"dowlaiswaram"};
 
   $scope.submitPost=function() {
-      //var post=$scope.post;
-      // alert(post.activityType + post.message + post.region);
-
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
-
-      // activity.set("activityType", post.activityType)    
-      // activity.set("notifyMessage", post.message);
-      // activity.set("regionUniqueName", post.region)
 
       $scope.post.user=Parse.User.current();
       activity.save($scope.post, {
@@ -55,8 +34,9 @@ angular.module('starter.controllers', [])
       },
       error: function(activity, error) {
         // Notify user that post has failed
+        alert("Error in posting message " + error.message);
         $scope.postError=true;
-        $scope.postErrorMessage=error;
+        $scope.postErrorMessage=error.message;
       }
     });
     $location.path("/tab/dash");
@@ -80,53 +60,42 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('AccountCtrl', function($scope) {
+.controller('RegisterCtrl', function($scope, $location) {
 
-  $scope.userLoggedIn=false;
-  var currentUser = Parse.User.current();
-  if (currentUser) {
-    $scope.userLoggedIn=true;
-    $scope.user=currentUser;
-    if(currentUser.get("email")==null) {
-      FB.api('/me', {fields: 'first_name, last_name, email'}, function(response) {
-        console.log(response);
-        currentUser.set("firstName", response.first_name);
-        currentUser.set("lastName", response.last_name);
-        currentUser.set("email", response.email);
-        currentUser.save(null, {
-          success: function(userAgain) {
-            $scope.user=userAgain;
-          },
-          error: function(error) {
-          }
-        });
-      });      
-    } 
-  } 
-  
-  $scope.login=function() {
-    
-    Parse.FacebookUtils.logIn("public_profile,email", {
+  $scope.user={};
+  $scope.register=function() {
+
+    var user=new Parse.User();
+    user.set("username", $scope.user.phoneNum);
+    user.set("password", "custom");
+    user.set("firstName", $scope.user.firstName);
+    user.set("lastName", $scope.user.lastName);
+    user.set("residency", $scope.user.residency);
+
+    user.signUp(null, {
       success: function(user) {
-        $scope.userLoggedIn=true;
-        $scope.user=user;
+        $location.path("/tab/dash");
       },
       error: function(user, error) {
-        alert("User cancelled the Facebook login or did not fully authorize.");
+        // TODO :: Login the user for now and validate later on
+        alert("Error signup : " + error.code + " message : " + error.message);
+        Parse.User.logIn($scope.user.phoneNum, "custom", {
+          success: function(user) {
+            $location.path("/tab/dash");  
+          },
+          error: function(user, error) {
+            alert("Error login : " + error.code + " message : " + error.message);
+          }
+        });
       }
     });
+  }
+})
 
+.controller('AccountCtrl', function($scope, $location) {
+  $scope.user = Parse.User.current();
+  $scope.logout=function() {    
+      Parse.User.logOut();
+      $location.path("/tab/register");
   };
-
-  // $scope.user={
-  //   firstName: 'Suresh', 
-  //   lastName: 'Pragada', 
-  //   phoneNo: '4088324304', 
-  //   residency: {name: 'Dowlaiswaram', uniqueName: 'dowlaiswaram'},
-  //   settings: {
-  //     notifications: true
-  //   }
-  // };
-
-
 });

@@ -1,0 +1,49 @@
+<!-- Can digits login page default to specific country code?
+
+User name - Digits username, phone number
+Password - digits, custom
+AuthChannel - digits, custom
+Phone number 
+First name
+Last name
+Residency -->
+
+<ion-view view-title="Register">
+	<ion-content>
+			<div class="list">
+				<div ng-show="registerError">{{registerErrorMessage}}</div>
+				<label class="item item-input">
+				    <span class="input-label">
+				      Phone number
+				    </span>
+				    <input type="text" name="phoneNum" ng-model="user.phoneNum">
+				  </label>
+				<label class="item item-input">
+				    <span class="input-label">
+				      First name
+				    </span>
+				    <input type="text" name="firstName"  ng-model="user.firstName">
+				  </label>
+				<label class="item item-input">
+				    <span class="input-label">
+				      Last name
+				    </span>
+				    <input type="text" name="lastName" ng-model="user.lastName">
+				  </label>				  
+				<label class="item item-input item-select">
+				    <span class="input-label">
+				      Residency
+				    </span>
+				    <select ng-model="user.residency">
+				      <option value="dowlaiswaram">Dowlaiswaram</option>
+				      <option value="srikrishnapatnam" selected>Sri Krishna Patnam</option>
+				    </select>
+				  </label>
+			</div>
+			<div class="padding">
+				<button class="button button-block button-balanced" ng-click="register()">Register</button>
+			</div>
+	</ion-content>
+</ion-view>
+
+

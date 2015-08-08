@@ -1,7 +1,6 @@
 <ion-view view-title="Account">
   <ion-content>
-    <button ng-show="{{!userLoggedIn}}" class="button button-block button-assertive" ng-click="login()">Login</button>
-    <ion-list ng-show="{{userLoggedIn}}">
+    <ion-list>
       <ion-item>
               First name <p>{{user.get("firstName")}}</p>
       </ion-item>
@@ -9,14 +8,17 @@
               Last name <p>{{user.get("lastName")}}</p>
       </ion-item>
       <ion-item>
-              Email <p>{{user.get("email")}}</p>
+              Phone Number <p>{{user.get("username")}}</p>
       </ion-item>
       <ion-item>
-              Residency <p>{{user.residency.name}}</p>
+              Residency <p>{{user.get("residency") | uppercase}}</p>
       </ion-item>                        
       <ion-toggle ng-model="user.settings.notifications">
           Notifications
       </ion-toggle>
     </ion-list>
+    <div class="padding">
+      <button class="button button-block button-assertive" ng-click="logout()">Sign out</button>
+    </div>    
   </ion-content>
 </ion-view>
