@@ -24,6 +24,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
   var user=Parse.User.current();
   if(user) {
+    console.log("User exists in the session : " + user.get("username"));
 
     // Ionic uses AngularUI Router which uses the concept of states
     // Learn more here: https://github.com/angular-ui/ui-router
@@ -113,6 +114,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/tab/dash');
   } else {
+
+    console.log("User session does not exists");
 
     $stateProvider
       .state('tab', {

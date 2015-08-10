@@ -12,7 +12,6 @@
     <link href="css/ionic.app.css" rel="stylesheet">
     -->
     <script src="lib/parse/parse_1.5.0.js"></script>
-    <script id="sdk-js" src="https://cdn.digits.com/1/sdk.js" async></script>
     <!-- ionic/angularjs js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
 
@@ -29,17 +28,6 @@
 
   <script>
     Parse.initialize("kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW", "3lB86jPpc6gfCdyZ8RvplqPwjHv5401pPwHWTNTJ");  
-      /* Initialize Digits SDK using your application's consumer key. */
-    document.getElementById('sdk-js').onload = function() {
-      Digits.init({ consumerKey: 'gmoaaZhEG88hMQUdpWHnF1IAz' })
-        .done(function(){
-          console.log("Digits is initialized")
-        })
-        .fail(function(){
-          console.log("Digits failed to initialize")
-        });
-      };
-
   </script>
 
     <!--
