@@ -1,26 +1,38 @@
 angular.module('starter.controllers', [])
 
 .controller('ActivityCtrl', function($scope, $http) {
-
+  
+  $scope.activityError=false;
+  
   var user=Parse.User.current();
 
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
   query.equalTo("regionUniqueName", user.get("residency"));
   query.include("user");
+  query.descending("createdAt");
   query.find({
     success: function(results) {
-      $scope.activities=results;
-      $scope.$apply();
+      $scope.$apply(function(){
+        $scope.activities=results;
+      });
     }, 
     error: function(error) {
-      console.log("Unable to get activities : " + error.message);
+      $scope.$apply(function(){
+        console.log("Unable to get activities : " + error.message);
+        $scope.activityError=true;
+        $scope.activityMessage=error.message;
+      });
     }
   });
 
+  $scope.isAdmin=function() {
+     return ["914088324304"].indexOf(Parse.User.current().getUsername())!=-1;
+  };
+
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $location) {
+.controller('PostActivityCtrl', function($scope, $http, $state) {
   
   $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":"dowlaiswaram"};
 
@@ -32,7 +44,7 @@ angular.module('starter.controllers', [])
       success: function(activity) {
         // Push the new notification to the top of activity chart, probably through Activity service
         $scope.$apply(function(){
-          $location.path("/tab/dash");  
+          $state.go("tab.dash");  
         });
       },
       error: function(activity, error) {
@@ -46,7 +58,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.cancelPost=function(){
-    $location.path("/tab/dash");
+    $state.go("tab.dash");
   };
 
 })
@@ -63,7 +75,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('RegisterCtrl', function($scope, $location) {
+.controller('RegisterCtrl', function($scope, $state) {
 
   $scope.user={countryCode: "91", residency: "dowlaiswaram"};
   $scope.userRegistered=true;
@@ -76,7 +88,7 @@ angular.module('starter.controllers', [])
       success: function(user) {
         console.log("User exists in the system. Skipping registration flow.");
         $scope.$apply(function(){
-          $location.path("/tab/dash");  
+          $state.go("tab.dash");
         });
       },
       error: function(user, error) {
@@ -104,7 +116,7 @@ angular.module('starter.controllers', [])
       success: function(user) {
         console.log("Signup is success");
         $scope.$apply(function(){
-          $location.path("/tab/dash");
+          $state.go("tab.dash");
         });
       },
       error: function(user, error) {
@@ -117,11 +129,11 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('AccountCtrl', function($scope, $location, $window) {
+.controller('AccountCtrl', function($scope, $state) {
   $scope.user = Parse.User.current();
   $scope.logout=function() {    
       Parse.User.logOut();
-      $location.path("/tab/register");
-      //$window.location.href="index.html/#/tab/register";
+      $scope.user=null;
+      $state.go("register");    
   };
 });

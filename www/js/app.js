@@ -22,25 +22,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 })
 .config(function($stateProvider, $urlRouterProvider) {
 
-  var user=Parse.User.current();
-  if(user) {
-    console.log("User exists in the session : " + user.get("username"));
-
     // Ionic uses AngularUI Router which uses the concept of states
     // Learn more here: https://github.com/angular-ui/ui-router
     // Set up the various states which the app can be in.
     // Each state's controller can be found in controllers.js
     $stateProvider
-
     // setup an abstract state for the tabs directive
       .state('tab', {
       url: "/tab",
       abstract: true,
-      templateUrl: "templates/tabs.html"
+      templateUrl: "templates/tabs.html",
+      onEnter: function($state) {
+        var user=Parse.User.current();
+        if(user==null || !user.authenticated()) {
+          console.log("User is not authenticated");
+          $state.go("register");
+        }
+      }
     })
-
     // Each tab has its own nav history stack:
-
     .state('tab.dash', {
       url: '/dash',
       views: {
@@ -53,6 +53,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
     .state('tab.post', {
       url: '/post',
+      cache: false,
       views: {
         'tab-dash': {
           templateUrl: 'templates/post-activity.html',
@@ -90,7 +91,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           }
         }
     })
-
     // .state('tab.account.settings', {
     //   url: '/settings',
     //   views: {
@@ -100,8 +100,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     //     }
     //   }
     // })
-
-
     .state('tab.account', {
       url: '/account',
       views: {
@@ -110,30 +108,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           controller: 'AccountCtrl'        
         }
       }
-    });
-    // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/tab/dash');
-  } else {
-
-    console.log("User session does not exists");
-
-    $stateProvider
-      .state('tab', {
-      url: "/tab",
-      abstract: true,
-      templateUrl: "templates/tabs.html"
     })
-    .state('tab.register', {
+    .state('register', {
       url: '/register',
-      views: {
-        "tab-account": {
-          templateUrl: 'templates/register.html',
-          controller: 'RegisterCtrl'        
-        }
-      }
+      templateUrl: 'templates/register.html',
+      controller: 'RegisterCtrl',
+      cache: false
     });
 
-    $urlRouterProvider.otherwise('/tab/register');
-  }  
+    $urlRouterProvider.otherwise('/tab/dash');
 
 });
