@@ -43,6 +43,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     // Each tab has its own nav history stack:
     .state('tab.dash', {
       url: '/dash',
+      cache: false,
       views: {
         'tab-dash': {
           templateUrl: 'templates/tab-dash.html',
@@ -91,6 +92,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           }
         }
     })
+    .state('tab.legis', {
+      url: '/legis/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region-legislature.html',
+            controller: 'RegionDetailCtrl'
+          }
+        }
+    })    
     // .state('tab.account.settings', {
     //   url: '/settings',
     //   views: {

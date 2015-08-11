@@ -38,7 +38,24 @@
 		"legiRepList" : [
 			{
 				"title": "Sarpanch",
-				"name": "Buchi babu"
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
+			},
+			{
+				"title": "Member - Ward 1",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
+			},
+			{
+				"title": "Member - Ward 2",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
 			}
 		]
 	},

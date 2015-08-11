@@ -1,0 +1,22 @@
+<ion-view title="Legislature">
+  <ion-content>
+    <div class="card" ng-repeat="legi in region.legiRepList">
+	  <div class="item item-divider">
+	    {{legi.title}}
+	  </div>
+	  <div class="item item-text-wrap">
+	  	<h2>{{legi.name}}</h2>
+	    <div>
+	    	{{legi.addressLine1}},<br>
+	    	{{legi.addressLine2}}
+	    </div>
+	    <p>
+		    <i class="icon ion-iphone"></i>
+		    <span ng-repeat="phNo in legi.phoneNumberList">
+		    	{{phNo}}
+		    </span>
+	    </p>
+	  </div>
+	</div>
+  </ion-content>
+</ion-view>

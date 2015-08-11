@@ -2,7 +2,7 @@ angular.module('starter.controllers', [])
 
 .controller('ActivityCtrl', function($scope, $http) {
   
-  $scope.activityError=false;
+  $scope.activityError="Unable to load the messages";
   
   var user=Parse.User.current();
 
@@ -20,8 +20,7 @@ angular.module('starter.controllers', [])
     error: function(error) {
       $scope.$apply(function(){
         console.log("Unable to get activities : " + error.message);
-        $scope.activityError=true;
-        $scope.activityMessage=error.message;
+        $scope.activityError=error.message;
       });
     }
   });

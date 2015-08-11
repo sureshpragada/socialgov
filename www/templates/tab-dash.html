@@ -3,14 +3,18 @@
     <a class="button button-icon icon ion-compose" href="#/tab/post" ng-show="isAdmin()"></a>
   </ion-nav-buttons>
   <ion-content>
-    <div ng-show="activityError">{{activityErrorMessage}}</div>
+    <div ng-show="activityError" class="card">
+      <div class="item item-text-wrap">
+        {{activityError}}
+      </div>
+    </div>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError">
       <div class="item item-body">
         <div>
           {{activity.get("notifyMessage")}}
         </div>
         <p>
-          Posted by : {{activity.get("user").get("firstName")}}
+          Posted by : {{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}
 <!--           Posted on : {{activity.createdAt}} -->
         </p>
       </div>
