@@ -13,7 +13,7 @@
       <ion-item>
               Residency <p>{{user.get("residency") | uppercase}}</p>
       </ion-item>                        
-      <ion-toggle ng-model="user.settings.notifications">
+      <ion-toggle ng-model="settings.notifications" ng-change="notifySettingChanged('notifySetting', settings.notifications)">
           Notifications
       </ion-toggle>
     </ion-list>

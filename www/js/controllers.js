@@ -2,7 +2,7 @@ angular.module('starter.controllers', [])
 
 .controller('ActivityCtrl', function($scope, $http) {
   
-  $scope.activityError="Unable to load the messages";
+  $scope.activityError=null;
   
   var user=Parse.User.current();
 
@@ -110,6 +110,7 @@ angular.module('starter.controllers', [])
     user.set("residency", $scope.user.residency);
     user.set("phoneNum", $scope.user.phoneNum);
     user.set("countryCode", $scope.user.countryCode);
+    user.set("notifySetting", true);
 
     user.signUp(null, {
       success: function(user) {
@@ -130,9 +131,24 @@ angular.module('starter.controllers', [])
 
 .controller('AccountCtrl', function($scope, $state) {
   $scope.user = Parse.User.current();
+  $scope.settings={notifications: $scope.user.get("notifySetting")}; 
+
   $scope.logout=function() {    
       Parse.User.logOut();
       $scope.user=null;
       $state.go("register");    
   };
+
+  $scope.notifySettingChanged=function(settingName, settingValue) {
+    var user=Parse.User.current();
+    user.set(settingName, settingValue);
+    user.save(null, {
+      success: function(user) {
+        console.log(settingName + " changed to " + settingValue);        
+        $scope.user=user;
+        $scope.$apply();
+      }
+    });
+  };
+
 });

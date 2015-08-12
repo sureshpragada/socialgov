@@ -81,12 +81,41 @@
 						"name": "Nageswara Rao"
 					}
 				]
-			}
+			},
+			{
+				"officeName": "Post Office",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"],
+				"execAdmin" : [
+					{
+						"title": "Postman",
+						"name": "Nageswara Rao"
+					}
+				]
+			}			
 		],
 		"legiRepList" : [
 			{
-				"legiRepTitle": "Sarpanch",
-				"legiRepName": "Buchi babu"
+				"title": "Sarpanch",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
+			},
+			{
+				"title": "Member - Ward 1",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
+			},
+			{
+				"title": "Member - Ward 2",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
 			}
 		]
 	}
