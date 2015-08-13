@@ -3,7 +3,7 @@
 		"name": "Dowlaiswaram", 
 		"uniqueName": "dowlaiswaram", 
 		"type": "town", 
-		"thumbnail": "img/dowlaiswaram.png",
+		"thumbnail": "img/dowlaiswaram.jpeg",
 		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
 		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
 		"population": "23423",
@@ -63,16 +63,16 @@
 		"name": "Sri Krishna Patnam", 
 		"uniqueName": "srikrishnapatnam", 
 		"type": "village", 
-		"thumbnail": "http://placehold.it/100x100",
+		"thumbnail": "img/dowlaiswaram.jpeg",
 		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
 		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
 		"population": "23423",
 		"area": "12",
-		"pinCodes": ["533124", "533125"],
+		"pinCodes": ["533296"],
 		"execOffAddrList":[
 			{
-				"officeName": "Gram Panchat Office",
-				"addressLine1": "100 Main road",
+				"officeName": "Gram Panchayati Office",
+				"addressLine1": "Rajanagaram Mandal",
 				"addressLine2": "",
 				"phoneNumberList":["9834343434"],
 				"execAdmin" : [
@@ -83,9 +83,9 @@
 				]
 			},
 			{
-				"officeName": "Post Office",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
+				"officeName": "BSNL Office",
+				"addressLine1": "2-86 Ramalayam Street",
+				"addressLine2": "",
 				"phoneNumberList":["9834343434"],
 				"execAdmin" : [
 					{
@@ -93,15 +93,27 @@
 						"name": "Nageswara Rao"
 					}
 				]
+			},
+			{
+				"officeName": "AP Transco Office",
+				"addressLine1": "Need address",
+				"addressLine2": "",
+				"phoneNumberList":["9834343434"],
+				"execAdmin" : [
+					{
+						"title": "Junior Engineer",
+						"name": "John Paul"
+					}
+				]
 			}			
 		],
 		"legiRepList" : [
 			{
 				"title": "Sarpanch",
-				"name": "Buchi babu",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
-				"phoneNumberList":["9834343434"]
+				"name": "Denedi Venkata Lakshmi",
+				"addressLine1": "2-139 Ramalayam Street",
+				"addressLine2": "",
+				"phoneNumberList":["9010091706"]
 			},
 			{
 				"title": "Member - Ward 1",
