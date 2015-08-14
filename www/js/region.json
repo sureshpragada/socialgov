@@ -86,20 +86,25 @@
 		"execOffAddrList":[
 			{
 				"officeName": "Gram Panchayat Office",
+				"addressLine1": "2-108",
 				"landmark": "Beside Subrahmanya Swamy Temple",
 				"phoneNumberList":["8008698834"],
 				"execAdmin" : [
 					{
 						"title": "Secretary",
-						"name": "Hanumanth Rao"
+						"name": "M Hanumanth Rao"
 					}
 				]
 			},
 			{
 				"officeName": "BSNL Office",
 				"addressLine1": "2-86 Ramalayam Street",
-				"phoneNumberList":["9834343434"],
+				"phoneNumberList":["08832489499", "9491057953"],
 				"execAdmin" : [
+					{
+						"title": "Incharge Officer",
+						"name": "V Krishna Rao"
+					},
 					{
 						"title": "Exchange lineman",
 						"name": "Venkateswara Rao"
@@ -108,12 +113,24 @@
 			},
 			{
 				"officeName": "AP Transco Office [Sub station]",
+				"addressLine1": "865",
 				"landmark": "Bucchema cheruvu center",
-				"phoneNumberList":["9834343434"],
+				"phoneNumberList":["9493178622"],
 				"execAdmin" : [
 					{
-						"title": "Junior Engineer",
-						"name": "John Paul"
+						"title": "Line man",
+						"name": "Ellaiah"
+					}
+				]
+			},
+			{
+				"officeName": "Post Office",
+				"landmark": "Near bus stand center",
+				"phoneNumberList":["9010329748"],
+				"execAdmin" : [
+					{
+						"title": "Incharge Officer",
+						"name": "B John Paradesi"
 					}
 				]
 			}			
@@ -129,16 +146,12 @@
 			{
 				"title": "Vice President",
 				"name": "Kamidi Satyanarayana",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
 				"phoneNumberList":["9834343434"]
 			},
 			{
-				"title": "Ward Member - x",
-				"name": "Buchi babu",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
-				"phoneNumberList":["9834343434"]
+				"title": "Ward Member - 10",
+				"name": "Nathipamu Raju",
+				"phoneNumberList":["9642803269"]
 			}
 		]
 	}
