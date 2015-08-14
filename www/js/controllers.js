@@ -20,7 +20,7 @@ angular.module('starter.controllers', [])
     error: function(error) {
       $scope.$apply(function(){
         console.log("Unable to get activities : " + error.message);
-        $scope.activityError=error.message;
+        $scope.activityError="Unable to get activities";
       });
     }
   });
@@ -34,26 +34,30 @@ angular.module('starter.controllers', [])
 .controller('PostActivityCtrl', function($scope, $http, $state) {
   
   $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":"dowlaiswaram"};
-
+  $scope.postErrorMessage=null;
   $scope.submitPost=function() {
+    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>0) {
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
       $scope.post.user=Parse.User.current();
       activity.save($scope.post, {
-      success: function(activity) {
-        // Push the new notification to the top of activity chart, probably through Activity service
-        $scope.$apply(function(){
-          $state.go("tab.dash");  
-        });
-      },
-      error: function(activity, error) {
-        // Notify user that post has failed
-        console.log("Error in posting message " + error.message);
-        $scope.postError=true;
-        $scope.postErrorMessage=error.message;
-        $scope.$apply();
-      }
-    });
+        success: function(activity) {
+          // Push the new notification to the top of activity chart, probably through Activity service
+          $scope.$apply(function(){
+            $state.go("tab.dash");  
+          });
+        },
+        error: function(activity, error) {
+          // Notify user that post has failed
+          console.log("Error in posting message " + error.message);
+          $scope.postError=true;
+          $scope.postErrorMessage=error.message;
+          $scope.$apply();
+        }
+      });
+    } else {
+      $scope.postErrorMessage="Message cannot be empty.";
+    }
   };
 
   $scope.cancelPost=function(){

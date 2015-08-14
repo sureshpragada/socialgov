@@ -101,6 +101,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           }
         }
     })    
+    .state('tab.finview', {
+      url: '/finview/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region-fin-overview.html',
+            controller: 'RegionDetailCtrl'
+          }
+        }
+    })        
     // .state('tab.account.settings', {
     //   url: '/settings',
     //   views: {

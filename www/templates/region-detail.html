@@ -9,14 +9,15 @@
       </div>
     </div>
   	<ion-list>
-      <ion-item>
-              Revenue <span class="item-note">Rs. {{region.financials[0].revenue}}</span>
+      <ion-item href="#/tab/finview/{{region.uniqueName}}" class="item-icon-right">
+          Revenue <span class="item-note">Rs. {{region.financials[0].revenue}}</span>
+          <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>    
   		<ion-item>
-  			      Area <span class="item-note">{{region.area}} Sq Km </span>
+  			   Area <span class="item-note">{{region.area}} Sq Km </span>
   		</ion-item>
   		<ion-item>
-  			      Population <span class="item-note">{{region.population}} </span>
+  			   Population <span class="item-note">{{region.population}} </span>
   		</ion-item>
       <ion-item href="#/tab/offices/{{region.uniqueName}}" class="item-icon-right">
           Government Offices

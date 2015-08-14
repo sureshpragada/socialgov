@@ -1,0 +1,13 @@
+<ion-view title="Financials">
+  <ion-content>
+    <ion-list ng-repeat="financial in region.financials">
+      <ion-item class="item-divider">{{financial.year}}</ion-item>    
+      <ion-item>
+          Revenue <span class="item-note">Rs. {{financial.revenue}}</span>
+      </ion-item>    
+      <ion-item>
+          Expenses <span class="item-note">Rs. {{financial.expenses}}</span>
+      </ion-item>    
+    </ion-list>
+  </ion-content>
+</ion-view>
