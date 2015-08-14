@@ -6,13 +6,14 @@
 	  </div>
 	  <div class="item item-text-wrap">
 	    <div>
-	    	{{execOffAddr.addressLine1}},<br>
-	    	{{execOffAddr.addressLine2}}
+	    	<div ng-if="execOffAddr.addressLine1">{{execOffAddr.addressLine1}}</div>
+	    	<div ng-if="execOffAddr.addressLine2">{{execOffAddr.addressLine2}}</div>
+	    	<div ng-if="execOffAddr.landmark">{{execOffAddr.landmark}}</div>
 	    </div>
 	    <p>
 		    <i class="icon ion-iphone"></i>
 		    <span ng-repeat="phNo in execOffAddr.phoneNumberList">
-		    	{{phNo}}
+		    	{{phNo}} {{$last ? '' : ', '}}
 		    </span>
 	    </p>
 	      <div ng-repeat="admin in execOffAddr.execAdmin">

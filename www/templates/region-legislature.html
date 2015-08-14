@@ -7,13 +7,14 @@
 	  <div class="item item-text-wrap">
 	  	<h2>{{legi.name}}</h2>
 	    <div>
-	    	{{legi.addressLine1}},<br>
-	    	{{legi.addressLine2}}
+	    	<div ng-if="legi.addressLine1">{{legi.addressLine1}}</div>
+	    	<div ng-if="legi.addressLine2">{{legi.addressLine2}}</div>
+	    	<div ng-if="legi.landmark">{{legi.landmark}}</div>
 	    </div>
 	    <p>
 		    <i class="icon ion-iphone"></i>
 		    <span ng-repeat="phNo in legi.phoneNumberList">
-		    	{{phNo}}
+		    	{{phNo}} {{$last ? '' : ', '}}
 		    </span>
 	    </p>
 	  </div>

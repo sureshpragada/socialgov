@@ -6,8 +6,15 @@
 		"thumbnail": "img/dowlaiswaram.jpeg",
 		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
 		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
-		"population": "23423",
-		"area": "12",
+		"population": "50000",
+		"area": "15",
+		"financials": [
+			{
+				"year": "2014",
+				"revenue": "9000000",
+				"expenses": "10000000" 
+			}
+		],
 		"pinCodes": ["533124", "533125"],
 		"execOffAddrList":[
 			{
@@ -66,38 +73,42 @@
 		"thumbnail": "img/srikrishnapatnam.jpeg",
 		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
 		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
-		"population": "23423",
-		"area": "12",
+		"population": "3500",
+		"area": "4",
+		"financials": [
+			{
+				"year": "2014",
+				"revenue": "600000",
+				"expenses": "700000" 
+			}
+		],		
 		"pinCodes": ["533296"],
 		"execOffAddrList":[
 			{
-				"officeName": "Gram Panchayati Office",
-				"addressLine1": "Rajanagaram Mandal",
-				"addressLine2": "",
-				"phoneNumberList":["9834343434"],
+				"officeName": "Gram Panchayat Office",
+				"landmark": "Beside Subrahmanya Swamy Temple",
+				"phoneNumberList":["8008698834"],
 				"execAdmin" : [
 					{
 						"title": "Secretary",
-						"name": "Nageswara Rao"
+						"name": "Hanumanth Rao"
 					}
 				]
 			},
 			{
 				"officeName": "BSNL Office",
 				"addressLine1": "2-86 Ramalayam Street",
-				"addressLine2": "",
 				"phoneNumberList":["9834343434"],
 				"execAdmin" : [
 					{
-						"title": "Postman",
-						"name": "Nageswara Rao"
+						"title": "Exchange lineman",
+						"name": "Venkateswara Rao"
 					}
 				]
 			},
 			{
-				"officeName": "AP Transco Office",
-				"addressLine1": "Need address",
-				"addressLine2": "",
+				"officeName": "AP Transco Office [Sub station]",
+				"landmark": "Bucchema cheruvu center",
 				"phoneNumberList":["9834343434"],
 				"execAdmin" : [
 					{
@@ -109,21 +120,21 @@
 		],
 		"legiRepList" : [
 			{
-				"title": "Sarpanch",
+				"title": "President",
 				"name": "Denedi Venkata Lakshmi",
 				"addressLine1": "2-139 Ramalayam Street",
 				"addressLine2": "",
 				"phoneNumberList":["9010091706"]
 			},
 			{
-				"title": "Member - Ward 1",
-				"name": "Buchi babu",
+				"title": "Vice President",
+				"name": "Kamidi Satyanarayana",
 				"addressLine1": "200 Main road",
 				"addressLine2": "Near rameswaram temple",
 				"phoneNumberList":["9834343434"]
 			},
 			{
-				"title": "Member - Ward 2",
+				"title": "Ward Member - x",
 				"name": "Buchi babu",
 				"addressLine1": "200 Main road",
 				"addressLine2": "Near rameswaram temple",
