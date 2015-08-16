@@ -1,0 +1,14 @@
+Project ID: socialgov-1038 Project Number: 927589908829
+Google API Key (push notifications/Server Key) : AIzaSyA45rCCNniDVAdDFPlxElwo7JwMkBhTKVQ
+
+cordova build --release android
+keytool -genkey -v -keystore socialgov-release-key.keystore -alias socialgov_release_key -keyalg RSA -keysize 2048 -validity 10000
+
+
+~/software/socialgov> jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore socialgov-release-key.keystore platforms/android/build/outputs/apk/android-release-unsigned.apk socialgov_release_key
+
+~/Library/Android/sdk/build-tools/22.0.1/zipalign -v 4 platforms/android/build/outputs/apk/android-release-unsigned.apk socialgov.apk
+
+
+http://www.norio.be/android-feature-graphic-generator/
+
