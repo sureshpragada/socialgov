@@ -1,14 +1,43 @@
-Project ID: socialgov-1038 Project Number: 927589908829
-Google API Key (push notifications/Server Key) : AIzaSyA45rCCNniDVAdDFPlxElwo7JwMkBhTKVQ
+Ionic useful commands : 
+======================
+ionic start todo blank
+ionic platform add android
+ionic build android
+ionic emulate android
+ionic serve
+ionic serve --lab
+cordova prepare android
+ionic run android
+
+ionic resources --icon
+ionic resources --splash
+ionic resources
 
 cordova build --release android
+
+cordova plugin rm org.apache.cordova.console
+cordova plugin add https://github.com/phonegap-build/PushPlugin.git
+
+
+Android push notifications : 
+============================
+Project ID: socialgov-1038 Project Number: 927589908829 (Sender ID ?)
+Google API Key (push notifications/Server Key) : AIzaSyA45rCCNniDVAdDFPlxElwo7JwMkBhTKVQ
+
+
+Android Google play store : 
+===========================
+Command to generate cert to sign APK (one time), genertaed is available in /deploy directory in codebase : 
 keytool -genkey -v -keystore socialgov-release-key.keystore -alias socialgov_release_key -keyalg RSA -keysize 2048 -validity 10000
 
-
+Sign APK with the cert : 
 ~/software/socialgov> jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore socialgov-release-key.keystore platforms/android/build/outputs/apk/android-release-unsigned.apk socialgov_release_key
 
+Optimize the APK with zipalign : 
 ~/Library/Android/sdk/build-tools/22.0.1/zipalign -v 4 platforms/android/build/outputs/apk/android-release-unsigned.apk socialgov.apk
 
 
-http://www.norio.be/android-feature-graphic-generator/
+Utility website : 
+==================
+Generate feature graphics :  http://www.norio.be/android-feature-graphic-generator/
 

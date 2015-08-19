@@ -5,9 +5,9 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova'])
 
-.run(function($ionicPlatform) {
+.run(function($rootScope, $ionicPlatform, $cordovaPush) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -18,6 +18,48 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       // org.apache.cordova.statusbar required
       StatusBar.styleLightContent();
     }
+
+    var androidConfig = {
+      "senderID": "927589908829",
+    };
+
+    $cordovaPush.register(androidConfig).then(function(result) {
+      alert("Register Success : " + result);
+      console.log("Register Success : " + result);
+      // Success
+    }, function(err) {
+      // Error
+      alert("Register error : " + err);
+      console.log("Register error : " + err);
+    });
+
+    $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
+      switch(notification.event) {
+        case 'registered':
+          if (notification.regid.length > 0 ) {
+            alert('registration ID = ' + notification.regid);
+            console.log('registration ID = ' + notification.regid);
+          }
+          break;
+
+        case 'message':
+          // this is the actual push notification. its format depends on the data model from the push server
+          alert('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
+          console.log('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
+          break;
+
+        case 'error':
+          alert('GCM error = ' + notification.msg);
+          console.log('GCM error = ' + notification.msg);
+          break;
+
+        default:
+          alert('An unknown GCM event has occurred');
+          console.log('An unknown GCM event has occurred');
+          break;
+      }
+    });
+
   });
 })
 .config(function($stateProvider, $urlRouterProvider) {
