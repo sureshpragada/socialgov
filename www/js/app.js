@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova'])
 
-.run(function($rootScope, $ionicPlatform, $cordovaPush) {
+.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -19,19 +19,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       StatusBar.styleLightContent();
     }
 
-    var androidConfig = {
-      "senderID": "927589908829",
-    };
+    // var androidConfig = {
+    //   "senderID": "927589908829",
+    // };
 
-    $cordovaPush.register(androidConfig).then(function(result) {
-      alert("Register Success : " + result);
-      console.log("Register Success : " + result);
-      // Success
-    }, function(err) {
-      // Error
-      alert("Register error : " + err);
-      console.log("Register error : " + err);
-    });
+    // $cordovaPush.register(androidConfig).then(function(result) {
+    //   alert("Register Success : " + result);
+    //   console.log("Register Success : " + result);
+    //   // Success
+    // }, function(err) {
+    //   // Error
+    //   alert("Register error : " + err);
+    //   console.log("Register error : " + err);
+    // });
 
     $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
       switch(notification.event) {
@@ -39,6 +39,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
           if (notification.regid.length > 0 ) {
             alert('registration ID = ' + notification.regid);
             console.log('registration ID = ' + notification.regid);
+            var user=Parse.User.current();
+            NotificationService.addAndroidInstallation(user.id, notification.regid, [user.get("residency")], function(result){
+                  console.log("Success response : " + JSON.stringify(result.data));
+                  LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
+                }, function(error) {
+                  console.log("Error response : " + JSON.stringify(error));
+                  LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
+              });            
           }
           break;
 
@@ -46,16 +54,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
           // this is the actual push notification. its format depends on the data model from the push server
           alert('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
           console.log('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
+          LogService.log({type:"INFO", message: "Received push notification " + JSON.stringify(notification)}); 
           break;
 
         case 'error':
           alert('GCM error = ' + notification.msg);
           console.log('GCM error = ' + notification.msg);
+          LogService.log({type:"ERROR", message: "Error notification from GCM " + JSON.stringify(error)}); 
           break;
 
         default:
           alert('An unknown GCM event has occurred');
           console.log('An unknown GCM event has occurred');
+          LogService.log({type:"ERROR", message: "Unknown notification from GCM " + JSON.stringify(notification)}); 
           break;
       }
     });

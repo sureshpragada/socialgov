@@ -1,6 +1,6 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('ActivityCtrl', function($scope, $http) {
+.controller('ActivityCtrl', function($scope, $http, NotificationService, LogService) {
   
   $scope.activityError=null;
   
@@ -28,6 +28,37 @@ angular.module('starter.controllers', [])
   $scope.isAdmin=function() {
      return ["914088324304"].indexOf(Parse.User.current().getUsername())!=-1;
   };
+
+  // $scope.getRegisteredDevice=function() {
+  //   //NotificationService.getInstallationByInstallationId("nSd25xJ2xU", function(result){
+  //     //     alert("Success response : " + JSON.stringify(result.data));
+  //     //   }, function(error) {
+  //     //     alert("Error response : " + JSON.stringify(error));
+  //     // });
+  //   NotificationService.getInstallationByUserId(Parse.User.current().id, 
+  //     function(installations) {
+  //       alert(JSON.stringify(installations));
+  //       alert(installations[0].id);
+  //     },
+  //     function(error){
+  //       alert(JSON.stringify(error));
+  //     });
+  // };
+
+  // $scope.testAuditLog=function() {
+  //     // var log={username:"4088324304"+new Date().getMilliseconds(), type:"INFO", message:"Successfully registered dice with ID ABCDEF"};
+  //     // LogService.log(log);
+  // };
+
+  // $scope.registerDevice=function() {
+  //   NotificationService.addAndroidInstallation(Parse.User.current().id, "ABCDEFSOMEID", ["dowlaiswaram"], function(result){
+  //         console.log("Success response : " + JSON.stringify(result.data));
+  //         LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
+  //       }, function(error) {
+  //         console.log("Error response : " + JSON.stringify(error));
+  //         LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
+  //     });
+  // };
 
 })
 
@@ -78,7 +109,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('RegisterCtrl', function($scope, $state) {
+.controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService) {
 
   $scope.user={countryCode: "91", residency: "dowlaiswaram"};
   $scope.userRegistered=true;
@@ -118,7 +149,25 @@ angular.module('starter.controllers', [])
 
     user.signUp(null, {
       success: function(user) {
-        console.log("Signup is success");
+        console.log("Signup is success");        
+        if(ionic.Platform.isAndroid()) {
+          // Register with GCM
+          var androidConfig = {
+            "senderID": "927589908829",
+          };
+
+          $cordovaPush.register(androidConfig).then(function(result) {
+            alert("Register Success : " + result);
+            console.log("Register Success : " + result);
+            LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
+            // Success
+          }, function(err) {
+            // Error
+            alert("Register error : " + err);
+            console.log("Register error : " + err);
+            LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+          });
+        }
         $scope.$apply(function(){
           $state.go("tab.dash");
         });

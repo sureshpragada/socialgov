@@ -15,9 +15,18 @@
         </div>
         <p>
           Posted by : {{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}
-<!--           Posted on : {{activity.createdAt}} -->
+          Posted on : {{activity.createdAt}}
         </p>
       </div>
     </div>
+    <div class="padding">
+      <button class="button button-block button-assertive" ng-click="getRegisteredDevice()">Get Device</button>
+    </div>    
+    <div class="padding">
+      <button class="button button-block button-assertive" ng-click="registerDevice()">Register Device</button>
+    </div>        
+    <div class="padding">
+      <button class="button button-block button-assertive" ng-click="testAuditLog()">Log Audit Device</button>
+    </div>            
   </ion-content>
 </ion-view>
