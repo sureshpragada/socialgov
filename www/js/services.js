@@ -21,7 +21,7 @@ angular.module('starter.services', [])
     log: function(logObject) {
       var AuditLog = Parse.Object.extend("AuditLog");
       var auditLog = new AuditLog();
-      logObject.userName=Parse.User.current().get("username");
+      logObject.username=Parse.User.current().get("username");
       auditLog.save(logObject, {
         success: function(logObject) {
           console.log("Successfully sent audit log")

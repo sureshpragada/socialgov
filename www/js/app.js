@@ -37,7 +37,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       switch(notification.event) {
         case 'registered':
           if (notification.regid.length > 0 ) {
-            alert('registration ID = ' + notification.regid);
             console.log('registration ID = ' + notification.regid);
             var user=Parse.User.current();
             NotificationService.addAndroidInstallation(user.id, notification.regid, [user.get("residency")], function(result){
@@ -52,20 +51,21 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
         case 'message':
           // this is the actual push notification. its format depends on the data model from the push server
-          alert('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
-          console.log('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
-          LogService.log({type:"INFO", message: "Received push notification " + JSON.stringify(notification)}); 
+          navigator.notification.alert(notification.payload.data.alert);          
+          navigator.notification.beep(1);
+          console.log('message = ' + notification.payload.data.alert);          
+          LogService.log({type:"INFO", message: "Received push notification " + JSON.stringify(notification)});           
           break;
 
         case 'error':
-          alert('GCM error = ' + notification.msg);
-          console.log('GCM error = ' + notification.msg);
-          LogService.log({type:"ERROR", message: "Error notification from GCM " + JSON.stringify(error)}); 
+          navigator.notification.alert(JSON.stringify(notification));                  
+          console.log('GCM error = ' + JSON.stringify(notification));
+          LogService.log({type:"ERROR", message: "Error notification from GCM " + JSON.stringify(notification)}); 
           break;
 
         default:
-          alert('An unknown GCM event has occurred');
-          console.log('An unknown GCM event has occurred');
+          navigator.notification.alert(JSON.stringify(notification));                          
+          console.log('An unknown GCM event has occurred ' + JSON.stringify(notification));
           LogService.log({type:"ERROR", message: "Unknown notification from GCM " + JSON.stringify(notification)}); 
           break;
       }

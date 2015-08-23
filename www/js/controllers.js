@@ -26,7 +26,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   });
 
   $scope.isAdmin=function() {
-     return ["914088324304"].indexOf(Parse.User.current().getUsername())!=-1;
+     //return ["914088324304"].indexOf(Parse.User.current().getUsername())!=-1;
+     return true;
   };
 
   // $scope.getRegisteredDevice=function() {
@@ -60,9 +61,25 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   //     });
   // };
 
+  $scope.testPushNotification=function() {
+    NotificationService.pushNotification("dowlaiswaram", "First message from post activity" + new Date().getMilliseconds(), function(response) {
+      alert("Response from pushNotification : " + JSON.stringify(response));
+    }, function(error) {
+      alert("Error from pushNotification : " + JSON.stringify(error));
+    });
+  };
+
+  $scope.testBeep=function() {
+    navigator.notification.beep(3);
+  };
+
+  $scope.testVibrate=function() {
+    navigator.notification.vibrate(2000);
+  };
+
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService) {
   
   $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":"dowlaiswaram"};
   $scope.postErrorMessage=null;
@@ -73,7 +90,16 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.post.user=Parse.User.current();
       activity.save($scope.post, {
         success: function(activity) {
-          // Push the new notification to the top of activity chart, probably through Activity service
+          // Send the push notification
+          NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage, function(response) {
+            console.log("Response from pushNotification : " + JSON.stringify(response));
+            LogService.log({type:"INFO", message: "Push notification is success " + JSON.stringify(response)}); 
+          }, function(error) {
+            console.log("Error from pushNotification : " + JSON.stringify(error));
+            LogService.log({type:"ERROR", message: "Push notification is failed " + JSON.stringify(error)}); 
+          });
+
+          // Push the new activity to the top of activity chart, probably through Activity service
           $scope.$apply(function(){
             $state.go("tab.dash");  
           });
@@ -157,13 +183,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           };
 
           $cordovaPush.register(androidConfig).then(function(result) {
-            alert("Register Success : " + result);
             console.log("Register Success : " + result);
             LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
             // Success
           }, function(err) {
             // Error
-            alert("Register error : " + err);
             console.log("Register error : " + err);
             LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
           });
