@@ -30,53 +30,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
      return true;
   };
 
-  // $scope.getRegisteredDevice=function() {
-  //   //NotificationService.getInstallationByInstallationId("nSd25xJ2xU", function(result){
-  //     //     alert("Success response : " + JSON.stringify(result.data));
-  //     //   }, function(error) {
-  //     //     alert("Error response : " + JSON.stringify(error));
-  //     // });
-  //   NotificationService.getInstallationByUserId(Parse.User.current().id, 
-  //     function(installations) {
-  //       alert(JSON.stringify(installations));
-  //       alert(installations[0].id);
-  //     },
-  //     function(error){
-  //       alert(JSON.stringify(error));
-  //     });
-  // };
-
-  // $scope.testAuditLog=function() {
-  //     // var log={username:"4088324304"+new Date().getMilliseconds(), type:"INFO", message:"Successfully registered dice with ID ABCDEF"};
-  //     // LogService.log(log);
-  // };
-
-  // $scope.registerDevice=function() {
-  //   NotificationService.addAndroidInstallation(Parse.User.current().id, "ABCDEFSOMEID", ["dowlaiswaram"], function(result){
-  //         console.log("Success response : " + JSON.stringify(result.data));
-  //         LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
-  //       }, function(error) {
-  //         console.log("Error response : " + JSON.stringify(error));
-  //         LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
-  //     });
-  // };
-
-  $scope.testPushNotification=function() {
-    NotificationService.pushNotification("dowlaiswaram", "First message from post activity" + new Date().getMilliseconds(), function(response) {
-      alert("Response from pushNotification : " + JSON.stringify(response));
-    }, function(error) {
-      alert("Error from pushNotification : " + JSON.stringify(error));
-    });
-  };
-
-  $scope.testBeep=function() {
-    navigator.notification.beep(3);
-  };
-
-  $scope.testVibrate=function() {
-    navigator.notification.vibrate(2000);
-  };
-
 })
 
 .controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService) {
@@ -185,9 +138,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           $cordovaPush.register(androidConfig).then(function(result) {
             console.log("Register Success : " + result);
             LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
-            // Success
           }, function(err) {
-            // Error
             console.log("Register error : " + err);
             LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
           });
