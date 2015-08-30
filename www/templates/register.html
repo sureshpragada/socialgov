@@ -1,9 +1,7 @@
 
 <ion-view view-title="Authenticate">
 	<ion-content>
-			<div ng-show="registerError" class="padding">
-				{{registerErrorMessage}}
-			</div>	
+			<div ng-show="registerErrorMessage" class="padding assertive">{{registerErrorMessage}}</div>
 			<div class="list">
 				<label class="item item-input item-select">
 				    <span class="input-label">
@@ -11,7 +9,7 @@
 				    </span>
 				    <select ng-model="user.countryCode">
 				      <option value="91" selected>India</option>
-				      <option value="1">United States</option>
+<!-- 				      <option value="1">United States</option> -->
 				    </select>
 				 </label>			
 				<label class="item item-input">

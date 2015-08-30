@@ -92,68 +92,77 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.user={countryCode: "91", residency: "dowlaiswaram"};
   $scope.userRegistered=true;
-  $scope.registerError=false;
-  $scope.registerErrorMessage="";
+  $scope.registerErrorMessage=null;
 
   $scope.authPhoneNum=function() {
-    var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
-    Parse.User.logIn(userName, "custom", {
-      success: function(user) {
-        console.log("User exists in the system. Skipping registration flow.");
-        $scope.$apply(function(){
-          $state.go("tab.dash");
-        });
-      },
-      error: function(user, error) {
-        console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
-        $scope.userRegistered=false;
-        $scope.$apply();
-      }
-    });
+    if($scope.user.phoneNum!=null && $scope.user.phoneNum.length>0) {
+      var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
+      Parse.User.logIn(userName, "custom", {
+        success: function(user) {
+          console.log("User exists in the system. Skipping registration flow.");
+          $scope.$apply(function(){
+            $state.go("tab.dash");
+          });
+        },
+        error: function(user, error) {
+          console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
+          $scope.userRegistered=false;
+          $scope.registerErrorMessage=null;          
+          $scope.$apply();
+        }
+      });
+    } else {
+      $scope.registerErrorMessage="Please enter your phone number.";
+    }
 
   };
 
   $scope.register=function() {
+    // TODO :: Please use angular form validation to validate all the fields
+    if($scope.user.phoneNum!=null && $scope.user.phoneNum.length>0) {
+      var user=new Parse.User();
+      var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
+      user.set("username", userName);
+      user.set("password", "custom");
+      user.set("firstName", $scope.user.firstName);
+      user.set("lastName", $scope.user.lastName);
+      user.set("residency", $scope.user.residency);
+      user.set("phoneNum", $scope.user.phoneNum);
+      user.set("countryCode", $scope.user.countryCode);
+      user.set("notifySetting", true);
 
-    var user=new Parse.User();
-    var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
-    user.set("username", userName);
-    user.set("password", "custom");
-    user.set("firstName", $scope.user.firstName);
-    user.set("lastName", $scope.user.lastName);
-    user.set("residency", $scope.user.residency);
-    user.set("phoneNum", $scope.user.phoneNum);
-    user.set("countryCode", $scope.user.countryCode);
-    user.set("notifySetting", true);
+      user.signUp(null, {
+        success: function(user) {
+          console.log("Signup is success");        
+          if(ionic.Platform.isAndroid()) {
+            // Register with GCM
+            var androidConfig = {
+              "senderID": "927589908829",
+            };
 
-    user.signUp(null, {
-      success: function(user) {
-        console.log("Signup is success");        
-        if(ionic.Platform.isAndroid()) {
-          // Register with GCM
-          var androidConfig = {
-            "senderID": "927589908829",
-          };
-
-          $cordovaPush.register(androidConfig).then(function(result) {
-            console.log("Register Success : " + result);
-            LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
-          }, function(err) {
-            console.log("Register error : " + err);
-            LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+            $cordovaPush.register(androidConfig).then(function(result) {
+              console.log("Register Success : " + result);
+              LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
+            }, function(err) {
+              console.log("Register error : " + err);
+              LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+            });
+          }
+          $scope.$apply(function(){
+            $state.go("tab.dash");
           });
+        },
+        error: function(user, error) {
+          console.log("Signup error  : " + error.code + " " + error.message);
+          $scope.registerErrorMessage=error.message;
+          $scope.apply();
         }
-        $scope.$apply(function(){
-          $state.go("tab.dash");
-        });
-      },
-      error: function(user, error) {
-        console.log("Signup error  : " + error.code + " " + error.message);
-        $scope.registerError=true;
-        $scope.registerErrorMessage=error.message;
-        $scope.apply();
-      }
-    });
+      });
+    } else {
+      $scope.registerErrorMessage="Please enter your phone number.";
+    }
+
+
   }
 })
 
