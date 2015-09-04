@@ -15,6 +15,8 @@ import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 
+import java.util.Random;
+
 @SuppressLint("NewApi")
 public class GCMIntentService extends GCMBaseIntentService {
 
@@ -27,7 +29,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	public void onRegistered(Context context, String regId) {
 
-		Log.v(TAG, "onRegistered: "+ regId);
+		Log.v(TAG, "onRegistered: " + regId);
 
 		JSONObject json;
 
@@ -69,10 +71,20 @@ public class GCMIntentService extends GCMBaseIntentService {
                 PushPlugin.sendExtras(extras);
 			}
 			else {
+				String message=null;
+				try {
+					String data = extras.getString("data");
+					System.out.println("Data payload : " + data);
+					JSONObject jsonData = new JSONObject(data);
+					message=jsonData.getString("alert");
+				}catch (Exception e) {
+					Log.i(TAG, "Unable to read the alert payload : " + extras.toString());
+				}
+
 				extras.putBoolean("foreground", false);
-				extras.putString("message", "You have new activity in your region.");
-				extras.putString("msgcnt", "1");
-				extras.putString("notId", "1234"); 
+				extras.putString("message", message!=null?message:"You have new activity in your region.");
+				//extras.putString("msgcnt", "1");
+				extras.putString("notId", new Random().nextInt()+"");
 				
 
                 // Send a notification if there is a message

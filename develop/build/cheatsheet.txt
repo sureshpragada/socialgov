@@ -44,4 +44,3 @@ Optimize the APK with zipalign :
 Utility website : 
 ==================
 Generate feature graphics :  http://www.norio.be/android-feature-graphic-generator/
-

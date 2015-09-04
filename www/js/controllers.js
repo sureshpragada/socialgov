@@ -14,20 +14,27 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   query.find({
     success: function(results) {
       $scope.$apply(function(){
-        $scope.activities=results;
+        if(results!=null && results.length>0) {
+          $scope.activities=results;  
+        } else {
+          $scope.activityError="No activity found in your region.";
+        }
       });
     }, 
     error: function(error) {
       $scope.$apply(function(){
         console.log("Unable to get activities : " + error.message);
-        $scope.activityError="Unable to get activities";
+        $scope.activityError="Unable to get activities.";
       });
     }
   });
 
   $scope.isAdmin=function() {
-     //return ["914088324304"].indexOf(Parse.User.current().getUsername())!=-1;
-     return true;
+     if(Parse.User.current().get("role")=="JNLST") {
+        return true; 
+     } else {
+        return false;
+     }
   };
 
 })
@@ -129,6 +136,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       user.set("residency", $scope.user.residency);
       user.set("phoneNum", $scope.user.phoneNum);
       user.set("countryCode", $scope.user.countryCode);
+      user.set("role", "CTZEN");
       user.set("notifySetting", true);
 
       user.signUp(null, {
@@ -162,13 +170,20 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.registerErrorMessage="Please enter your phone number.";
     }
 
-
   }
 })
 
 .controller('AccountCtrl', function($scope, $state) {
   $scope.user = Parse.User.current();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
+
+  $scope.isLogoutAllowed=function() {
+    if(ionic.Platform.isAndroid()) {
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   $scope.logout=function() {    
       Parse.User.logOut();
