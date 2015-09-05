@@ -3,7 +3,7 @@ angular.module('starter.services', [])
 .factory('RegionService', ['$http', function($http) {
   return {
     all: function(callback) {
-      $http.get("http://localhost:8100/js/region.json").success(callback);
+      $http.get("http://socialgov.in/js/region.json").success(callback);
     },
     get: function(regionList, regionUniqueName) {
       for(var i=0;i<regionList.length;i++) {
