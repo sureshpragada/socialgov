@@ -19,20 +19,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       StatusBar.styleLightContent();
     }
 
-    // var androidConfig = {
-    //   "senderID": "927589908829",
-    // };
-
-    // $cordovaPush.register(androidConfig).then(function(result) {
-    //   alert("Register Success : " + result);
-    //   console.log("Register Success : " + result);
-    //   // Success
-    // }, function(err) {
-    //   // Error
-    //   alert("Register error : " + err);
-    //   console.log("Register error : " + err);
-    // });
-
     $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
       switch(notification.event) {
         case 'registered':

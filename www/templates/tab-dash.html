@@ -14,8 +14,8 @@
           {{activity.get("notifyMessage")}}
         </div>
         <p>
-          Posted by : {{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}
-          Posted on : {{activity.createdAt}}
+          Posted by : {{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}} 
+          on {{activity.createdAt | date:'medium'}}
         </p>
       </div>
     </div>
