@@ -39,12 +39,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService) {
-  
-  $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":"dowlaiswaram"};
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService) {
+  $scope.allowedRegions=[{"regionUniqueName":"dowlaiswaram", "displayName": "Dowlaiswaram"}, {"regionUniqueName":"srikrishnapatnam", "displayName": "Sri Krishna Patnam"}];
+  $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":Parse.User.current().get("residency")};
   $scope.postErrorMessage=null;
   $scope.submitPost=function() {
-    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>0) {
+    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<1024) {
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
       $scope.post.user=Parse.User.current();
@@ -73,7 +73,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
       });
     } else {
-      $scope.postErrorMessage="Message cannot be empty.";
+      $scope.postErrorMessage="Message should be minimum 10 and maximum 1024 characters.";
     }
   };
 
@@ -102,7 +102,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.registerErrorMessage=null;
 
   $scope.authPhoneNum=function() {
-    if($scope.user.phoneNum!=null && $scope.user.phoneNum.length>0) {
+    if($scope.user.phoneNum!=null && $scope.user.phoneNum.length==10) {
       var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
       Parse.User.logIn(userName, "custom", {
         success: function(user) {
@@ -119,55 +119,59 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
       });
     } else {
-      $scope.registerErrorMessage="Please enter your phone number.";
+      $scope.registerErrorMessage="Please enter 10 digit phone number.";
     }
 
   };
 
   $scope.register=function() {
     // TODO :: Please use angular form validation to validate all the fields
-    if($scope.user.phoneNum!=null && $scope.user.phoneNum.length>0) {
-      var user=new Parse.User();
-      var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
-      user.set("username", userName);
-      user.set("password", "custom");
-      user.set("firstName", $scope.user.firstName);
-      user.set("lastName", $scope.user.lastName);
-      user.set("residency", $scope.user.residency);
-      user.set("phoneNum", $scope.user.phoneNum);
-      user.set("countryCode", $scope.user.countryCode);
-      user.set("role", "CTZEN");
-      user.set("notifySetting", true);
+    if($scope.user.phoneNum!=null && $scope.user.phoneNum.length==10) {
+      if($scope.user.firstName!=null && $scope.user.firstName.length>0 && $scope.user.lastName!=null && $scope.user.lastName.length>0) {
+        var user=new Parse.User();
+        var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
+        user.set("username", userName);
+        user.set("password", "custom");
+        user.set("firstName", $scope.user.firstName);
+        user.set("lastName", $scope.user.lastName);
+        user.set("residency", $scope.user.residency);
+        user.set("phoneNum", $scope.user.phoneNum);
+        user.set("countryCode", $scope.user.countryCode);
+        user.set("role", "CTZEN");
+        user.set("notifySetting", true);
 
-      user.signUp(null, {
-        success: function(user) {
-          console.log("Signup is success");        
-          if(ionic.Platform.isAndroid()) {
-            // Register with GCM
-            var androidConfig = {
-              "senderID": "927589908829",
-            };
+        user.signUp(null, {
+          success: function(user) {
+            console.log("Signup is success");        
+            if(ionic.Platform.isAndroid()) {
+              // Register with GCM
+              var androidConfig = {
+                "senderID": "927589908829",
+              };
 
-            $cordovaPush.register(androidConfig).then(function(result) {
-              console.log("Register Success : " + result);
-              LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
-            }, function(err) {
-              console.log("Register error : " + err);
-              LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+              $cordovaPush.register(androidConfig).then(function(result) {
+                console.log("Register Success : " + result);
+                LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
+              }, function(err) {
+                console.log("Register error : " + err);
+                LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+              });
+            }
+            $scope.$apply(function(){
+              $state.go("tab.dash");
             });
+          },
+          error: function(user, error) {
+            console.log("Signup error  : " + error.code + " " + error.message);
+            $scope.registerErrorMessage=error.message;
+            $scope.apply();
           }
-          $scope.$apply(function(){
-            $state.go("tab.dash");
-          });
-        },
-        error: function(user, error) {
-          console.log("Signup error  : " + error.code + " " + error.message);
-          $scope.registerErrorMessage=error.message;
-          $scope.apply();
-        }
-      });
+        });
+      } else {
+        $scope.registerErrorMessage="Please enter first and last name.";  
+      }
     } else {
-      $scope.registerErrorMessage="Please enter your phone number.";
+      $scope.registerErrorMessage="Please enter 10 digit phone number.";
     }
 
   }
