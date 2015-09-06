@@ -67,7 +67,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     // Each state's controller can be found in controllers.js
     $stateProvider
     // setup an abstract state for the tabs directive
-      .state('tab', {
+    .state('tab', {
       url: "/tab",
       abstract: true,
       templateUrl: "templates/tabs.html",
@@ -122,6 +122,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     })
 
+    .state('tab.demo', {
+      url: '/demo/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region-demo.html',
+            controller: 'RegionDetailCtrl'
+          }
+        }
+    })
     .state('tab.offices', {
       url: '/offices/{regionUniqueName}',
         views: {
@@ -148,7 +157,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             controller: 'RegionDetailCtrl'
           }
         }
-    })        
+    })  
     // .state('tab.account.settings', {
     //   url: '/settings',
     //   views: {

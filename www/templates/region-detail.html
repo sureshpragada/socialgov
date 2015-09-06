@@ -9,16 +9,14 @@
       </div>
     </div>
   	<ion-list>
+      <ion-item href="#/tab/demo/{{region.uniqueName}}" class="item-icon-right">
+          Demography
+          <i class="icon ion-chevron-right icon-accessory"></i>    
+      </ion-item>
       <ion-item href="#/tab/finview/{{region.uniqueName}}" class="item-icon-right">
           Revenue <span class="item-note">Rs. {{region.financials[0].revenue}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>    
-  		<ion-item>
-  			   Area <span class="item-note">{{region.area}} Sq Km </span>
-  		</ion-item>
-  		<ion-item>
-  			   Population <span class="item-note">{{region.population}} </span>
-  		</ion-item>
       <ion-item href="#/tab/offices/{{region.uniqueName}}" class="item-icon-right">
           Government Offices
         <span class="badge badge-balanced">{{region.execOffAddrList.length}}</span>
@@ -30,14 +28,7 @@
         <span class="badge badge-royal">{{region.legiRepList.length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item>
-        Pincodes
-        <span class="item-note">
-          <span ng-repeat="pincode in region.pinCodes">
-            {{pincode}} {{$last ? '' : ', '}}
-          </span>
-        </span>
-      </ion-item>      
+            
 
   	</ion-list>
   </ion-content>
