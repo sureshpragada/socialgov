@@ -15,8 +15,7 @@
 				      Region
 				    </div>
 				    <select ng-model="post.regionUniqueName">
-				      <option value="dowlaiswaram">Dowlaiswaram</option>
-				      <option value="srikrishnapatnam" selected>Sri Krishna Patnam</option>
+				    	<option value="{{region.regionUniqueName}}" ng-repeat="region in allowedRegions">{{region.displayName}}</option>
 				    </select>
 				  </label>
 
