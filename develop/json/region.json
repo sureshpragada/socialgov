@@ -3,12 +3,16 @@
 		"name": "Dowlaiswaram", 
 		"uniqueName": "dowlaiswaram", 
 		"type": "town", 
-		"thumbnail": "http://socialgov.in/img/dowlaiswaram.jpeg",
+		"thumbnail": "http://s10.postimg.org/7dad1m3u1/dowlaiswaram.jpg",
 		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
 		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
-		"population": "50000",
-		"area": "15",
-		"history": "Dhavaleswaram is a part of Rajahmundry Municipal Corporation in East Godavari district of the Indian state",
+		"demography": 
+		{
+			"population": "50000",
+			"area": "15",
+			"history": "Dowlaiswaram is a part of Rajahmundry Municipal Corporation in East Godavari district of the Indian state",
+			"pinCodes": ["533124", "533125"]
+		},		
 		"financials": [
 			{
 				"year": "2014",
@@ -16,7 +20,6 @@
 				"expenses": "10000000" 
 			}
 		],
-		"pinCodes": ["533124", "533125"],
 		"execOffAddrList":[
 			{
 				"officeName": "Gram Panchat Office",
@@ -74,9 +77,14 @@
 		"thumbnail": "http://socialgov.in/img/srikrishnapatnam.jpeg",
 		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
 		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
-		"population": "3500",
-		"area": "4",
-		"history": "Srikrishnapatnam is a Village in Rajanagaram Mandal in East Godavari District of Andhra Pradesh State, India. It belongs to Andhra region . It is located 43 KM towards west from District head quarters Kakinada.11 KM from Rajanagaram. 423 KM from State capital Hyderabad",
+		"demography": 
+		{
+			"population": "3500",
+			"area": "4",
+			"pinCodes": ["533296"],
+			"est": "1949",
+			"history": "Srikrishnapatnam is a Village in Rajanagaram Mandal in East Godavari District of Andhra Pradesh State, India. It belongs to Andhra region . It is located 43 KM towards west from District head quarters Kakinada.11 KM from Rajanagaram. 423 KM from State capital Hyderabad"
+		},
 		"financials": [
 			{
 				"year": "2014",
@@ -89,7 +97,6 @@
 				"expenses": "5400000" 
 			}			
 		],		
-		"pinCodes": ["533296"],
 		"execOffAddrList":[
 			{
 				"officeName": "Gram Panchayat Office",
