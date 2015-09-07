@@ -1,24 +1,29 @@
 <ion-view title="Demography">
     <ion-content>
     	<ion-list>
+        <ion-item ng-show="region.demography.est">
+           Established <span class="item-note">{{region.demography.est}}</span>
+        </ion-item>
     		<ion-item>
-  			   Area <span class="item-note">{{region.area}} Sq Km </span>
+  			   Area <span class="item-note">{{region.demography.area}} Sq Km </span>
   			</ion-item>
   			<ion-item>
-  			   Population <span class="item-note">{{region.population}} </span>
+  			   Population <span class="item-note">{{region.demography.population}} </span>
   			</ion-item>
     	</ion-list>
     	<ion-item>
 	        Pincodes
 	        <span class="item-note">
-	          <span ng-repeat="pincode in region.pinCodes">
+	          <span ng-repeat="pincode in region.demography.pinCodes">
 	            {{pincode}} {{$last ? '' : ', '}}
 	          </span>
 	        </span>
       </ion-item>
-      <ion-item style="white-space: normal;">
-      	History:<br/>
-        {{region.history}}
-  	  </ion-item>
+      <ion-item class="item-divider">
+        History:
+      </ion-item>      
+      <ion-item class="item-text-wrap">
+          {{region.demography.history}}
+      </ion-item>
 	</ion-content>
 </ion-view>

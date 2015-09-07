@@ -40,7 +40,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService) {
-  $scope.allowedRegions=[{"regionUniqueName":"dowlaiswaram", "displayName": "Dowlaiswaram"}, {"regionUniqueName":"srikrishnapatnam", "displayName": "Sri Krishna Patnam"}];
   $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":Parse.User.current().get("residency")};
   $scope.postErrorMessage=null;
   $scope.submitPost=function() {
