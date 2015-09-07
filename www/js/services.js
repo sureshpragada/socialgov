@@ -4,7 +4,6 @@ angular.module('starter.services', [])
   return {
     all: function(callback) {
       $http.get(REGION_JSON_URL).success(callback);
-      //$http.get("js/region.json").success(callback);
     },
     get: function(regionList, regionUniqueName) {
       for(var i=0;i<regionList.length;i++) {

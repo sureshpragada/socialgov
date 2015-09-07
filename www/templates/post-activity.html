@@ -15,7 +15,7 @@
 				      Region
 				    </div>
 				    <select ng-model="post.regionUniqueName">
-				    	<option value="{{region.regionUniqueName}}" ng-repeat="region in allowedRegions">{{region.displayName}}</option>
+				    	<option value="{{post.regionUniqueName}}">{{post.regionUniqueName | lowercase}}</option>
 				    </select>
 				  </label>
 
