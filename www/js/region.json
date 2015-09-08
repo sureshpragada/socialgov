@@ -1,0 +1,177 @@
+[
+	{
+		"name": "Dowlaiswaram", 
+		"uniqueName": "dowlaiswaram", 
+		"type": "town", 
+		"thumbnail": "http://s10.postimg.org/7dad1m3u1/dowlaiswaram.jpg",
+		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
+		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
+		"demography": 
+		{
+			"population": "50000",
+			"area": "15",
+			"history": "Dowlaiswaram is a part of Rajahmundry Municipal Corporation in East Godavari district of the Indian state",
+			"pinCodes": ["533124", "533125"]
+		},		
+		"financials": [
+			{
+				"year": "2014",
+				"revenue": "9000000",
+				"expenses": "10000000" 
+			}
+		],
+		"execOffAddrList":[
+			{
+				"officeName": "Gram Panchat Office",
+				"addressLine1": "100 Main road",
+				"addressLine2": "",
+				"phoneNumberList":["9834343434"],
+				"execAdmin" : [
+					{
+						"title": "Secretary",
+						"name": "Nageswara Rao"
+					}
+				]
+			},
+			{
+				"officeName": "Post Office",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"],
+				"execAdmin" : [
+					{
+						"title": "Postman",
+						"name": "Nageswara Rao"
+					}
+				]
+			}			
+		],
+		"legiRepList" : [
+			{
+				"title": "Sarpanch",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
+			},
+			{
+				"title": "Member - Ward 1",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
+			},
+			{
+				"title": "Member - Ward 2",
+				"name": "Buchi babu",
+				"addressLine1": "200 Main road",
+				"addressLine2": "Near rameswaram temple",
+				"phoneNumberList":["9834343434"]
+			}
+		]
+	},
+	{
+		"name": "Sri Krishna Patnam", 
+		"uniqueName": "srikrishnapatnam", 
+		"type": "village", 
+		"thumbnail": "http://socialgov.in/img/srikrishnapatnam.jpeg",
+		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
+		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
+		"demography": 
+		{
+			"population": "3500",
+			"area": "4",
+			"pinCodes": ["533296"],
+			"est": "1949",
+			"history": "Srikrishnapatnam is a Village in Rajanagaram Mandal in East Godavari District of Andhra Pradesh State, India. It belongs to Andhra region . It is located 43 KM towards west from District head quarters Kakinada.11 KM from Rajanagaram. 423 KM from State capital Hyderabad"
+		},
+		"financials": [
+			{
+				"year": "2014",
+				"revenue": "600000",
+				"expenses": "700000" 
+			},
+			{
+				"year": "2013",
+				"revenue": "500000",
+				"expenses": "5400000" 
+			}			
+		],		
+		"execOffAddrList":[
+			{
+				"officeName": "Gram Panchayat Office",
+				"addressLine1": "2-108",
+				"landmark": "Beside Subrahmanya Swamy Temple",
+				"phoneNumberList":["8008698834"],
+				"execAdmin" : [
+					{
+						"title": "Secretary",
+						"name": "M Hanumanth Rao"
+					}
+				]
+			},
+			{
+				"officeName": "BSNL Office",
+				"addressLine1": "2-86 Ramalayam Street",
+				"phoneNumberList":["08832489499", "9491057953"],
+				"execAdmin" : [
+					{
+						"title": "Incharge Officer",
+						"name": "V Krishna Rao"
+					},
+					{
+						"title": "Exchange lineman",
+						"name": "Venkateswara Rao"
+					}
+				]
+			},
+			{
+				"officeName": "Power Sub Station [Transco Office]",
+				"addressLine1": "865",
+				"landmark": "Bucchema cheruvu center",
+				"phoneNumberList":["9493178622"],
+				"execAdmin" : [
+					{
+						"title": "Line man",
+						"name": "Ellaiah"
+					}
+				]
+			},
+			{
+				"officeName": "Post Office",
+				"landmark": "Near bus stand center",
+				"phoneNumberList":["9010329748"],
+				"execAdmin" : [
+					{
+						"title": "Incharge Officer",
+						"name": "B John Paradesi"
+					}
+				]
+			}			
+		],
+		"legiRepList" : [
+			{
+				"title": "President",
+				"name": "Denedi Venkata Lakshmi",
+				"addressLine1": "2-139 Ramalayam Street",
+				"addressLine2": "",
+				"phoneNumberList":["9010091706"]
+			},
+			{
+				"title": "Vice President",
+				"name": "Kamidi Satyanarayana",
+				"phoneNumberList":["9834343434"]
+			},
+			{
+				"title": "Ward Member - 10",
+				"name": "Nathipamu Raju",
+				"phoneNumberList":["9642803269"]
+			},
+			{
+				"title": "Ward Member - 9",
+				"name": "Nathipamu Raju",
+				"phoneNumberList":["9642803269"]
+			}
+		]
+	}
+]

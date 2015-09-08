@@ -177,6 +177,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
       }
     })
+    .state('tab.adminaccess', {
+      url: '/adminaccess',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/admin-access.html',
+          controller: 'AccountCtrl'        
+        }
+      }
+    })
     .state('register', {
       url: '/register',
       templateUrl: 'templates/register.html',
