@@ -1,14 +1,17 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('ActivityCtrl', function($scope, $http, NotificationService, LogService) {
-  
+.controller('ActivityCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService) {
   $scope.activityError=null;
-  
   var user=Parse.User.current();
+  var residency=user.get("residency");
+
+  $ionicLoading.show({
+    template: "<ion-spinner></ion-spinner> Finding activity in " + residency
+  });
 
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
-  query.equalTo("regionUniqueName", user.get("residency"));
+  query.equalTo("regionUniqueName", residency);
   query.include("user");
   query.descending("createdAt");
   query.find({
@@ -19,12 +22,14 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         } else {
           $scope.activityError="No activity found in your region.";
         }
+        $ionicLoading.hide();
       });
     }, 
     error: function(error) {
       $scope.$apply(function(){
         console.log("Unable to get activities : " + error.message);
         $scope.activityError="Unable to get activities.";
+        $ionicLoading.hide();
       });
     }
   });

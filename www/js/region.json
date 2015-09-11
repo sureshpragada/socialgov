@@ -10,7 +10,7 @@
 		{
 			"population": "50000",
 			"area": "15",
-			"history": "Dowlaiswaram is a part of Rajahmundry Municipal Corporation in East Godavari district of the Indian state",
+			"history": "Dowlaiswaram is a part of Rajahmundry Corporation and it was one one biggest panchayat in Andhra Pradesh. It's primary source of income comes from Industrial estate hosts many industries including Glaxo and ONGC.",
 			"pinCodes": ["533124", "533125"]
 		},		
 		"financials": [
@@ -74,16 +74,16 @@
 		"name": "Sri Krishna Patnam", 
 		"uniqueName": "srikrishnapatnam", 
 		"type": "village", 
-		"thumbnail": "http://socialgov.in/img/srikrishnapatnam.jpeg",
+		"thumbnail": "http://s14.postimg.org/m1h17a1qp/srikrishnapatnam.png",
 		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
 		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
 		"demography": 
 		{
-			"population": "3500",
+			"population": "3573",
 			"area": "4",
 			"pinCodes": ["533296"],
 			"est": "1949",
-			"history": "Srikrishnapatnam is a Village in Rajanagaram Mandal in East Godavari District of Andhra Pradesh State, India. It belongs to Andhra region . It is located 43 KM towards west from District head quarters Kakinada.11 KM from Rajanagaram. 423 KM from State capital Hyderabad"
+			"history": "Srikrishnapatnam village is in East Godavari District of Andhra Pradesh State. It is located 43 KM towards west from District head quarters Kakinada. Primary occupation of residents is agriculture and it exports lemons to all over India."
 		},
 		"financials": [
 			{
@@ -102,11 +102,11 @@
 				"officeName": "Gram Panchayat Office",
 				"addressLine1": "2-108",
 				"landmark": "Beside Subrahmanya Swamy Temple",
-				"phoneNumberList":["8008698834"],
+				"phoneNumberList":["8008201065"],
 				"execAdmin" : [
 					{
 						"title": "Secretary",
-						"name": "M Hanumanth Rao"
+						"name": "B Badrinath"
 					}
 				]
 			},
@@ -126,7 +126,7 @@
 				]
 			},
 			{
-				"officeName": "Power Sub Station [Transco Office]",
+				"officeName": "Sub Station [Transco Office]",
 				"addressLine1": "865",
 				"landmark": "Bucchema cheruvu center",
 				"phoneNumberList":["9493178622"],
@@ -154,23 +154,47 @@
 				"title": "President",
 				"name": "Denedi Venkata Lakshmi",
 				"addressLine1": "2-139 Ramalayam Street",
-				"addressLine2": "",
 				"phoneNumberList":["9010091706"]
 			},
 			{
-				"title": "Vice President",
+				"title": "Vice President & Member - Ward # 11",
 				"name": "Kamidi Satyanarayana",
-				"phoneNumberList":["9834343434"]
+				"phoneNumberList":["9440774559"]
 			},
 			{
-				"title": "Ward Member - 10",
-				"name": "Nathipamu Raju",
-				"phoneNumberList":["9642803269"]
+				"title": "Member - Ward # 2",
+				"name": "Gompa Govindu",
+				"phoneNumberList":["9908965233"]
 			},
 			{
-				"title": "Ward Member - 9",
+				"title": "Member - Ward # 4",
+				"name": "Sodasani Veera Ganga Ratnam",
+				"phoneNumberList":["9951031227"]
+			},
+			{
+				"title": "Member - Ward # 5",
+				"name": "Thota Veeravani",
+				"phoneNumberList":["9951062234"]
+			},
+			{
+				"title": "Member - Ward # 6",
+				"name": "Posipo Posamma",
+				"phoneNumberList":["9642457064"]
+			},
+			{
+				"title": "Member - Ward # 7",
+				"name": "Rowthula Chakravarthy",
+				"phoneNumberList":["8142488977"]
+			},
+			{
+				"title": "Member - Ward # 10",
 				"name": "Nathipamu Raju",
-				"phoneNumberList":["9642803269"]
+				"phoneNumberList":["9533313269"]
+			},
+			{
+				"title": "Member - ward # 12",
+				"name": "Goddu Srinu",
+				"phoneNumberList":["9581616337"]
 			}
 		]
 	}
