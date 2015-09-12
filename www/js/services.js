@@ -16,6 +16,50 @@ angular.module('starter.services', [])
   };
 }])
 
+.factory('ActivityService', ['$http', function($http) {
+  return {
+    getAllowedActivities: function(role) {
+      var allowedActivities=[
+        {id:"PBLM", label:"Region Problem"},
+        {id:"IDEA", label:"Development Idea"}
+      ];
+      if(role!=null && role!="CZEN") {
+        allowedActivities.push({id:"NOTF", label:"Notification"});
+      }
+      return allowedActivities;
+    },
+    getAllowedRegions: function(residency) {
+      var allowedRegions=[
+        {id:residency, label:residency[0].toUpperCase()+residency.substring(1)}
+      ];
+      // Use Region service to look up parent executive regions 
+      return allowedRegions;      
+    },
+    getMockData: function() {
+
+      var User = Parse.Object.extend("User");
+      var user = new User();
+      user.set("firstName", "Suresh");
+      user.set("lastName", "Pragada");
+      user.set("title", "Civil Society");
+
+      var Activity = Parse.Object.extend("Activity");
+
+      var activity1 = new Activity();
+      activity1.set("user", user);
+      activity1.set("notifyMessage", "MLC Balisali Indira garu will be facilitating the techers on occasion of Teachers Day. This even will happen in Lutheran high school play ground at 6 PM on Monday.");
+      activity1.set("createdAt", new Date());
+
+      var activity2 = new Activity();
+      activity2.set("user", user);
+      activity2.set("notifyMessage", "MLC Balisali Indira garu will be facilitating the techers on occasion of Teachers Day. This even will happen in Lutheran high school play ground at 6 PM on Monday.");
+      activity2.set("createdAt", new Date());
+
+      return [activity1, activity2];
+    }
+  };
+}])
+
 .factory('LogService', ['$http', function($http) {
   return {
     log: function(logObject) {

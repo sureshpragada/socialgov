@@ -1,6 +1,6 @@
 <ion-view view-title="Activity">
   <ion-nav-buttons side="primary">
-    <a class="button button-icon icon ion-compose" href="#/tab/post" ng-show="isAdmin()"></a>
+    <a class="button button-icon icon ion-compose" href="#/tab/post"></a>
   </ion-nav-buttons>
   <ion-content>
     <div ng-show="activityError" class="card">
@@ -9,14 +9,30 @@
       </div>
     </div>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError">
+      <div class="item item-avatar">
+        <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
+        <p>{{activity.get("user").get("title")}}</p>
+        <p>{{activity.createdAt | date:'medium'}}</p>
+      </div>
+
       <div class="item item-body">
-        <div>
-          {{activity.get("notifyMessage")}}
-        </div>
         <p>
-          Posted by : {{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}} 
-          on {{activity.createdAt | date:'medium'}}
+          {{activity.get("notifyMessage")}}
         </p>
+      </div>
+      <div class="item tabs tabs-secondary tabs-icon-left">
+        <a class="tab-item" href="#">
+          <i class="icon ion-thumbsup"></i>
+          Vote
+        </a>
+        <a class="tab-item" href="#">
+          <i class="icon ion-thumbsdown"></i>
+          Reject
+        </a>        
+        <a class="tab-item" href="#">
+          <i class="icon ion-chatbox"></i>
+          Discuss
+        </a>
       </div>
     </div>
   </ion-content>

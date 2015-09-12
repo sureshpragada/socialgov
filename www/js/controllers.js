@@ -1,57 +1,62 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('ActivityCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService) {
+.controller('ActivityCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService) {
   $scope.activityError=null;
   var user=Parse.User.current();
   var residency=user.get("residency");
 
-  $ionicLoading.show({
-    template: "<ion-spinner></ion-spinner> Finding activity in " + residency
-  });
+  // $ionicLoading.show({
+  //   template: "<ion-spinner></ion-spinner> Finding activity in " + residency
+  // });
 
-  var Activity=Parse.Object.extend("Activity");
-  var query=new Parse.Query(Activity);
-  query.equalTo("regionUniqueName", residency);
-  query.include("user");
-  query.descending("createdAt");
-  query.find({
-    success: function(results) {
-      $scope.$apply(function(){
-        if(results!=null && results.length>0) {
-          $scope.activities=results;  
-        } else {
-          $scope.activityError="No activity found in your region.";
-        }
-        $ionicLoading.hide();
-      });
-    }, 
-    error: function(error) {
-      $scope.$apply(function(){
-        console.log("Unable to get activities : " + error.message);
-        $scope.activityError="Unable to get activities.";
-        $ionicLoading.hide();
-      });
-    }
-  });
-
-  $scope.isAdmin=function() {
-     if(Parse.User.current().get("role")=="JNLST") {
-        return true; 
-     } else {
-        return false;
-     }
-  };
+  $scope.activities=ActivityService.getMockData();  
+  // var Activity=Parse.Object.extend("Activity");
+  // var query=new Parse.Query(Activity);
+  // query.equalTo("regionUniqueName", residency);
+  // query.include("user");
+  // query.descending("createdAt");
+  // query.find({
+  //   success: function(results) {
+  //     $scope.$apply(function(){
+  //       if(results!=null && results.length>0) {
+  //         $scope.activities=results;  
+  //       } else {
+  //         $scope.activityError="No activity found in your region.";
+  //       }
+  //       $ionicLoading.hide();
+  //     });
+  //   }, 
+  //   error: function(error) {
+  //     $scope.$apply(function(){
+  //       console.log("Unable to get activities : " + error.message);
+  //       $scope.activityError="Unable to get activities.";
+  //       $ionicLoading.hide();
+  //     });
+  //   }
+  // });
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService) {
-  $scope.post={"activityType": "NOTF", "notifyMessage": "", "regionUniqueName":Parse.User.current().get("residency")};
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService) {
+  var user=Parse.User.current();  
+  $scope.post={"notifyMessage": ""};
+
+  $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
+  $scope.selectedActivityType=$scope.allowedActivities[0];
+
+  $scope.allowedRegions=ActivityService.getAllowedRegions(user.get("residency"));
+  $scope.selectedRegion=$scope.allowedRegions[0];
+
   $scope.postErrorMessage=null;
   $scope.submitPost=function() {
-    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<1024) {
+    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
+      $scope.post.activityType=$scope.selectedActivityType.id;
+      $scope.post.regionUniqueName=$scope.selectedRegion.id;      
+      $scope.post.user=Parse.User.current();
+
+      alert(JSON.stringify($scope.post));
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
-      $scope.post.user=Parse.User.current();
       activity.save($scope.post, {
         success: function(activity) {
           // Send the push notification
@@ -77,7 +82,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
       });
     } else {
-      $scope.postErrorMessage="Message should be minimum 10 and maximum 1024 characters.";
+      $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
     }
   };
 
