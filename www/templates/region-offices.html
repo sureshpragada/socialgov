@@ -1,4 +1,4 @@
-<ion-view title="Executive Offices">
+<ion-view title="Executive Offices &amp; Contacts">
   <ion-content>
     <div class="card" ng-repeat="execOffAddr in region.execOffAddrList">
 	  <div class="item item-divider">
@@ -16,8 +16,15 @@
 		    	{{phNo}} {{$last ? '' : ', '}}
 		    </span>
 	    </p>
-	      <div ng-repeat="admin in execOffAddr.execAdmin">
-	        {{admin.title}} : {{admin.name}}
+	      <div ng-repeat="admin in execOffAddr.execAdmin" class="nameContact">
+	        <h2>{{admin.title}}</h2>
+	        <p>
+				{{admin.name}}&nbsp;
+		        <i class="icon ion-iphone" ng-show="admin.phoneNumberList"></i>
+			    <span ng-repeat="adminPhNo in admin.phoneNumberList">
+			    	{{adminPhNo}} {{$last ? '' : ', '}}
+			    </span>	        	        
+			</p>
 	      </div>	    	
 	  </div>
 	</div>

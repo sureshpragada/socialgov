@@ -1,4 +1,12 @@
 /* Empty. Add your own CSS if you like */
+ion-content.visible-cards{
+	background-color: #eeeeee;
+}
+
 input { 
     text-align: right; 
+}
+
+.nameContact {
+	margin-top: 10px;
 }

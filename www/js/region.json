@@ -100,13 +100,28 @@
 		"execOffAddrList":[
 			{
 				"officeName": "Gram Panchayat Office",
-				"addressLine1": "2-108",
+				"addressLine1": "Door # 2-108",
 				"landmark": "Beside Subrahmanya Swamy Temple",
 				"phoneNumberList":["8008201065"],
 				"execAdmin" : [
 					{
 						"title": "Secretary",
 						"name": "B Badrinath"
+					},
+					{
+						"title": "Water supply",
+						"name": "Avala Veeraju",
+						"phoneNumberList":["8897523308"]
+					},
+					{
+						"title": "Electrician",
+						"name": "Yesu",
+						"phoneNumberList":["7730898724"]
+					},
+					{
+						"title": "Nurse",
+						"name": "Suseela",
+						"phoneNumberList":["7893337309"]
 					}
 				]
 			},
@@ -117,7 +132,8 @@
 				"execAdmin" : [
 					{
 						"title": "Incharge Officer",
-						"name": "V Krishna Rao"
+						"name": "V Krishna Rao",
+						"phoneNumberList": ["08832489499"]
 					},
 					{
 						"title": "Exchange lineman",
@@ -127,7 +143,7 @@
 			},
 			{
 				"officeName": "Sub Station [Transco Office]",
-				"addressLine1": "865",
+				"addressLine1": "Service # 865",
 				"landmark": "Bucchema cheruvu center",
 				"phoneNumberList":["9493178622"],
 				"execAdmin" : [

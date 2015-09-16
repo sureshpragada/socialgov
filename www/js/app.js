@@ -86,6 +86,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       views: {
         'tab-dash': {
           templateUrl: 'templates/tab-dash.html',
+          controller: 'DashboardCtrl'
+        }
+      }
+    })
+
+    .state('tab.activity', {
+      url: '/activity/{activityId}',
+      cache: false,
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/activity-detail.html',
           controller: 'ActivityCtrl'
         }
       }

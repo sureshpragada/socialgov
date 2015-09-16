@@ -20,7 +20,6 @@ angular.module('starter.services', [])
   return {
     getAllowedActivities: function(role) {
       var allowedActivities=[
-        {id:"PBLM", label:"Region Problem"},
         {id:"IDEA", label:"Development Idea"}
       ];
       if(role!=null && role!="CZEN") {
@@ -49,13 +48,33 @@ angular.module('starter.services', [])
       activity1.set("user", user);
       activity1.set("notifyMessage", "MLC Balisali Indira garu will be facilitating the techers on occasion of Teachers Day. This even will happen in Lutheran high school play ground at 6 PM on Monday.");
       activity1.set("createdAt", new Date());
+      activity1.set("activityType", "NOTF");
 
       var activity2 = new Activity();
       activity2.set("user", user);
       activity2.set("notifyMessage", "MLC Balisali Indira garu will be facilitating the techers on occasion of Teachers Day. This even will happen in Lutheran high school play ground at 6 PM on Monday.");
       activity2.set("createdAt", new Date());
+      activity2.set("activityType", "PBLM");
 
       return [activity1, activity2];
+    },
+    getActionCode: function(action) {
+      if("support"==action) {
+        return "S";
+      } else if ("oppose"==action) {
+        return "O";
+      } else {
+        return "N";
+      }
+    },
+    getAction: function(actionCode) {
+      if("S"==actionCode) {
+        return "support";
+      } else if ("O"==actionCode) {
+        return "oppose";
+      } else {
+        return "neutral";
+      }
     }
   };
 }])
