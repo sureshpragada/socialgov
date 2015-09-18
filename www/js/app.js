@@ -225,11 +225,7 @@ angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controll
       cache: false,
       views: {
         "tab-account": {
-<<<<<<< HEAD
-          templateUrl: 'templates/admin-access-request-handle.html',
-=======
           templateUrl: 'templates/admin-access-request-detail.html',
->>>>>>> sureshpragada/master
           controller: 'AdminAccessReqDetailCtrl'        
         }
       }

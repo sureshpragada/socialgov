@@ -14,12 +14,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   // $scope.activities=ActivityService.getMockData();  
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
-<<<<<<< HEAD
-  query.equalTo("regionUniqueName", user.get("residency"));
-  //console.log(user.id);
-=======
   query.equalTo("regionUniqueName", residency);
->>>>>>> sureshpragada/master
   query.include("user");
   query.descending("createdAt");
   query.find({
