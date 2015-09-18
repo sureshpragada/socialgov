@@ -316,20 +316,15 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         accessRequest.set("title",$scope.adminDetails.title);
         accessRequest.set("contributeMessage",$scope.adminDetails.contributeMessage);
         accessRequest.set("status","PEND");
-        //accessRequest.set("userId",Parse.User.current().id);
         accessRequest.set("user",Parse.User.current());
         console.log(JSON.stringify(accessRequest));
         accessRequest.save(null, {
           success: function(accessRequest) {
-            //alert('New object created with objectId: ' + accessRequest.id);
             $scope.$apply(function(){
               $state.go("tab.account");    
             });
           },
           error: function(accessRequest, error) {
-            // Execute any logic that should take place if the save fails.
-            // error is a Parse.Error with an error code and message.
-            //alert('Failed to create new object, with error code: ' + error.message);
             console.log("Error in posting message " + error.message);
             $scope.adminRequestErrorMessage=error.message;
           }
@@ -393,7 +388,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               $scope.accessRequests=results;
             });
           } else {
-              //$scope.activityError="No activity found in your region.";
               $scope.adminAccessRequestListError="No admin access requests to review";
           }
         }, 
@@ -534,6 +528,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           
         }
       });
+
 
   $scope.isLogoutAllowed=function() {
     if(ionic.Platform.isAndroid()) {
