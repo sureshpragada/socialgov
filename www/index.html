@@ -5,7 +5,7 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
     <title></title>
 
-    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="lib/ionic/css/ionic.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
@@ -14,23 +14,36 @@
     <script src="lib/moment/moment-timezone.js"></script>
     -->
 
-    <script src="lib/parse/parse_1.5.0.js"></script>
+    <script src="lib/parse/parse_1.5.0.min.js"></script>
     <!-- ionic/angularjs js -->
-    <script src="lib/ionic/js/ionic.bundle.js"></script>
-    <script src="lib/ngcordova/ng-cordova.js"></script>
+    <script src="lib/ionic/js/ionic.bundle.min.js"></script>
+    <script src="lib/ngcordova/ng-cordova.min.js"></script>
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
+    <script src="js/test-controller.js"></script>    
     <script src="js/controllers.js"></script>
     <script src="js/services.js"></script>
   </head>
   <body ng-app="starter">
 
-
   <script>
-    Parse.initialize("kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW", "3lB86jPpc6gfCdyZ8RvplqPwjHv5401pPwHWTNTJ");  
+    // PROD :::
+    // var PARSE_APPLICATION_KEY="kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW";
+    // var PARSE_REST_API_KEY="EAz3Z0La6QiOA5XLQdJX8SRvvmCVfHdzyzJBFx1t";
+    // var PARSE_JAVASCRIPT_KEY="3lB86jPpc6gfCdyZ8RvplqPwjHv5401pPwHWTNTJ";
+    // var REGION_JSON_URL="http://www.socialgov.in/js/region.json";
+
+    // TEST :::
+    var PARSE_APPLICATION_KEY="pUtF3CnKZSA0ih8Kj5XpLddVXiy5Iigb1yQkFRal";
+    var PARSE_REST_API_KEY="6kYAVUiCxotzWn7FmkQAsx16lHHaVF1PPboseZUg";
+    var PARSE_JAVASCRIPT_KEY="Goj5CL8C8yhQ4YInR2h6nX7hlmVPbePN9SD2J0sI";
+    var REGION_JSON_URL="js/region.json";    
+    //var REGION_JSON_URL="http://socialgov-dev.parseapp.com/js/region.json";
+
+    Parse.initialize(PARSE_APPLICATION_KEY, PARSE_JAVASCRIPT_KEY);  
   </script>
 
     <!--

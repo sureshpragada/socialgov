@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controllers', 'starter.services', 'ngCordova'])
 
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService) {
   $ionicPlatform.ready(function() {
@@ -18,20 +18,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       // org.apache.cordova.statusbar required
       StatusBar.styleLightContent();
     }
-
-    // var androidConfig = {
-    //   "senderID": "927589908829",
-    // };
-
-    // $cordovaPush.register(androidConfig).then(function(result) {
-    //   alert("Register Success : " + result);
-    //   console.log("Register Success : " + result);
-    //   // Success
-    // }, function(err) {
-    //   // Error
-    //   alert("Register error : " + err);
-    //   console.log("Register error : " + err);
-    // });
 
     $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
       switch(notification.event) {
@@ -81,7 +67,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     // Each state's controller can be found in controllers.js
     $stateProvider
     // setup an abstract state for the tabs directive
-      .state('tab', {
+    .state('tab', {
       url: "/tab",
       abstract: true,
       templateUrl: "templates/tabs.html",
@@ -100,6 +86,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       views: {
         'tab-dash': {
           templateUrl: 'templates/tab-dash.html',
+          controller: 'DashboardCtrl'
+        }
+      }
+    })
+
+    .state('tab.activity', {
+      url: '/activity/{activityId}',
+      cache: false,
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/activity-detail.html',
           controller: 'ActivityCtrl'
         }
       }
@@ -126,6 +123,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     })
 
+    .state('tab.test', {
+      url: '/test',
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/test-template.html',
+          controller: 'TestCtrl'
+        }
+      }
+    })
+
     .state('tab.region', {
       url: '/region/{regionUniqueName}',
       views: {
@@ -136,6 +143,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     })
 
+    .state('tab.demo', {
+      url: '/demo/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region-demo.html',
+            controller: 'RegionDetailCtrl'
+          }
+        }
+    })
     .state('tab.offices', {
       url: '/offices/{regionUniqueName}',
         views: {
@@ -162,7 +178,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             controller: 'RegionDetailCtrl'
           }
         }
-    })        
+    })  
     // .state('tab.account.settings', {
     //   url: '/settings',
     //   views: {

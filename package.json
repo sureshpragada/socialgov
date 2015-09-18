@@ -1,7 +1,7 @@
 {
   "name": "socialgov",
   "version": "1.0.0",
-  "description": "socialGov: An Ionic project",
+  "description": "socialGov: Empowering people",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^1.3.3",

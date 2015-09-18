@@ -1,0 +1,33 @@
+<ion-view view-title="Activity Detail">
+  <ion-content>
+    <div ng-show="activityDetailError" class="card">
+      <div class="item item-text-wrap">
+        {{activityDetailError}}
+      </div>
+    </div>
+    <div class="list card" ng-hide="activityDetailError">
+      <div class="item item-avatar">
+        <img src="http://placehold.it/60/009999">
+        <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
+        <p ng-show="activity.get('activityType')=='NOTF'">{{activity.get("user").get("title")}}</p>
+        <p>{{activity.createdAt | date:'medium'}}</p>
+      </div>
+
+      <div class="item item-body">
+        <p>
+          {{activity.get("notifyMessage")}}
+        </p>
+      </div>
+      <div class="item tabs tabs-secondary tabs-icon-left" ng-show="activity.get('activityType')!='NOTF'">
+        <a class="tab-item" ng-click="respond(activity.id, 'support')">
+          <i class="icon ion-thumbsup royal"></i>
+          Support ({{activity.get("support")}})
+        </a>
+        <a class="tab-item"  ng-click="respond(activity.id, 'reject')">
+          <i class="icon ion-thumbsdown assertive"></i>
+          Reject ({{activity.get("reject")}})
+        </a>        
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,13 @@
+task prepDev << {
+	println 'Hello there'
+}
+
+task prepProd << {
+	println 'Hello there'
+}
+
+
+task prepAndroid << {
+	println 'Hello there'
+}
+

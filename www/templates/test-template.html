@@ -1,0 +1,19 @@
+<ion-view view-title="Test">
+	<ion-content>
+
+	  <label>Color (null not allowed):
+	    <select ng-model="post.myColor" ng-options="color.name for color in colors"></select>
+	  </label>
+	  <div><button ng-click="testColor()">Test</button></div>
+	  <div>{{post.myColor}}</div>
+
+
+	<!-- 	<div class="item">
+			<button ng-click="createEntry()">Create</button>
+		</div>
+	    <div class="item item-text-wrap" ng-repeat="debate in debateList">
+	    	<p >{{debate.get("user")}}</p>
+	    </div> -->
+
+	</ion-content>
+</ion-view>
