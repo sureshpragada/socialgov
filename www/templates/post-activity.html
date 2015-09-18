@@ -6,16 +6,14 @@
 				    <div class="input-label">
 				      Activity Type
 				    </div>
-				    <select ng-model="post.activityType">
-				      <option value="NOTF" selected>Notification</option>
+				    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities">
 				    </select>
 				  </label>
 				<label class="item item-input item-select">
 				    <div class="input-label">
 				      Region
 				    </div>
-				    <select ng-model="post.regionUniqueName">
-				    	<option value="{{post.regionUniqueName}}">{{post.regionUniqueName | lowercase}}</option>
+				    <select ng-model="selectChoices.selectedRegion" ng-options="region.label for region in allowedRegions">
 				    </select>
 				  </label>
 

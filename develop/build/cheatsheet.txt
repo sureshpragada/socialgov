@@ -35,7 +35,7 @@ Command to generate cert to sign APK (one time), genertaed is available in /depl
 keytool -genkey -v -keystore socialgov-release-key.keystore -alias socialgov_release_key -keyalg RSA -keysize 2048 -validity 10000
 
 Sign APK with the cert : 
-~/software/socialgov> jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore socialgov-release-key.keystore platforms/android/build/outputs/apk/android-release-unsigned.apk socialgov_release_key
+~/software/socialgov> jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore develop/build/socialgov-release-key.keystore platforms/android/build/outputs/apk/android-release-unsigned.apk socialgov_release_key
 
 Optimize the APK with zipalign : 
 ~/Library/Android/sdk/build-tools/22.0.1/zipalign -v 4 platforms/android/build/outputs/apk/android-release-unsigned.apk socialgov.apk

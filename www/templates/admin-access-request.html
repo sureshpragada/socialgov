@@ -1,38 +1,37 @@
-<ion-view view-title="Admin Details">
+<ion-view view-title="Access request">
 	<ion-content>
 		<div ng-show="adminRequestErrorMessage" class="padding assertive">{{adminRequestErrorMessage}}</div>
 		<div class="list">
 			<label class="item item-input item-select">
 				    <div class="input-label" >
-				      Are you
+				      Are you a
 				    <select ng-model="adminDetails.role" ng-change="isSelected()">
-				      <option value="LEGI"  selected>Legislative</option>
-				      <option value="EXEC" >Executive</option>
-				      <option value="JNLST" >Journalist</option>
-				      <option value="SOACT" >SocialActivist</option>
-				    </select>
+				      <option value="LEGI">Legislative</option>
+				      <option value="EXEC">Executive</option>
+				      <option value="JNLST">Journalist</option>
+				      <option value="SOACT">SocialActivist</option>
+				    </select>?
 				    </div>
 			</label>
 			<label class="item item-input item-select" ng-hide="adminRole">
 				    <div class="input-label" >
-				      What are you exactly?
+				      What is your title?
 				    <select ng-model="adminDetails.title">
-				      <option value="Ward Member"  selected>Ward Member</option>
+				      <option value="Secretary" >Secretary</option>				    
 				      <option value="Sarpanch" >Sarpanch</option>
-				      <option value="Secretary" >Secretary</option>
-				      <option value="President">President</option>
-				      <option value="Vice President">Vice President</option>
+				      <option value="Ward Member">Ward Member</option>				      
+				      <option value="Vice President">Vice President</option>				      
 				      <option value="Journalist" >Journalist</option>
 				      <option value="Social Activist" >Social Activist</option>		      
 				    </select>
 				</div>
 			</label>
 			<label class="item item-input">
-				<textarea placeholder="What will you contribute?" rows="5" ng-model="adminDetails.contributeMessage"></textarea>
+				<textarea placeholder="How will you contribute?" rows="5" ng-model="adminDetails.contributeMessage"></textarea>
 		    </label>
 		</div>
 		<div class="padding">
-				<button class="button button-block button-balanced" ng-click="submitDetails()">Submit</button>
+				<button class="button button-block button-balanced" ng-click="submitDetails()">Request Access</button>
 		</div>
 		<div class="padding">
 				<button class="button button-block button-balanced" ng-click="cancel()">Cancel</button>

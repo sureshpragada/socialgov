@@ -1,23 +1,55 @@
 <ion-view view-title="Activity">
   <ion-nav-buttons side="primary">
-    <a class="button button-icon icon ion-compose" href="#/tab/post" ng-show="isAdmin()"></a>
+    <a class="button button-icon icon ion-compose" href="#/tab/post"></a>
   </ion-nav-buttons>
-  <ion-content>
+  <ion-content class="visible-cards">
     <div ng-show="activityError" class="card">
       <div class="item item-text-wrap">
         {{activityError}}
       </div>
     </div>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError">
+      <div class="item">
+<!--         <img src="http://placehold.it/60/009999"> -->
+        <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
+        <p ng-show="activity.get('activityType')=='NOTF'">{{activity.get("user").get("title")}}</p>
+        <p>{{activity.createdAt | date:'medium'}}</p>
+      </div>
+
       <div class="item item-body">
-        <div>
-          {{activity.get("notifyMessage")}}
-        </div>
         <p>
-          Posted by : {{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}} 
-          on {{activity.createdAt | date:'medium'}}
+          {{activity.get("notifyMessage")}}
         </p>
       </div>
+      <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')!='NOTF'">
+        <a class="tab-item" ng-click="respond(activity.id, 'support')">
+          <i class="icon ion-thumbsup"  ng-class="isThisActionChosen(activity.id, 'support')"></i>
+          Support ({{activity.get("support")}})
+        </a>
+        <a class="tab-item"  ng-click="respond(activity.id, 'oppose')">
+          <i class="icon ion-thumbsdown" ng-class="isThisActionChosen(activity.id, 'oppose')"></i>
+          Oppose ({{activity.get("oppose")}})
+        </a>        
+        <a class="tab-item" ng-click="beginDebate(activity.id, $index)">
+          <i class="icon ion-chatbox royal"></i>
+          Debate ({{activity.get("debate")}})
+        </a>
+      </div>
+      <div class="item item-body" ng-if="isDebateRequested(activity.id, $index)">
+        <label class="item item-input">
+          <textarea placeholder="Post your argument" rows="5" ng-model="argumentMessageList[$index]"></textarea>
+        </label>
+        <div class="padding">
+          <button class="button button-royal" ng-click="postDebateArgument(activity.id, $index)">Post Argument</button>
+        </div>        
+      </div> 
+      <div ng-if="isDebateRequested(activity.id, $index)">
+        <div class="item" ng-repeat="debate in debateList[$index]">
+          <div class="commentUserDivider">{{debate.get("argument")}}</div>
+          <p class="item-text-wrap">{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}</p>
+          <p>{{debate.createdAt | date:'medium'}}</p>
+        </div>
+      </div>       
     </div>
   </ion-content>
 </ion-view>

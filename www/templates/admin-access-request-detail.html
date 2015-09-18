@@ -1,0 +1,23 @@
+<ion-view title="Admin Request Handle">
+  <ion-content>
+  	<div>
+      <div class="card">
+        <div class="item item-text-wrap">
+          <p><b>Name:</b>  {{user.get("user").get("firstName")}} {{user.get("user").get("lastName")}}</p>        
+          <p><b>Role:</b>  {{accessRequest.get("role")}}</p>
+          <p><b>Title:</b>  {{accessRequest.get("title")}}</p>
+          <p><b>Contribution:</b>  {{accessRequest.get("contributeMessage")}}</p>
+        </div>
+        <div class="padding">
+        <button class="button button-block button-balanced" ng-click="update('APPR')">Approve</button>
+      </div>
+      <div class="padding">
+          <button class="button button-block button-balanced" ng-click="update('RJCT')">Reject</button>
+      </div>
+      <div class="padding">
+          <button class="button button-block button-balanced" ng-click="cancel()">Cancel</button>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
+  
