@@ -352,6 +352,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 .controller('AdminAccessReqDetailCtrl', function($scope, $stateParams, $state) {
   var AccessRequest = Parse.Object.extend("AccessRequest");
   var query=new Parse.Query(AccessRequest);
+  query.include("user");
   query.get($stateParams.accessRequestId,{
     success: function(accessRequest) {
           $scope.accessRequest=accessRequest;
@@ -362,25 +363,14 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
   });
 
-  $scope.approve=function(){
-      $scope.accessRequest.set("status","APPR");
-      $scope.accessRequest.save(null, {
-        success: function(accessRequest) {
-        console.log(JSON.stringify(accessRequest));
-        }
-      });
-      $state.go("tab.adminAccessList");
-      //console.log(JSON.stringify($scope.accessRequest));
-  };
-
-  $scope.reject=function(){
-      $scope.accessRequest.set("status","RJCT");
+  $scope.update=function(status){
+      $scope.accessRequest.set("status",status);
       $scope.accessRequest.save(null, {
         success: function(accessRequest) {
           console.log(JSON.stringify(accessRequest));
         }
-    });
-    $state.go("tab.adminAccessList");
+      });
+      $state.go("tab.adminAccessList");
   };
 
   $scope.cancel=function(){
@@ -393,7 +383,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.adminAccessRequestListError=null;
   var AccessRequest = Parse.Object.extend("AccessRequest");
   var query=new Parse.Query(AccessRequest);
-  //query.include("user");
+  query.include("user");
   query.equalTo("status", "PEND");
   query.find({
     success: function(results) {
@@ -576,10 +566,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       return false;
     }
   }
-  $scope.getAccessRequestStatus=function() {
-    
+  $scope.getAccessRequestStatus=function() {    
       var user=Parse.User.current();
-
   };
 
   $scope.notifySettingChanged=function(settingName, settingValue) {

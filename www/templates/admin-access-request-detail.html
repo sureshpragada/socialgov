@@ -3,22 +3,21 @@
   	<div>
       <div class="card">
         <div class="item item-text-wrap">
+          <p><b>Name:</b>  {{user.get("user").get("firstName")}} {{user.get("user").get("lastName")}}</p>        
           <p><b>Role:</b>  {{accessRequest.get("role")}}</p>
           <p><b>Title:</b>  {{accessRequest.get("title")}}</p>
-          <p><b>Message:</b>  {{accessRequest.get("contributeMessage")}}</p>
+          <p><b>Contribution:</b>  {{accessRequest.get("contributeMessage")}}</p>
         </div>
         <div class="padding">
-        <button class="button button-block button-balanced" ng-click=approve()>Approve</button>
+        <button class="button button-block button-balanced" ng-click="update('APPR')">Approve</button>
       </div>
       <div class="padding">
-          <button class="button button-block button-balanced" ng-click="reject()">Reject</button>
+          <button class="button button-block button-balanced" ng-click="update('RJCT')">Reject</button>
       </div>
       <div class="padding">
           <button class="button button-block button-balanced" ng-click="cancel()">Cancel</button>
       </div>
     </div>
-    
-  <!-- {{user.get("user").get("firstName")}} -->
-</ion-content>
+  </ion-content>
 </ion-view>
   

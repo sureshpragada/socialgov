@@ -6,10 +6,9 @@
       </div>
     </div>
   	<ion-item href="#tab/adminAccessReqHandle/{{accessRequest.id}}" class="item-icon-right" ng-repeat="accessRequest in accessRequests">
-          {{accessRequest.get("role")}}
+           {{user.get("user").get("firstName")}} {{user.get("user").get("lastName")}}
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-  <!-- {{user.get("user").get("firstName")}} -->
 </ion-content>
 </ion-view>
   
