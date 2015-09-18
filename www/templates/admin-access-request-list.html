@@ -1,0 +1,15 @@
+<ion-view title="Admin Request List">
+  <ion-content>
+    <div ng-show="adminAccessRequestListError" class="card">
+      <div class="item item-text-wrap">
+        {{adminAccessRequestListError}}
+      </div>
+    </div>
+  	<ion-item href="#tab/adminAccessReqHandle/{{accessRequest.id}}" class="item-icon-right" ng-repeat="accessRequest in accessRequests">
+          {{accessRequest.get("role")}}
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>
+  <!-- {{user.get("user").get("firstName")}} -->
+</ion-content>
+</ion-view>
+  

@@ -198,6 +198,39 @@ angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controll
         }
       }
     })
+    .state('tab.adminaccess', {
+      url: '/adminaccess',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/admin-access-request.html',
+          controller: 'AdminAccessReqCtrl'        
+        }
+      }
+    })
+
+    .state('tab.adminAccessList', {
+      url: '/adminAccessList',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/admin-access-request-list.html',
+          controller: 'AdminAccessReqListCtrl'        
+        }
+      }
+    })
+
+    .state('tab.adminAccessReqHandle', {
+      url: '/adminAccessReqHandle/{accessRequestId}',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/admin-access-request-handle.html',
+          controller: 'AdminAccessReqDetailCtrl'        
+        }
+      }
+    })    
+
     .state('register', {
       url: '/register',
       templateUrl: 'templates/register.html',

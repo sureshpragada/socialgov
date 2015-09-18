@@ -13,12 +13,28 @@
       <ion-item>
               Residency <p>{{user.get("residency") | uppercase}}</p>
       </ion-item>                        
+      <ion-item>
+              Role <p>{{user.get("role")}}</p>
+      </ion-item>                        
+      <ion-item ng-show=user.get("title")>
+              Title <p>{{user.get("title")}}</p>
+      </ion-item>                        
       <ion-toggle ng-model="settings.notifications" ng-change="notifySettingChanged('notifySetting', settings.notifications)">
           Notifications
       </ion-toggle>
     </ion-list>
     <div class="padding" ng-show=" isLogoutAllowed()">
       <button class="button button-block button-assertive" ng-click="logout()">Sign out</button>
-    </div>    
+    </div>
+    <div class="padding">
+      <a href="#/tab/adminaccess" class="button button-block button-assertive" ng-show="isCitizen() && accessRequest == null">Request Admin Privileges</a>    
+    </div>
+    <div class="padding">
+      <a href="#/tab/adminAccessList" class="button button-block button-assertive" ng-show="isSuperAdmin()">Admin Requests List</a>
+    </div>
+    <ion-item align="center" ng-show="accessRequestMessage">
+              {{accessRequestMessage}}
+    </ion-item>                        
   </ion-content>
 </ion-view>
+ 
