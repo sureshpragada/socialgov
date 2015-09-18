@@ -105,20 +105,15 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         accessRequest.set("title",$scope.adminDetails.title);
         accessRequest.set("contributeMessage",$scope.adminDetails.contributeMessage);
         accessRequest.set("status","PEND");
-        //accessRequest.set("userId",Parse.User.current().id);
         accessRequest.set("user",Parse.User.current());
         console.log(JSON.stringify(accessRequest));
         accessRequest.save(null, {
           success: function(accessRequest) {
-            //alert('New object created with objectId: ' + accessRequest.id);
             $scope.$apply(function(){
               $state.go("tab.account");    
             });
           },
           error: function(accessRequest, error) {
-            // Execute any logic that should take place if the save fails.
-            // error is a Parse.Error with an error code and message.
-            //alert('Failed to create new object, with error code: ' + error.message);
             console.log("Error in posting message " + error.message);
             $scope.adminRequestErrorMessage=error.message;
           }
@@ -159,7 +154,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
       });
       $state.go("tab.adminAccessList");
-      //console.log(JSON.stringify($scope.accessRequest));
   };
 
   $scope.reject=function(){
@@ -182,7 +176,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.adminAccessRequestListError=null;
   var AccessRequest = Parse.Object.extend("AccessRequest");
   var query=new Parse.Query(AccessRequest);
-  //query.include("user");
   query.equalTo("status", "PEND");
   query.find({
     success: function(results) {
@@ -192,7 +185,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               $scope.accessRequests=results;
             });
           } else {
-              //$scope.activityError="No activity found in your region.";
               $scope.adminAccessRequestListError="No admin access requests to review";
           }
         }, 
@@ -295,7 +287,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     success: function(results) {
         if(results!=null && results.length>0) {
           console.log(JSON.stringify(results));
-            $scope.$apply(function(){
+          $scope.$apply(function(){
               $scope.accessRequest=results[0];
               if($scope.accessRequest.get("status")=="PEND"){
                 $scope.accessRequestMessage="Your access request request is in review";
@@ -321,18 +313,15 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               else{
                 $scope.accessRequestMessage="Sorry! We cannot give you admin privileges"; 
               }
-            });
-
-          } else {
-              //$scope.activityError="No activity found in your region.";
-              console.log("no");
-          }
-        }, 
-        error: function(error) {
-          //alert(error.code);
-          
+          });
+        } else {
+          console.log("no results found");
         }
-      });
+    }, 
+    error: function(error) {
+        console.log(error.message);
+    }
+  });
 
   $scope.isLogoutAllowed=function() {
     if(ionic.Platform.isAndroid()) {
