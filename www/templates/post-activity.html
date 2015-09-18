@@ -6,14 +6,14 @@
 				    <div class="input-label">
 				      Activity Type
 				    </div>
-				    <select ng-model="selectedActivityType" ng-options="activity.label for activity in allowedActivities">
+				    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities">
 				    </select>
 				  </label>
 				<label class="item item-input item-select">
 				    <div class="input-label">
 				      Region
 				    </div>
-				    <select ng-model="selectedRegion" ng-options="region.label for region in allowedRegions">
+				    <select ng-model="selectChoices.selectedRegion" ng-options="region.label for region in allowedRegions">
 				    </select>
 				  </label>
 

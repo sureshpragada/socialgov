@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controllers', 'starter.services', 'ngCordova'])
 
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService) {
   $ionicPlatform.ready(function() {
@@ -119,6 +119,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         'tab-region': {
           templateUrl: 'templates/region-list.html',
           controller: 'RegionListCtrl'
+        }
+      }
+    })
+
+    .state('tab.test', {
+      url: '/test',
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/test-template.html',
+          controller: 'TestCtrl'
         }
       }
     })

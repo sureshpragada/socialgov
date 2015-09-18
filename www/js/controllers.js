@@ -94,13 +94,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     } else {
       return false;
     }
-
-    // for(var i=0;i<$scope.debateList.length;i++) {
-    //   if(activityId==$scope.debateList[i]) {
-    //     return true;
-    //   }
-    // }
-    // return false;
   };
 
   
@@ -188,33 +181,26 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         } else if(previousUserActivity.get("action")==ActivityService.getActionCode(action)) {
           console.log("Selected same option. so ignoring the option");
         } else {
-          // User is chaning his previous stance, Update user activity and then decrement and increment
           var previousAction=previousUserActivity.get("action");
-          // console.log("About to update user activity : " + ActivityService.getActionCode(action));
-          // console.log("Previous activity before update : " + JSON.stringify(previousUserActivity));
           previousUserActivity.set("action", ActivityService.getActionCode(action));
           previousUserActivity.save({
             success: function(userActivity) {
-              // console.log("Success 1 : " + JSON.stringify(userActivity));
+              console.log("Update user activity is successful " + JSON.stringify(userActivity));
             },
             error: function(error) {
               console.log("Error while updating user activity : " + JSON.stringify(error));
             }
           });
-          // console.log("Activity before update : " + JSON.stringify(activities[i]));
-          // console.log("About to decrement user action : " + ActivityService.getAction(previousAction));
           activities[i].increment(ActivityService.getAction(previousAction), -1);
-          // console.log("About to increment user action : " + action);
           activities[i].increment(action, 1);
           activities[i].save({
             success: function(activity) {
-              // console.log("Success 2 : " + JSON.stringify(activity));
+              console.log("Successfullly incremented the counters : " + JSON.stringify(activity));
             },
             error: function(error) {
               console.log("Error while incrementing counters : " + JSON.stringify(error));
             }
           });    
-          // console.log("All is well with changing option");
         }
         return;
       }
@@ -252,26 +238,24 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService) {
+
   var user=Parse.User.current();  
   $scope.post={"notifyMessage": ""};
-
   $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
-  $scope.selectedActivityType=$scope.allowedActivities[0];
-
   $scope.allowedRegions=ActivityService.getAllowedRegions(user.get("residency"));
-  $scope.selectedRegion=$scope.allowedRegions[0];
+  $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
   $scope.submitPost=function() {
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
-      $scope.post.activityType=$scope.selectedActivityType.id;
-      $scope.post.regionUniqueName=$scope.selectedRegion.id;   
+      $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
+      $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
       $scope.post.support=0;
       $scope.post.oppose=0;
       $scope.post.debate=0;
       $scope.post.user=Parse.User.current();
 
-      //alert(JSON.stringify($scope.post));
+      // alert(JSON.stringify($scope.post));
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
       activity.save($scope.post, {
@@ -308,6 +292,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
 })
+
 
 .controller('RegionListCtrl', function($scope, $http, RegionService) {
   RegionService.all(function(data) {

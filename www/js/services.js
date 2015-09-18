@@ -22,7 +22,7 @@ angular.module('starter.services', [])
       var allowedActivities=[
         {id:"IDEA", label:"Development Idea"}
       ];
-      if(role!=null && role!="CZEN") {
+      if(role!=null && role!="CTZEN") {
         allowedActivities.push({id:"NOTF", label:"Notification"});
       }
       return allowedActivities;

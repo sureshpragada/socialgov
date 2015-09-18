@@ -43,9 +43,10 @@
           <button class="button button-royal" ng-click="postDebateArgument(activity.id, $index)">Post Argument</button>
         </div>        
       </div> 
-      <div class="item item-body" ng-if="isDebateRequested(activity.id, $index)">
+      <div ng-if="isDebateRequested(activity.id, $index)">
         <div class="item" ng-repeat="debate in debateList[$index]">
-          <p>{{debate.get("argument")}}</p>
+          <div class="commentUserDivider">{{debate.get("argument")}}</div>
+          <p class="item-text-wrap">{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}</p>
           <p>{{debate.createdAt | date:'medium'}}</p>
         </div>
       </div>       
