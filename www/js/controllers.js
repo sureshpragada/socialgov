@@ -342,6 +342,41 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   RegionService.all(function(data) {
     $scope.region=RegionService.get(data, $stateParams.regionUniqueName);
   });
+
+  $scope.isAdmin=function(){
+    var user=Parse.User.current();
+    if(user.get("role")=="ADMN" || user.get("role")=="SUADM"){
+      return true;
+    }else{
+      return false;
+    }
+  };
+})
+
+.controller('ChangeDemoDetailsCtrl', function($scope, $state) {
+  $scope.demoErrorMessage=null;
+  $scope.checkboxFlag=true;
+  $scope.newDemObj={};
+  $scope.checkboxList = [
+    { text: "Area", checked: false },
+    { text: "population", checked: false },
+    { text: "History", checked: false }
+  ];
+
+  $scope.ok=function(){
+    $scope.checkboxFlag=false;
+    if($scope.checkboxList[0].checked==false && $scope.checkboxList[1].checked==false &&$scope.checkboxList[2].checked==false)
+      $scope.demoErrorMessage="No fileds selected!";
+  };
+
+  $scope.submit=function(){
+
+  };
+
+  $scope.cancel=function(){
+    console.log("yes");
+    $state.go("tab.changedemodetails");
+  };
 })
 
 .controller('AdminAccessReqDetailCtrl', function($scope, $stateParams, $state) {
