@@ -1,21 +1,21 @@
-<ion-view view-title="Access request">
+<ion-view view-title="Request Role Change">
 	<ion-content>
 		<div ng-show="adminRequestErrorMessage" class="padding assertive">{{adminRequestErrorMessage}}</div>
 		<div class="list">
 			<label class="item item-input item-select">
 				    <div class="input-label" >
-				      Are you a
-				    <select ng-model="adminDetails.role" ng-change="isSelected()">
-				      <option value="LEGI">Legislative</option>
-				      <option value="EXEC">Executive</option>
-				      <option value="JNLST">Journalist</option>
-				      <option value="SOACT">SocialActivist</option>
-				    </select>?
+				      New role
+					    <select ng-model="adminDetails.role" ng-change="isSelected()">
+					      <option value="LEGI">Legislative</option>
+					      <option value="EXEC">Executive</option>
+					      <option value="JNLST">Journalist</option>
+					      <option value="SOACT">Social Activist</option>
+					    </select>
 				    </div>
 			</label>
 			<label class="item item-input item-select" ng-hide="adminRole">
 				    <div class="input-label" >
-				      What is your title?
+				      Professional title
 				    <select ng-model="adminDetails.title">
 				      <option value="Secretary" >Secretary</option>				    
 				      <option value="Sarpanch" >Sarpanch</option>
@@ -27,14 +27,14 @@
 				</div>
 			</label>
 			<label class="item item-input">
-				<textarea placeholder="How will you contribute?" rows="5" ng-model="adminDetails.contributeMessage"></textarea>
+				<textarea placeholder="How will you contribute?" rows="5" ng-model="adminDetails.reason"></textarea>
 		    </label>
 		</div>
 		<div class="padding">
 				<button class="button button-block button-balanced" ng-click="submitDetails()">Request Access</button>
 		</div>
 		<div class="padding">
-				<button class="button button-block button-balanced" ng-click="cancel()">Cancel</button>
+				<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
 		</div>
 	</ion-content>
 </ion-view>
