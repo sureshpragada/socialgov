@@ -152,6 +152,17 @@ angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controll
           }
         }
     })
+
+    .state('tab.changedemodetails', {
+      url: '/changedemodetails',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/new-demo-details.html',
+            controller: 'ChangeDemoDetailsCtrl'
+          }
+        }
+    })
+
     .state('tab.offices', {
       url: '/offices/{regionUniqueName}',
         views: {
