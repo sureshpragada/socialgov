@@ -301,20 +301,22 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('AdminAccessReqCtrl', function($scope, $state) {
-  $scope.adminDetails={};
+  $scope.adminDetails={role: "LEGI", title:"Secretary"};
   $scope.adminRole=true;
   $scope.adminRequestErrorMessage=null;
   console.log($scope.adminDetails.role);
+
   $scope.isSelected=function() {
       $scope.adminRole=false;
   };
+
   $scope.submitDetails=function() {    
-      if($scope.adminDetails.role!=null && $scope.adminDetails.title!=null && $scope.adminDetails.contributeMessage!=null &&$scope.adminDetails.contributeMessage.length>10 && $scope.adminDetails.contributeMessage.length<1024){
+      if($scope.adminDetails.reason!=null && $scope.adminDetails.reason.length>10 && $scope.adminDetails.reason.length<1024){
         var AccessRequest = Parse.Object.extend("AccessRequest");
         var accessRequest = new AccessRequest();
         accessRequest.set("role",$scope.adminDetails.role);
         accessRequest.set("title",$scope.adminDetails.title);
-        accessRequest.set("contributeMessage",$scope.adminDetails.contributeMessage);
+        accessRequest.set("reason",$scope.adminDetails.reason);
         accessRequest.set("status","PEND");
         accessRequest.set("user",Parse.User.current());
         console.log(JSON.stringify(accessRequest));
@@ -325,12 +327,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             });
           },
           error: function(accessRequest, error) {
-            console.log("Error in posting message " + error.message);
-            $scope.adminRequestErrorMessage=error.message;
+            console.log("Error in submitting accessrequest " + error.message);
+            $scope.adminRequestErrorMessage="Unable to submit your role change request.";
           }
         });
       }else{
-          $scope.adminRequestErrorMessage="Fill the details properly";
+          $scope.adminRequestErrorMessage="Provide your contribution details.";
       }
   };
   $scope.cancel=function(){
@@ -388,11 +390,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               $scope.accessRequests=results;
             });
           } else {
-              $scope.adminAccessRequestListError="No admin access requests to review";
+              $scope.adminAccessRequestListError="No role changes requests to review";
           }
         }, 
         error: function(error) {
-          $scope.adminAccessRequestListError="Unable to get admin access requests";
+          $scope.adminAccessRequestListError="Unable to get role change requests";
         }
       });
 
@@ -478,7 +480,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   }
 })
 
-.controller('AccountCtrl', function($scope, $state) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService) {
   $scope.user = Parse.User.current();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.accessRequestMessage=null;
@@ -486,6 +488,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   var AccessRequest = Parse.Object.extend("AccessRequest");
   var query=new Parse.Query(AccessRequest);
   query.equalTo("user", $scope.user);
+  query.descending("createdAt");
   query.find({
     success: function(results) {
         if(results!=null && results.length>0) {
@@ -493,42 +496,46 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             $scope.$apply(function(){
               $scope.accessRequest=results[0];
               if($scope.accessRequest.get("status")=="PEND"){
-                $scope.accessRequestMessage="Your access request request is in review";
+                $scope.accessRequestMessage="Your role change request is in review.";
               }
               else if($scope.accessRequest.get("status")=="APPR"){
-                $scope.user.set("role","ADMN");
+                $scope.user.set("role",$scope.accessRequest.get("role"));
                 $scope.user.set("title",$scope.accessRequest.get("title"));
                 $scope.accessRequest.set("status","CMPL");
                 $scope.accessRequest.save(null, {
-                  success: function(accessRequest) {
-                    console.log(JSON.stringify(accessRequest));
+                  error: function(error) {
+                    console.log("Error while saving accessrequest : " + JSON.stringify(error));
+                    LogService.log({type:"ERROR", message: "Error while saving accessrequest :" + JSON.stringify(error)});           
                   }
                 });
                 $scope.user.save(null, {
-                  success: function(user) {
-                    console.log(JSON.stringify(user));
+                  error: function(error) {
+                    console.log("Error while saving user : " + JSON.stringify(error));
+                    LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
                   }
                 });
-                console.log(JSON.stringify($scope.user));
-                $scope.accessRequestMessage="Your have admin privileges!"; 
-                console.log($scope.accessRequestMessage);
+                // $scope.accessRequestMessage="Your have admin privileges!"; 
               } 
               else{
-                $scope.accessRequestMessage="Sorry! We cannot give you admin privileges"; 
+                $scope.accessRequestMessage="Sorry! We are unable to process your role change."; 
               }
             });
-
           } else {
-              //$scope.activityError="No activity found in your region.";
-              console.log("no");
+              console.log("No access requests found");
           }
         }, 
         error: function(error) {
-          //alert(error.code);
-          
+          console.log("Error retrieving role change requests. " + JSON.stringify(error));          
         }
       });
 
+  $scope.getRoleNameFromRoleCode=function(role) {
+    return AccountService.getRoleNameFromRoleCode(role);
+  };
+
+  $scope.getFormattedRegionName=function(residency) {
+    return RegionService.getFormattedRegionNameFromUniqueName(residency);
+  };
 
   $scope.isLogoutAllowed=function() {
     if(ionic.Platform.isAndroid()) {
@@ -545,25 +552,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.isSuperAdmin=function(){
-    var user=Parse.User.current();
-    if(user.get("role")=="SUADM"){
-      return true;
-    }else{
-      return false;
-    }
+    return AccountService.isSuperAdmin(Parse.User.current().get("role"));
   };
 
   $scope.isCitizen=function(){
-    var user=Parse.User.current();
-    if(user.get("role")=="CTZEN"){
-      return true;
-    }else{
-      return false;
-    }
+    return AccountService.isCitizen(Parse.User.current().get("role"));
   }
-  $scope.getAccessRequestStatus=function() {    
-      var user=Parse.User.current();
-  };
 
   $scope.notifySettingChanged=function(settingName, settingValue) {
     var user=Parse.User.current();

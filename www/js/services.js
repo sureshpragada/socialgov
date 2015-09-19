@@ -5,6 +5,9 @@ angular.module('starter.services', [])
     all: function(callback) {
       $http.get(REGION_JSON_URL).success(callback);
     },
+    getFormattedRegionNameFromUniqueName: function(residency) {
+      return residency[0].toUpperCase()+residency.substring(1);
+    },
     get: function(regionList, regionUniqueName) {
       for(var i=0;i<regionList.length;i++) {
         if(regionList[i].uniqueName==regionUniqueName) {
@@ -78,6 +81,45 @@ angular.module('starter.services', [])
     }
   };
 }])
+
+.factory('AccountService', ['$http', function($http) {
+    var roles=[
+      {id:"LEGI", label:"Legislative"}, 
+      {id:"EXEC", label:"Executive Officer"},
+      {id:"JNLST", label:"Journalist"}, 
+      {id:"SOACT", label:"Social Activist"},
+      {id:"CTZEN", label:"Citizen"},
+      {id:"SUADM", label:"Administrator"} 
+    ];      
+  return {
+    getAllowedRoles: function() {
+      return [roles[0], roles[1], roles[2], roles[3]];      
+    },    
+    getRoleNameFromRoleCode: function(roleCode) {
+      for(var i=0;i<roles.length;i++) {
+        if(roles[i].id==roleCode) {
+          return roles[i].label;
+        }
+      }
+      return "Citizen";
+    },
+    isSuperAdmin: function(roleCode){
+      if(roleCode=="SUADM"){
+        return true;
+      }else{
+        return false;
+      }
+    },
+    isCitizen: function(roleCode){
+      if(roleCode=="CTZEN"){
+        return true;
+      }else{
+        return false;
+      }
+    }
+  };
+}])
+
 
 .factory('LogService', ['$http', function($http) {
   return {
