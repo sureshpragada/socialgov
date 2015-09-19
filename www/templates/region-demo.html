@@ -1,4 +1,7 @@
 <ion-view title="Demography">
+    <ion-nav-buttons side="secondary" >
+      <a class="button button-icon icon ion-compose" href="#/tab/changedemodetails" ng-show="isAdmin()"></a>
+    </ion-nav-buttons>
     <ion-content>
     	<ion-list>
         <ion-item ng-show="region.demography.est">

@@ -1,0 +1,46 @@
+<ion-view view-title="Edit Demograph Details">
+  <ion-content>
+  <ion-item ng-show="demoErrorMessage">
+  	{{demoErrorMessage}}
+  </ion-item>
+   <div>
+    <div class="list" ng-show="checkboxFlag">
+    	<ion-item>
+    	Select the fields you want to update.
+    </ion-item>
+        <ion-checkbox ng-repeat="item in checkboxList" ng-model="item.checked" ng-checked="item.checked">
+          {{ item.text }}
+    </ion-checkbox>
+    <div class="padding">
+        <button class="button button-block button-balanced" ng-click="ok()">OK</button>
+     </div>
+   </div>
+   	<ion-item ng-hide="checkboxFlag">
+   		<label class="item item-input" ng-show="checkboxList[0].checked">
+				<span class="input-label">
+				      Area
+				</span>
+			<input type="text" name="firstName"  ng-model="newDemoObj.area">
+		</label>
+		<label class="item item-input" ng-show="checkboxList[1].checked">
+				<span class="input-label">
+				      Population
+				</span>
+			<input type="text" name="firstName"  ng-model="newDemoObj.population">
+		</label>
+		<label class="item item-input" ng-show="checkboxList[2].checked">
+				<span class="input-label">
+				      History
+				</span>
+			<textarea placeholder="History...." rows="5" ng-model="newDemoObj.population"></textarea>
+		</label>
+		<div class="padding" ng-if="!demoErrorMessage">
+        	<button class="button button-block button-balanced" ng-click="submit()">Submit</button>
+     	</div>
+     	<div class="padding" ng-if="!demoErrorMessage">
+        	<button class="button button-block button-balanced" ng-click="cancel()">Cancel</button>
+     	</div>
+	</div>
+   </ion-item>
+  </ion-content>
+ </ion-view>
