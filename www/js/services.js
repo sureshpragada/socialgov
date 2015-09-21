@@ -1,20 +1,16 @@
 angular.module('starter.services', [])
 
 .factory('RegionService', ['$http', function($http) {
+  var regions=[];
   return {
-    all: function(callback) {
-      $http.get(REGION_JSON_URL).success(callback);
-    },
     getFormattedRegionNameFromUniqueName: function(residency) {
       return residency[0].toUpperCase()+residency.substring(1);
     },
-    get: function(regionList, regionUniqueName) {
-      for(var i=0;i<regionList.length;i++) {
-        if(regionList[i].uniqueName==regionUniqueName) {
-          return regionList[i];
-        }
-      }
-      return null;
+    cacheRegion: function(regionUniqueName, region) {
+      regions[regionUniqueName]=region;
+    },
+    getRegionFromCache: function(regionUniqueName) {
+      return regions[regionUniqueName];
     }
   };
 }])

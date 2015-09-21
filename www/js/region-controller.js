@@ -1,0 +1,39 @@
+angular.module('starter.test-controller', ['ngCordova', 'ionic'])
+
+.controller('RegionListCtrl', function($scope, $http, RegionService) {
+  RegionService.all(function(data) {
+    $scope.regionList=data;
+  });
+})
+
+.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService) {
+  var residency=$stateParams.regionUniqueName;
+  if(residency=="native") {
+    residency=Parse.User.current().get("residency");
+  }
+
+  var Region = Parse.Object.extend("Region");
+  var query = new Parse.Query(Region);
+  query.equalTo("uniqueName", residency);
+  query.find({
+    success: function(regions) {
+      $scope.$apply(function(){
+        //console.log("Region : " + JSON.stringify(regions));
+        $scope.region=regions[0];
+      });
+    },
+    error: function(error) {
+      console.log("Error retrieving region " + JSON.stringify(error));
+    }
+  });          
+
+  $scope.isAdmin=function(){
+    var user=Parse.User.current();
+    if(user.get("role")=="ADMN" || user.get("role")=="SUADM"){
+      return true;
+    }else{
+      return false;
+    }
+  };
+
+});

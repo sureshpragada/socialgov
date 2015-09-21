@@ -293,13 +293,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-
-.controller('RegionListCtrl', function($scope, $http, RegionService) {
-  RegionService.all(function(data) {
-    $scope.regionList=data;
-  });
-})
-
 .controller('AdminAccessReqCtrl', function($scope, $state, AccountService) {
   $scope.allowedRoleChanges=AccountService.getAllowedRoles();
   $scope.adminDetails={reason:"", selectedRoleType: $scope.allowedRoleChanges[0], selectedTitle: $scope.allowedRoleChanges[0].titles[0]};
@@ -345,24 +338,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService) {
-  var residency=$stateParams.regionUniqueName;
-  if(residency=="native") {
-    residency=Parse.User.current().get("residency");
-  }
-  RegionService.all(function(data) {
-    $scope.region=RegionService.get(data, residency);
-  });
-
-  $scope.isAdmin=function(){
-    var user=Parse.User.current();
-    if(user.get("role")=="ADMN" || user.get("role")=="SUADM"){
-      return true;
-    }else{
-      return false;
-    }
-  };
-})
 
 .controller('ChangeDemoDetailsCtrl', function($scope, $state) {
   $scope.demoErrorMessage=null;
