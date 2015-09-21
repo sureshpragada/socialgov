@@ -1,6 +1,6 @@
 <ion-view title="Executive Offices &amp; Contacts">
   <ion-content>
-    <div class="card" ng-repeat="execOffAddr in region.execOffAddrList">
+    <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')">
 	  <div class="item item-divider">
 	    {{execOffAddr.officeName}}
 	  </div>

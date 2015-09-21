@@ -1,20 +1,16 @@
 angular.module('starter.services', [])
 
 .factory('RegionService', ['$http', function($http) {
+  var regions=[];
   return {
-    all: function(callback) {
-      $http.get(REGION_JSON_URL).success(callback);
-    },
     getFormattedRegionNameFromUniqueName: function(residency) {
       return residency[0].toUpperCase()+residency.substring(1);
     },
-    get: function(regionList, regionUniqueName) {
-      for(var i=0;i<regionList.length;i++) {
-        if(regionList[i].uniqueName==regionUniqueName) {
-          return regionList[i];
-        }
-      }
-      return null;
+    cacheRegion: function(regionUniqueName, region) {
+      regions[regionUniqueName]=region;
+    },
+    getRegionFromCache: function(regionUniqueName) {
+      return regions[regionUniqueName];
     }
   };
 }])
@@ -84,10 +80,15 @@ angular.module('starter.services', [])
 
 .factory('AccountService', ['$http', function($http) {
     var roles=[
-      {id:"LEGI", label:"Legislative"}, 
-      {id:"EXEC", label:"Executive Officer"},
-      {id:"JNLST", label:"Journalist"}, 
-      {id:"SOACT", label:"Social Activist"},
+      {id:"LEGI", label:"Legislative", titles:[
+        {id:"Sarpanch", label:"Sarpanch"},
+        {id:"Vice President", label:"Vice President"}
+      ]}, 
+      {id:"EXEC", label:"Executive Officer", titles:[
+        {id:"Secretary", label:"Secretary"}
+      ]},
+      {id:"JNLST", label:"Journalist", titles:[]}, 
+      {id:"SOACT", label:"Social Activist", titles:[]},
       {id:"CTZEN", label:"Citizen"},
       {id:"SUADM", label:"Administrator"} 
     ];      
