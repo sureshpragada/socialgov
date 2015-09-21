@@ -1,46 +1,37 @@
 <ion-view view-title="Edit Demograph Details">
   <ion-content>
-  <ion-item ng-show="demoErrorMessage">
-  	{{demoErrorMessage}}
-  </ion-item>
-   <div>
-    <div class="list" ng-show="checkboxFlag">
-    	<ion-item>
-    	Select the fields you want to update.
-    </ion-item>
-        <ion-checkbox ng-repeat="item in checkboxList" ng-model="item.checked" ng-checked="item.checked">
-          {{ item.text }}
-    </ion-checkbox>
-    <div class="padding">
-        <button class="button button-block button-balanced" ng-click="ok()">OK</button>
-     </div>
-   </div>
-   	<ion-item ng-hide="checkboxFlag">
-   		<label class="item item-input" ng-show="checkboxList[0].checked">
+   	<ion-item >
+   		<label class="item item-input" >
 				<span class="input-label">
-				      Area
+				      Area 
 				</span>
-			<input type="text" name="firstName"  ng-model="newDemoObj.area">
+			<input type="text" name="area"  ng-model="newDemoObj.area">
 		</label>
-		<label class="item item-input" ng-show="checkboxList[1].checked">
+		<label class="item item-input" >
 				<span class="input-label">
 				      Population
 				</span>
-			<input type="text" name="firstName"  ng-model="newDemoObj.population">
+			<input type="text" name="population"  ng-model="newDemoObj.population">
 		</label>
-		<label class="item item-input" ng-show="checkboxList[2].checked">
+    <label class="item item-input" >
+        <span class="input-label">
+              Established
+        </span>
+      <input type="text" name="population"  ng-model="newDemoObj.year" ng-if="newDemoObj.year">
+    </label>
+		<label class="item item-input" >
 				<span class="input-label">
 				      History
 				</span>
 			
 		</label>
-		<label class="item item-input" ng-show="checkboxList[2].checked">
-			<textarea placeholder="History...." rows="5" ng-model="newDemoObj.population"></textarea>
+		<label class="item item-input" >
+			<textarea placeholder="History...." rows="5" ng-model="newDemoObj.history"></textarea>
 		</label>
-		<div class="padding" ng-if="!demoErrorMessage">
+		<div class="padding" >
         	<button class="button button-block button-balanced" ng-click="submit()">Submit</button>
      	</div>
-     	<div class="padding" ng-if="!demoErrorMessage">
+     	<div class="padding" >
         	<button class="button button-block button-balanced" ng-click="cancel()">Cancel</button>
      	</div>
 	</div>
