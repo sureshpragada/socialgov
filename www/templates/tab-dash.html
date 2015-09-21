@@ -17,8 +17,7 @@
       </div>
 
       <div class="item item-body">
-        <p>
-          {{activity.get("notifyMessage")}}
+        <p ng-bind-html="activity.get('notifyMessage') | nl2br">
         </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')!='NOTF'">

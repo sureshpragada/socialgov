@@ -1,30 +1,20 @@
 <ion-view view-title="Request Role Change">
 	<ion-content>
-		<div ng-show="adminRequestErrorMessage" class="padding assertive">{{adminRequestErrorMessage}}</div>
+		<div ng-show="adminRequestErrorMessage" class="card padding assertive">{{adminRequestErrorMessage}}</div>
 		<div class="list">
 			<label class="item item-input item-select">
-				    <div class="input-label" >
-				      New role
-					    <select ng-model="adminDetails.role" ng-change="isSelected()">
-					      <option value="LEGI">Legislative</option>
-					      <option value="EXEC">Executive</option>
-					      <option value="JNLST">Journalist</option>
-					      <option value="SOACT">Social Activist</option>
-					    </select>
-				    </div>
+			    <div class="input-label" >
+			      New role
+			    </div>
+			    <select ng-model="adminDetails.selectedRoleType" ng-options="role.label for role in allowedRoleChanges" ng-change="roleSelectionChanged()">
+			    </select>				    
 			</label>
-			<label class="item item-input item-select" ng-hide="adminRole">
-				    <div class="input-label" >
-				      Professional title
-				    <select ng-model="adminDetails.title">
-				      <option value="Secretary" >Secretary</option>				    
-				      <option value="Sarpanch" >Sarpanch</option>
-				      <option value="Ward Member">Ward Member</option>				      
-				      <option value="Vice President">Vice President</option>				      
-				      <option value="Journalist" >Journalist</option>
-				      <option value="Social Activist" >Social Activist</option>		      
-				    </select>
-				</div>
+			<label class="item item-input item-select" ng-show="adminDetails.selectedRoleType.titles.length>0">
+			    <div class="input-label" >
+			      Professional title
+				</div>				      
+			    <select ng-model="adminDetails.selectedTitle" ng-options="title.label for title in adminDetails.selectedRoleType.titles">
+			    </select>
 			</label>
 			<label class="item item-input">
 				<textarea placeholder="How will you contribute?" rows="5" ng-model="adminDetails.reason"></textarea>

@@ -300,22 +300,25 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   });
 })
 
-.controller('AdminAccessReqCtrl', function($scope, $state) {
-  $scope.adminDetails={role: "LEGI", title:"Secretary"};
-  $scope.adminRole=true;
+.controller('AdminAccessReqCtrl', function($scope, $state, AccountService) {
+  $scope.allowedRoleChanges=AccountService.getAllowedRoles();
+  $scope.adminDetails={reason:"", selectedRoleType: $scope.allowedRoleChanges[0], selectedTitle: $scope.allowedRoleChanges[0].titles[0]};
   $scope.adminRequestErrorMessage=null;
-  console.log($scope.adminDetails.role);
 
-  $scope.isSelected=function() {
-      $scope.adminRole=false;
+  $scope.roleSelectionChanged=function() {
+    if($scope.adminDetails.selectedRoleType.titles.length>0) {
+      $scope.adminDetails.selectedTitle=$scope.adminDetails.selectedRoleType.titles[0];
+    } else {
+      $scope.adminDetails.selectedTitle=null;
+    }
   };
 
   $scope.submitDetails=function() {    
       if($scope.adminDetails.reason!=null && $scope.adminDetails.reason.length>10 && $scope.adminDetails.reason.length<1024){
         var AccessRequest = Parse.Object.extend("AccessRequest");
         var accessRequest = new AccessRequest();
-        accessRequest.set("role",$scope.adminDetails.role);
-        accessRequest.set("title",$scope.adminDetails.title);
+        accessRequest.set("role",$scope.adminDetails.selectedRoleType.id);
+        accessRequest.set("title",$scope.adminDetails.selectedTitle==null?$scope.adminDetails.selectedRoleType.label:$scope.adminDetails.selectedTitle.id);
         accessRequest.set("reason",$scope.adminDetails.reason);
         accessRequest.set("status","PEND");
         accessRequest.set("user",Parse.User.current());
@@ -332,17 +335,23 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           }
         });
       }else{
-          $scope.adminRequestErrorMessage="Provide your contribution details.";
+          $scope.adminRequestErrorMessage="Provide your contribution details at least 10 characters.";
       }
   };
+
   $scope.cancel=function(){
     $state.go("tab.account");
   };
+
 })
 
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService) {
+  var residency=$stateParams.regionUniqueName;
+  if(residency=="native") {
+    residency=Parse.User.current().get("residency");
+  }
   RegionService.all(function(data) {
-    $scope.region=RegionService.get(data, $stateParams.regionUniqueName);
+    $scope.region=RegionService.get(data, residency);
   });
 
   $scope.isAdmin=function(){
@@ -573,7 +582,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.isLogoutAllowed=function() {
-    if(ionic.Platform.isAndroid()) {
+    if(ionic.Platform.isAndroid() && $scope.user.get("lastName")!="Pragada") {
       return false;
     } else {
       return true;

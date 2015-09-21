@@ -84,10 +84,15 @@ angular.module('starter.services', [])
 
 .factory('AccountService', ['$http', function($http) {
     var roles=[
-      {id:"LEGI", label:"Legislative"}, 
-      {id:"EXEC", label:"Executive Officer"},
-      {id:"JNLST", label:"Journalist"}, 
-      {id:"SOACT", label:"Social Activist"},
+      {id:"LEGI", label:"Legislative", titles:[
+        {id:"Sarpanch", label:"Sarpanch"},
+        {id:"Vice President", label:"Vice President"}
+      ]}, 
+      {id:"EXEC", label:"Executive Officer", titles:[
+        {id:"Secretary", label:"Secretary"}
+      ]},
+      {id:"JNLST", label:"Journalist", titles:[]}, 
+      {id:"SOACT", label:"Social Activist", titles:[]},
       {id:"CTZEN", label:"Citizen"},
       {id:"SUADM", label:"Administrator"} 
     ];      
