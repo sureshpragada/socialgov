@@ -355,29 +355,21 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 })
 
-.controller('ChangeDemoDetailsCtrl', function($scope, $state) {
-  $scope.demoErrorMessage=null;
-  $scope.checkboxFlag=true;
-  $scope.newDemObj={};
-  $scope.checkboxList = [
-    { text: "Area", checked: false },
-    { text: "population", checked: false },
-    { text: "History", checked: false }
-  ];
-
-  $scope.ok=function(){
-    $scope.checkboxFlag=false;
-    if($scope.checkboxList[0].checked==false && $scope.checkboxList[1].checked==false &&$scope.checkboxList[2].checked==false)
-      $scope.demoErrorMessage="No fileds selected!";
-  };
-
+.controller('ChangeDemoDetailsCtrl', function($scope, $state, $stateParams, RegionService) {
+  $scope.newDemoObj={}; 
+  RegionService.all(function(data) {
+    $scope.region=RegionService.get(data, $stateParams.regionUniqueName);
+    $scope.newDemoObj.area=$scope.region.demography.area;
+    $scope.newDemoObj.population=$scope.region.demography.population;
+    $scope.newDemoObj.history=$scope.region.demography.history;
+    $scope.newDemoObj.year=$scope.region.demography.est;
+  });
   $scope.submit=function(){
 
   };
 
   $scope.cancel=function(){
-    console.log("yes");
-    $state.go("tab.changedemodetails");
+    $state.go("tab.demo",{regionUniqueName:$scope.region.uniqueName});
   };
 })
 
