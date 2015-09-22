@@ -1,4 +1,4 @@
-angular.module('starter.test-controller', ['ngCordova', 'ionic'])
+angular.module('starter.controllers')
 
 .controller('RegionListCtrl', function($scope, $http, RegionService) {
   RegionService.all(function(data) {
@@ -36,4 +36,30 @@ angular.module('starter.test-controller', ['ngCordova', 'ionic'])
     }
   };
 
+})
+
+.controller('ChangeDemoDetailsCtrl', function($scope, $state) {
+  $scope.demoErrorMessage=null;
+  $scope.checkboxFlag=true;
+  $scope.newDemObj={};
+  $scope.checkboxList = [
+    { text: "Area", checked: false },
+    { text: "population", checked: false },
+    { text: "History", checked: false }
+  ];
+
+  $scope.ok=function(){
+    $scope.checkboxFlag=false;
+    if($scope.checkboxList[0].checked==false && $scope.checkboxList[1].checked==false &&$scope.checkboxList[2].checked==false)
+      $scope.demoErrorMessage="No fileds selected!";
+  };
+
+  $scope.submit=function(){
+
+  };
+
+  $scope.cancel=function(){
+    console.log("yes");
+    $state.go("tab.changedemodetails");
+  };
 });
