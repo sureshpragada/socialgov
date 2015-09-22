@@ -338,25 +338,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('ChangeDemoDetailsCtrl', function($scope, $state, $stateParams, RegionService) {
-  $scope.newDemoObj={}; 
-  RegionService.all(function(data) {
-    $scope.region=RegionService.get(data, $stateParams.regionUniqueName);
-    $scope.newDemoObj.area=$scope.region.demography.area;
-    $scope.newDemoObj.population=$scope.region.demography.population;
-    $scope.newDemoObj.history=$scope.region.demography.history;
-    $scope.newDemoObj.year=$scope.region.demography.est;
-  });
-
-  $scope.submit=function(){
-
-  };
-
-  $scope.cancel=function(){
-    $state.go("tab.demo",{regionUniqueName:$scope.region.uniqueName});
-  };
-})
-
 .controller('AdminAccessReqDetailCtrl', function($scope, $stateParams, $state) {
   var AccessRequest = Parse.Object.extend("AccessRequest");
   var query=new Parse.Query(AccessRequest);
