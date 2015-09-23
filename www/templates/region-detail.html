@@ -1,30 +1,30 @@
 <ion-view>
 <ion-nav-title>
-      {{region.name}}
+      {{region.get("name")}}
     </ion-nav-title>
   <ion-content>
     <div class="list card">
       <div class="item item-image">
-        <img src="{{region.thumbnail}}">
+        <img src="{{region.get('thumbnail')}}">
       </div>
     </div>
   	<ion-list>
-      <ion-item href="#/tab/offices/{{region.uniqueName}}" class="item-icon-right">
+      <ion-item href="#/tab/offices/{{region.get('uniqueName')}}" class="item-icon-right">
           Government Offices
-        <span class="badge badge-balanced">{{region.execOffAddrList.length}}</span>
+        <span class="badge badge-balanced">{{region.get('execOffAddrList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/legis/{{region.uniqueName}}" class="item-icon-right">
+      <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-right">
 <!--         <i class="icon ion-person-stalker"></i> -->
           Legislature Contacts
-        <span class="badge badge-royal">{{region.legiRepList.length}}</span>
+        <span class="badge badge-royal">{{region.get('legiRepList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/finview/{{region.uniqueName}}" class="item-icon-right">
-          Revenue <span class="item-note">Rs. {{region.financials[0].revenue}}</span>
+      <ion-item href="#/tab/finview/{{region.get('uniqueName')}}" class="item-icon-right">
+          Revenue <span class="item-note">Rs. {{region.get('financials')[0].revenue}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
-      <ion-item href="#/tab/demo/{{region.uniqueName}}" class="item-icon-right">
+      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-right">
           Demography
           <i class="icon ion-chevron-right icon-accessory"></i>    
       </ion-item>            

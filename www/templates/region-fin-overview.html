@@ -1,6 +1,6 @@
 <ion-view title="Financials">
   <ion-content>
-    <ion-list ng-repeat="financial in region.financials">
+    <ion-list ng-repeat="financial in region.get('financials')">
       <ion-item class="item-divider">{{financial.year}}</ion-item>    
       <ion-item>
           Revenue <span class="item-note">Rs. {{financial.revenue}}</span>

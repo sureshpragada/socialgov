@@ -1,0 +1,30 @@
+<ion-view view-title="Request Role Change">
+	<ion-content>
+		<div ng-show="adminRequestErrorMessage" class="card padding assertive">{{adminRequestErrorMessage}}</div>
+		<div class="list">
+			<label class="item item-input item-select">
+			    <div class="input-label" >
+			      New role
+			    </div>
+			    <select ng-model="adminDetails.selectedRoleType" ng-options="role.label for role in allowedRoleChanges" ng-change="roleSelectionChanged()">
+			    </select>				    
+			</label>
+			<label class="item item-input item-select" ng-show="adminDetails.selectedRoleType.titles.length>0">
+			    <div class="input-label" >
+			      Professional title
+				</div>				      
+			    <select ng-model="adminDetails.selectedTitle" ng-options="title.label for title in adminDetails.selectedRoleType.titles">
+			    </select>
+			</label>
+			<label class="item item-input">
+				<textarea placeholder="How will you contribute?" rows="5" ng-model="adminDetails.reason"></textarea>
+		    </label>
+		</div>
+		<div class="padding">
+				<button class="button button-block button-balanced" ng-click="submitDetails()">Request Access</button>
+		</div>
+		<div class="padding">
+				<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+		</div>
+	</ion-content>
+</ion-view>

@@ -1,20 +1,23 @@
 <ion-view title="Demography">
+    <ion-nav-buttons side="secondary" >
+      <a class="button button-icon icon ion-compose" href="#/tab/changedemodetails" ng-show="isAdmin()"></a>
+    </ion-nav-buttons>
     <ion-content>
     	<ion-list>
-        <ion-item ng-show="region.demography.est">
-           Established <span class="item-note">{{region.demography.est}}</span>
+        <ion-item ng-show="region.get('demography').get('est')">
+           Established <span class="item-note">{{region.get('demography').est}}</span>
         </ion-item>
     		<ion-item>
-  			   Area <span class="item-note">{{region.demography.area}} Sq Km </span>
+  			   Area <span class="item-note">{{region.get('demography').area}} Sq Km </span>
   			</ion-item>
   			<ion-item>
-  			   Population <span class="item-note">{{region.demography.population}} </span>
+  			   Population <span class="item-note">{{region.get("demography").population}} </span>
   			</ion-item>
-    	</ion-list>
+    	</ion-list> 
     	<ion-item>
 	        Pincodes
 	        <span class="item-note">
-	          <span ng-repeat="pincode in region.demography.pinCodes">
+	          <span ng-repeat="pincode in region.get('demography').pinCodes">
 	            {{pincode}} {{$last ? '' : ', '}}
 	          </span>
 	        </span>
@@ -23,7 +26,7 @@
         History:
       </ion-item>      
       <ion-item class="item-text-wrap">
-          {{region.demography.history}}
+          {{region.get('demography').history}}
       </ion-item>
 	</ion-content>
 </ion-view>

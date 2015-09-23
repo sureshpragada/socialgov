@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controllers', 'starter.services', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize'])
 
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService) {
   $ionicPlatform.ready(function() {
@@ -152,6 +152,17 @@ angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controll
           }
         }
     })
+
+    .state('tab.changedemodetails', {
+      url: '/changedemodetails',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/new-demo-details.html',
+            controller: 'ChangeDemoDetailsCtrl'
+          }
+        }
+    })
+
     .state('tab.offices', {
       url: '/offices/{regionUniqueName}',
         views: {
@@ -198,6 +209,39 @@ angular.module('starter', ['ionic', 'starter.test-controller', 'starter.controll
         }
       }
     })
+    .state('tab.adminaccess', {
+      url: '/adminaccess',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/admin-access-request.html',
+          controller: 'AdminAccessReqCtrl'        
+        }
+      }
+    })
+
+    .state('tab.adminAccessList', {
+      url: '/adminAccessList',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/admin-access-request-list.html',
+          controller: 'AdminAccessReqListCtrl'        
+        }
+      }
+    })
+
+    .state('tab.adminAccessReqHandle', {
+      url: '/adminAccessReqHandle/{accessRequestId}',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/admin-access-request-detail.html',
+          controller: 'AdminAccessReqDetailCtrl'        
+        }
+      }
+    })    
+
     .state('register', {
       url: '/register',
       templateUrl: 'templates/register.html',

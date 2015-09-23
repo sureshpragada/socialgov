@@ -17,8 +17,7 @@
       </div>
 
       <div class="item item-body">
-        <p>
-          {{activity.get("notifyMessage")}}
+        <p ng-bind-html="activity.get('notifyMessage') | nl2br">
         </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')!='NOTF'">
@@ -45,7 +44,7 @@
       </div> 
       <div ng-if="isDebateRequested(activity.id, $index)">
         <div class="item" ng-repeat="debate in debateList[$index]">
-          <div class="commentUserDivider">{{debate.get("argument")}}</div>
+          <div class="commentUserDivider item-text-wrap" ng-bind-html="debate.get('argument') | nl2br"></div>
           <p class="item-text-wrap">{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}</p>
           <p>{{debate.createdAt | date:'medium'}}</p>
         </div>

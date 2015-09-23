@@ -2,16 +2,25 @@
   <ion-content>
     <ion-list>
       <ion-item>
-              First name <p>{{user.get("firstName")}}</p>
+        First name<span class="item-note">{{user.get("firstName")}}</span>
       </ion-item>
       <ion-item>
-              Last name <p>{{user.get("lastName")}}</p>
+        Last name<span class="item-note">{{user.get("lastName")}}</span>      
       </ion-item>
       <ion-item>
-              Phone Number <p>{{user.get("username")}}</p>
+        Phone Number<span class="item-note">{{user.get("username")}}</span>            
       </ion-item>
       <ion-item>
-              Residency <p>{{user.get("residency") | uppercase}}</p>
+        Residency<span class="item-note">{{getFormattedRegionName(user.get("residency"))}}</span>                  
+      </ion-item>                        
+      <ion-item>
+        Role
+          <span class="item-note">
+            {{getRoleNameFromRoleCode(user.get("role"))}}
+          </span>                  
+      </ion-item>                        
+      <ion-item ng-if="user.get('title')">
+        Honorable Title<span class="item-note">{{user.get("title")}}</span>                        
       </ion-item>                        
       <ion-toggle ng-model="settings.notifications" ng-change="notifySettingChanged('notifySetting', settings.notifications)">
           Notifications
@@ -19,6 +28,16 @@
     </ion-list>
     <div class="padding" ng-show=" isLogoutAllowed()">
       <button class="button button-block button-assertive" ng-click="logout()">Sign out</button>
-    </div>    
+    </div>
+    <div class="padding" ng-if="isCitizen() && accessRequest == null">
+      <a href="#/tab/adminaccess" class="button button-block button-royal">Request Role Change</a>    
+    </div>
+    <div class="padding" ng-if="isSuperAdmin()">
+      <a href="#/tab/adminAccessList" class="button button-block button-balanced">Review Role Change Requests</a>
+    </div>
+    <div align="center" ng-if="accessRequestMessage">
+        {{accessRequestMessage}}
+    </div>                        
   </ion-content>
 </ion-view>
+ 

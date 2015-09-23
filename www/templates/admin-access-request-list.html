@@ -1,0 +1,14 @@
+<ion-view title="Role change list">
+  <ion-content>
+    <div ng-show="adminAccessRequestListError" class="card">
+      <div class="item item-text-wrap">
+        {{adminAccessRequestListError}}
+      </div>
+    </div>
+  	<ion-item href="#tab/adminAccessReqHandle/{{accessRequest.id}}" class="item-icon-right" ng-repeat="accessRequest in accessRequests">
+        {{accessRequest.get("user").get("firstName")}} {{accessRequest.get("user").get("lastName")}}
+      <i class="icon ion-chevron-right icon-accessory"></i>
+    </ion-item>
+</ion-content>
+</ion-view>
+  

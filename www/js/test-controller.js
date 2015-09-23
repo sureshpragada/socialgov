@@ -1,4 +1,4 @@
-angular.module('starter.test-controller', ['ngCordova', 'ionic'])
+angular.module('starter.controllers')
 
 .controller('TestCtrl', function($scope) {
   /////////////////// Test 1 : Working with select boxes

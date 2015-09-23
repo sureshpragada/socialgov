@@ -4,8 +4,7 @@
 		"uniqueName": "dowlaiswaram", 
 		"type": "town", 
 		"thumbnail": "http://s10.postimg.org/7dad1m3u1/dowlaiswaram.jpg",
-		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
-		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
+		"parentRegion": ["east_godavari", "andhra_pradesh", "india"], 
 		"demography": 
 		{
 			"population": "50000",

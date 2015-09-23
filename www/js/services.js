@@ -1,17 +1,16 @@
 angular.module('starter.services', [])
 
 .factory('RegionService', ['$http', function($http) {
+  var regions=[];
   return {
-    all: function(callback) {
-      $http.get(REGION_JSON_URL).success(callback);
+    getFormattedRegionNameFromUniqueName: function(residency) {
+      return residency[0].toUpperCase()+residency.substring(1);
     },
-    get: function(regionList, regionUniqueName) {
-      for(var i=0;i<regionList.length;i++) {
-        if(regionList[i].uniqueName==regionUniqueName) {
-          return regionList[i];
-        }
-      }
-      return null;
+    cacheRegion: function(regionUniqueName, region) {
+      regions[regionUniqueName]=region;
+    },
+    getRegionFromCache: function(regionUniqueName) {
+      return regions[regionUniqueName];
     }
   };
 }])
@@ -78,6 +77,50 @@ angular.module('starter.services', [])
     }
   };
 }])
+
+.factory('AccountService', ['$http', function($http) {
+    var roles=[
+      {id:"LEGI", label:"Legislative", titles:[
+        {id:"Sarpanch", label:"Sarpanch"},
+        {id:"Vice President", label:"Vice President"}
+      ]}, 
+      {id:"EXEC", label:"Executive Officer", titles:[
+        {id:"Secretary", label:"Secretary"}
+      ]},
+      {id:"JNLST", label:"Journalist", titles:[]}, 
+      {id:"SOACT", label:"Social Activist", titles:[]},
+      {id:"CTZEN", label:"Citizen"},
+      {id:"SUADM", label:"Administrator"} 
+    ];      
+  return {
+    getAllowedRoles: function() {
+      return [roles[0], roles[1], roles[2], roles[3]];      
+    },    
+    getRoleNameFromRoleCode: function(roleCode) {
+      for(var i=0;i<roles.length;i++) {
+        if(roles[i].id==roleCode) {
+          return roles[i].label;
+        }
+      }
+      return "Citizen";
+    },
+    isSuperAdmin: function(roleCode){
+      if(roleCode=="SUADM"){
+        return true;
+      }else{
+        return false;
+      }
+    },
+    isCitizen: function(roleCode){
+      if(roleCode=="CTZEN"){
+        return true;
+      }else{
+        return false;
+      }
+    }
+  };
+}])
+
 
 .factory('LogService', ['$http', function($http) {
   return {

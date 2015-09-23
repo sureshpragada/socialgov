@@ -1,31 +1,31 @@
 <ion-view view-title="Post Activity">
 	<ion-content>
-			<div class="list">
-				<div ng-show="postErrorMessage" class="padding assertive">{{postErrorMessage}}</div>
-				<label class="item item-input item-select">
-				    <div class="input-label">
-				      Activity Type
-				    </div>
-				    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities">
-				    </select>
-				  </label>
-				<label class="item item-input item-select">
-				    <div class="input-label">
-				      Region
-				    </div>
-				    <select ng-model="selectChoices.selectedRegion" ng-options="region.label for region in allowedRegions">
-				    </select>
-				  </label>
+		<div ng-show="postErrorMessage" class="card padding assertive">{{postErrorMessage}}</div>
+		<div class="list">
+			<label class="item item-input item-select">
+			    <div class="input-label">
+			      Activity Type
+			    </div>
+			    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities">
+			    </select>
+			  </label>
+			<label class="item item-input item-select">
+			    <div class="input-label">
+			      Region
+			    </div>
+			    <select ng-model="selectChoices.selectedRegion" ng-options="region.label for region in allowedRegions">
+			    </select>
+			  </label>
 
-				  <label class="item item-input">
-				    <textarea placeholder="Message" rows="5" ng-model="post.notifyMessage"></textarea>
-				  </label>
-			</div>
-			<div class="padding">
-				<button class="button button-block button-calm" ng-click="submitPost()">Post Activity</button>
-			</div>
-			<div class="padding">
-				<button class="button button-block button-assertive" ng-click="cancelPost()">Cancel</button>
-			</div>
+			  <label class="item item-input">
+			    <textarea placeholder="Message" rows="5" ng-model="post.notifyMessage"></textarea>
+			  </label>
+		</div>
+		<div class="padding">
+			<button class="button button-block button-calm" ng-click="submitPost()">Post Activity</button>
+		</div>
+		<div class="padding">
+			<button class="button button-block button-assertive" ng-click="cancelPost()">Cancel</button>
+		</div>
 	</ion-content>
 </ion-view>
