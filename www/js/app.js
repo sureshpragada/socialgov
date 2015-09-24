@@ -154,7 +154,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
 
     .state('tab.changedemodetails', {
-      url: '/changedemodetails',
+      url: '/changedemodetails/{regionUniqueName}',
         views: {
           'tab-region': {
             templateUrl: 'templates/new-demo-details.html',
