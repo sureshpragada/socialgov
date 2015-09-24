@@ -15,9 +15,19 @@
 		"financials": [
 			{
 				"year": "2014",
-				"revenue": "9000000",
-				"expenses": "10000000" 
-			}
+				"revenue": "11277021.00",
+				"expenses": "17437109.00"
+			},
+			{
+				"year": "2013",
+				"revenue": "15203829.20",
+				"expenses": "17437109.00"
+			},
+			{
+				"year": "2012",
+				"revenue": "16281486.00",
+				"expenses": "14771575.00"
+			}						
 		],
 		"execOffAddrList":[
 			{
