@@ -38,28 +38,39 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ChangeDemoDetailsCtrl', function($scope, $state) {
-  $scope.demoErrorMessage=null;
-  $scope.checkboxFlag=true;
-  $scope.newDemObj={};
-  $scope.checkboxList = [
-    { text: "Area", checked: false },
-    { text: "population", checked: false },
-    { text: "History", checked: false }
-  ];
 
-  $scope.ok=function(){
-    $scope.checkboxFlag=false;
-    if($scope.checkboxList[0].checked==false && $scope.checkboxList[1].checked==false &&$scope.checkboxList[2].checked==false)
-      $scope.demoErrorMessage="No fileds selected!";
-  };
+.controller('ChangeDemoDetailsCtrl', function($scope, $state, $stateParams) {
+  $scope.newDemoObj={}; 
+  var residency=$stateParams.regionUniqueName;
+  var Region = Parse.Object.extend("Region");
+  var query = new Parse.Query(Region);
+  console.log($stateParams.regionUniqueName);
+  query.equalTo("uniqueName", residency);
+  query.find({
+    success: function(regions) {
+      $scope.$apply(function(){
+        //console.log("Region : " + JSON.stringify(regions));
+        $scope.region=regions[0];
+        $scope.newDemoObj=$scope.region.get('demography');
+        console.log(JSON.stringify($scope.newDemoObj));
+      });
+    },
+    error: function(error) {
+      console.log("Error retrieving region " + JSON.stringify(error));
+    }
+  });
 
   $scope.submit=function(){
-
+    $scope.region.set("demography",$scope.newDemoObj);
+    $scope.region.save(null, {
+        success: function(accessRequest) {
+          console.log(JSON.stringify(accessRequest));
+        }
+    });
+    $state.go("tab.demo",{regionUniqueName:$scope.region.get('uniqueName')});
   };
 
   $scope.cancel=function(){
-    console.log("yes");
-    $state.go("tab.changedemodetails");
+    $state.go("tab.demo",{regionUniqueName:$scope.region.get('uniqueName')});
   };
 });
