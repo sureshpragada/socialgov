@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize','pascalprecht.translate'])
 
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService) {
   $ionicPlatform.ready(function() {
@@ -251,4 +251,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     $urlRouterProvider.otherwise('/tab/dash');
 
-});
+})
+
+.config(function ($translateProvider) {
+  $translateProvider.translations('en', {
+    FName: 'First Name',
+    LName: 'Last Name',
+    PhNum: 'Phone Number',
+    Resdncy: 'Residency',
+    Role:'Role',
+    Notify:'Notifications',
+    
+  });
+  $translateProvider.translations('te', {
+    FName: 'పేరు',
+    LName: 'ఇంటి పేరు',
+    PhNum: 'ఫొన్ నంబర్',
+    Resdncy: 'ఊరు',
+    Role:'అధికారి/పౌరులు',
+    Notify:'ప్రకటనలు'
+  });
+  $translateProvider.preferredLanguage('en');
+});;

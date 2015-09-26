@@ -2,19 +2,19 @@
   <ion-content>
     <ion-list>
       <ion-item>
-        First name<span class="item-note">{{user.get("firstName")}}</span>
+        {{'FName' | translate}}<span class="item-note">{{user.get("firstName")}}</span>
       </ion-item>
       <ion-item>
-        Last name<span class="item-note">{{user.get("lastName")}}</span>      
+        {{'LName' | translate}}<span class="item-note">{{user.get("lastName")}}</span>      
       </ion-item>
       <ion-item>
-        Phone Number<span class="item-note">{{user.get("username")}}</span>            
+        {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
       </ion-item>
       <ion-item>
-        Residency<span class="item-note">{{getFormattedRegionName(user.get("residency"))}}</span>                  
+        {{'Resdncy' | translate}}<span class="item-note">{{getFormattedRegionName(user.get("residency"))}}</span>                  
       </ion-item>                        
       <ion-item>
-        Role
+         {{'Role' | translate}}
           <span class="item-note">
             {{getRoleNameFromRoleCode(user.get("role"))}}
           </span>                  
@@ -23,7 +23,7 @@
         Honorable Title<span class="item-note">{{user.get("title")}}</span>                        
       </ion-item>                        
       <ion-toggle ng-model="settings.notifications" ng-change="notifySettingChanged('notifySetting', settings.notifications)">
-          Notifications
+          {{'Notify' | translate}}
       </ion-toggle>
     </ion-list>
     <div class="padding" ng-show=" isLogoutAllowed()">
@@ -37,7 +37,7 @@
     </div>
     <div align="center" ng-if="accessRequestMessage">
         {{accessRequestMessage}}
-    </div>                        
+    </div>       
   </ion-content>
 </ion-view>
  
