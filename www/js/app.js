@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache'])
 
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService) {
   $ionicPlatform.ready(function() {
@@ -157,7 +157,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: '/changedemodetails/{regionUniqueName}',
         views: {
           'tab-region': {
-            templateUrl: 'templates/new-demo-details.html',
+            templateUrl: 'templates/change-demo-details.html',
             controller: 'ChangeDemoDetailsCtrl'
           }
         }
@@ -186,10 +186,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         views: {
           'tab-region': {
             templateUrl: 'templates/region-fin-overview.html',
-            controller: 'RegionDetailCtrl'
+            controller: 'RegionFinancialOverviewCtrl'
           }
         }
     })  
+    .state('tab.findet', {
+      url: '/findet/{regionUniqueName}/{year}/{reqDetails}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region-fin-details.html',
+            controller: 'RegionFinancialDetailsCtrl'
+          }
+        }
+    })      
     // .state('tab.account.settings', {
     //   url: '/settings',
     //   views: {

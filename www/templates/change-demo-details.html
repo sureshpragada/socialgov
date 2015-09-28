@@ -1,29 +1,28 @@
 <ion-view view-title="Edit Demograph Details">
   <ion-content>
-   	<ion-item >
    		<label class="item item-input" >
 				<span class="input-label">
 				      Area 
 				</span>
-			<input type="text" name="area"  ng-model="newDemoObj.area">
+			<input type="text" ng-model="newDemoObj.area">
 		</label>
 		<label class="item item-input" >
 				<span class="input-label">
 				      Population
 				</span>
-			<input type="text" name="population"  ng-model="newDemoObj.population">
+			<input type="text" ng-model="newDemoObj.population">
 		</label>
     <label class="item item-input" >
         <span class="input-label">
               Established
         </span>
-      <input type="text" name="population"  ng-model="newDemoObj.est">
+      <input type="text" ng-model="newDemoObj.est">
     </label>
     <label class="item item-input" >
         <span class="input-label">
-              Pincodes
+              Postal codes
         </span>
-      <input type="text" name="population"  ng-model="newDemoObj.pinCodes" >
+      <input type="text" ng-model="newDemoObj.pinCodes" >
     </label>
 		<label class="item item-input" >
 				<span class="input-label">
@@ -31,15 +30,14 @@
 				</span>	
 		</label>
 		<label class="item item-input" >
-			<textarea placeholder="History...." rows="5" ng-model="newDemoObj.history"></textarea>
+			<textarea placeholder="Type in region history" rows="5" ng-model="newDemoObj.history"></textarea>
 		</label>
 		<div class="padding" >
         	<button class="button button-block button-balanced" ng-click="submit()">Submit</button>
      	</div>
      	<div class="padding" >
-        	<button class="button button-block button-balanced" ng-click="cancel()">Cancel</button>
+        	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
      	</div>
-	</div>
-   </ion-item>
+	   </div>
   </ion-content>
  </ion-view>

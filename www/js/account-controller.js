@@ -248,6 +248,7 @@ angular.module('starter.controllers')
   $scope.logout=function() {    
       Parse.User.logOut();
       $scope.user=null;
+      console.log("After user has been made null");
       $state.go("register");    
   };
 

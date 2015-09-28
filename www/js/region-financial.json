@@ -1,0 +1,118 @@
+{"results": 
+[
+	{
+		"regionUniqueName": "dowlaiswaram", 
+		"year": "2014",
+		"revenue": "11277021.00",
+		"expenses": "17437109.00",
+		"forwardedSurplus": "1684452.00",
+		"surplus": "3917532.00",
+		"regionExpenses": [
+			{
+				"name": "Hospital Staff Salaries",
+				"amount": "2880141.00"
+			},
+			{
+				"name": "NMR Contract Salaries",
+				"amount": "3781464.00"
+			},
+			{
+				"name": "Power bill",
+				"amount": "462096.00"
+			},
+			{
+				"name": "Hospital maintenance",
+				"amount": "732000.00"
+			},
+			{
+				"name": "Street lights",
+				"amount": "402008.00"
+			},
+			{
+				"name": "Returned deposits",
+				"amount": "200000.00"
+			},
+			{
+				"name": "Bleaching & Phenoil",
+				"amount": "115551.00"
+			},
+			{
+				"name": "Telephone Bill",
+				"amount": "5630.00"
+			},
+			{
+				"name": "Library maintenance",
+				"amount": "8300.00"
+			}			
+		], 
+		"regionRevenue": [
+			{
+				"name": "House Tax (A)",
+				"amount": "751557.38"
+			},
+			{
+				"name": "House Tax (C)",
+				"amount": "2562277.00"
+			},
+			{
+				"name": "Library sess (C)",
+				"amount": "204819.00"
+			},
+			{
+				"name": "Lighting Tax (C)",
+				"amount": "162936.00"
+			},
+			{
+				"name": "Water Tax (C)",
+				"amount": "816230.00"
+			},
+			{
+				"name": "Water conn deposits",
+				"amount": "1213600.00"
+			},
+			{
+				"name": "House construction",
+				"amount": "1595499.00"
+			},
+			{
+				"name": "Market",
+				"amount": "100000.00"
+			},
+			{
+				"name": "Stamp duty",
+				"amount": "1609085.00"
+			},
+			{
+				"name": "Kabela",
+				"amount": "45000.00"
+			},
+			{
+				"name": "APICC",
+				"amount": "331379.00"
+			}														
+		]			
+	},
+	{
+		"regionUniqueName": "dowlaiswaram", 		
+		"year": "2013",
+		"revenue": "15203829.20",
+		"expenses": "17437109.00",
+		"forwardedSurplus": "3917732.00",
+		"reserve": "1684452.00"
+	},
+	{
+		"regionUniqueName": "dowlaiswaram", 		
+		"year": "2012",
+		"revenue": "16281486.00",
+		"expenses": "14771575.00", 												
+		"forwardedSurplus": "2407621.00",
+		"reserve": "3917532.00"
+	},
+	{
+		"regionUniqueName": "srikrishnapatnam", 		
+		"year": "2014",
+		"revenue": "600000.00",
+		"expenses": "600000.00"
+	}
+]
+}

@@ -1,5 +1,6 @@
 <ion-view title="Executive Offices &amp; Contacts">
   <ion-content>
+  	<div ng-show="region.get('execOffAddrList').length==0" class="card padding assertive">Executive office list not available for {{region.get("name")}}</div>  
     <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')">
 	  <div class="item item-divider">
 	    {{execOffAddr.officeName}}
@@ -10,7 +11,7 @@
 	    	<div ng-if="execOffAddr.addressLine2">{{execOffAddr.addressLine2}}</div>
 	    	<div ng-if="execOffAddr.landmark">{{execOffAddr.landmark}}</div>
 	    </div>
-	    <p>
+	    <p ng-if="execOffAddr.phoneNumberList">
 		    <i class="icon ion-iphone"></i>
 		    <span ng-repeat="phNo in execOffAddr.phoneNumberList">
 		    	{{phNo}} {{$last ? '' : ', '}}

@@ -1,6 +1,6 @@
 <ion-view title="Demography">
     <ion-nav-buttons side="secondary" >
-      <a class="button button-icon icon ion-compose" href="#/tab/changedemodetails/{{region.get('uniqueName')}}" ng-show="isAdmin()"></a>
+      <a class="button" href="#/tab/changedemodetails/{{region.get('uniqueName')}}" ng-show="canManageRegionDetails()">Edit</a>
     </ion-nav-buttons>
     <ion-content>
     	<ion-list>
@@ -17,7 +17,7 @@
     	<ion-item>
 	        Pincodes
 	        <span class="item-note">
-	          <span ng-repeat="pincode in region.get('demography').pinCodes">
+	          <span ng-repeat="pincode in region.get('demography').pinCodes track by $index">
 	            {{pincode}} {{$last ? '' : ', '}}
 	          </span>
 	        </span>

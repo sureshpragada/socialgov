@@ -1,16 +1,39 @@
 angular.module('starter.services', [])
 
-.factory('RegionService', ['$http', function($http) {
-  var regions=[];
+
+.factory('RegionService', ['CacheFactory', function(CacheFactory) {
+  var regionCache;
+  if (!CacheFactory.get('regionCache')) {
+    regionCache = CacheFactory('regionCache', {
+      maxAge: 6 * 60 * 60 * 1000,
+      deleteOnExpire: 'passive'
+    });
+  }
+
   return {
+    // TODO :: Remove this function once cache is working by using region service in account controller
     getFormattedRegionNameFromUniqueName: function(residency) {
       return residency[0].toUpperCase()+residency.substring(1);
     },
-    cacheRegion: function(regionUniqueName, region) {
-      regions[regionUniqueName]=region;
+    putRegionInCache: function(regionUniqueName, region) {
+      regionCache.put(regionUniqueName, region);
     },
     getRegionFromCache: function(regionUniqueName) {
-      return regions[regionUniqueName];
+      return regionCache.get(regionUniqueName);
+    },
+    getRegion: function(regionUniqueName) {
+      var Region = Parse.Object.extend("Region");
+      var query = new Parse.Query(Region);
+      query.equalTo("uniqueName", regionUniqueName);
+      return query.find();
+    },
+    canManageRegionDetails: function(){
+      var user=Parse.User.current();
+      if(user.get("role")=="JNLST" || user.get("role")=="SUADM"){
+        return true;
+      }else{
+        return false;
+      }
     }
   };
 }])
