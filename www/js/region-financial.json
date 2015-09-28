@@ -17,6 +17,10 @@
 				"amount": "3781464.00"
 			},
 			{
+				"name": "Collection Staff Salaries",
+				"amount": "54512.00"
+			},			
+			{
 				"name": "Power bill",
 				"amount": "462096.00"
 			},
@@ -29,9 +33,45 @@
 				"amount": "402008.00"
 			},
 			{
+				"name": "Stationary",
+				"amount": "21520.00"
+			},			
+			{
+				"name": "Patika",
+				"amount": "362555.00"
+			},			
+			{
+				"name": "Krishki Tractor repair",
+				"amount": "15529.00"
+			},			
+			{
+				"name": "Dandoralu",
+				"amount": "3500.00"
+			},			
+			{
+				"name": "Maintenance expenses",
+				"amount": "154026.00"
+			},			
+			{
 				"name": "Returned deposits",
 				"amount": "200000.00"
 			},
+			{
+				"name": "Pipeline repair",
+				"amount": "86985.00"
+			},			
+			{
+				"name": "Motor repair",
+				"amount": "216080.00"
+			},			
+			{
+				"name": "Drinking Water supply parts",
+				"amount": "875234.00"
+			},			
+			{
+				"name": "Computer repair",
+				"amount": "7760.00"
+			},			
 			{
 				"name": "Bleaching & Phenoil",
 				"amount": "115551.00"
@@ -43,6 +83,10 @@
 			{
 				"name": "Library maintenance",
 				"amount": "8300.00"
+			},			
+			{
+				"name": "Photostats",
+				"amount": "2273.00"
 			}			
 		], 
 		"regionRevenue": [
@@ -89,6 +133,26 @@
 			{
 				"name": "APICC",
 				"amount": "331379.00"
+			},
+			{
+				"name": "Layout security deposits",
+				"amount": "110000.00"
+			},
+			{
+				"name": "Old Iron",
+				"amount": "15300.00"
+			},
+			{
+				"name": "Market payments",
+				"amount": "156535.00"
+			},
+			{
+				"name": "Citizen Grant",
+				"amount": "24467.00"
+			},
+			{
+				"name": "Others",
+				"amount": "148000.00"
 			}														
 		]			
 	},
