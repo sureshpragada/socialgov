@@ -180,7 +180,7 @@ angular.module('starter.controllers')
   }
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaPush) {
   $scope.user = Parse.User.current();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.accessRequestMessage=null;
@@ -195,10 +195,7 @@ angular.module('starter.controllers')
           console.log(JSON.stringify(results));
             $scope.$apply(function(){
               $scope.accessRequest=results[0];
-              if($scope.accessRequest.get("status")=="PEND"){
-                $scope.accessRequestMessage="Your role change request is in review.";
-              }
-              else if($scope.accessRequest.get("status")=="APPR"){
+              if($scope.accessRequest.get("status")=="APPR"){
                 $scope.user.set("role",$scope.accessRequest.get("role"));
                 $scope.user.set("title",$scope.accessRequest.get("title"));
                 $scope.accessRequest.set("status","CMPL");
@@ -214,11 +211,13 @@ angular.module('starter.controllers')
                     LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
                   }
                 });
-                // $scope.accessRequestMessage="Your have admin privileges!"; 
-              } 
-              else{
-                $scope.accessRequestMessage="Sorry! We are unable to process your role change."; 
-              }
+              } else {
+                if($scope.accessRequest.get("status")=="PEND"){
+                  $scope.accessRequestMessage="Your role change request is in review.";
+                } else {
+                  $scope.accessRequestMessage="Sorry! We are unable to process your role change."; 
+                }
+              }               
             });
           } else {
               console.log("No access requests found");
@@ -229,12 +228,30 @@ angular.module('starter.controllers')
         }
       });
 
+  RegionService.getRegion($scope.user.get("residency")).then(function(region){
+    $scope.regionDisplayName=region.get("name");
+  }, function() {
+    $scope.regionDisplayName=user.get("residency");
+  });
+
+  // Parse.User.current().fetch();
+
+  // Refresh user object
+  // if(Parse.User.current().get("lastRefresh")==null || new Date().getTime()-Parse.User.current().get("lastRefresh")>(60*1000)) {
+  //   console.log("Need to refresh user object " + $scope.user.get("lastRefresh") + " " + new Date().getTime());
+  //   Parse.User.current().set("lastRefresh", new Date().getTime());
+  //   Parse.User.current().save(null, {
+  //     error: function(error) {
+  //       console.log("Unable to refresh the user " + JSON.stringify(error));
+  //     }
+  //   })
+  // } else {
+  //   console.log("Current time : " + new Date().getTime());
+  //   console.log("No need to refresh user object " + $scope.user.get("lastRefresh") + " " + new Date().getTime());
+  // }
+
   $scope.getRoleNameFromRoleCode=function(role) {
     return AccountService.getRoleNameFromRoleCode(role);
-  };
-
-  $scope.getFormattedRegionName=function(residency) {
-    return RegionService.getFormattedRegionNameFromUniqueName(residency);
   };
 
   $scope.isLogoutAllowed=function() {

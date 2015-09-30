@@ -7,33 +7,21 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService) {
+.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService) {
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
     residency=Parse.User.current().get("residency");
   }
+  
+  $scope.region=null;
+  RegionService.getRegion(residency).then(function(data) {
+    // console.log("Retrieved region from service " + JSON.stringify(data));
+    $scope.region=data;
+  }, function(error) {
+    console.log("Error retrieving region " + JSON.stringify(error));
+  });
 
-  $scope.region=RegionService.getRegionFromCache(residency);
-  if($scope.region==null) {
-    console.log("No hit in cache.. Loading");
-    RegionService.getRegion(residency).then(
-      function(regions) {
-        $scope.$apply(function(){
-          //console.log("Region : " + JSON.stringify(regions));
-          RegionService.putRegionInCache(residency, regions[0]);          
-          $scope.region=regions[0];
-        });
-      }, 
-      function(error) {
-        console.log("Error retrieving region " + JSON.stringify(error));
-      });          
-  } else {
-    console.log("Found hit in cache");
-  }
-
-  $scope.canManageRegionDetails=function(){
-    return RegionService.canManageRegionDetails();
-  };
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();
 
 })
 

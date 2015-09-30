@@ -125,6 +125,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('tab.test', {
       url: '/test',
+      cache: false,      
       views: {
         'tab-region': {
           templateUrl: 'templates/test-template.html',
@@ -135,6 +136,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('tab.region', {
       url: '/region/{regionUniqueName}',
+      cache: false,      
       views: {
         'tab-region': {
           templateUrl: 'templates/region-detail.html',
@@ -145,12 +147,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('tab.demo', {
       url: '/demo/{regionUniqueName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region-demo.html',
-            controller: 'RegionDetailCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region-demo.html',
+          controller: 'RegionDetailCtrl'
         }
+      }
     })
 
     .state('tab.changedemodetails', {
