@@ -125,7 +125,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.isThisActionChosen=function(activityId, action) {
-    for(var j=0;j<$scope.userActivityList.length;j++) {
+    for(var j=0;j<($scope.userActivityList!=null?$scope.userActivityList.length:0);j++) {
       if($scope.userActivityList[j].get("activity").id==activityId) {
         if($scope.userActivityList[j].get("action")==ActivityService.getActionCode(action)) {
           if(action=="support") {

@@ -1,91 +1,49 @@
+{"results": 
 [
 	{
 		"name": "Dowlaiswaram", 
 		"uniqueName": "dowlaiswaram", 
 		"type": "town", 
 		"thumbnail": "http://s10.postimg.org/7dad1m3u1/dowlaiswaram.jpg",
-		"parentRegion": ["east_godavari", "andhra_pradesh", "india"], 
+		"parentRegion": ["rajahmundry_rural", "east_godavari", "andhra_pradesh", "india"], 
 		"demography": 
 		{
 			"population": "50000",
 			"area": "15",
 			"history": "Dowlaiswaram is a part of Rajahmundry Corporation and it was one one biggest panchayat in Andhra Pradesh. It's primary source of income comes from Industrial estate hosts many industries including Glaxo and ONGC.",
 			"pinCodes": ["533124", "533125"]
-		},		
-		"financials": [
-			{
-				"year": "2014",
-				"revenue": "11277021.00",
-				"expenses": "17437109.00"
-			},
-			{
-				"year": "2013",
-				"revenue": "15203829.20",
-				"expenses": "17437109.00"
-			},
-			{
-				"year": "2012",
-				"revenue": "16281486.00",
-				"expenses": "14771575.00"
-			}						
-		],
+		},
 		"execOffAddrList":[
 			{
 				"officeName": "Gram Panchat Office",
-				"addressLine1": "100 Main road",
-				"addressLine2": "",
-				"phoneNumberList":["9834343434"],
-				"execAdmin" : [
-					{
-						"title": "Secretary",
-						"name": "Nageswara Rao"
-					}
-				]
+				"addressLine1": "Main road",				
+				"execAdmin" : []
+			},
+			{
+				"officeName": "Sub Station",
+				"addressLine1": "Bommuru",
+				"execAdmin" : []
 			},
 			{
 				"officeName": "Post Office",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
-				"phoneNumberList":["9834343434"],
-				"execAdmin" : [
-					{
-						"title": "Postman",
-						"name": "Nageswara Rao"
-					}
-				]
+				"addressLine1": "Main Road",
+				"execAdmin" : []
+			},
+			{
+				"officeName": "Police Station",
+				"addressLine1": "Main Road",
+				"landmark": "Opp Lutheran High School",
+				"execAdmin" : []
 			}			
 		],
-		"legiRepList" : [
-			{
-				"title": "Sarpanch",
-				"name": "Buchi babu",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
-				"phoneNumberList":["9834343434"]
-			},
-			{
-				"title": "Member - Ward 1",
-				"name": "Buchi babu",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
-				"phoneNumberList":["9834343434"]
-			},
-			{
-				"title": "Member - Ward 2",
-				"name": "Buchi babu",
-				"addressLine1": "200 Main road",
-				"addressLine2": "Near rameswaram temple",
-				"phoneNumberList":["9834343434"]
-			}
-		]
+		"legiRepList" : []
 	},
 	{
 		"name": "Sri Krishna Patnam", 
 		"uniqueName": "srikrishnapatnam", 
 		"type": "village", 
 		"thumbnail": "http://s14.postimg.org/m1h17a1qp/srikrishnapatnam.png",
-		"execParentRegion": ["East Godavari", "Andhra Pradesh", "India"], 
-		"legiParentRegion": ["East Godavari", "Andhra Pradesh", "India"],
+		"parentRegion": ["rajanagaram_mandal", "east_godavari", "andhra_pradesh", "india"], 
 		"demography": 
 		{
 			"population": "3573",
@@ -93,34 +51,17 @@
 			"pinCodes": ["533296"],
 			"est": "1949",
 			"history": "Srikrishnapatnam village is in East Godavari District of Andhra Pradesh State. It is located 43 KM towards west from District head quarters Kakinada. Primary occupation of residents is agriculture and it exports lemons to all over India."
-		},
-		"financials": [
-			{
-				"year": "2014",
-				"revenue": "600000",
-				"expenses": "700000" 
-			},
-			{
-				"year": "2013",
-				"revenue": "500000",
-				"expenses": "5400000" 
-			}			
-		],		
+		},		
 		"execOffAddrList":[
 			{
 				"officeName": "Gram Panchayat Office",
 				"addressLine1": "Door # 2-108",
 				"landmark": "Beside Subrahmanya Swamy Temple",
+				"phoneNumberList":["8008201065"],
 				"execAdmin" : [
 					{
 						"title": "Secretary",
-						"name": "B Badrinath",
-						"phoneNumberList":["8008201065"]
-					},
-					{
-						"title": "VRO",
-						"name": "John",
-						"phoneNumberList":["9505209459"]
+						"name": "B Badrinath"
 					},
 					{
 						"title": "Water supply",
@@ -193,7 +134,7 @@
 						"phoneNumberList":["9396264471"]
 					}
 				]
-			}						
+			}	
 		],
 		"legiRepList" : [
 			{
@@ -245,3 +186,4 @@
 		]
 	}
 ]
+}

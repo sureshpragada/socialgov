@@ -1,17 +1,44 @@
 angular.module('starter.services', [])
 
-.factory('RegionService', ['$http', function($http) {
-  var regions=[];
+
+.factory('RegionService', ['CacheFactory', '$q', function(CacheFactory, $q) {
+  var regionCache;
+  if (!CacheFactory.get('regionCache')) {
+    regionCache = CacheFactory('regionCache', {
+      maxAge: 24 * 60 * 60 * 1000, // 1 Day
+      deleteOnExpire: 'none'
+    });
+  }
+
   return {
-    getFormattedRegionNameFromUniqueName: function(residency) {
-      return residency[0].toUpperCase()+residency.substring(1);
+    getRegion: function(regionUniqueName) {
+      var deferred = $q.defer();
+      var cachedObjectInfo=regionCache.info(regionUniqueName);
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        deferred.resolve(regionCache.get(regionUniqueName));  
+      } else {
+        console.log("No hit, attempting to retrieve from parse " + regionUniqueName);
+        var Region = Parse.Object.extend("Region");
+        var query = new Parse.Query(Region);
+        query.equalTo("uniqueName", regionUniqueName);
+        query.find({      
+          success: function(regions) {
+            regionCache.put(regionUniqueName, regions[0]);          
+            deferred.resolve(regions[0]);
+          }, 
+          error: function(error) {
+            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              console.log("Unable to refresh region hence passing cached one " + regionUniqueName + " " + JSON.stringify(error));
+              deferred.resolve(regionCache.get(regionUniqueName));  
+            } else {
+              deferred.reject(error)
+            }
+          }
+        }); 
+      }
+      return deferred.promise;
     },
-    cacheRegion: function(regionUniqueName, region) {
-      regions[regionUniqueName]=region;
-    },
-    getRegionFromCache: function(regionUniqueName) {
-      return regions[regionUniqueName];
-    }
+
   };
 }])
 
@@ -92,6 +119,15 @@ angular.module('starter.services', [])
       {id:"CTZEN", label:"Citizen"},
       {id:"SUADM", label:"Administrator"} 
     ];      
+
+  var accountCache;
+  if (!CacheFactory.get('accountCache')) {
+    regionCache = CacheFactory('accountCache', {
+      maxAge: 24 * 60 * 60 * 1000, // 1 Day
+      deleteOnExpire: 'passive'
+    });
+  }
+
   return {
     getAllowedRoles: function() {
       return [roles[0], roles[1], roles[2], roles[3]];      
@@ -112,11 +148,22 @@ angular.module('starter.services', [])
       }
     },
     isCitizen: function(roleCode){
-      if(roleCode=="CTZEN"){
+      if(roleCode==null || roleCode=="CTZEN"){
         return true;
       }else{
         return false;
       }
+    },
+    canUpdateRegion: function(){
+      var user=Parse.User.current();
+      if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
+        return true;
+      }else{
+        return false;
+      }
+    },
+    refreshUser: function() {
+      
     }
   };
 }])

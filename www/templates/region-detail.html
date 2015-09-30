@@ -15,13 +15,14 @@
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
       <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-right">
-<!--         <i class="icon ion-person-stalker"></i> -->
+<!--         <i class="icon ion-person-stalker calm"></i> -->
           Legislature Contacts
         <span class="badge badge-royal">{{region.get('legiRepList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/finview/{{region.get('uniqueName')}}" class="item-icon-right">
-          Revenue <span class="item-note">Rs. {{region.get('financials')[0].revenue}}</span>
+      <ion-item href="#/tab/finview/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+          <i class="icon ion-card balanced"></i>
+          Financials 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
       <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-right">
