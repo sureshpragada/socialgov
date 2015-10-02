@@ -102,13 +102,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     })
 
-    .state('tab.post', {
-      url: '/post',
+    .state('tab.editpost', {
+      url: '/post/edit/{activityId}',
       cache: false,
       views: {
         'tab-dash': {
-          templateUrl: 'templates/post-activity.html',
-          controller: 'PostActivityCtrl'
+          templateUrl: 'templates/edit-post-activity.html',
+          controller: 'EditPostActivityCtrl'
         }
       }
     })

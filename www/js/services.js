@@ -15,14 +15,16 @@ angular.module('starter.services', [])
       var deferred = $q.defer();
       var cachedObjectInfo=regionCache.info(regionUniqueName);
       if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        console.log("Found hit " + JSON.stringify(regionCache.info()) + " Item info : " + JSON.stringify(cachedObjectInfo));
         deferred.resolve(regionCache.get(regionUniqueName));  
       } else {
-        console.log("No hit, attempting to retrieve from parse " + regionUniqueName);
+        console.log("No hit, attempting to retrieve from parse " + regionUniqueName + " Info : " + JSON.stringify(cachedObjectInfo));
         var Region = Parse.Object.extend("Region");
         var query = new Parse.Query(Region);
         query.equalTo("uniqueName", regionUniqueName);
         query.find({      
           success: function(regions) {
+            regionCache.remove(regionUniqueName);
             regionCache.put(regionUniqueName, regions[0]);          
             deferred.resolve(regions[0]);
           }, 
@@ -59,6 +61,14 @@ angular.module('starter.services', [])
       ];
       // Use Region service to look up parent executive regions 
       return allowedRegions;      
+    },
+    getActivityInAList: function(activityId, activityList) {
+      for(var i=0;i<activityList.length;i++) {
+        if(activityId==activityList[i].id) {
+          return activityList[i];
+        }
+      }
+      return activityList[0];
     },
     getMockData: function() {
 
@@ -105,7 +115,7 @@ angular.module('starter.services', [])
   };
 }])
 
-.factory('AccountService', ['$http', function($http) {
+.factory('AccountService', ['CacheFactory', function(CacheFactory) {
     var roles=[
       {id:"LEGI", label:"Legislative", titles:[
         {id:"Sarpanch", label:"Sarpanch"},
@@ -120,13 +130,7 @@ angular.module('starter.services', [])
       {id:"SUADM", label:"Administrator"} 
     ];      
 
-  var accountCache;
-  if (!CacheFactory.get('accountCache')) {
-    regionCache = CacheFactory('accountCache', {
-      maxAge: 24 * 60 * 60 * 1000, // 1 Day
-      deleteOnExpire: 'passive'
-    });
-  }
+  var userLastRefreshTimeStamp=new Date().getTime();
 
   return {
     getAllowedRoles: function() {
@@ -163,7 +167,10 @@ angular.module('starter.services', [])
       }
     },
     refreshUser: function() {
-      
+      if(new Date().getTime()-userLastRefreshTimeStamp>(24* 60 * 60*1000)) {
+        userLastRefreshTimeStamp=new Date().getTime();
+        Parse.User.current().fetch();
+      }
     }
   };
 }])

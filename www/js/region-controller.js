@@ -18,6 +18,7 @@ angular.module('starter.controllers')
     // console.log("Retrieved region from service " + JSON.stringify(data));
     $scope.region=data;
   }, function(error) {
+    $scope.regionErrorMessage="Unable to retrieve region information.";
     console.log("Error retrieving region " + JSON.stringify(error));
   });
 

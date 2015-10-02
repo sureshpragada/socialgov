@@ -53,7 +53,7 @@ angular.module('starter.controllers')
   query.get($stateParams.accessRequestId,{
     success: function(accessRequest) {
           $scope.accessRequest=accessRequest;
-          console.log(JSON.stringify(accessRequest));
+          // console.log(JSON.stringify(accessRequest));
         }, 
         error: function(error) {
           console.log(error.message);
@@ -191,64 +191,48 @@ angular.module('starter.controllers')
   query.descending("createdAt");
   query.find({
     success: function(results) {
-        if(results!=null && results.length>0) {
-          console.log(JSON.stringify(results));
-            $scope.$apply(function(){
-              $scope.accessRequest=results[0];
-              if($scope.accessRequest.get("status")=="APPR"){
-                $scope.user.set("role",$scope.accessRequest.get("role"));
-                $scope.user.set("title",$scope.accessRequest.get("title"));
-                $scope.accessRequest.set("status","CMPL");
-                $scope.accessRequest.save(null, {
-                  error: function(error) {
-                    console.log("Error while saving accessrequest : " + JSON.stringify(error));
-                    LogService.log({type:"ERROR", message: "Error while saving accessrequest :" + JSON.stringify(error)});           
-                  }
-                });
-                $scope.user.save(null, {
-                  error: function(error) {
-                    console.log("Error while saving user : " + JSON.stringify(error));
-                    LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
-                  }
-                });
-              } else {
-                if($scope.accessRequest.get("status")=="PEND"){
-                  $scope.accessRequestMessage="Your role change request is in review.";
-                } else {
-                  $scope.accessRequestMessage="Sorry! We are unable to process your role change."; 
+      if(results!=null && results.length>0) {
+        console.log(JSON.stringify(results));
+          $scope.$apply(function(){
+            $scope.accessRequest=results[0];
+            if($scope.accessRequest.get("status")=="APPR"){
+              $scope.user.set("role",$scope.accessRequest.get("role"));
+              $scope.user.set("title",$scope.accessRequest.get("title"));
+              $scope.accessRequest.set("status","CMPL");
+              $scope.accessRequest.save(null, {
+                error: function(error) {
+                  console.log("Error while saving accessrequest : " + JSON.stringify(error));
+                  LogService.log({type:"ERROR", message: "Error while saving accessrequest :" + JSON.stringify(error)});           
                 }
-              }               
-            });
-          } else {
-              console.log("No access requests found");
-          }
-        }, 
-        error: function(error) {
-          console.log("Error retrieving role change requests. " + JSON.stringify(error));          
+              });
+              $scope.user.save(null, {
+                error: function(error) {
+                  console.log("Error while saving user : " + JSON.stringify(error));
+                  LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
+                }
+              });
+            } else {
+              if($scope.accessRequest.get("status")=="PEND"){
+                $scope.accessRequestMessage="Your role change request is in review.";
+              } else {
+                $scope.accessRequestMessage="Sorry! We are unable to process your role change."; 
+              }
+            }               
+          });
+        } else {
+            console.log("No access requests found");
         }
-      });
+      }, 
+      error: function(error) {
+        console.log("Error retrieving role change requests. " + JSON.stringify(error));          
+      }
+    });
 
   RegionService.getRegion($scope.user.get("residency")).then(function(region){
     $scope.regionDisplayName=region.get("name");
   }, function() {
     $scope.regionDisplayName=user.get("residency");
   });
-
-  // Parse.User.current().fetch();
-
-  // Refresh user object
-  // if(Parse.User.current().get("lastRefresh")==null || new Date().getTime()-Parse.User.current().get("lastRefresh")>(60*1000)) {
-  //   console.log("Need to refresh user object " + $scope.user.get("lastRefresh") + " " + new Date().getTime());
-  //   Parse.User.current().set("lastRefresh", new Date().getTime());
-  //   Parse.User.current().save(null, {
-  //     error: function(error) {
-  //       console.log("Unable to refresh the user " + JSON.stringify(error));
-  //     }
-  //   })
-  // } else {
-  //   console.log("Current time : " + new Date().getTime());
-  //   console.log("No need to refresh user object " + $scope.user.get("lastRefresh") + " " + new Date().getTime());
-  // }
 
   $scope.getRoleNameFromRoleCode=function(role) {
     return AccountService.getRoleNameFromRoleCode(role);

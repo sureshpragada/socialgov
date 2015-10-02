@@ -4,6 +4,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
+  $scope.user=Parse.User.current();
   var user=Parse.User.current();
   var residency=user.get("residency");
 
@@ -273,6 +274,59 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           $scope.$apply(function(){
             $state.go("tab.dash");  
           });
+        },
+        error: function(activity, error) {
+          // Notify user that post has failed
+          console.log("Error in posting message " + error.message);
+          $scope.postError=true;
+          $scope.postErrorMessage=error.message;
+          $scope.$apply();
+        }
+      });
+    } else {
+      $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
+    }
+  };
+
+  $scope.cancelPost=function(){
+    $state.go("tab.dash");
+  };
+
+})
+
+.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService) {
+  var user=Parse.User.current();  
+  $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
+  $scope.allowedRegions=ActivityService.getAllowedRegions(user.get("residency"));  
+  $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};
+  $scope.post={notifyMessage: ""};  
+
+  // Retrieve post
+  var Activity = Parse.Object.extend("Activity");
+  var query=new Parse.Query(Activity);
+  query.get($stateParams.activityId,{
+    success: function(activity) {
+      $scope.preActivity=activity;
+      $scope.post.notifyMessage=activity.get("notifyMessage");
+      $scope.selectChoices={selectedActivityType: ActivityService.getActivityInAList(activity.get('activityType'), $scope.allowedActivities), selectedRegion: $scope.allowedRegions[0]};            
+    }, 
+    error: function(error) {
+      console.log("Error while retrieving post to edit : " + JSON.stringify(error));
+      $scope.postErrorMessage="Unable to retrieve post to edit. Please try again later.";
+    }
+  });
+
+  $scope.postErrorMessage=null;
+  $scope.editPost=function() {
+    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
+      $scope.preActivity.set("activityType", $scope.selectChoices.selectedActivityType.id);
+      $scope.preActivity.set("regionUniqueName", $scope.selectChoices.selectedRegion.id);   
+      $scope.preActivity.set("notifyMessage", $scope.post.notifyMessage);
+
+      $scope.preActivity.save(null, {
+        success: function(activity) {
+          // Push the new activity to the top of activity chart, probably through Activity service
+          $state.go("tab.dash");  
         },
         error: function(activity, error) {
           // Notify user that post has failed

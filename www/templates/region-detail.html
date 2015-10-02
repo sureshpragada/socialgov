@@ -1,31 +1,38 @@
 <ion-view>
-<ion-nav-title>
-      {{region.get("name")}}
-    </ion-nav-title>
+  <ion-nav-title>
+    {{region.get("name")}}
+  </ion-nav-title>
   <ion-content>
-    <div class="list card">
+    <div ng-if="regionErrorMessage" class="card padding assertive">{{regionErrorMessage}}</div>
+<!--     <div class="list card" ng-if="!regionErrorMessage">
       <div class="item item-image">
         <img src="{{region.get('thumbnail')}}">
       </div>
     </div>
-  	<ion-list>
-      <ion-item href="#/tab/offices/{{region.get('uniqueName')}}" class="item-icon-right">
+ -->  	
+      <ion-list ng-if="!regionErrorMessage">
+      <div class="item item-image">
+        <img ng-src="{{region.get('thumbnail')}}">
+      </div> 
+      <ion-item href="#/tab/offices/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+        <i class="icon ion-ios-home royal"></i>            
           Government Offices
         <span class="badge badge-balanced">{{region.get('execOffAddrList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-right">
-<!--         <i class="icon ion-person-stalker calm"></i> -->
+      <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+        <i class="icon ion-person-stalker royal"></i>
           Legislature Contacts
-        <span class="badge badge-royal">{{region.get('legiRepList').length}}</span>
+        <span class="badge badge-balanced">{{region.get('legiRepList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
       <ion-item href="#/tab/finview/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
-          <i class="icon ion-card balanced"></i>
+          <i class="icon ion-card royal"></i>
           Financials 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
-      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-right">
+      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+        <i class="icon ion-earth royal"></i>      
           Demography
           <i class="icon ion-chevron-right icon-accessory"></i>    
       </ion-item>            

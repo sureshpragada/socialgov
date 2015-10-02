@@ -19,6 +19,9 @@
       <div class="item item-body">
         <p ng-bind-html="activity.get('notifyMessage') | nl2br">
         </p>
+        <p ng-if="activity.get('user').id==user.id">
+          <a class="button button-small button-royal" href="#/tab/post/edit/{{activity.id}}">edit post</a>
+        </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')!='NOTF'">
         <a class="tab-item" ng-click="respond(activity.id, 'support')">
