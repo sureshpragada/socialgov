@@ -28,16 +28,24 @@
 				      Last name
 				    </span>
 				    <input type="text" name="lastName" ng-model="user.lastName">
-				  </label>				  
+				</label>				  
+				<div class="item item-divider" ng-hide="userRegistered">
+					Residency
+				</div>
 				<label class="item item-input item-select" ng-hide="userRegistered">
 				    <span class="input-label">
-				      Residency
+				      Mandal/City
 				    </span>
-				    <select ng-model="user.residency">
-				      <option value="dowlaiswaram">Dowlaiswaram</option>
-				      <option value="srikrishnapatnam" selected>Sri Krishna Patnam</option>
+				    <select ng-model="selectedValues.highLevelRegion" ng-options="region.get('name') for region in highLevelRegionList" ng-change="showNextLevelRegions()">
 				    </select>
 				 </label>
+				<label class="item item-input item-select" ng-hide="userRegistered">
+				    <span class="input-label">
+				      Village/Division
+				    </span>
+				    <select ng-model="selectedValues.finalLevelRegion" ng-options="region.get('name') for region in finalLevelRegionList" ng-change="showFinalLevelRegions()">
+				    </select>
+				 </label>				 
 				<div class="padding" ng-hide="userRegistered">
 					<button class="button button-block button-balanced" ng-click="register()">Register</button>
 				</div>				  

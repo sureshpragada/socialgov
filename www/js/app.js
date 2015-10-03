@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache'])
 
-.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService) {
+.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -25,7 +25,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
           if (notification.regid.length > 0 ) {
             console.log('registration ID = ' + notification.regid);
             var user=Parse.User.current();
-            NotificationService.addAndroidInstallation(user.id, notification.regid, [user.get("residency")], function(result){
+            NotificationService.addAndroidInstallation(user.id, notification.regid, RegionService.getRegionHierarchy(), function(result){
                   console.log("Success response : " + JSON.stringify(result.data));
                   LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
                 }, function(error) {
@@ -102,8 +102,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     })
 
+    .state('tab.post', {
+      url: '/post',
+      cache: false,
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/post-activity.html',
+          controller: 'PostActivityCtrl'
+        }
+      }
+    })
+
     .state('tab.editpost', {
-      url: '/post/edit/{activityId}',
+      url: '/editpost/{activityId}',
       cache: false,
       views: {
         'tab-dash': {

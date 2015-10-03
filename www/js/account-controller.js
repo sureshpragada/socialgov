@@ -1,7 +1,7 @@
 angular.module('starter.controllers')
 
 .controller('AdminAccessReqCtrl', function($scope, $state, AccountService) {
-  $scope.allowedRoleChanges=AccountService.getAllowedRoles();
+  $scope.allowedRoleChanges=AccountService.getRolesAllowedToChange();
   $scope.adminDetails={reason:"", selectedRoleType: $scope.allowedRoleChanges[0], selectedTitle: $scope.allowedRoleChanges[0].titles[0]};
   $scope.adminRequestErrorMessage=null;
 
@@ -100,27 +100,41 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService) {
+.controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService) {
 
-  $scope.user={countryCode: "91", residency: "dowlaiswaram"};
+  $scope.user={countryCode: "91"};
   $scope.userRegistered=true;
   $scope.registerErrorMessage=null;
 
   $scope.authPhoneNum=function() {
     if($scope.user.phoneNum!=null && $scope.user.phoneNum.length==10) {
+      $ionicLoading.show({
+        template: "<ion-spinner></ion-spinner> Verifying your phone number..."
+      });      
       var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
       Parse.User.logIn(userName, "custom", {
         success: function(user) {
           console.log("User exists in the system. Skipping registration flow.");
+          $ionicLoading.hide();
           $scope.$apply(function(){
             $state.go("tab.dash");
           });
         },
         error: function(user, error) {
           console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
-          $scope.userRegistered=false;
-          $scope.registerErrorMessage=null;          
-          $scope.$apply();
+          $scope.$apply(function() {
+            $scope.userRegistered=false;
+            $scope.registerErrorMessage=null;          
+            RegionService.getLiteRegionList("regionType", ["city", "mandal"]).then(function(data) {
+              $scope.highLevelRegionList=data;
+              $scope.selectedValues={highLevelRegion:null, finalLevelRegion: null};
+              $ionicLoading.hide();
+            }, function(error) {
+              console.log("Error while retrieving mandal list " + JSON.stringify(error));
+              $registerErrorMessage="Unable to get city list for registration";
+              $ionicLoading.hide();              
+            });
+          });
         }
       });
     } else {
@@ -128,55 +142,77 @@ angular.module('starter.controllers')
     }
 
   };
-  //console.log($scope.user.residency);
+
+  $scope.showNextLevelRegions=function() {
+    RegionService.getLiteRegionList("parent", $scope.selectedValues.highLevelRegion.get('uniqueName')).then(function(data) {
+      $scope.finalLevelRegionList=data;
+      $scope.selectedValues.finalLevelRegion=$scope.finalLevelRegionList[0];
+      $scope.$apply();
+    }, function(error) {
+      console.log("Unable to get village list for registration : " + JSON.stringify(error));
+      $registerErrorMessage="Unable to get village list for registration";
+    });
+  };
+
   $scope.register=function() {
     // TODO :: Please use angular form validation to validate all the fields
-    if($scope.user.phoneNum!=null && $scope.user.phoneNum.length==10) {
-      if($scope.user.firstName!=null && $scope.user.firstName.length>0 && $scope.user.lastName!=null && $scope.user.lastName.length>0) {
-        var user=new Parse.User();
-        var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
-        user.set("username", userName);
-        user.set("password", "custom");
-        user.set("firstName", $scope.user.firstName);
-        user.set("lastName", $scope.user.lastName);
-        user.set("residency", $scope.user.residency);
-        user.set("phoneNum", $scope.user.phoneNum);
-        user.set("countryCode", $scope.user.countryCode);
-        user.set("role", "CTZEN");
-        user.set("notifySetting", true);
-        user.signUp(null, {
-          success: function(user) {
-            console.log("Signup is success");        
-            if(ionic.Platform.isAndroid()) {
-              // Register with GCM
-              var androidConfig = {
-                "senderID": "927589908829",
-              };
-
-              $cordovaPush.register(androidConfig).then(function(result) {
-                console.log("Register Success : " + result);
-                LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
-              }, function(err) {
-                console.log("Register error : " + err);
-                LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
-              });
-            }
-            $scope.$apply(function(){
-              $state.go("tab.dash");
-            });
-          },
-          error: function(user, error) {
-            console.log("Signup error  : " + error.code + " " + error.message);
-            $scope.registerErrorMessage=error.message;
-            $scope.apply();
-          }
-        });
-      } else {
-        $scope.registerErrorMessage="Please enter first and last name.";  
-      }
-    } else {
+    if($scope.user.phoneNum==null || $scope.user.phoneNum.length!=10) {
       $scope.registerErrorMessage="Please enter 10 digit phone number.";
+      return;
     }
+
+    if($scope.user.firstName==null || $scope.user.firstName.length==0 || $scope.user.lastName==null || $scope.user.lastName.length==0) {
+      $scope.registerErrorMessage="Please enter first and last name."; 
+      return;
+    }
+
+    if($scope.selectedValues.highLevelRegion==null || $scope.selectedValues.finalLevelRegion==null) {
+      $scope.registerErrorMessage="Please select your residency.";
+      return;
+    }
+
+    var user=new Parse.User();
+    var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
+    user.set("username", userName);
+    user.set("password", "custom");
+    user.set("firstName", $scope.user.firstName);
+    user.set("lastName", $scope.user.lastName);
+    user.set("residency", $scope.selectedValues.finalLevelRegion.get("uniqueName"));
+    user.set("phoneNum", $scope.user.phoneNum);
+    user.set("countryCode", $scope.user.countryCode);
+    user.set("role", "CTZEN");
+    user.set("notifySetting", true);
+    user.signUp(null, {
+      success: function(user) {
+        console.log("Signup is success");        
+
+        RegionService.initializeRegionCache($scope.selectedValues.finalLevelRegion);
+
+        if(ionic.Platform.isAndroid()) {
+          // Register with GCM
+          var androidConfig = {
+            "senderID": "927589908829",
+          };
+
+          $cordovaPush.register(androidConfig).then(function(result) {
+            console.log("Register Success : " + result);
+            LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
+          }, function(err) {
+            console.log("Register error : " + err);
+            LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+          });
+        }
+
+        $scope.$apply(function(){
+          $state.go("tab.dash");
+        });
+      },
+      error: function(user, error) {
+        console.log("Signup error  : " + error.code + " " + error.message);
+        $scope.registerErrorMessage=error.message;
+        $scope.apply();
+      }
+    });
   }
 })
 

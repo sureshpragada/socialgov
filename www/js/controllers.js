@@ -1,21 +1,19 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('DashboardCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService) {
+.controller('DashboardCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService) {
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
   $scope.user=Parse.User.current();
-  var user=Parse.User.current();
-  var residency=user.get("residency");
 
   $ionicLoading.show({
-    template: "<ion-spinner></ion-spinner> Finding activity in " + residency
+    template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency")
   });
 
   // $scope.activities=ActivityService.getMockData();  
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
-  query.equalTo("regionUniqueName", residency);
+  query.containedIn("regionUniqueName", RegionService.getRegionHierarchy());
   query.include("user");
   query.descending("createdAt");
   query.find({
@@ -26,7 +24,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
           var UserActivity = Parse.Object.extend("UserActivity");
           var userActivityQuery=new Parse.Query(UserActivity);
-          userActivityQuery.equalTo("user", user);
+          userActivityQuery.equalTo("user", $scope.user);
           userActivityQuery.find({
             success: function(userActivityList) {
               $scope.$apply(function(){ 
@@ -74,7 +72,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         success: function(debates) {
           $scope.$apply(function(){
             if(debates!=null && debates.length>0) {
-              console.log("Deabte notes : " + JSON.stringify(debates));
+              // console.log("Deabte notes : " + JSON.stringify(debates));
               $scope.debateList[index]=debates;
             } else {
               console.log("No arguments found for activity " + activityId);
@@ -238,12 +236,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService) {
 
   var user=Parse.User.current();  
   $scope.post={"notifyMessage": ""};
   $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
-  $scope.allowedRegions=ActivityService.getAllowedRegions(user.get("residency"));
+  $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
   $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
@@ -294,10 +292,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService) {
+.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService) {
   var user=Parse.User.current();  
   $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
-  $scope.allowedRegions=ActivityService.getAllowedRegions(user.get("residency"));  
+  $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
   $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};
   $scope.post={notifyMessage: ""};  
 

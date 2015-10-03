@@ -2,6 +2,7 @@ angular.module('starter.services', [])
 
 
 .factory('RegionService', ['CacheFactory', '$q', function(CacheFactory, $q) {
+  var regionHeirarchy=null;
   var regionCache;
   if (!CacheFactory.get('regionCache')) {
     regionCache = CacheFactory('regionCache', {
@@ -15,7 +16,7 @@ angular.module('starter.services', [])
       var deferred = $q.defer();
       var cachedObjectInfo=regionCache.info(regionUniqueName);
       if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
-        console.log("Found hit " + JSON.stringify(regionCache.info()) + " Item info : " + JSON.stringify(cachedObjectInfo));
+        // console.log("Found hit " + JSON.stringify(regionCache.info()) + " Item info : " + JSON.stringify(cachedObjectInfo));
         deferred.resolve(regionCache.get(regionUniqueName));  
       } else {
         console.log("No hit, attempting to retrieve from parse " + regionUniqueName + " Info : " + JSON.stringify(cachedObjectInfo));
@@ -40,11 +41,76 @@ angular.module('starter.services', [])
       }
       return deferred.promise;
     },
-
+    getLiteRegionList: function(selectQuery, value) {
+      var Region = Parse.Object.extend("Region");
+      var query = new Parse.Query(Region);
+      query.select("name", "uniqueName", "parentRegion")
+      query.ascending("name");
+      if(selectQuery=="parent") {
+        query.equalTo("parentRegion", value);  
+      } else if(selectQuery=="regionType") {
+        query.containedIn("type", value);        
+      } else {
+        query.equalTo("uniqueName", value);        
+      }
+      return query.find();       
+    },
+    initializeRegionCache: function(region) {
+      regionHeirarchy=[region.get("uniqueName")];
+      for(var i=0;i<region.get("parentRegion").length;i++) {
+        regionHeirarchy.push(region.get("parentRegion")[i]);
+      }
+      console.log("Final region list for cache : " + JSON.stringify(requiredRegionList));
+      var Region = Parse.Object.extend("Region");
+      var query = new Parse.Query(Region);
+      query.containedIn("uniqueName", regionHeirarchy);  
+      query.find({
+        success: function(data) {
+          for(var i=0;i<data.length;i++) {
+            regionCache.put(data[i].get("uniqueName"), data[i]);
+          }
+        },
+        error: function(error) {
+          console.log("Error while initializing the regionCache " + JSON.stringify(error));
+        }
+      });
+    },
+    getAllowedRegions: function(residency) {
+      var residencyRegion=regionCache.get(residency);
+      if(residencyRegion==null) {
+        return [{id:residency, label:residency[0].toUpperCase()+residency.substring(1)}];
+      } else {
+        var regionHeirarchyList=residencyRegion.get("parentRegion");
+        var allowedRegionList=[{id: residencyRegion.get("uniqueName"), label: residencyRegion.get("name")}];
+        for(var i=0;i<regionHeirarchyList.length;i++) {
+          var region=regionCache.get(regionHeirarchyList[i]);
+          if(region!=null) {
+            allowedRegionList.push({id: region.get("uniqueName"), label:region.get("name")});
+          }
+        }
+        return allowedRegionList;        
+      }
+    },
+    getRegionHierarchy: function() {
+      if(regionHeirarchy==null) {
+        this.getRegion(Parse.User.current().get('residency')).then(function(data) {
+          regionHeirarchy=[data.get("uniqueName")];
+          var parentRegionArray=data.get("parentRegion");
+          for(var i=0;i<parentRegionArray.length;i++) {
+            regionHeirarchy.push(parentRegionArray[i]);
+          }
+        }, function(error) {
+          console.log("Unable to form region hierarchy");
+        });
+        return [Parse.User.current().get("residency")];  
+      } else {
+        return regionHeirarchy;
+      }
+    }
   };
 }])
 
-.factory('ActivityService', ['$http', function($http) {
+.factory('ActivityService', ['$http', 'AccountService', function($http, AccountService) {
   return {
     getAllowedActivities: function(role) {
       var allowedActivities=[
@@ -54,13 +120,6 @@ angular.module('starter.services', [])
         allowedActivities.push({id:"NOTF", label:"Notification"});
       }
       return allowedActivities;
-    },
-    getAllowedRegions: function(residency) {
-      var allowedRegions=[
-        {id:residency, label:residency[0].toUpperCase()+residency.substring(1)}
-      ];
-      // Use Region service to look up parent executive regions 
-      return allowedRegions;      
     },
     getActivityInAList: function(activityId, activityList) {
       for(var i=0;i<activityList.length;i++) {
@@ -115,7 +174,7 @@ angular.module('starter.services', [])
   };
 }])
 
-.factory('AccountService', ['CacheFactory', function(CacheFactory) {
+.factory('AccountService', ['CacheFactory', 'RegionService', function(CacheFactory, RegionService) {
     var roles=[
       {id:"LEGI", label:"Legislative", titles:[
         {id:"Sarpanch", label:"Sarpanch"},
@@ -133,9 +192,16 @@ angular.module('starter.services', [])
   var userLastRefreshTimeStamp=new Date().getTime();
 
   return {
-    getAllowedRoles: function() {
+    getRolesAllowedToChange: function() {
       return [roles[0], roles[1], roles[2], roles[3]];      
     },    
+    getRegionsAllowedToPost: function(role, residency) {
+      if(role=="CTZEN") {
+        return [RegionService.getAllowedRegions(residency)[0]];
+      } else {
+        return RegionService.getAllowedRegions(residency);
+      }
+    },
     getRoleNameFromRoleCode: function(roleCode) {
       for(var i=0;i<roles.length;i++) {
         if(roles[i].id==roleCode) {
