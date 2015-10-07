@@ -19,13 +19,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       StatusBar.styleLightContent();
     }
 
+    RegionService.initializeRegionCacheByCurrentUser();
+    
     $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
       switch(notification.event) {
         case 'registered':
           if (notification.regid.length > 0 ) {
             console.log('registration ID = ' + notification.regid);
             var user=Parse.User.current();
-            NotificationService.addAndroidInstallation(user.id, notification.regid, RegionService.getRegionHierarchy(), function(result){
+            var channelList=RegionService.getRegionHierarchy();
+            console.log("Channel list : " + JSON.stringify(channelList));
+            NotificationService.addAndroidInstallation(user.id, notification.regid, channelList, function(result){
                   console.log("Success response : " + JSON.stringify(result.data));
                   LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
                 }, function(error) {

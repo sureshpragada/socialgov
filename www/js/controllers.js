@@ -1,6 +1,6 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('DashboardCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService) {
+.controller('DashboardCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs) {
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
@@ -13,7 +13,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   // $scope.activities=ActivityService.getMockData();  
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
-  query.containedIn("regionUniqueName", RegionService.getRegionHierarchy());
+  var regionList=RegionService.getRegionHierarchy();
+  // console.log("Region list to get activity : " + JSON.stringify(regionList));
+  query.containedIn("regionUniqueName", regionList);
+  query.equalTo("status", "A");
   query.include("user");
   query.descending("createdAt");
   query.find({
@@ -111,7 +114,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           activity.increment("debate", 1);
           activity.save();              
           $scope.argumentMessageList[index]="";
-          console.log("newly added debate entry : " + JSON.stringify(newDebate));
+          // console.log("newly added debate entry : " + JSON.stringify(newDebate));
           $scope.debateList[index].unshift(newDebate);
           console.log("Successfully added debate entry");
         });
@@ -184,7 +187,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           previousUserActivity.set("action", ActivityService.getActionCode(action));
           previousUserActivity.save({
             success: function(userActivity) {
-              console.log("Update user activity is successful " + JSON.stringify(userActivity));
+              // console.log("Update user activity is successful " + JSON.stringify(userActivity));
             },
             error: function(error) {
               console.log("Error while updating user activity : " + JSON.stringify(error));
@@ -194,7 +197,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           activities[i].increment(action, 1);
           activities[i].save({
             success: function(activity) {
-              console.log("Successfullly incremented the counters : " + JSON.stringify(activity));
+              // console.log("Successfullly incremented the counters : " + JSON.stringify(activity));
             },
             error: function(error) {
               console.log("Error while incrementing counters : " + JSON.stringify(error));
@@ -205,6 +208,27 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       }
     }
     console.log("unable to find activity id " + activityId + " to perform " + action);
+  };
+
+  $scope.removePost=function(activityId, index) {
+    // $cordovaDialogs.beep(1);
+    $cordovaDialogs.confirm('Do you want to remove this activity?', 'Remove Activity', ['Remove','Cancel'])
+    .then(function(buttonIndex) {      
+      // no button = 0, 'OK' = 1, 'Cancel' = 2
+      console.log("Button index : " + buttonIndex);      
+      if(buttonIndex==1) {
+        ActivityService.removePost(activityId).then(function(post) {
+          console.log("Removed post Successfullly");
+          $scope.$apply(function() {
+            delete $scope.activities[index];      
+          });          
+        }, function(error) {
+          console.log("Error removing post " + JSON.stringify(error));
+        });
+      } else {
+        console.log("Canceled removal of activity");
+      }
+    });
   };
 
 })

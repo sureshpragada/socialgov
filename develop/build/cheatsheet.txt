@@ -28,6 +28,12 @@ Android push notifications :
 Project ID: socialgov-1038 Project Number: 927589908829 (Sender ID ?)
 Google API Key (push notifications/Server Key) : AIzaSyA45rCCNniDVAdDFPlxElwo7JwMkBhTKVQ
 
+https://console.developers.google.com/project/socialgov-1038
+
+Socialgov-dev : 
+Project ID : 731778874423
+API Key : AIzaSyD0aMFB6caKkR6h5WO-LR8zYuKpRa1J6Bc
+
 
 Android Google play store : 
 ===========================

@@ -115,6 +115,7 @@ angular.module('starter.controllers')
       Parse.User.logIn(userName, "custom", {
         success: function(user) {
           console.log("User exists in the system. Skipping registration flow.");
+          RegionService.initializeRegionCacheByCurrentUser();          
           $ionicLoading.hide();
           $scope.$apply(function(){
             $state.go("tab.dash");
@@ -191,7 +192,7 @@ angular.module('starter.controllers')
         if(ionic.Platform.isAndroid()) {
           // Register with GCM
           var androidConfig = {
-            "senderID": "927589908829",
+            "senderID": GCM_SENDER_ID,
           };
 
           $cordovaPush.register(androidConfig).then(function(result) {
@@ -247,13 +248,11 @@ angular.module('starter.controllers')
                   LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
                 }
               });
-            } else {
-              if($scope.accessRequest.get("status")=="PEND"){
+            } else if($scope.accessRequest.get("status")=="PEND"){              
                 $scope.accessRequestMessage="Your role change request is in review.";
-              } else {
-                $scope.accessRequestMessage="Sorry! We are unable to process your role change."; 
-              }
-            }               
+            } else {
+              console.log("Role change is completed.")
+            }
           });
         } else {
             console.log("No access requests found");

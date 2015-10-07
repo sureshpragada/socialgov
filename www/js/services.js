@@ -42,6 +42,7 @@ angular.module('starter.services', [])
       return deferred.promise;
     },
     getLiteRegionList: function(selectQuery, value) {
+      // TODO :: Cache these for short interval and flush aggressively
       var Region = Parse.Object.extend("Region");
       var query = new Parse.Query(Region);
       query.select("name", "uniqueName", "parentRegion")
@@ -60,9 +61,10 @@ angular.module('starter.services', [])
       for(var i=0;i<region.get("parentRegion").length;i++) {
         regionHeirarchy.push(region.get("parentRegion")[i]);
       }
-      console.log("Final region list for cache : " + JSON.stringify(requiredRegionList));
+      console.log("Final region list for cache : " + JSON.stringify(regionHeirarchy));
       var Region = Parse.Object.extend("Region");
       var query = new Parse.Query(Region);
+      // TODO :: Evaluate whether it helps to load if it missing in cache      
       query.containedIn("uniqueName", regionHeirarchy);  
       query.find({
         success: function(data) {
@@ -75,9 +77,24 @@ angular.module('starter.services', [])
         }
       });
     },
+    initializeRegionCacheByCurrentUser: function() {
+      var self=this;
+      if(Parse.User.current()!=null && Parse.User.current().get("residency")!=null) {
+        if(regionCache.get(Parse.User.current().get("residency"))!=null) {
+          self.initializeRegionCache(regionCache.get(Parse.User.current().get("residency")));
+        } else {
+          self.getRegion(Parse.User.current().get("residency")).then(function(region) {
+            self.initializeRegionCache(region);
+          }, function(error) {
+            console.log("Unable to refresh region cache by user " + JSON.stringify(error));
+          });
+        }
+      }
+    },    
     getAllowedRegions: function(residency) {
       var residencyRegion=regionCache.get(residency);
       if(residencyRegion==null) {
+        console.log("Residence region is missing in cache " + JSON.stringify(residency));
         return [{id:residency, label:residency[0].toUpperCase()+residency.substring(1)}];
       } else {
         var regionHeirarchyList=residencyRegion.get("parentRegion");
@@ -170,6 +187,14 @@ angular.module('starter.services', [])
       } else {
         return "neutral";
       }
+    },
+    removePost: function(activityId) {
+      console.log("Updating status field of activity");
+      var Activity = Parse.Object.extend("Activity");
+      var activity = new Activity();
+      activity.set("id", activityId);
+      activity.set("status", "D");
+      return activity.save();
     }
   };
 }])
@@ -178,10 +203,14 @@ angular.module('starter.services', [])
     var roles=[
       {id:"LEGI", label:"Legislative", titles:[
         {id:"Sarpanch", label:"Sarpanch"},
-        {id:"Vice President", label:"Vice President"}
+        {id:"Ward Member", label:"Ward Member"},
+        {id:"MPTC", label:"MPTC"},        
+        {id:"Mayor", label:"Mayor"},
+        {id:"Corporator", label:"Corporator"}                
       ]}, 
       {id:"EXEC", label:"Executive Officer", titles:[
-        {id:"Secretary", label:"Secretary"}
+        {id:"Secretary", label:"Secretary"},
+        {id:"MPDO", label:"MPDO"}
       ]},
       {id:"JNLST", label:"Journalist", titles:[]}, 
       {id:"SOACT", label:"Social Activist", titles:[]},
@@ -299,7 +328,7 @@ angular.module('starter.services', [])
           "deviceType": "android",
           "pushType": "gcm",
           "deviceToken": deviceToken,
-          "GCMSenderId": "927589908829",
+          "GCMSenderId": GCM_SENDER_ID,
           "channels": channelArray,
           "user": {
             "__type": "Pointer",

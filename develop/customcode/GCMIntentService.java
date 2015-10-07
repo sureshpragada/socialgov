@@ -83,6 +83,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 				extras.putBoolean("foreground", false);
 				extras.putString("message", message!=null?message:"You have new activity in your region.");
+				extras.putString("title", "SocialGov");				
 				//extras.putString("msgcnt", "1");
 				extras.putString("notId", new Random().nextInt()+"");
 				
