@@ -1,0 +1,22 @@
+<ion-view view-title="Picture Manager">
+  <ion-content>
+    <div ng-show="managePictureError" class="card">
+      <div class="item item-text-wrap">
+        {{managePictureError}}
+      </div>
+    </div>
+    <div class="list card">
+      <div class="item item-image">
+        <img ng-src="{{imageUrl}}">
+      </div> 
+    </div>
+      <div class="button-bar padding">
+        <button class="button button-balanced icon-left ion-image" ng-click="selectFromGallery()">Gallery</button>
+        <button class="button button-balanced icon-left ion-ios-camera" ng-click="takePicture()">Camera</button>
+        <button class="button button-royal icon-left ion-upload" ng-click="uploadPicture()">Upload</button>        
+      </div>    
+      <div class="padding">
+        <button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+      </div>
+  </ion-content>
+</ion-view>

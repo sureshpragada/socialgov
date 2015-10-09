@@ -289,7 +289,7 @@ angular.module('starter.services', [])
   };
 }])
 
-.factory('NotificationService', ['$http', function($http) {
+.factory('NotificationService', ['$http', 'LogService', function($http, LogService) {
   var PARSE_APPLICATION_KEY="kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW";
   var PARSE_REST_API_KEY="EAz3Z0La6QiOA5XLQdJX8SRvvmCVfHdzyzJBFx1t";
   return {
@@ -317,27 +317,54 @@ angular.module('starter.services', [])
         error: errorCallback
       });
     },         
-    addAndroidInstallation: function(userObjectId, deviceToken, channelArray, successCallback, errorCallback) {
-      var req = {
-       method: 'POST',
-       url: 'https://api.parse.com/1/installations',
-       headers: {
-        'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
-       },
-       data: {
-          "deviceType": "android",
-          "pushType": "gcm",
-          "deviceToken": deviceToken,
-          "GCMSenderId": GCM_SENDER_ID,
-          "channels": channelArray,
-          "user": {
-            "__type": "Pointer",
-            "className": "_User",
-            "objectId": userObjectId
+    addInstallation: function(userObjectId, deviceToken, channelArray, platform, successCallback, errorCallback) {
+      if(platform=="android") {
+        var req = {
+         method: 'POST',
+         url: 'https://api.parse.com/1/installations',
+         headers: {
+          'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
+         },
+         data: {
+            "deviceType": "android",
+            "pushType": "gcm",
+            "deviceToken": deviceToken,
+            "GCMSenderId": GCM_SENDER_ID,
+            "channels": channelArray,
+            "timeZone": "Asia/Kolkata",
+            "user": {
+              "__type": "Pointer",
+              "className": "_User",
+              "objectId": userObjectId
+            }
           }
-        }
-      };
-      $http(req).then(successCallback, errorCallback);
+        };
+        $http(req).then(successCallback, errorCallback);
+      } else if(platform=="ios") {
+        var req = {
+         method: 'POST',
+         url: 'https://api.parse.com/1/installations',
+         headers: {
+          'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
+         },
+         data: {
+            "deviceType": "ios",
+            "deviceToken": deviceToken,
+            "channels": channelArray,
+            "appIdentifier": "org.socialgov",
+            "timeZone": "Asia/Kolkata",            
+            "user": {
+              "__type": "Pointer",
+              "className": "_User",
+              "objectId": userObjectId
+            }
+          }
+        };
+        $http(req).then(successCallback, errorCallback);        
+      } else {
+        LogService.log({type:"ERROR", message: "Invalid platform for registration channels : " + JSON.stringify(channelArray) + " userId : " + userObjectId 
+          + " deviceToken : " + deviceToken + " platform : " + platform}); 
+      }
     }
   };
 }])

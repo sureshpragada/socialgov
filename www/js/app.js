@@ -20,44 +20,65 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     }
 
     RegionService.initializeRegionCacheByCurrentUser();
-    
+
     $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
-      switch(notification.event) {
-        case 'registered':
-          if (notification.regid.length > 0 ) {
-            console.log('registration ID = ' + notification.regid);
-            var user=Parse.User.current();
-            var channelList=RegionService.getRegionHierarchy();
-            console.log("Channel list : " + JSON.stringify(channelList));
-            NotificationService.addAndroidInstallation(user.id, notification.regid, channelList, function(result){
-                  console.log("Success response : " + JSON.stringify(result.data));
-                  LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
-                }, function(error) {
-                  console.log("Error response : " + JSON.stringify(error));
-                  LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
-              });            
-          }
-          break;
+      if(ionic.Platform.isAndroid()) {
+        switch(notification.event) {
+          case 'registered':
+            if (notification.regid.length > 0 ) {
+              console.log('registration ID = ' + notification.regid);
+              var user=Parse.User.current();
+              var channelList=RegionService.getRegionHierarchy();
+              console.log("Channel list : " + JSON.stringify(channelList));            
+              NotificationService.addInstallation(user.id, notification.regid, channelList, "android", function(result){
+                    console.log("Success response : " + JSON.stringify(result.data));
+                    LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
+                  }, function(error) {
+                    console.log("Error response : " + JSON.stringify(error));
+                    LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
+                });            
+            }
+            break;
 
-        case 'message':
-          // this is the actual push notification. its format depends on the data model from the push server
-          navigator.notification.alert(notification.payload.data.alert);          
-          navigator.notification.beep(1);
-          console.log('message = ' + notification.payload.data.alert);          
-          LogService.log({type:"INFO", message: "Received push notification " + JSON.stringify(notification)});           
-          break;
+          case 'message':
+            // this is the actual push notification. its format depends on the data model from the push server
+            navigator.notification.alert(notification.payload.data.alert);          
+            navigator.notification.beep(1);
+            console.log('message = ' + notification.payload.data.alert);          
+            LogService.log({type:"INFO", message: "Received push notification " + JSON.stringify(notification)});           
+            break;
 
-        case 'error':
-          navigator.notification.alert(JSON.stringify(notification));                  
-          console.log('GCM error = ' + JSON.stringify(notification));
-          LogService.log({type:"ERROR", message: "Error notification from GCM " + JSON.stringify(notification)}); 
-          break;
+          case 'error':
+            navigator.notification.alert(JSON.stringify(notification));                  
+            console.log('GCM error = ' + JSON.stringify(notification));
+            LogService.log({type:"ERROR", message: "Error notification from GCM " + JSON.stringify(notification)}); 
+            break;
 
-        default:
-          navigator.notification.alert(JSON.stringify(notification));                          
-          console.log('An unknown GCM event has occurred ' + JSON.stringify(notification));
-          LogService.log({type:"ERROR", message: "Unknown notification from GCM " + JSON.stringify(notification)}); 
-          break;
+          default:
+            navigator.notification.alert(JSON.stringify(notification));                          
+            console.log('An unknown GCM event has occurred ' + JSON.stringify(notification));
+            LogService.log({type:"ERROR", message: "Unknown notification from GCM " + JSON.stringify(notification)}); 
+            break;
+        }        
+      } else if(ionic.Platform.isIOS()) {
+        if (notification.alert) {
+          navigator.notification.alert(notification.alert);
+        }
+
+        if (notification.sound) {
+          var snd = new Media(event.sound);
+          snd.play();
+        }
+
+        if (notification.badge) {
+          $cordovaPush.setBadgeNumber(notification.badge).then(function(result) {
+            console.log("Badge push is succcessful");
+          }, function(err) {
+            console.log("Badge push is failed " + JSON.stringify(err));
+          });
+        }
+      } else {
+        LogService.log({type:"ERROR", message: "Received notification from unknown platform " + JSON.stringify(ionic.Platform.device()) + " notification : " + JSON.stringify(notification)}); 
       }
     });
 
@@ -127,6 +148,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
       }
     })
+
+    .state('tab.picman', {
+      url: '/picman',
+      cache: false,
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/picture-manager.html',
+          controller: 'PictureManagerCtrl'
+        }
+      }
+    })    
 
     .state('tab.regions', {
       url: '/regions',

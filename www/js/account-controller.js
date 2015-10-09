@@ -189,14 +189,38 @@ angular.module('starter.controllers')
 
         RegionService.initializeRegionCache($scope.selectedValues.finalLevelRegion);
 
-        if(ionic.Platform.isAndroid()) {
+        if(ionic.Platform.isWebView() && ionic.Platform.isAndroid()) {
           // Register with GCM
           var androidConfig = {
-            "senderID": GCM_SENDER_ID,
+            "senderID": GCM_SENDER_ID
           };
 
           $cordovaPush.register(androidConfig).then(function(result) {
             console.log("Register Success : " + result);
+            LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
+          }, function(err) {
+            console.log("Register error : " + err);
+            LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+          });
+        } else if(ionic.Platform.isWebView() && ionic.Platform.isIOS()){
+
+          var iosConfig = {
+              "badge": true,
+              "sound": true,
+              "alert": true,
+            };          
+
+          $cordovaPush.register(iosConfig).then(function(deviceToken) {
+            var channelList=RegionService.getRegionHierarchy();            
+            console.log("iOS Registration is success : " + deviceToken + " registering for channel list : " + channelList);
+
+            NotificationService.addInstallation(user.id, deviceToken, channelList, "ios", function(result){
+                  console.log("Success response : " + JSON.stringify(result.data));
+                  LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
+                }, function(error) {
+                  console.log("Error response : " + JSON.stringify(error));
+                  LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
+              });            
             LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
           }, function(err) {
             console.log("Register error : " + err);

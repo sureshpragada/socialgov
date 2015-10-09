@@ -211,7 +211,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.removePost=function(activityId, index) {
-    // $cordovaDialogs.beep(1);
+    if(ionic.Platform.isWebView()) {
+      $cordovaDialogs.beep(1);
+    }
     $cordovaDialogs.confirm('Do you want to remove this activity?', 'Remove Activity', ['Remove','Cancel'])
     .then(function(buttonIndex) {      
       // no button = 0, 'OK' = 1, 'Cancel' = 2
@@ -276,6 +278,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.post.support=0;
       $scope.post.oppose=0;
       $scope.post.debate=0;
+      $scope.post.status="A";
       $scope.post.user=Parse.User.current();
 
       // alert(JSON.stringify($scope.post));
@@ -312,6 +315,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.cancelPost=function(){
     $state.go("tab.dash");
+  };
+
+  $scope.goToAttachPicture=function() {
+    $state.go("tab.picman");
   };
 
 })
