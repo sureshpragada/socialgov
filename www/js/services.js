@@ -274,6 +274,7 @@ angular.module('starter.services', [])
 .factory('LogService', ['$http', function($http) {
   return {
     log: function(logObject) {
+      console.log(JSON.stringify(logObject));
       var AuditLog = Parse.Object.extend("AuditLog");
       var auditLog = new AuditLog();
       logObject.username=Parse.User.current().get("username");
@@ -282,7 +283,7 @@ angular.module('starter.services', [])
           console.log("Successfully sent audit log")
         },
         error: function(logObject, error) {
-          console.log("Error in sending audit log " + JSON.stringify(error));
+          console.log("Error sending audit log " + JSON.stringify(error));
         }
       });
     }
@@ -317,55 +318,59 @@ angular.module('starter.services', [])
         error: errorCallback
       });
     },         
-    addInstallation: function(userObjectId, deviceToken, channelArray, platform, successCallback, errorCallback) {
-      if(platform=="android") {
-        var req = {
-         method: 'POST',
-         url: 'https://api.parse.com/1/installations',
-         headers: {
-          'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
-         },
-         data: {
-            "deviceType": "android",
-            "pushType": "gcm",
-            "deviceToken": deviceToken,
-            "GCMSenderId": GCM_SENDER_ID,
-            "channels": channelArray,
-            "timeZone": "Asia/Kolkata",
-            "user": {
-              "__type": "Pointer",
-              "className": "_User",
-              "objectId": userObjectId
-            }
+    addAndroidInstallation: function(userObjectId, deviceToken, channelArray) {
+      var req = {
+       method: 'POST',
+       url: 'https://api.parse.com/1/installations',
+       headers: {
+        'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
+       },
+       data: {
+          "deviceType": "android",
+          "pushType": "gcm",
+          "deviceToken": deviceToken,
+          "GCMSenderId": GCM_SENDER_ID,
+          "channels": channelArray,
+          "timeZone": "Asia/Kolkata",
+          "user": {
+            "__type": "Pointer",
+            "className": "_User",
+            "objectId": userObjectId
           }
-        };
-        $http(req).then(successCallback, errorCallback);
-      } else if(platform=="ios") {
-        var req = {
-         method: 'POST',
-         url: 'https://api.parse.com/1/installations',
-         headers: {
-          'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
-         },
-         data: {
-            "deviceType": "ios",
-            "deviceToken": deviceToken,
-            "channels": channelArray,
-            "appIdentifier": "org.socialgov",
-            "timeZone": "Asia/Kolkata",            
-            "user": {
-              "__type": "Pointer",
-              "className": "_User",
-              "objectId": userObjectId
-            }
+        }
+      };
+      $http(req).then( function(result){ 
+          LogService.log({type:"INFO", message: "Registered android device " + JSON.stringify(result.data)}); 
+        }, function(error) {
+          LogService.log({type:"ERROR", message: "Failed to register android device " + JSON.stringify(error)});                        
+      });
+    },
+    addIOSInstallation: function(userObjectId, deviceToken, channelArray) {
+      var req = {
+       method: 'POST',
+       url: 'https://api.parse.com/1/installations',
+       headers: {
+        'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
+       },
+       data: {
+          "deviceType": "ios",
+          "deviceToken": deviceToken,
+          "channels": channelArray,
+          "appIdentifier": "org.socialgov",
+          "timeZone": "Asia/Kolkata",            
+          "user": {
+            "__type": "Pointer",
+            "className": "_User",
+            "objectId": userObjectId
           }
-        };
-        $http(req).then(successCallback, errorCallback);        
-      } else {
-        LogService.log({type:"ERROR", message: "Invalid platform for registration channels : " + JSON.stringify(channelArray) + " userId : " + userObjectId 
-          + " deviceToken : " + deviceToken + " platform : " + platform}); 
-      }
-    }
+        }
+      };
+      $http(req).then( function(result){ 
+          LogService.log({type:"INFO", message: "Registered IOS device " + JSON.stringify(result.data)}); 
+        }, function(error) {
+          LogService.log({type:"ERROR", message: "Failed to register IOS device " + JSON.stringify(error)});                        
+      });
+    }    
   };
 }])
 ;

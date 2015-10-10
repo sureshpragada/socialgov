@@ -100,7 +100,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService) {
+.controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService, NotificationService) {
 
   $scope.user={countryCode: "91"};
   $scope.userRegistered=true;
@@ -196,12 +196,11 @@ angular.module('starter.controllers')
           };
 
           $cordovaPush.register(androidConfig).then(function(result) {
-            console.log("Register Success : " + result);
-            LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
+            LogService.log({type:"INFO", message: "Registration attempt to GCM is success " + JSON.stringify(result)}); 
           }, function(err) {
-            console.log("Register error : " + err);
-            LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+            LogService.log({type:"ERROR", message: "Registration attempt to GCM is failed for  " + Parse.User.current().id + " " +  JSON.stringify(err)}); 
           });
+
         } else if(ionic.Platform.isWebView() && ionic.Platform.isIOS()){
 
           var iosConfig = {
@@ -212,19 +211,10 @@ angular.module('starter.controllers')
 
           $cordovaPush.register(iosConfig).then(function(deviceToken) {
             var channelList=RegionService.getRegionHierarchy();            
-            console.log("iOS Registration is success : " + deviceToken + " registering for channel list : " + channelList);
-
-            NotificationService.addInstallation(user.id, deviceToken, channelList, "ios", function(result){
-                  console.log("Success response : " + JSON.stringify(result.data));
-                  LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
-                }, function(error) {
-                  console.log("Error response : " + JSON.stringify(error));
-                  LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
-              });            
-            LogService.log({type:"INFO", message: "Register attempt to GCM is success " + JSON.stringify(result)}); 
+            LogService.log({type:"INFO", message: "iOS Registration is success : " + deviceToken + " registering for channel list : " + channelList + " for user : " + Parse.User.current().id});             
+            NotificationService.addIOSInstallation(Parse.User.current().id, deviceToken, channelList);            
           }, function(err) {
-            console.log("Register error : " + err);
-            LogService.log({type:"ERROR", message: "Error registration attempt to GCM " + JSON.stringify(err)}); 
+            LogService.log({type:"ERROR", message: "IOS registration attempt failed for " + Parse.User.current().id + "  " + JSON.stringify(err)}); 
           });
         }
 
@@ -262,13 +252,11 @@ angular.module('starter.controllers')
               $scope.accessRequest.set("status","CMPL");
               $scope.accessRequest.save(null, {
                 error: function(error) {
-                  console.log("Error while saving accessrequest : " + JSON.stringify(error));
                   LogService.log({type:"ERROR", message: "Error while saving accessrequest :" + JSON.stringify(error)});           
                 }
               });
               $scope.user.save(null, {
                 error: function(error) {
-                  console.log("Error while saving user : " + JSON.stringify(error));
                   LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
                 }
               });

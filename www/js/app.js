@@ -26,17 +26,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         switch(notification.event) {
           case 'registered':
             if (notification.regid.length > 0 ) {
-              console.log('registration ID = ' + notification.regid);
-              var user=Parse.User.current();
-              var channelList=RegionService.getRegionHierarchy();
-              console.log("Channel list : " + JSON.stringify(channelList));            
-              NotificationService.addInstallation(user.id, notification.regid, channelList, "android", function(result){
-                    console.log("Success response : " + JSON.stringify(result.data));
-                    LogService.log({type:"INFO", message: "Registered device" + JSON.stringify(result.data)});              
-                  }, function(error) {
-                    console.log("Error response : " + JSON.stringify(error));
-                    LogService.log({type:"ERROR", message: "Failed to registered device" + JSON.stringify(error)});                        
-                });            
+              LogService.log({type:"INFO", message: "Android registration is success : " + notification.regid + " for user : " + Parse.User.current().id});                           
+              NotificationService.addAndroidInstallation(Parse.User.current().id, notification.regid, RegionService.getRegionHierarchy());            
             }
             break;
 
@@ -44,19 +35,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             // this is the actual push notification. its format depends on the data model from the push server
             navigator.notification.alert(notification.payload.data.alert);          
             navigator.notification.beep(1);
-            console.log('message = ' + notification.payload.data.alert);          
             LogService.log({type:"INFO", message: "Received push notification " + JSON.stringify(notification)});           
             break;
 
           case 'error':
             navigator.notification.alert(JSON.stringify(notification));                  
-            console.log('GCM error = ' + JSON.stringify(notification));
             LogService.log({type:"ERROR", message: "Error notification from GCM " + JSON.stringify(notification)}); 
             break;
 
           default:
             navigator.notification.alert(JSON.stringify(notification));                          
-            console.log('An unknown GCM event has occurred ' + JSON.stringify(notification));
             LogService.log({type:"ERROR", message: "Unknown notification from GCM " + JSON.stringify(notification)}); 
             break;
         }        
@@ -83,6 +71,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     });
 
   });
+})
+.config(function($compileProvider){
+  $compileProvider.imgSrcSanitizationWhitelist(/^\s*(http|https|ftp|mailto|file|tel|data)/);
 })
 .config(function($stateProvider, $urlRouterProvider) {
 

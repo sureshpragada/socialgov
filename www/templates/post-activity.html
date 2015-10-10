@@ -20,12 +20,10 @@
 			  <label class="item item-input">
 			    <textarea placeholder="Message" rows="5" ng-model="post.notifyMessage"></textarea>
 			  </label>
-			<label class="item item-input">
-			    <div class="input-label">
-			      Attach Picture
-			    </div>
-				<button class="button button-small button-calm" ng-click="goToAttachPicture()">Select</button>
-			  </label>
+			  <a class="item item-icon-right" ng-click="goToAttachPicture()" ng-if="allowImageUpload">
+			    Attache Picture
+			    <i class="icon ion-image"></i>
+			  </a>			  
 		</div>
 		<div class="padding">
 			<button class="button button-block button-calm" ng-click="submitPost()">Post Activity</button>

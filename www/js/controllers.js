@@ -262,7 +262,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService) {
 
   var user=Parse.User.current();  
   $scope.post={"notifyMessage": ""};
@@ -271,6 +271,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
+  $scope.allowImageUpload=ionic.Platform.isWebView();
+
   $scope.submitPost=function() {
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
       $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
@@ -280,6 +282,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.post.debate=0;
       $scope.post.status="A";
       $scope.post.user=Parse.User.current();
+      if(PictureManagerService.getState().imageUrl!=null) {
+        $scope.post.images=[PictureManagerService.getState().imageUrl];  
+      }
 
       // alert(JSON.stringify($scope.post));
       var Activity = Parse.Object.extend("Activity");

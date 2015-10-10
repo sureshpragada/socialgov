@@ -7,7 +7,8 @@
     </div>
     <div class="list card">
       <div class="item item-image">
-        <img ng-src="{{imageUrl}}">
+        <img ng-show="file !== undefined" ng-src="{{file}}">
+        <img ng-show="file === undefined" ng-src="http://placehold.it/350x350">
       </div> 
     </div>
       <div class="button-bar padding">
