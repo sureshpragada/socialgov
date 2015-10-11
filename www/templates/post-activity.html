@@ -20,9 +20,13 @@
 			  <label class="item item-input">
 			    <textarea placeholder="Message" rows="5" ng-model="post.notifyMessage"></textarea>
 			  </label>
-			  <a class="item item-icon-right" ng-click="goToAttachPicture()" ng-if="allowImageUpload">
-			    Attache Picture
-			    <i class="icon ion-image"></i>
+			  <a class="item item-icon-right" ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded==null">
+			    Picture
+			    <i class="icon ion-upload royal"></i>
+			  </a>			  	  
+			  <a class="item item-thumbnail-left item-icon-right"  ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded!=null">
+			    <img ng-src="{{pictureUploaded}}">
+			    <i class="icon ion-android-cloud-done balanced"></i>
 			  </a>			  
 		</div>
 		<div class="padding">

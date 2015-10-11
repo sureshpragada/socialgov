@@ -265,13 +265,16 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 .controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService) {
 
   var user=Parse.User.current();  
-  $scope.post={"notifyMessage": ""};
+  var stateData=PictureManagerService.getState();
+  console.log(JSON.stringify(stateData));
+  $scope.post={"notifyMessage": (stateData.data.message!=null?stateData.data.message:"")};
   $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
   $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
   $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
   $scope.allowImageUpload=ionic.Platform.isWebView();
+  $scope.pictureUploaded=stateData.imageUrl;
 
   $scope.submitPost=function() {
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
@@ -302,6 +305,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
           // Push the new activity to the top of activity chart, probably through Activity service
           $scope.$apply(function(){
+            PictureManagerService.reset();
             $state.go("tab.dash");  
           });
         },
@@ -323,6 +327,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.goToAttachPicture=function() {
+    PictureManagerService.setData({message: $scope.post.notifyMessage});
     $state.go("tab.picman");
   };
 

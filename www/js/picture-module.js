@@ -1,7 +1,7 @@
 angular.module('starter.controllers')
 
 .factory('PictureManagerService', ['$http', function($http) {
-  var state={fromPage: "tab.post", imageUrl: null};
+  var state={fromPage: "tab.post", imageUrl: null, data: {}};
   return {
     setState: function(incomingState) {
       state=incomingState;
@@ -11,11 +11,17 @@ angular.module('starter.controllers')
     },
     setImageUrl: function(imageUrl) {
       state.imageUrl=imageUrl;
+    },
+    setData: function(data) {
+      state.data=data;
+    },
+    reset: function() {
+      state={imageUrl: null, data: {}};
     }
   };
 }])
 
-.controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService) {
+.controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService, $ionicLoading, $cordovaDialogs) {
   $scope.takePicture=function() {
     manageupload(Camera.PictureSourceType.CAMERA);
   };
@@ -42,33 +48,37 @@ angular.module('starter.controllers')
   }
 
   $scope.uploadPicture=function() {
-    console.log("Uploading picture");
+    var file = $scope.file;    
+    if(!file) {
+      $cordovaDialogs.alert('Select picture from gallery or use camera.', 'Select picture', 'OK');
+    } else {
+      $ionicLoading.show({
+        template: "<ion-spinner></ion-spinner> Uploading picture "
+      });
 
-    var file = $scope.file;
-    /* Is the file an image? */
-   if (!file ) return;
+      if (!file || !file.type) {
+        file = file.replace(/^data:image\/(png|jpeg);base64,/, "");
+      }
 
-    if (!file || !file.type) 
-            file = file.replace(/^data:image\/(png|jpeg);base64,/, "");
-
-    $http({
-      url: "https://api.imgur.com/3/image.json",
-      method: 'POST',
-      headers: {
-        'Content-Type': file.type,
-        "Authorization": "Client-ID 7969d63af05026f"
-      },
-      data: file
-    }).then(function(response) {
-        // file is uploaded successfully
-        console.log(response.data.data.link);
-        PictureManagerService.setImageUrl(response.data.data.link);
-        $scope.file="";
-        $state.go("tab.post");    
-      },function(error) {
-         console.log("Error uploading image file: " + error);
-    }); 
-
+      $http({
+        url: "https://api.imgur.com/3/image.json",
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type,
+          "Authorization": "Client-ID 7969d63af05026f"
+        },
+        data: file
+      }).then(function(response) {
+          $ionicLoading.hide();        
+          PictureManagerService.setImageUrl(response.data.data.link);
+          $scope.file="";
+          $state.go("tab.post");    
+        },function(error) {
+          console.log("Error uploading image file: " + error);          
+          $ionicLoading.hide();
+          $cordovaDialogs.alert('Unable to upload picture. Check your interenet and try again.', 'Upload failure', 'OK');
+      }); 
+    }
   };
 
   $scope.cancel=function() {
