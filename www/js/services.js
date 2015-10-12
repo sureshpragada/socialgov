@@ -120,13 +120,13 @@ angular.module('starter.services', [])
       {id:"SUADM", label:"Administrator"} 
     ];      
 
-  var accountCache;
-  if (!CacheFactory.get('accountCache')) {
-    regionCache = CacheFactory('accountCache', {
-      maxAge: 24 * 60 * 60 * 1000, // 1 Day
-      deleteOnExpire: 'passive'
-    });
-  }
+  // var accountCache;
+  // if (!CacheFactory.get('accountCache')) {
+  //   regionCache = CacheFactory('accountCache', {
+  //     maxAge: 24 * 60 * 60 * 1000, // 1 Day
+  //     deleteOnExpire: 'passive'
+  //   });
+  // }
 
   return {
     getAllowedRoles: function() {

@@ -117,7 +117,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: '/regions',
       views: {
         'tab-region': {
-          templateUrl: 'templates/region-list.html',
+          templateUrl: 'templates/region/region-list.html',
           controller: 'RegionListCtrl'
         }
       }
@@ -139,7 +139,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region-detail.html',
+          templateUrl: 'templates/region/region-detail.html',
           controller: 'RegionDetailCtrl'
         }
       }
@@ -150,7 +150,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region-demo.html',
+          templateUrl: 'templates/region/region-demo.html',
           controller: 'RegionDetailCtrl'
         }
       }
@@ -160,7 +160,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: '/changedemodetails/{regionUniqueName}',
         views: {
           'tab-region': {
-            templateUrl: 'templates/change-demo-details.html',
+            templateUrl: 'templates/region/change-demo-details.html',
             controller: 'ChangeDemoDetailsCtrl'
           }
         }
@@ -170,16 +170,37 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: '/offices/{regionUniqueName}',
         views: {
           'tab-region': {
-            templateUrl: 'templates/region-offices.html',
+            templateUrl: 'templates/region/region-offices.html',
             controller: 'RegionDetailCtrl'
           }
         }
     })
+
+    .state('tab.editoffices', {
+      url: '/editoffices/{regionUniqueName}/{uniqueOfficeName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region/edit-office-details.html',
+            controller: 'EditOfficeDetailsCtrl'
+          }
+        }
+    })
+
+    .state('tab.addoffices', {
+      url: '/addoffices/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region/add-new-office.html',
+            controller: 'AddOfficeCtrl'
+          }
+        }
+    })
+
     .state('tab.legis', {
       url: '/legis/{regionUniqueName}',
         views: {
           'tab-region': {
-            templateUrl: 'templates/region-legislature.html',
+            templateUrl: 'templates/region/region-legislature.html',
             controller: 'RegionDetailCtrl'
           }
         }
@@ -188,7 +209,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: '/finview/{regionUniqueName}',
         views: {
           'tab-region': {
-            templateUrl: 'templates/region-fin-overview.html',
+            templateUrl: 'templates/region/region-fin-overview.html',
             controller: 'RegionFinancialOverviewCtrl'
           }
         }
@@ -197,7 +218,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: '/findet/{regionUniqueName}/{year}/{reqDetails}',
         views: {
           'tab-region': {
-            templateUrl: 'templates/region-fin-details.html',
+            templateUrl: 'templates/region/region-fin-details.html',
             controller: 'RegionFinancialDetailsCtrl'
           }
         }

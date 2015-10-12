@@ -28,6 +28,15 @@
 			</p>
 	      </div>	    	
 	  </div>
+	  <div class="padding">
+	  		<a href="#/tab/editoffices/{{region.get('uniqueName')}}/{{execOffAddr.officeName}}" class="button button-block button-balanced">Edit</a>    	
+	  </div>
+	  <div class="padding">
+	  		<button class="button button-block button-assertive" ng-click="delete(execOffAddr.officeName)">Delete</button>    	
+	  </div>
+	</div>
+	<div class="padding">
+	  		<a href="#/tab/addoffices/{{region.get('uniqueName')}}" class="button button-block button-balanced">Do you want to add an office?</a>    	
 	</div>
   </ion-content>
 </ion-view>
