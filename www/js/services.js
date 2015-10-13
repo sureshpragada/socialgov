@@ -218,7 +218,7 @@ angular.module('starter.services', [])
       {id:"SUADM", label:"Administrator"} 
     ];      
 
-  var userLastRefreshTimeStamp=new Date().getTime();
+  var userLastRefreshTimeStamp=null; new Date().getTime();
 
   return {
     getRolesAllowedToChange: function() {

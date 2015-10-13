@@ -1,6 +1,6 @@
-<ion-view title="Edit Executive Offices &amp; Contacts">
+<ion-view title="Edit Executive Offices">
 	<ion-content>
-	  <ion-item >
+	  <ion-list>
    		<label class="item item-input" >
 				<span class="input-label">
 				      Office Name 
@@ -52,12 +52,12 @@
          <input type="text" name="adminPhoneList" ng-model="admin.phoneNumberList" >
       </label>
   	</div>
-  </ion-item>
+  </ion-list>
   <div class="padding" >
-          <button class="button button-block button-balanced" ng-click="submit()">Submit</button>
-      </div>
-      <!-- <div class="padding" >
-          <button  class="button button-assertive" ng-click="cancel()">Cancel</button>
-      </div> -->
-</ion-content>
+        <button class="button button-block button-balanced" ng-click="submit()">Submit</button>
+    </div>
+    <div class="padding" >
+        <button  class="button button-assertive button-block " ng-click="cancel()">Cancel</button>
+    </div>
+  </ion-content>
 </ion-view>
