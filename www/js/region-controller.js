@@ -7,7 +7,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state) {
+.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover) {
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
     residency=Parse.User.current().get("residency");
@@ -15,48 +15,34 @@ angular.module('starter.controllers')
   
   $scope.region=null;
   RegionService.getRegion(residency).then(function(data) {
-    // console.log("Retrieved region from service " + JSON.stringify(data));
     $scope.region=data;
-    console.log(JSON.stringify($scope.region));
   }, function(error) {
     $scope.regionErrorMessage="Unable to retrieve region information.";
     console.log("Error retrieving region " + JSON.stringify(error));
   });
-  console.log(JSON.stringify($scope.region));
-  // $scope.offices=$scope.region.get("execOffAddrList");
-  // console.log(JSON.stringify($scope.offices));
-  // $scope.deleteErrorMessage=null;
-  $scope.delete=function(officeName){
+  $scope.deleteOffice=function(officeName){
     $scope.offices=$scope.region.get("execOffAddrList");
-    console.log(JSON.stringify($scope.offices));
     $scope.officeToBeDeleted=null;
-    for(var i=0;i<$scope.offices.length;i++)
-    {
-      if($scope.offices[i].officeName==officeName)
-      {
+    for(var i=0;i<$scope.offices.length;i++){
+      if($scope.offices[i].officeName==officeName){
         $scope.officeToBeDeletedIndex=i;
         break;
       }
     }
     $scope.offices.splice(i,1);
-    console.log(JSON.stringify($scope.offices));
-    for(var i=0; i < $scope.offices.length;i++)
-    { 
+    for(var i=0; i < $scope.offices.length;i++) { 
       delete $scope.offices[i].$$hashKey;
-      console.log(JSON.stringify($scope.offices[i]));
       if($scope.offices[i].execAdmin!=null) {
-        for(var j=0; j< $scope.offices[i].execAdmin.length;j++)
-        {
+        for(var j=0; j< $scope.offices[i].execAdmin.length;j++){
           delete $scope.offices[i].execAdmin[j].$$hashKey;
         }
       }
     }
-    console.log(JSON.stringify($scope.region));
-    console.log(JSON.stringify($scope.offices));
+
     $scope.region.save(null, {
       success: function(region) {
         $scope.$apply(function(){
-              console.log("success");
+          console.log("delete is success");
         });
       },
       error: function(region, error) {
@@ -69,6 +55,27 @@ angular.module('starter.controllers')
   
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
 
+  $scope.openOfficePopover=function($event, officeName) {
+    $scope.intendedOffice=officeName;
+    $scope.popover.show($event);
+  };
+
+  $ionicPopover.fromTemplateUrl('templates/region/popover-office-mgmt.html', {
+    scope: $scope,
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+
+  $scope.editThis=function() {
+    $scope.popover.hide();
+    $state.go("tab.editoffices",{regionUniqueName:$scope.region.get('uniqueName'), uniqueOfficeName: $scope.intendedOffice});    
+  }
+
+  $scope.removeThis=function() {
+    $scope.popover.hide();
+    $scope.deleteOffice($scope.intendedOffice);
+  }  
+
 })
 
 .controller('AddOfficeCtrl', function($scope, $stateParams, $state) {
@@ -80,7 +87,6 @@ angular.module('starter.controllers')
     success: function(regions) {
       $scope.$apply(function(){
         $scope.region=regions[0];
-         
       });
     },
     error: function(error) {
@@ -93,10 +99,8 @@ angular.module('starter.controllers')
   $scope.newExecAdminObj={title:"",name:"",phoneNumberList:[]};
   $scope.newOfficeObj={officeName:"", addressLine1:"", addressLine2:"",landmark:"", phoneNumberList:[], execAdmin:[]};
   $scope.submit=function(){
-    if($scope.newOfficeObj.officeName!="" && $scope.newOfficeObj.addressLine1!="" && $scope.newExecAdminObj.title!="" && $scope.newExecAdminObj.name!="")
-    {
-        if($scope.phoneNums.execNum!="")
-        {
+    if($scope.newOfficeObj.officeName!="" && $scope.newOfficeObj.addressLine1!="" && $scope.newExecAdminObj.title!="" && $scope.newExecAdminObj.name!=""){
+        if($scope.phoneNums.execNum!=""){
           var num=$scope.phoneNums.execNum.split(",");
           for(var i=0;i < num.length;i++)
             $scope.newExecAdminObj.phoneNumberList.push(num[i]);
@@ -107,16 +111,11 @@ angular.module('starter.controllers')
           for(var i=0;i < num.length;i++)
             $scope.newOfficeObj.phoneNumberList.push(num[i]); 
         }
-        console.log(JSON.stringify($scope.region));
         $scope.newOfficeObj.execAdmin.push($scope.newExecAdminObj);
-        console.log(JSON.stringify($scope.newOfficeObj));
         $scope.region.add("execOffAddrList",$scope.newOfficeObj);
-        console.log(JSON.stringify($scope.newOfficeObj));
         $scope.region.save(null, {
           success: function(region) {
             $scope.$apply(function(){
-              //$state.go("tab.account");    
-              console.log(JSON.stringify($scope.region));
               $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
             });
           },
@@ -127,7 +126,7 @@ angular.module('starter.controllers')
         });
     }
     else
-      $scope.officeErrorMessage="Fill the details properly";
+      $scope.officeErrorMessage="Provide office name and address line";
   };
 
   $scope.cancel=function(){
@@ -148,18 +147,13 @@ angular.module('starter.controllers')
     success: function(regions) {
       $scope.$apply(function(){
         $scope.region=regions[0];
-        // console.log("Region : " + JSON.stringify($scope.region.get('demography')));        
         $scope.newExecObj=$scope.region.get('execOffAddrList');
-        console.log(JSON.stringify($scope.newExecObj));
-        for(var i=0; i < $scope.newExecObj.length ; i++)
-        {
-          if($scope.newExecObj[i].officeName==officeName)
-          {
+        for(var i=0; i < $scope.newExecObj.length ; i++){
+          if($scope.newExecObj[i].officeName==officeName){
             $scope.newOfficeObj=$scope.newExecObj[i];
             break;
           }
         }
-        //$scope.newOfficeObj=$scope.newExecObj.get('');
       });
     },
     error: function(error) {
@@ -168,13 +162,9 @@ angular.module('starter.controllers')
   });
 
   $scope.submit=function(){
-    for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++)
-    { 
+    for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
       delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
-      console.log(JSON.stringify($scope.newOfficeObj.execAdmin[i]));
     }
-    console.log(JSON.stringify($scope.newOfficeObj));
-    // $scope.execNum="";
     if(typeof($scope.newOfficeObj.phoneNumberList)=="string"){
       $scope.officeNum=$scope.newOfficeObj.phoneNumberList;
       $scope.newOfficeObj.phoneNumberList=[];
@@ -193,13 +183,9 @@ angular.module('starter.controllers')
           }
         }
     }
-    // console.log($scope.execNum);
-    // console.log($scope.officeNum);
-    //$scope.region.set("execOffAddrList",$scope.newOfficeObj);
     $scope.region.save(null, {
         success: function(accessRequest) {
-          // console.log(JSON.stringify(accessRequest));
-          console.log("success");
+          console.log("edit is success");
         }
     });
     $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
@@ -219,7 +205,6 @@ angular.module('starter.controllers')
   query.find({
     success: function(financials) {
       $scope.$apply(function(){
-        //console.log("Region financials : " + JSON.stringify(financials));
         if(financials!=null && financials.length>0) {
           $scope.financials=financials;  
         } else {

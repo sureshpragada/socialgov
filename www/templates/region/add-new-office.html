@@ -1,9 +1,9 @@
 <ion-view title="Add Executive Offices &amp; Contacts">
 	<ion-content>
-		<ion-item ng-if="officeErrorMessage">
+		<div class="padding card assertive" ng-if="officeErrorMessage">
 			{{officeErrorMessage}}
-		</ion-item>
-		<ion-item >
+		</div>
+		<ion-list>
    		<label class="item item-input" >
 				<span class="input-label">
 				      Office Name 
@@ -53,12 +53,12 @@
          </span>
          <input type="text" name="adminPhoneList" ng-model="phoneNums.execNum" >
     </label>
+  </ion-list>
     <div class="padding" >
         <button class="button button-block button-balanced" ng-click="submit()">Submit</button>
      </div>
      <div class="padding" >
         <button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
-    </div> 
-  </ion-item>
+    </div>   
  </ion-content>
 </ion-view>

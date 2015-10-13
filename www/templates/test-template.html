@@ -15,5 +15,32 @@
 	    	<p >{{debate.get("user")}}</p>
 	    </div> -->
 
+	   <ion-list>
+	   	<ion-item><button ng-click="openPopover($event, 1);">popover 1</button></ion-item>
+	   	<ion-item><button ng-click="openPopover($event, 2);">popover 2</button></ion-item>
+	   	<ion-item><button ng-click="openPopover($event, 3);">popover 3</button></ion-item>
+	   </ion-list>
+
+	    
+	    <button ng-click="openActionSheet('admin');">open Action sheet</button>
+
+
+	<script id="templates/popover.html" type="text/ng-template">
+      <ion-popover-view>
+        <ion-content>
+          <div class="list">
+            <a class="item" ng-click="editThis()">
+              Edit
+            </a>
+            <a class="item" ng-click="removeThis()">
+              Delete
+            </a>
+          </div>
+        </ion-content>
+      </ion-popover-view>
+    </script>
+
+
+
 	</ion-content>
 </ion-view>

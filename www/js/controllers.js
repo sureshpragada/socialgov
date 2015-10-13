@@ -262,7 +262,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading) {
 
   var user=Parse.User.current();  
   var stateData=PictureManagerService.getState();
@@ -278,6 +278,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.submitPost=function() {
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
+
+      $ionicLoading.show({
+        template: "<ion-spinner></ion-spinner> Posting activity "
+      });
+
       $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
       $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
       $scope.post.support=0;
@@ -303,6 +308,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             LogService.log({type:"ERROR", message: "Push notification is failed " + JSON.stringify(error)}); 
           });
 
+          $ionicLoading.hide();          
+
           // Push the new activity to the top of activity chart, probably through Activity service
           $scope.$apply(function(){
             PictureManagerService.reset();
@@ -310,8 +317,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           });
         },
         error: function(activity, error) {
-          // Notify user that post has failed
           console.log("Error in posting message " + error.message);
+          $ionicLoading.hide();          
           $scope.postError=true;
           $scope.postErrorMessage=error.message;
           $scope.$apply();
