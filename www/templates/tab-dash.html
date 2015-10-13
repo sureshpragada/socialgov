@@ -17,7 +17,12 @@
       </div>
 
       <div class="item item-body">
+        <img class="full-image" ng-src="{{activity.get('images')[0]}}" ng-if="activity.get('images')">
         <p ng-bind-html="activity.get('notifyMessage') | nl2br">
+        </p>
+        <p ng-if="activity.get('user').id==user.id">
+          <a class="button button-small button-royal" href="#/tab/editpost/{{activity.id}}">Edit</a>
+          <a class="button button-small button-assertive" ng-click="removePost(activity.id, $index)">Remove</a>          
         </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')!='NOTF'">

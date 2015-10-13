@@ -48,11 +48,12 @@ Parse.Cloud.define("pushNotification", function(request, response) {
   
 	var userQuery = new Parse.Query(Parse.User);
 	userQuery.equalTo("notifySetting", true);
-	userQuery.equalTo("residency", request.params.residency);
+	// userQuery.equalTo("residency", request.params.residency);
 
 	// Find devices associated with these users
 	var pushQuery = new Parse.Query(Parse.Installation);
 	pushQuery.matchesQuery('user', userQuery);
+	pushQuery.equalTo("channels", request.params.residency);
 
 	Parse.Push.send({
 	  where: pushQuery,

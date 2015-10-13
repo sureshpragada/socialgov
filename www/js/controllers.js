@@ -1,20 +1,22 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('DashboardCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService) {
+.controller('DashboardCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs) {
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
-  var user=Parse.User.current();
-  var residency=user.get("residency");
+  $scope.user=Parse.User.current();
 
   $ionicLoading.show({
-    template: "<ion-spinner></ion-spinner> Finding activity in " + residency
+    template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency")
   });
 
   // $scope.activities=ActivityService.getMockData();  
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
-  query.equalTo("regionUniqueName", residency);
+  var regionList=RegionService.getRegionHierarchy();
+  // console.log("Region list to get activity : " + JSON.stringify(regionList));
+  query.containedIn("regionUniqueName", regionList);
+  query.equalTo("status", "A");
   query.include("user");
   query.descending("createdAt");
   query.find({
@@ -25,7 +27,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
           var UserActivity = Parse.Object.extend("UserActivity");
           var userActivityQuery=new Parse.Query(UserActivity);
-          userActivityQuery.equalTo("user", user);
+          userActivityQuery.equalTo("user", $scope.user);
           userActivityQuery.find({
             success: function(userActivityList) {
               $scope.$apply(function(){ 
@@ -73,7 +75,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         success: function(debates) {
           $scope.$apply(function(){
             if(debates!=null && debates.length>0) {
-              console.log("Deabte notes : " + JSON.stringify(debates));
+              // console.log("Deabte notes : " + JSON.stringify(debates));
               $scope.debateList[index]=debates;
             } else {
               console.log("No arguments found for activity " + activityId);
@@ -112,7 +114,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           activity.increment("debate", 1);
           activity.save();              
           $scope.argumentMessageList[index]="";
-          console.log("newly added debate entry : " + JSON.stringify(newDebate));
+          // console.log("newly added debate entry : " + JSON.stringify(newDebate));
           $scope.debateList[index].unshift(newDebate);
           console.log("Successfully added debate entry");
         });
@@ -185,7 +187,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           previousUserActivity.set("action", ActivityService.getActionCode(action));
           previousUserActivity.save({
             success: function(userActivity) {
-              console.log("Update user activity is successful " + JSON.stringify(userActivity));
+              // console.log("Update user activity is successful " + JSON.stringify(userActivity));
             },
             error: function(error) {
               console.log("Error while updating user activity : " + JSON.stringify(error));
@@ -195,7 +197,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           activities[i].increment(action, 1);
           activities[i].save({
             success: function(activity) {
-              console.log("Successfullly incremented the counters : " + JSON.stringify(activity));
+              // console.log("Successfullly incremented the counters : " + JSON.stringify(activity));
             },
             error: function(error) {
               console.log("Error while incrementing counters : " + JSON.stringify(error));
@@ -206,6 +208,29 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       }
     }
     console.log("unable to find activity id " + activityId + " to perform " + action);
+  };
+
+  $scope.removePost=function(activityId, index) {
+    if(ionic.Platform.isWebView()) {
+      $cordovaDialogs.beep(1);
+    }
+    $cordovaDialogs.confirm('Do you want to remove this activity?', 'Remove Activity', ['Remove','Cancel'])
+    .then(function(buttonIndex) {      
+      // no button = 0, 'OK' = 1, 'Cancel' = 2
+      console.log("Button index : " + buttonIndex);      
+      if(buttonIndex==1) {
+        ActivityService.removePost(activityId).then(function(post) {
+          console.log("Removed post Successfullly");
+          $scope.$apply(function() {
+            delete $scope.activities[index];      
+          });          
+        }, function(error) {
+          console.log("Error removing post " + JSON.stringify(error));
+        });
+      } else {
+        console.log("Canceled removal of activity");
+      }
+    });
   };
 
 })
@@ -237,15 +262,20 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService) {
 
   var user=Parse.User.current();  
-  $scope.post={"notifyMessage": ""};
+  var stateData=PictureManagerService.getState();
+  console.log(JSON.stringify(stateData));
+  $scope.post={"notifyMessage": (stateData.data.message!=null?stateData.data.message:"")};
   $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
-  $scope.allowedRegions=ActivityService.getAllowedRegions(user.get("residency"));
+  $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
   $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
+  $scope.allowImageUpload=ionic.Platform.isWebView();
+  $scope.pictureUploaded=stateData.imageUrl;
+
   $scope.submitPost=function() {
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
       $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
@@ -253,7 +283,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.post.support=0;
       $scope.post.oppose=0;
       $scope.post.debate=0;
+      $scope.post.status="A";
       $scope.post.user=Parse.User.current();
+      if(PictureManagerService.getState().imageUrl!=null) {
+        $scope.post.images=[PictureManagerService.getState().imageUrl];  
+      }
 
       // alert(JSON.stringify($scope.post));
       var Activity = Parse.Object.extend("Activity");
@@ -271,8 +305,67 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
           // Push the new activity to the top of activity chart, probably through Activity service
           $scope.$apply(function(){
+            PictureManagerService.reset();
             $state.go("tab.dash");  
           });
+        },
+        error: function(activity, error) {
+          // Notify user that post has failed
+          console.log("Error in posting message " + error.message);
+          $scope.postError=true;
+          $scope.postErrorMessage=error.message;
+          $scope.$apply();
+        }
+      });
+    } else {
+      $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
+    }
+  };
+
+  $scope.cancelPost=function(){
+    $state.go("tab.dash");
+  };
+
+  $scope.goToAttachPicture=function() {
+    PictureManagerService.setData({message: $scope.post.notifyMessage});
+    $state.go("tab.picman");
+  };
+
+})
+
+.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService) {
+  var user=Parse.User.current();  
+  $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
+  $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
+  $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};
+  $scope.post={notifyMessage: ""};  
+
+  // Retrieve post
+  var Activity = Parse.Object.extend("Activity");
+  var query=new Parse.Query(Activity);
+  query.get($stateParams.activityId,{
+    success: function(activity) {
+      $scope.preActivity=activity;
+      $scope.post.notifyMessage=activity.get("notifyMessage");
+      $scope.selectChoices={selectedActivityType: ActivityService.getActivityInAList(activity.get('activityType'), $scope.allowedActivities), selectedRegion: $scope.allowedRegions[0]};            
+    }, 
+    error: function(error) {
+      console.log("Error while retrieving post to edit : " + JSON.stringify(error));
+      $scope.postErrorMessage="Unable to retrieve post to edit. Please try again later.";
+    }
+  });
+
+  $scope.postErrorMessage=null;
+  $scope.editPost=function() {
+    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
+      $scope.preActivity.set("activityType", $scope.selectChoices.selectedActivityType.id);
+      $scope.preActivity.set("regionUniqueName", $scope.selectChoices.selectedRegion.id);   
+      $scope.preActivity.set("notifyMessage", $scope.post.notifyMessage);
+
+      $scope.preActivity.save(null, {
+        success: function(activity) {
+          // Push the new activity to the top of activity chart, probably through Activity service
+          $state.go("tab.dash");  
         },
         error: function(activity, error) {
           // Notify user that post has failed

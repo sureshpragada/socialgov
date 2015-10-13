@@ -9,7 +9,8 @@ angular.module('starter.controllers')
       {name:'blue', shade:'dark', notAnOption: true},
       {name:'yellow', shade:'light', notAnOption: false}
     ];
-    $scope.post={myColor:$scope.colors[2]};
+    // $scope.post={myColor:$scope.colors[2]};
+    $scope.post={myColor:null};    
     // $scope.myColor = $scope.colors[2]; // red
     $scope.testColor=function() {
       alert(JSON.stringify($scope.post.myColor));
