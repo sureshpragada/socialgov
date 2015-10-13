@@ -1,6 +1,6 @@
 angular.module('starter.controllers')
 
-.controller('TestCtrl', function($scope) {
+.controller('TestCtrl', function($scope, $ionicPopover, $ionicActionSheet, $timeout) {
   /////////////////// Test 1 : Working with select boxes
   $scope.colors = [
       {name:'black', shade:'dark'},
@@ -16,6 +16,54 @@ angular.module('starter.controllers')
       alert(JSON.stringify($scope.post.myColor));
     };
 
+
+  var template = '<ion-popover-view><ion-header-bar> <h1 class="title">My Popover Title</h1> </ion-header-bar> <ion-content> Hello! </ion-content></ion-popover-view>';
+
+  $ionicPopover.fromTemplateUrl('templates/popover.html', {
+    scope: $scope,
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+
+  $scope.openPopover = function($event, option) {
+    $scope.popover.show($event);
+    $scope.optionId=option;
+  };
+
+  $scope.editThis=function() {
+    $scope.popover.hide();
+    alert("being edited " + $scope.optionId);
+  }
+
+  $scope.removeThis=function() {
+    $scope.popover.hide();
+    alert("being removed " + $scope.optionId);
+  }
+
+  $scope.openActionSheet=function(userType) {
+
+var hideSheet = $ionicActionSheet.show({
+     buttons: [
+       { text: '<b>Share</b> This' },
+       { text: 'Move' }
+     ],
+     destructiveText: 'Delete',
+     titleText: 'Modify your album',
+     cancelText: 'Cancel',
+     cancel: function() {
+          // add cancel code..
+        },
+     buttonClicked: function(index) {
+       return true;
+     }
+   });
+
+  $timeout(function() {
+       hideSheet();
+     }, 2000);
+
+
+  }
   ////////////////// Test 2 : Create object and retrieve
 
   // var Activity = Parse.Object.extend("Activity");
