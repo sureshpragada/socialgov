@@ -1,0 +1,63 @@
+<ion-view title="Edit Executive Offices &amp; Contacts">
+	<ion-content>
+	  <ion-item >
+   		<label class="item item-input" >
+				<span class="input-label">
+				      Office Name 
+				</span>
+			<input type="text" name="offName"  ng-model="newOfficeObj.officeName">
+		</label>
+		<label class="item item-input" >
+				<span class="input-label">
+				      AddressLine1
+				</span>
+			<input type="text" name="addr1"  ng-model="newOfficeObj.addressLine1">
+		</label>
+		<label class="item item-input" >
+				<span class="input-label">
+				      AddressLine2
+				</span>
+			<input type="text" name="addr2"  ng-model="newOfficeObj.addressLine2">
+		</label>
+    <label class="item item-input" >
+        <span class="input-label">
+              Landmark
+        </span>
+      <input type="text" name="landmark"  ng-model="newOfficeObj.landmark">
+    </label>
+    <label class="item item-input" >
+        <span class="input-label">
+              phoneNumberList
+        </span>
+      <input type="text" name="phoneNums"  ng-model="newOfficeObj.phoneNumberList" >
+
+    </label>
+    <div ng-repeat="admin in newOfficeObj.execAdmin">
+  	   <label class="item item-input">
+          <span class="input-label">
+                Exec Admin Title
+          </span>
+        <input type="text" name="adminTitle" ng-model="admin.title" >
+        </label>
+        <label class="item item-input">
+        <span class="input-label">
+                Exec Admin Name
+          </span>
+        <input type="text" name="adminName" ng-model="admin.name" >
+        </label>
+        <label class="item item-input">
+        <span class="input-label">
+                Exec Admin PhoneList
+         </span>
+         <input type="text" name="adminPhoneList" ng-model="admin.phoneNumberList" >
+      </label>
+  	</div>
+  </ion-item>
+  <div class="padding" >
+          <button class="button button-block button-balanced" ng-click="submit()">Submit</button>
+      </div>
+      <!-- <div class="padding" >
+          <button  class="button button-assertive" ng-click="cancel()">Cancel</button>
+      </div> -->
+</ion-content>
+</ion-view>
