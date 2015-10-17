@@ -195,7 +195,16 @@ angular.module('starter.services', [])
       activity.set("id", activityId);
       activity.set("status", "D");
       return activity.save();
-    }
+    },
+    reportSpam: function(activityId) {
+      console.log("Updating status field of activity");
+      var Activity = Parse.Object.extend("Activity");
+      var activity = new Activity();
+      activity.set("id", activityId);
+      activity.increment("spam", 1);
+      // TODO :: Send a push notification to the super admin or remove post if spamCount exceeds some threshold
+      return activity.save();
+    }    
   };
 }])
 

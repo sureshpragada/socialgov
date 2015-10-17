@@ -1,6 +1,6 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('DashboardCtrl', function($scope, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs) {
+.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout) {
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
@@ -231,6 +231,72 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         console.log("Canceled removal of activity");
       }
     });
+  };
+
+  $scope.reportSpam=function(activityId) {
+    ActivityService.reportSpam(activityId).then(function(post) {
+      $cordovaDialogs.alert('Thank you for spotting the spam. We will take action on this post shortly.', 'Spam Report', 'OK');
+    }, function(error) {
+      console.log("Unable to report posting as spam " + JSON.stringify(error));
+    });
+  };
+
+  $scope.openUserActionSheet=function(activityId, activityIndex) {
+    $scope.actionSheetActivityId=activityId;
+    $scope.actionSheetActivityIndex=activityIndex;
+    // TODO :: Should this variable be created outside to avoid creation of dom everytime?
+    var hideSheet = $ionicActionSheet.show({
+       buttons: [
+         { text: 'Edit Post' },
+         { text: 'Delete Post' },
+         { text: 'Report spam' }
+       ],
+       cancelText: 'Cancel',
+       cancel: function() {
+          console.log("Action has been cancelled");
+        },
+       buttonClicked: function(index) {
+          if(index==0) { // Edit post
+            $state.go("tab.editpost", {activityId: $scope.actionSheetActivityId});   
+          } else if(index==1) { // Delete post
+            $scope.removePost($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
+          } else if(index==2) { // Report spam
+            $scope.reportSpam($scope.actionSheetActivityId);
+          } 
+          return true;
+       }
+     });
+
+    $timeout(function() {
+         hideSheet();
+       }, 5000);
+
+  };
+
+  $scope.openActionSheet=function(activityId, activityIndex) {
+    $scope.actionSheetActivityId=activityId;
+    $scope.actionSheetActivityIndex=activityIndex;
+    // TODO :: Should this variable be created outside to avoid creation of dom everytime?
+    var hideSheet = $ionicActionSheet.show({
+       buttons: [
+         { text: 'Report spam' }
+       ],
+       cancelText: 'Cancel',
+       cancel: function() {
+          console.log("Action has been cancelled");
+        },
+       buttonClicked: function(index) {
+          if(index==0) { // Report spam
+            $scope.reportSpam($scope.actionSheetActivityId);
+          } 
+          return true;
+       }
+     });
+
+    $timeout(function() {
+         hideSheet();
+       }, 5000);
+
   };
 
 })

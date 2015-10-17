@@ -9,8 +9,9 @@
       </div>
     </div>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError">
-      <div class="item">
-<!--         <i class="icon ion-navicon royal"></i> -->
+      <div class="item item-icon-right">
+        <a ng-click="openUserActionSheet(activity.id, $index)" ng-if="activity.get('user').id==user.id"><i class="icon ion-navicon royal"></i></a>
+        <a ng-click="openActionSheet(activity.id, $index)" ng-if="activity.get('user').id!=user.id"><i class="icon ion-navicon royal"></i></a>
 <!--         <img src="http://placehold.it/60/009999"> -->
         <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
         <p ng-show="activity.get('activityType')=='NOTF'">{{activity.get("user").get("title")}}</p>
@@ -20,10 +21,6 @@
       <div class="item item-body">
         <img class="full-image" ng-src="{{activity.get('images')[0]}}" ng-if="activity.get('images')">
         <p ng-bind-html="activity.get('notifyMessage') | nl2br">
-        </p>
-        <p ng-if="activity.get('user').id==user.id">
-          <a class="button button-small button-royal" href="#/tab/editpost/{{activity.id}}">Edit</a>
-          <a class="button button-small button-assertive" ng-click="removePost(activity.id, $index)">Remove</a>          
         </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')!='NOTF'">

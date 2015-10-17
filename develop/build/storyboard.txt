@@ -1,0 +1,32 @@
+Storyboard
+
+SocialGov helps bringing citizens, executives, legislatives, journalists and social activist together to communicate and engage each other to bring transparent governance. Every user on this platform will have a specific role which gives them specific responsibilities and rights to do activities on the platform. Legislatives can post any development ideas and have citizens debate on them to get unbiased view on the idea. Citizens can post development ideas and city level problems which can be visible to legislatives and executives to work on. Executives can post any notifications and events happening in the city to empower citizens with the information.
+
+Citizens can find city information including executives and legislative hierarchical contacts and financial transactions of their city bringing the transparency in the system. 	
+
+Eveyone can view the activity happening in the city and have rights to make decisions in their own city, not in other cities. 
+
+It is our hope that we will find balanced governance and harmony in your city. 
+
+Movie story borad :
+
+SocialGov helps bringing citizens, executives, legislatives, journalists and social activist together to communicate and engage each other to bring transparent governance. 
+
+Citizens can find city information including executives and legislative hierarchical contacts and financial transactions of their city bringing the transparency in the system. 	
+
+Legislatives can post any development ideas and have citizens debate on them to get unbiased view on the idea. 
+
+Every user on this platform will have a specific role which gives them specific responsibilities and rights to do activities on the platform. 
+
+It is our hope that we will find balanced governance and harmony in your city.
+
+===============================
+
+Activity Type			User Action
+
+Notifications           Like, comment
+Public meeting          Join, comment
+Development Idea        Support, Oppose, Debate
+Report an issue         Agree, Disagree, Feedback
+
+
