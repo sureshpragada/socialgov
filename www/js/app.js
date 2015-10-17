@@ -242,7 +242,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             controller: 'RegionDetailCtrl'
           }
         }
-    })    
+    })
+
+    .state('tab.addlegis', {
+      url: '/addlegis/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region/add-new-legislative.html',
+            controller: 'AddLegisCtrl'
+          }
+        }
+    })
+
+    .state('tab.editlegis', {
+      url: '/editlegis/{regionUniqueName}/{uniqueLegisTitle}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region/edit-legis-details.html',
+            controller: 'EditLegisDetailsCtrl'
+          }
+        }
+    })
+
     .state('tab.finview', {
       url: '/finview/{regionUniqueName}',
         views: {

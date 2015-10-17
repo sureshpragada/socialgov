@@ -1,0 +1,45 @@
+<ion-view title="Add Legislative">
+	<ion-content>
+		<div class="padding card assertive" ng-if="legisErrorMessage">
+			{{legisErrorMessage}}
+		</div>
+		<ion-list>
+   		<label class="item item-input" >
+				<span class="input-label">
+				      Title 
+				</span>
+			<input type="text" name="title"  ng-model="newLegisObj.title">
+		</label>
+		<label class="item item-input" >
+				<span class="input-label">
+				      Name
+				</span>
+			<input type="text" name="name"  ng-model="newLegisObj.name">
+		</label>
+		<label class="item item-input" >
+				<span class="input-label">
+				      AddressLine1
+				</span>
+			<input type="text" name="addr1"  ng-model="newLegisObj.addressLine1">
+		</label>
+		<label class="item item-input" >
+				<span class="input-label">
+				      AddressLine2
+				</span>
+			<input type="text" name="addr2"  ng-model="newLegisObj.addressLine2">
+		</label>
+    	<label class="item item-input" >
+        	<span class="input-label">
+              phoneNumberList
+        	</span>
+      		<input type="text" name="numbers"  ng-model="phoneNums.legisNums" >
+    	</label>
+    	</ion-list>
+    	<div class="padding" >
+        	<button class="button button-block button-balanced" ng-click="submit()">Submit</button>
+     	</div>
+     	<div class="padding" >
+        	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+    	</div>
+	</ion-content>
+</ion-view>

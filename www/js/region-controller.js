@@ -33,7 +33,7 @@ angular.module('starter.controllers')
     for(var i=0; i < $scope.offices.length;i++) { 
       delete $scope.offices[i].$$hashKey;
       if($scope.offices[i].execAdmin!=null) {
-        for(var j=0; j< $scope.offices[i].execAdmin.length;j++){
+        for(var j=0; j < $scope.offices[i].execAdmin.length; j++){
           delete $scope.offices[i].execAdmin[j].$$hashKey;
         }
       }
@@ -53,6 +53,33 @@ angular.module('starter.controllers')
 
   };
   
+  $scope.deleteLegis=function(legisTitle){
+    $scope.legislatives=$scope.region.get('legiRepList');
+    for(var i=0; i < $scope.legislatives.length; i++){
+      if($scope.legislatives[i].title==legisTitle){
+        break;
+      }
+    }
+    $scope.legislatives.splice(i,1);
+    for(var i=0; i <$scope.legislatives.length;i++){
+      delete $scope.legislatives[i].$$hashKey;
+    }
+    console.log(JSON.stringify($scope.region));
+    $scope.region.save(null, {
+      success: function(region) {
+        $scope.$apply(function(){
+          console.log("delete is success");
+        });
+      },
+      error: function(region, error) {
+
+        console.log("Error in deleting the legislative " + error.message);
+        $scope.deleteErrorMessage="Unable to process your delete request.";
+      }
+    });
+
+  };
+
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
 
   $scope.openOfficePopover=function($event, officeName) {
@@ -76,6 +103,26 @@ angular.module('starter.controllers')
     $scope.deleteOffice($scope.intendedOffice);
   }  
 
+  $scope.openLegisPopover=function($event, legisTitle) {
+    $scope.intendedTitle=legisTitle;
+    $scope.popover.show($event);
+  };
+
+  $ionicPopover.fromTemplateUrl('templates/region/popover-legis-mgmt.html', {
+    scope: $scope,
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+
+  $scope.editThis=function() {
+    $scope.popover.hide();
+    $state.go("tab.editlegis",{regionUniqueName:$scope.region.get('uniqueName'), uniqueLegisTitle: $scope.intendedTitle});    
+  }
+
+  $scope.removeThis=function() {
+    $scope.popover.hide();
+    $scope.deleteLegis($scope.intendedTitle);
+  }
 })
 
 .controller('AddOfficeCtrl', function($scope, $stateParams, $state) {
@@ -196,6 +243,111 @@ angular.module('starter.controllers')
   };
 
 })
+
+.controller('AddLegisCtrl', function($scope, $stateParams, $state) {
+
+  var Region = Parse.Object.extend("Region");
+  var query = new Parse.Query(Region);
+  query.equalTo("uniqueName", $stateParams.regionUniqueName);
+  query.find({
+    success: function(regions) {
+      $scope.$apply(function(){
+        $scope.region=regions[0];
+      });
+    },
+    error: function(error) {
+      console.log("Error retrieving region " + JSON.stringify(error));
+    }
+  });
+
+  $scope.legisErrorMessage=null;
+  $scope.phoneNums={legisNums:""};
+  $scope.newLegisObj={title:"", name:"", addressLine1:"", addressLine2:"", phoneNumberList:[]};
+  $scope.submit=function(){
+    if($scope.newLegisObj.title!="" && $scope.newLegisObj.name!="" && $scope.newLegisObj.addressLine1!=""){
+        if($scope.phoneNums.legisNums!=""){
+          var num=$scope.phoneNums.legisNums.split(",");
+          for(var i=0;i < num.length;i++)
+            $scope.newLegisObj.phoneNumberList.push(num[i]);
+        }
+        $scope.region.add("legiRepList",$scope.newLegisObj);
+        $scope.region.save(null, {
+          success: function(legislative) {
+            $scope.$apply(function(){
+              console.log(JSON.stringify($scope.region));
+              $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
+            });
+          },
+          error: function(legislative, error) {
+            console.log("Error in saving the legislative details " + error.message);
+            $scope.legisErrorMessage="Unable to submit your add request.";
+          }
+        });
+    }
+    else
+      $scope.legisErrorMessage="Provide title, name and address line";
+  };
+
+  $scope.cancel=function(){
+    $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
+  };
+})
+
+.controller('EditLegisDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, $state) {
+
+  // $scope.newExecObj={};
+  // $scope.newOfficeObj={};
+  var residency=$stateParams.regionUniqueName;
+  var legisTitle=$stateParams.uniqueLegisTitle;
+  console.log(legisTitle);
+  var Region = Parse.Object.extend("Region");
+  var query = new Parse.Query(Region);
+  query.equalTo("uniqueName", residency);
+  query.find({
+    success: function(regions) {
+      $scope.$apply(function(){
+        $scope.region=regions[0];
+        //console.log(JSON.stringify($scope.region));
+        $scope.newLegisObj=$scope.region.get('legiRepList');
+        console.log(JSON.stringify($scope.newLegisObj));
+        for(var i=0; i < $scope.newLegisObj.length ; i++){
+          if($scope.newLegisObj[i].title==legisTitle){
+            $scope.legisToBeEdited=$scope.newLegisObj[i];
+            break;
+          }
+        }
+      });
+    },
+    error: function(error) {
+      console.log("Error retrieving region " + JSON.stringify(error));
+    }
+  });
+
+  $scope.submit=function(){
+    if(typeof($scope.legisToBeEdited.phoneNumberList)=="string"){
+      $scope.legisNum=$scope.legisToBeEdited.phoneNumberList;
+      $scope.legisToBeEdited.phoneNumberList=[];
+      var numbers=$scope.legisNum.split(",");
+      for(var i=0; i < numbers.length;i++){
+        $scope.legisToBeEdited.phoneNumberList.push(numbers[i]);
+      }
+    }
+    $scope.region.save(null, {
+        success: function(legislative) {
+          console.log("edit is success");
+          console.log(JSON.stringify($scope.legisToBeEdited));
+          console.log(JSON.stringify($scope.region));
+        }
+    });
+    $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
+  };
+
+  $scope.cancel=function(){
+    $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
+  };
+
+})
+
 
 .controller('RegionFinancialOverviewCtrl', function($scope, $stateParams, RegionService) {
   var RegionFinancial = Parse.Object.extend("RegionFinancial");
