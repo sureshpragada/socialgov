@@ -132,7 +132,7 @@ angular.module('starter.services', [])
     getAllowedActivities: function(role) {
       var allowedActivities=[
         {id:"ISSU", label:"Report Issue"},      
-        {id:"EVNT", label:"Public Meeting"},         
+        {id:"EVNT", label:"Public Event"},         
         {id:"IDEA", label:"Development Idea"}
       ];
       if(role!=null && role!="CTZEN") {
