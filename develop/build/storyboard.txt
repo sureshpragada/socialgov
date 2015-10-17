@@ -24,9 +24,9 @@ It is our hope that we will find balanced governance and harmony in your city.
 
 Activity Type			User Action
 
-Notifications           Like, comment
+Notifications           Like, comment (should we call it as acknoweldged?)
 Public meeting          Join, comment
-Development Idea        Support, Oppose, Debate
-Report an issue         Agree, Disagree, Feedback
+Development Idea        Support, Oppose, Debate (Should we call this as feedback? in more respectful way)
+Report an issue         Agree, Disagree, Feedback/Solution
 
 

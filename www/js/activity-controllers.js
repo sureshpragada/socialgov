@@ -75,7 +75,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         success: function(debates) {
           $scope.$apply(function(){
             if(debates!=null && debates.length>0) {
-              // console.log("Deabte notes : " + JSON.stringify(debates));
               $scope.debateList[index]=debates;
             } else {
               console.log("No arguments found for activity " + activityId);
