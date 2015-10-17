@@ -10,7 +10,7 @@
     </div>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError">
       <div class="item item-icon-right">
-        <a ng-click="openUserActionSheet(activity.id, $index)" ng-if="activity.get('user').id==user.id"><i class="icon ion-navicon royal"></i></a>
+        <a ng-click="openUserActionSheet(activity.id, $index)" ng-if="activity.get('user').id==user.id || user.get('role')=='SUADM'"><i class="icon ion-navicon royal"></i></a>
         <a ng-click="openActionSheet(activity.id, $index)" ng-if="activity.get('user').id!=user.id"><i class="icon ion-navicon royal"></i></a>
 <!--         <img src="http://placehold.it/60/009999"> -->
         <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>

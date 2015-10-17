@@ -123,6 +123,10 @@ angular.module('starter.services', [])
       } else {
         return regionHeirarchy;
       }
+    },
+    updateRegion: function(regionName, region) {
+      regionCache.remove(regionName);
+      regionCache.put(regionName, region);                
     }
   };
 }])
@@ -131,11 +135,11 @@ angular.module('starter.services', [])
   return {
     getAllowedActivities: function(role) {
       var allowedActivities=[
-        {id:"ISSU", label:"Report Issue"},      
-        {id:"EVNT", label:"Public Event"},         
+        {id:"ISSU", label:"Report Problem"},      
         {id:"IDEA", label:"Development Idea"}
       ];
       if(role!=null && role!="CTZEN") {
+        allowedActivities.unshift({id:"EVNT", label:"Public Program"});        
         allowedActivities.unshift({id:"NOTF", label:"Notification"});
       }
       return allowedActivities;

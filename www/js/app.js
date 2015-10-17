@@ -196,72 +196,79 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('tab.changedemodetails', {
       url: '/changedemodetails/{regionUniqueName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/change-demo-details.html',
-            controller: 'ChangeDemoDetailsCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/change-demo-details.html',
+          controller: 'ChangeDemoDetailsCtrl'
         }
+      }
     })
 
     .state('tab.offices', {
       url: '/offices/{regionUniqueName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/region-offices.html',
-            controller: 'RegionDetailCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-offices.html',
+          controller: 'RegionOfficeDetailCtrl'
         }
+      }
     })
 
     .state('tab.editoffices', {
       url: '/editoffices/{regionUniqueName}/{uniqueOfficeName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/edit-office-details.html',
-            controller: 'EditOfficeDetailsCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/edit-office-details.html',
+          controller: 'EditOfficeDetailsCtrl'
         }
+      }
     })
 
     .state('tab.addoffices', {
       url: '/addoffices/{regionUniqueName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/add-new-office.html',
-            controller: 'AddOfficeCtrl'
-          }
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/add-new-office.html',
+          controller: 'AddOfficeCtrl'
         }
+      }
     })
 
     .state('tab.legis', {
       url: '/legis/{regionUniqueName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/region-legislature.html',
-            controller: 'RegionDetailCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-legislature.html',
+          controller: 'RegionLegisDetailCtrl'
         }
+      }
     })
 
     .state('tab.addlegis', {
       url: '/addlegis/{regionUniqueName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/add-new-legislative.html',
-            controller: 'AddLegisCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/add-new-legislative.html',
+          controller: 'AddLegisCtrl'
         }
+      }
     })
 
     .state('tab.editlegis', {
       url: '/editlegis/{regionUniqueName}/{uniqueLegisTitle}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/edit-legis-details.html',
-            controller: 'EditLegisDetailsCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/edit-legis-details.html',
+          controller: 'EditLegisDetailsCtrl'
         }
+      }
     })
 
     .state('tab.finview', {
