@@ -4,18 +4,18 @@
     <ion-list ng-repeat="financial in financials">
       <ion-item class="item-divider">{{financial.get("year")}}</ion-item>    
       <ion-item href="#/tab/findet/{{financial.get('regionUniqueName')}}/{{financial.get('year')}}/revenue" class="item-icon-right">
-          Revenue <span class="item-note">Rs. {{financial.get("revenue")}}</span>
+          Revenue <span class="item-note">$ {{financial.get("revenue")}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
       <ion-item href="#/tab/findet/{{financial.get('regionUniqueName')}}/{{financial.get('year')}}/expenses" class="item-icon-right">
-          Expenses <span class="item-note">Rs. {{financial.get("expenses")}}</span>
+          Expenses <span class="item-note">$ {{financial.get("expenses")}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
       <ion-item ng-if="financial.get('surplus')">
-          Surplus <span class="item-note">Rs. {{financial.get("surplus")}}</span>
+          Surplus <span class="item-note">$ {{financial.get("surplus")}}</span>
       </ion-item>    
       <ion-item ng-if="financial.get('defecit')">
-          Defecit <span class="item-note">Rs. {{financial.get("defecit")}}</span>
+          Defecit <span class="item-note">$ {{financial.get("defecit")}}</span>
       </ion-item>    
     </ion-list>
   </ion-content>

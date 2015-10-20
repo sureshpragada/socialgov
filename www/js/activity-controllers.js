@@ -97,7 +97,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     }
   };
 
-  
   $scope.postDebateArgument=function(activityId, index) {
     var activity=$scope.activities[index];
 

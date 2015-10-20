@@ -10,7 +10,7 @@
   	</div>  
     <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')">
 	  <div class="item item-divider item-icon-right">
-        <a ng-click="openOfficePopover($event, execOffAddr.officeName)"><i class="icon ion-navicon royal"></i></a>
+        <a ng-click="openOfficePopover($event, execOffAddr.officeName)" ng-if="canUpdateRegion"><i class="icon ion-navicon royal"></i></a>
 	    {{execOffAddr.officeName}}
 	  </div>
 	  <div class="item item-text-wrap">

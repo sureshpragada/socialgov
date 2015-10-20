@@ -23,7 +23,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover) {
+.controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
     residency=Parse.User.current().get("residency");
@@ -36,6 +36,8 @@ angular.module('starter.controllers')
     $scope.regionErrorMessage="Unable to retrieve region information.";
     console.log("Error retrieving region " + JSON.stringify(error));
   });
+
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
   $scope.deleteLegis=function(legisTitle){
     $scope.legislatives=$scope.region.get('legiRepList');
@@ -64,8 +66,6 @@ angular.module('starter.controllers')
 
   };
 
-  $scope.canUpdateRegion=AccountService.canUpdateRegion();
-
   $scope.openLegisPopover=function($event, legisTitle) {
     $scope.intendedTitle=legisTitle;
     $scope.popover.show($event);
@@ -84,11 +84,17 @@ angular.module('starter.controllers')
 
   $scope.removeThis=function() {
     $scope.popover.hide();
-    $scope.deleteLegis($scope.intendedTitle);
+    $cordovaDialogs.confirm('Do you want to delete this legislative contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+        $scope.deleteLegis($scope.intendedTitle);
+      } else {
+        console.log("Canceled removal of legislative delete");
+      }
+    });
   }
 })
 
-.controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover) {
+.controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
     residency=Parse.User.current().get("residency");
@@ -101,6 +107,9 @@ angular.module('starter.controllers')
     $scope.regionErrorMessage="Unable to retrieve region information.";
     console.log("Error retrieving region " + JSON.stringify(error));
   });
+
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();
+
   $scope.deleteOffice=function(officeName){
     $scope.offices=$scope.region.get("execOffAddrList");
     $scope.officeToBeDeleted=null;
@@ -133,8 +142,6 @@ angular.module('starter.controllers')
     });
 
   };
-  
-  $scope.canUpdateRegion=AccountService.canUpdateRegion();
 
   $scope.openOfficePopover=function($event, officeName) {
     $scope.intendedOffice=officeName;
@@ -154,7 +161,13 @@ angular.module('starter.controllers')
 
   $scope.removeThis=function() {
     $scope.popover.hide();
-    $scope.deleteOffice($scope.intendedOffice);
+    $cordovaDialogs.confirm('Do you want to delete this office?', 'Delete Office', ['Delete','Cancel']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+        $scope.deleteOffice($scope.intendedOffice);    
+      } else {
+        console.log("Canceled removal of activity");
+      }
+    });
   };
 
 })

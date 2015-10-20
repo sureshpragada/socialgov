@@ -2,7 +2,7 @@
   <ion-content>
     <div ng-show="finDetailsErrorMessage" class="card padding assertive">{{finDetailsErrorMessage}}</div>    
     <ion-item ng-repeat="finItem in finLineItems">
-        {{finItem.name}} <span class="item-note">Rs. {{finItem.amount}}</span>
+        {{finItem.name}} <span class="item-note">$ {{finItem.amount}}</span>
     </ion-item>    
   </ion-content>
 </ion-view>

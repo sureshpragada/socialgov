@@ -7,9 +7,8 @@
 				    <span class="input-label">
 				      Country
 				    </span>
-				    <select ng-model="user.countryCode">
-				      <option value="91" selected>India</option>
-				    </select>
+				    <select ng-model="selectedValues.country" ng-options="country.name for country in countryList">
+				    </select>				    
 				 </label>							
  				<label class="item item-input">
 				    <span class="input-label">
@@ -34,14 +33,14 @@
 				</div>
 				<label class="item item-input item-select" ng-hide="userRegistered">
 				    <span class="input-label">
-				      Mandal/City
+				      Master Association
 				    </span>
 				    <select ng-model="selectedValues.highLevelRegion" ng-options="region.get('name') for region in highLevelRegionList" ng-change="showNextLevelRegions()">
 				    </select>
 				 </label>
 				<label class="item item-input item-select" ng-hide="userRegistered">
 				    <span class="input-label">
-				      Village/Division
+				      Association
 				    </span>
 				    <select ng-model="selectedValues.finalLevelRegion" ng-options="region.get('name') for region in finalLevelRegionList" ng-change="showFinalLevelRegions()">
 				    </select>

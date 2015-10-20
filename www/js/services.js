@@ -193,15 +193,13 @@ angular.module('starter.services', [])
 .factory('AccountService', ['CacheFactory', 'RegionService', function(CacheFactory, RegionService) {
     var roles=[
       {id:"LEGI", label:"Legislative", titles:[
-        {id:"Sarpanch", label:"Sarpanch"},
-        {id:"Ward Member", label:"Ward Member"},
-        {id:"MPTC", label:"MPTC"},        
-        {id:"Mayor", label:"Mayor"},
-        {id:"Corporator", label:"Corporator"}                
+        {id:"President", label:"President"},
+        {id:"Director", label:"Board Of Director"},
+        {id:"Secretary", label:"Secretary"},        
+        {id:"Treasurer", label:"Treasurer"}
       ]}, 
       {id:"EXEC", label:"Executive Officer", titles:[
-        {id:"Secretary", label:"Secretary"},
-        {id:"MPDO", label:"MPDO"}
+        {id:"Manager", label:"Manager"}
       ]},
       {id:"JNLST", label:"Journalist", titles:[]}, 
       {id:"SOACT", label:"Social Activist", titles:[]},
@@ -246,6 +244,7 @@ angular.module('starter.services', [])
     },
     canUpdateRegion: function(){
       var user=Parse.User.current();
+      // console.log("User role : " + user.get("role"));
       if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
         return true;
       }else{
@@ -282,8 +281,6 @@ angular.module('starter.services', [])
 }])
 
 .factory('NotificationService', ['$http', 'LogService', function($http, LogService) {
-  var PARSE_APPLICATION_KEY="kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW";
-  var PARSE_REST_API_KEY="EAz3Z0La6QiOA5XLQdJX8SRvvmCVfHdzyzJBFx1t";
   return {
     getInstallationByInstallationId: function(installationId, successCallback, errorCallback) {
       var paramsRequest={"where":{"objectId":installationId}};
@@ -331,6 +328,7 @@ angular.module('starter.services', [])
         }
       };
       $http(req).then( function(result){ 
+          updateUserDeviceRegStatus();
           LogService.log({type:"INFO", message: "Registered android device " + JSON.stringify(result.data)}); 
         }, function(error) {
           LogService.log({type:"ERROR", message: "Failed to register android device " + JSON.stringify(error)});                        
@@ -347,7 +345,7 @@ angular.module('starter.services', [])
           "deviceType": "ios",
           "deviceToken": deviceToken,
           "channels": channelArray,
-          "appIdentifier": "org.socialgov",
+          "appIdentifier": IOS_APP_IDENTIFIER,
           "timeZone": "Asia/Kolkata",            
           "user": {
             "__type": "Pointer",
@@ -356,12 +354,18 @@ angular.module('starter.services', [])
           }
         }
       };
-      $http(req).then( function(result){ 
+      $http(req).then(function(result){ 
+          updateUserDeviceRegStatus();
           LogService.log({type:"INFO", message: "Registered IOS device " + JSON.stringify(result.data)}); 
         }, function(error) {
           LogService.log({type:"ERROR", message: "Failed to register IOS device " + JSON.stringify(error)});                        
       });
-    }    
+    },    
+    updateUserDeviceRegStatus: function() {
+      var user=Parse.User.current();
+      user.set("deviceReg", "Y");
+      user.save();
+    }
   };
 }])
 ;
