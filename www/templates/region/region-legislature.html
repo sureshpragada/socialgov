@@ -21,7 +21,7 @@
 	    <p ng-if="legi.phoneNumberList">
 		    <i class="icon ion-iphone"></i>
 		    <span ng-repeat="phNo in legi.phoneNumberList">
-		    	{{phNo}} {{$last ? '' : ', '}}
+		    	<a href="tel:{{phNo}}">{{phNo}} </a>{{$last ? '' : ', '}}
 		    </span>
 	    </p>
 	  </div>
