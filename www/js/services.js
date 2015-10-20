@@ -191,27 +191,12 @@ angular.module('starter.services', [])
 }])
 
 .factory('AccountService', ['CacheFactory', 'RegionService', function(CacheFactory, RegionService) {
-    var roles=[
-      {id:"LEGI", label:"Legislative", titles:[
-        {id:"President", label:"President"},
-        {id:"Director", label:"Board Of Director"},
-        {id:"Secretary", label:"Secretary"},        
-        {id:"Treasurer", label:"Treasurer"}
-      ]}, 
-      {id:"EXEC", label:"Executive Officer", titles:[
-        {id:"Manager", label:"Manager"}
-      ]},
-      {id:"JNLST", label:"Journalist", titles:[]}, 
-      {id:"SOACT", label:"Social Activist", titles:[]},
-      {id:"CTZEN", label:"Citizen"},
-      {id:"SUADM", label:"Administrator"} 
-    ];      
 
   var userLastRefreshTimeStamp=null; new Date().getTime();
 
   return {
     getRolesAllowedToChange: function() {
-      return [roles[0], roles[1], roles[2], roles[3]];      
+      return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
     },    
     getRegionsAllowedToPost: function(role, residency) {
       if(role=="CTZEN") {
@@ -221,9 +206,9 @@ angular.module('starter.services', [])
       }
     },
     getRoleNameFromRoleCode: function(roleCode) {
-      for(var i=0;i<roles.length;i++) {
-        if(roles[i].id==roleCode) {
-          return roles[i].label;
+      for(var i=0;i<USER_ROLES.length;i++) {
+        if(USER_ROLES[i].id==roleCode) {
+          return USER_ROLES[i].label;
         }
       }
       return "Citizen";
@@ -327,8 +312,9 @@ angular.module('starter.services', [])
           }
         }
       };
+      var self=this;
       $http(req).then( function(result){ 
-          updateUserDeviceRegStatus();
+          self.updateUserDeviceRegStatus();
           LogService.log({type:"INFO", message: "Registered android device " + JSON.stringify(result.data)}); 
         }, function(error) {
           LogService.log({type:"ERROR", message: "Failed to register android device " + JSON.stringify(error)});                        
@@ -354,8 +340,9 @@ angular.module('starter.services', [])
           }
         }
       };
+      var self=this;
       $http(req).then(function(result){ 
-          updateUserDeviceRegStatus();
+          self.updateUserDeviceRegStatus();
           LogService.log({type:"INFO", message: "Registered IOS device " + JSON.stringify(result.data)}); 
         }, function(error) {
           LogService.log({type:"ERROR", message: "Failed to register IOS device " + JSON.stringify(error)});                        

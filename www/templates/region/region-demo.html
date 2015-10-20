@@ -11,11 +11,11 @@
   			   Area <span class="item-note">{{region.get('demography').area}} Sq Km </span>
   			</ion-item>
   			<ion-item>
-  			   Homes <span class="item-note">{{region.get("demography").population}} </span>
+  			   {{'Population' | translate}} <span class="item-note">{{region.get("demography").population}} </span>
   			</ion-item>
     	</ion-list> 
     	<ion-item>
-	        Pincodes
+	        {{'PostalCode' | translate}}
 	        <span class="item-note">
 	          <span ng-repeat="pincode in region.get('demography').pinCodes track by $index">
 	            {{pincode}} {{$last ? '' : ', '}}

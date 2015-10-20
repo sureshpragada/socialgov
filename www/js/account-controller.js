@@ -84,26 +84,25 @@ angular.module('starter.controllers')
   query.equalTo("status", "PEND");
   query.find({
     success: function(results) {
-        if(results!=null && results.length>0) {
-            console.log(JSON.stringify(results));
-            $scope.$apply(function(){
-              $scope.accessRequests=results;
-            });
-          } else {
-              $scope.adminAccessRequestListError="No role changes requests to review";
-          }
-        }, 
-        error: function(error) {
-          $scope.adminAccessRequestListError="Unable to get role change requests";
+      if(results!=null && results.length>0) {
+          console.log(JSON.stringify(results));
+          $scope.$apply(function(){
+            $scope.accessRequests=results;
+          });
+        } else {
+            $scope.adminAccessRequestListError="No role changes requests to review";
         }
-      });
-
+      }, 
+      error: function(error) {
+        $scope.adminAccessRequestListError="Unable to get role change requests";
+      }
+    });
 })
 
 .controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService, NotificationService) {
 
   $scope.countryList=COUNTRY_LIST;
-  $scope.selectedValues={country: countryList[0], highLevelRegion:null, finalLevelRegion: null};  
+  $scope.selectedValues={country: $scope.countryList[0], highLevelRegion:null, finalLevelRegion: null};  
   $scope.user={};
   $scope.userRegistered=true;
   $scope.registerErrorMessage=null;
@@ -119,6 +118,7 @@ angular.module('starter.controllers')
           console.log("User exists in the system. Skipping registration flow.");
           RegionService.initializeRegionCacheByCurrentUser();          
           if(user.get("deviceReg")=="N") {
+            console.log("Device is not registered, attempting to register");
             $scope.registerDevice();
           } else {
             console.log("Device already registered");
@@ -292,26 +292,39 @@ angular.module('starter.controllers')
   };
 
   $scope.isLogoutAllowed=function() {
-    if(ionic.Platform.isAndroid() && $scope.user.get("lastName")!="Pragada") {
-      return false;
+    if(Parse.User.current()!=null) {
+      if(ionic.Platform.isAndroid() && Parse.User.current().get("lastName")!="Pragada") {
+        return false;
+      } else {
+        return true;
+      }      
     } else {
-      return true;
+      return false;
     }
   };
 
   $scope.logout=function() {    
-      Parse.User.logOut();
-      $scope.user=null;
-      console.log("After user has been made null");
-      $state.go("register");    
+    Parse.User.logOut();
+    $scope.user=null;
+    // $scope.$apply(function(){
+      $state.go("register");      
+    // });
   };
 
   $scope.isSuperAdmin=function(){
-    return AccountService.isSuperAdmin(Parse.User.current().get("role"));
+    if(Parse.User.current()!=null) {
+      return AccountService.isSuperAdmin(Parse.User.current().get("role"));  
+    } else {
+      return false;
+    }
   };
 
   $scope.isCitizen=function(){
-    return AccountService.isCitizen(Parse.User.current().get("role"));
+    if(Parse.User.current()!=null) {
+      return AccountService.isCitizen(Parse.User.current().get("role"));
+    } else {
+      return false;
+    }    
   }
 
   $scope.notifySettingChanged=function(settingName, settingValue) {

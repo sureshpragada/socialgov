@@ -58,7 +58,6 @@ angular.module('starter.controllers')
         });
       },
       error: function(region, error) {
-
         console.log("Error in deleting the legislative " + error.message);
         $scope.deleteErrorMessage="Unable to process your delete request.";
       }
@@ -131,7 +130,8 @@ angular.module('starter.controllers')
 
     $scope.region.save(null, {
       success: function(region) {
-        $scope.$apply(function(){
+        RegionService.updateRegion(region.get("uniqueName"), region);        
+        $scope.$apply(function(){ // To refresh the view with the delete
           console.log("delete is success");
         });
       },
@@ -212,7 +212,7 @@ angular.module('starter.controllers')
         });
     }
     else {
-      $scope.officeErrorMessage="Provide office name and address line";
+      $scope.officeErrorMessage="Provide office name, office address, admin name and title.";
     }
   };
 

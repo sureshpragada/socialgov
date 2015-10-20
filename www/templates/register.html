@@ -33,14 +33,14 @@
 				</div>
 				<label class="item item-input item-select" ng-hide="userRegistered">
 				    <span class="input-label">
-				      Master Association
+				    	{{'SecondLevelRegion' | translate}}
 				    </span>
 				    <select ng-model="selectedValues.highLevelRegion" ng-options="region.get('name') for region in highLevelRegionList" ng-change="showNextLevelRegions()">
 				    </select>
 				 </label>
 				<label class="item item-input item-select" ng-hide="userRegistered">
 				    <span class="input-label">
-				      Association
+				      {{'FirstLevelRegion' | translate}}
 				    </span>
 				    <select ng-model="selectedValues.finalLevelRegion" ng-options="region.get('name') for region in finalLevelRegionList" ng-change="showFinalLevelRegions()">
 				    </select>

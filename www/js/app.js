@@ -352,16 +352,34 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 })
 
 .config(function ($translateProvider) {
-  $translateProvider.translations('en', {
+  $translateProvider.translations('sg-en', {
+    FName: 'First Name',
+    LName: 'Last Name',
+    PhNum: 'Phone Number',
+    Resdncy: 'Residency',
+    Role:'Role',
+    Notify:'Notifications',   
+    SecondLevelRegion: 'Mandal/City',
+    FirstLevelRegion: 'Village/Division',
+    Population: 'Population',
+    PostalCode: 'PIN Codes',
+    Currency: 'Rs'
+  });
+  $translateProvider.translations('ob-en', {
     FName: 'First Name',
     LName: 'Last Name',
     PhNum: 'Phone Number',
     Resdncy: 'Residency',
     Role:'Role',
     Notify:'Notifications',
-    
-  });
-  $translateProvider.translations('te', {
+    SecondLevelRegion: 'Master Association',
+    FirstLevelRegion: 'Association',
+    Population: 'Homes',
+    PostalCode: 'ZIP Codes',
+    Currency: '$'
+  });  
+
+  $translateProvider.translations('sg-te', {
     FName: 'పేరు',
     LName: 'ఇంటి పేరు',
     PhNum: 'ఫొన్ నంబర్',
@@ -369,5 +387,5 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     Role:'అధికారి/పౌరులు',
     Notify:'ప్రకటనలు'
   });
-  $translateProvider.preferredLanguage('en');
+  $translateProvider.preferredLanguage(LANG_PREF);
 });;
