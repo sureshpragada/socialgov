@@ -97,7 +97,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     }
   };
 
-  
   $scope.postDebateArgument=function(activityId, index) {
     var activity=$scope.activities[index];
 
@@ -327,7 +326,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs) {
 
   var user=Parse.User.current();  
   var stateData=PictureManagerService.getState();
@@ -342,60 +341,76 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.pictureUploaded=stateData.imageUrl;
 
   $scope.submitPost=function() {
+    $scope.postErrorMessage=null;
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
 
-      $ionicLoading.show({
-        template: "<ion-spinner></ion-spinner> Posting activity "
-      });
-
-      $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
-      $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
-      $scope.post.support=0;
-      $scope.post.oppose=0;
-      $scope.post.debate=0;
-      $scope.post.status="A";
-      $scope.post.user=Parse.User.current();
-      if(PictureManagerService.getState().imageUrl!=null) {
-        $scope.post.images=[PictureManagerService.getState().imageUrl];  
-      }
-
-      // alert(JSON.stringify($scope.post));
-      var Activity = Parse.Object.extend("Activity");
-      var activity = new Activity();
-      activity.save($scope.post, {
-        success: function(activity) {
-          // Send the push notification
-          NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage, function(response) {
-            console.log("Response from pushNotification : " + JSON.stringify(response));
-            LogService.log({type:"INFO", message: "Push notification is success " + JSON.stringify(response)}); 
-          }, function(error) {
-            console.log("Error from pushNotification : " + JSON.stringify(error));
-            LogService.log({type:"ERROR", message: "Push notification is failed " + JSON.stringify(error)}); 
+      $cordovaDialogs.confirm('Do you want to post this activity?', 'Post Activity', ['Post','Continue Edit']).then(function(buttonIndex) { 
+        if(buttonIndex==1) {
+         
+          $ionicLoading.show({
+            template: "<ion-spinner></ion-spinner> Posting activity "
           });
 
-          $ionicLoading.hide();          
+          $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
+          $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
+          $scope.post.support=0;
+          $scope.post.oppose=0;
+          $scope.post.debate=0;
+          $scope.post.status="A";
+          $scope.post.user=Parse.User.current();
+          if(PictureManagerService.getState().imageUrl!=null) {
+            $scope.post.images=[PictureManagerService.getState().imageUrl];  
+          }
 
-          // Push the new activity to the top of activity chart, probably through Activity service
-          $scope.$apply(function(){
-            PictureManagerService.reset();
-            $state.go("tab.dash");  
+          // alert(JSON.stringify($scope.post));
+          var Activity = Parse.Object.extend("Activity");
+          var activity = new Activity();
+          activity.save($scope.post, {
+            success: function(activity) {
+              // Send the push notification
+              NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage, function(response) {
+                console.log("Response from pushNotification : " + JSON.stringify(response));
+                LogService.log({type:"INFO", message: "Push notification is success " + JSON.stringify(response)}); 
+              }, function(error) {
+                console.log("Error from pushNotification : " + JSON.stringify(error));
+                LogService.log({type:"ERROR", message: "Push notification is failed " + JSON.stringify(error)}); 
+              });
+
+              $ionicLoading.hide();          
+
+              // Push the new activity to the top of activity chart, probably through Activity service
+              $scope.$apply(function(){
+                PictureManagerService.reset();
+                $state.go("tab.dash");  
+              });
+            },
+            error: function(activity, error) {
+              console.log("Error in posting message " + error.message);
+              $ionicLoading.hide();          
+              $scope.postError=true;
+              $scope.postErrorMessage=error.message;
+              $scope.$apply();
+            }
           });
-        },
-        error: function(activity, error) {
-          console.log("Error in posting message " + error.message);
-          $ionicLoading.hide();          
-          $scope.postError=true;
-          $scope.postErrorMessage=error.message;
-          $scope.$apply();
+
+        } else {
+          console.log("Canceled posting of activity");
         }
       });
+
     } else {
       $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
     }
   };
 
   $scope.cancelPost=function(){
-    $state.go("tab.dash");
+    $cordovaDialogs.confirm('Do you want to abort posting activity?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+        $state.go("tab.dash");
+      } else {
+        console.log("Canceled posting of activity");
+      }
+    });
   };
 
   $scope.goToAttachPicture=function() {

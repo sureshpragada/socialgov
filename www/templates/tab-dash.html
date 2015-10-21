@@ -10,7 +10,7 @@
     </div>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError">
       <div class="item item-icon-right">
-        <a ng-click="openUserActionSheet(activity.id, $index)" ng-if="activity.get('user').id==user.id"><i class="icon ion-navicon royal"></i></a>
+        <a ng-click="openUserActionSheet(activity.id, $index)" ng-if="activity.get('user').id==user.id || user.get('role')=='SUADM'"><i class="icon ion-navicon royal"></i></a>
         <a ng-click="openActionSheet(activity.id, $index)" ng-if="activity.get('user').id!=user.id"><i class="icon ion-navicon royal"></i></a>
 <!--         <img src="http://placehold.it/60/009999"> -->
         <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
@@ -59,10 +59,11 @@
       </div>            
       <div class="item item-body" ng-if="isDebateRequested(activity.id, $index)">
         <label class="item item-input">
-          <textarea placeholder="Post your argument" rows="5" ng-model="argumentMessageList[$index]"></textarea>
+          <textarea placeholder="Type in your message" rows="5" ng-model="argumentMessageList[$index]"></textarea>
         </label>
         <div class="padding">
-          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)">Submit Feedback</button>
+          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">Submit Feedback</button>
+          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)" ng-if="activity.get('activityType')=='NOTF' || activity.get('activityType')=='EVNT'">Comment</button>          
         </div>        
       </div> 
       <div ng-if="isDebateRequested(activity.id, $index)">

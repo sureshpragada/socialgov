@@ -1,187 +1,87 @@
 {"results": 
 [
 	{
-		"name": "Dowlaiswaram", 
-		"uniqueName": "dowlaiswaram", 
-		"type": "town", 
-		"thumbnail": "http://s10.postimg.org/7dad1m3u1/dowlaiswaram.jpg",
-		"parentRegion": ["rajahmundry_rural", "east_godavari", "andhra_pradesh", "india"], 
+		"name": "Arrivare", 
+		"uniqueName": "arrivare", 
+		"type": "assoc", 
+		"thumbnail": "http://s28.postimg.org/yipwemk19/arrivare.jpg",
+		"parentRegion": ["sorrento_east", "dublin"], 
 		"demography": 
 		{
-			"population": "50000",
+			"population": "138",
 			"area": "15",
-			"history": "Dowlaiswaram is a part of Rajahmundry Corporation and it was one one biggest panchayat in Andhra Pradesh. It's primary source of income comes from Industrial estate hosts many industries including Glaxo and ONGC.",
-			"pinCodes": ["533124", "533125"]
-		},
-		"execOffAddrList":[
-			{
-				"officeName": "Gram Panchat Office",
-				"addressLine1": "Main road",				
-				"execAdmin" : []
-			},
-			{
-				"officeName": "Sub Station",
-				"addressLine1": "Bommuru",
-				"execAdmin" : []
-			},
-			{
-				"officeName": "Post Office",
-				"addressLine1": "Main Road",
-				"execAdmin" : []
-			},
-			{
-				"officeName": "Police Station",
-				"addressLine1": "Main Road",
-				"landmark": "Opp Lutheran High School",
-				"execAdmin" : []
-			}			
-		],
-		"legiRepList" : []
-	},
-	{
-		"name": "Sri Krishna Patnam", 
-		"uniqueName": "srikrishnapatnam", 
-		"type": "village", 
-		"thumbnail": "http://s14.postimg.org/m1h17a1qp/srikrishnapatnam.png",
-		"parentRegion": ["rajanagaram_mandal", "east_godavari", "andhra_pradesh", "india"], 
-		"demography": 
-		{
-			"population": "3573",
-			"area": "4",
-			"pinCodes": ["533296"],
-			"est": "1949",
-			"history": "Srikrishnapatnam village is in East Godavari District of Andhra Pradesh State. It is located 43 KM towards west from District head quarters Kakinada. Primary occupation of residents is agriculture and it exports lemons to all over India."
+			"history": "Built by DR Horton in 2012.",
+			"pinCodes": ["94568"]
 		},		
+		"financials": [
+			{
+				"year": "2014",
+				"revenue": "11277021.00",
+				"expenses": "17437109.00"
+			}					
+		],
 		"execOffAddrList":[
 			{
-				"officeName": "Gram Panchayat Office",
-				"addressLine1": "Door # 2-108",
-				"landmark": "Beside Subrahmanya Swamy Temple",
-				"phoneNumberList":["8008201065"],
+				"officeName": "Massingham office",
+				"phoneNumberList":["9834343434"],
 				"execAdmin" : [
 					{
 						"title": "Secretary",
-						"name": "B Badrinath"
-					},
-					{
-						"title": "Water supply",
-						"name": "Avala Veeraju",
-						"phoneNumberList":["8897523308"]
-					},
-					{
-						"title": "Electrician",
-						"name": "Yesu",
-						"phoneNumberList":["7730898724"]
-					},
-					{
-						"title": "Nurse",
-						"name": "Suseela",
-						"phoneNumberList":["7893337309"]
+						"name": "Nageswara Rao"
 					}
 				]
-			},
-			{
-				"officeName": "BSNL Office",
-				"addressLine1": "2-86 Ramalayam Street",
-				"phoneNumberList":["08832489499", "9491057953"],
-				"execAdmin" : [
-					{
-						"title": "Incharge Officer",
-						"name": "V Krishna Rao",
-						"phoneNumberList": ["08832489499"]
-					},
-					{
-						"title": "Exchange lineman",
-						"name": "Venkateswara Rao"
-					}
-				]
-			},
-			{
-				"officeName": "Sub Station [Transco Office]",
-				"addressLine1": "Service # 865",
-				"landmark": "Bucchema cheruvu center",
-				"phoneNumberList":["9493178622"],
-				"execAdmin" : [
-					{
-						"title": "Line man",
-						"name": "Ellaiah"
-					}
-				]
-			},
-			{
-				"officeName": "Police Station",
-				"addressLine1": "Main Road",
-				"addressLine2": "Rajanagaram",				
-				"phoneNumberList":["08832484333"]
-			},			
-			{
-				"officeName": "Post Office",
-				"landmark": "Near bus stand center",
-				"phoneNumberList":["9010329748"],
-				"execAdmin" : [
-					{
-						"title": "Incharge Officer",
-						"name": "B John Paradesi"
-					}
-				]
-			},
-			{
-				"officeName": "Z P High School",
-				"execAdmin" : [
-					{
-						"title": "Head Master",
-						"name": "Swamy Naik",
-						"phoneNumberList":["9396264471"]
-					}
-				]
-			}	
+			}		
 		],
 		"legiRepList" : [
 			{
 				"title": "President",
-				"name": "Denedi Venkata Lakshmi",
-				"addressLine1": "2-139 Ramalayam Street",
-				"phoneNumberList":["9010091706"]
+				"name": "Raghu Gorantla"
 			},
 			{
-				"title": "Vice President & Member - Ward # 11",
-				"name": "Kamidi Satyanarayana",
-				"phoneNumberList":["9440774559"]
-			},
+				"title": "Treasurer",
+				"name": "Veera Dadi"
+			}
+		]
+	},
+	{
+		"name": "Sorrento East Master", 
+		"uniqueName": "sorrento_east", 
+		"type": "master_assoc", 
+		"thumbnail": "http://s28.postimg.org/yipwemk19/arrivare.jpg",
+		"parentRegion": ["dublin"],
+		"demography": 
+		{
+			"population": "591",
+			"area": "4",
+			"pinCodes": ["94568"],
+			"est": "2012"
+		},
+		"financials": [
 			{
-				"title": "Member - Ward # 2",
-				"name": "Gompa Govindu",
-				"phoneNumberList":["9908965233"]
-			},
+				"year": "2014",
+				"revenue": "600000",
+				"expenses": "700000" 
+			}			
+		],		
+		"execOffAddrList":[
 			{
-				"title": "Member - Ward # 4",
-				"name": "Sodasani Veera Ganga Ratnam",
-				"phoneNumberList":["9951031227"]
-			},
+				"officeName": "The Helsing Group",
+				"addressLine1": "4000 Executive park",
+				"addressLine1": "Suite 100",
+				"execAdmin" : [
+					{
+						"title": "Association Manager",
+						"name": "Brandley Hay"
+					}
+				]
+			}				
+		],
+		"legiRepList" : [
 			{
-				"title": "Member - Ward # 5",
-				"name": "Thota Veeravani",
-				"phoneNumberList":["9951062234"]
-			},
-			{
-				"title": "Member - Ward # 6",
-				"name": "Posipo Posamma",
-				"phoneNumberList":["9642457064"]
-			},
-			{
-				"title": "Member - Ward # 7",
-				"name": "Rowthula Chakravarthy",
-				"phoneNumberList":["8142488977"]
-			},
-			{
-				"title": "Member - Ward # 10",
-				"name": "Nathipamu Raju",
-				"phoneNumberList":["9533313269"]
-			},
-			{
-				"title": "Member - ward # 12",
-				"name": "Goddu Srinu",
-				"phoneNumberList":["9581616337"]
+				"title": "Board Member",
+				"name": "Suresh Pragada",
+				"addressLine1": "3347 Araldi Ln",
+				"phoneNumberList":["4088324304"]
 			}
 		]
 	}

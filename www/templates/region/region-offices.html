@@ -10,7 +10,7 @@
   	</div>  
     <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')">
 	  <div class="item item-divider item-icon-right">
-        <a ng-click="openOfficePopover($event, execOffAddr.officeName)"><i class="icon ion-navicon royal"></i></a>
+        <a ng-click="openOfficePopover($event, execOffAddr.officeName)" ng-if="canUpdateRegion"><i class="icon ion-navicon royal"></i></a>
 	    {{execOffAddr.officeName}}
 	  </div>
 	  <div class="item item-text-wrap">
@@ -22,7 +22,7 @@
 	    <p ng-if="execOffAddr.phoneNumberList">
 		    <i class="icon ion-iphone"></i>
 		    <span ng-repeat="phNo in execOffAddr.phoneNumberList">
-		    	{{phNo}} {{$last ? '' : ', '}}
+		    	<a href="tel:{{phNo}}">{{phNo}} </a>{{$last ? '' : ', '}}
 		    </span>
 	    </p>
 	      <div ng-repeat="admin in execOffAddr.execAdmin" class="nameContact">
@@ -31,7 +31,7 @@
 				{{admin.name}}&nbsp;
 		        <i class="icon ion-iphone" ng-show="admin.phoneNumberList"></i>
 			    <span ng-repeat="adminPhNo in admin.phoneNumberList">
-			    	{{adminPhNo}} {{$last ? '' : ', '}}
+			    	<a href="tel:{{adminPhNo}}">{{adminPhNo}} </a>{{$last ? '' : ', '}}
 			    </span>	        	        
 			</p>
 	      </div>	    	

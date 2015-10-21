@@ -1,182 +1,26 @@
 {"results": 
 [
 	{
-		"regionUniqueName": "dowlaiswaram", 
+		"regionUniqueName": "arrivare", 
 		"year": "2014",
 		"revenue": "11277021.00",
 		"expenses": "17437109.00",
-		"forwardedSurplus": "1684452.00",
-		"surplus": "3917532.00",
 		"regionExpenses": [
 			{
-				"name": "Hospital Staff Salaries",
-				"amount": "2880141.00"
+				"name": "Management Office",
+				"amount": "30000.00"
 			},
 			{
-				"name": "NMR Contract Salaries",
-				"amount": "3781464.00"
-			},
-			{
-				"name": "Collection Staff Salaries",
-				"amount": "54512.00"
-			},			
-			{
-				"name": "Power bill",
-				"amount": "462096.00"
-			},
-			{
-				"name": "Hospital maintenance",
-				"amount": "732000.00"
-			},
-			{
-				"name": "Street lights",
-				"amount": "402008.00"
-			},
-			{
-				"name": "Stationary",
-				"amount": "21520.00"
-			},			
-			{
-				"name": "Patika",
-				"amount": "362555.00"
-			},			
-			{
-				"name": "Krishki Tractor repair",
-				"amount": "15529.00"
-			},			
-			{
-				"name": "Dandoralu",
-				"amount": "3500.00"
-			},			
-			{
-				"name": "Maintenance expenses",
-				"amount": "154026.00"
-			},			
-			{
-				"name": "Returned deposits",
-				"amount": "200000.00"
-			},
-			{
-				"name": "Pipeline repair",
-				"amount": "86985.00"
-			},			
-			{
-				"name": "Motor repair",
-				"amount": "216080.00"
-			},			
-			{
-				"name": "Drinking Water supply parts",
-				"amount": "875234.00"
-			},			
-			{
-				"name": "Computer repair",
-				"amount": "7760.00"
-			},			
-			{
-				"name": "Bleaching & Phenoil",
-				"amount": "115551.00"
-			},
-			{
-				"name": "Telephone Bill",
-				"amount": "5630.00"
-			},
-			{
-				"name": "Library maintenance",
-				"amount": "8300.00"
-			},			
-			{
-				"name": "Photostats",
-				"amount": "2273.00"
-			}			
+				"name": "Landscape",
+				"amount": "23424.00"
+			}
 		], 
 		"regionRevenue": [
 			{
-				"name": "House Tax (A)",
-				"amount": "751557.38"
-			},
-			{
-				"name": "House Tax (C)",
-				"amount": "2562277.00"
-			},
-			{
-				"name": "Library sess (C)",
-				"amount": "204819.00"
-			},
-			{
-				"name": "Lighting Tax (C)",
-				"amount": "162936.00"
-			},
-			{
-				"name": "Water Tax (C)",
-				"amount": "816230.00"
-			},
-			{
-				"name": "Water conn deposits",
-				"amount": "1213600.00"
-			},
-			{
-				"name": "House construction",
-				"amount": "1595499.00"
-			},
-			{
-				"name": "Market",
-				"amount": "100000.00"
-			},
-			{
-				"name": "Stamp duty",
-				"amount": "1609085.00"
-			},
-			{
-				"name": "Kabela",
-				"amount": "45000.00"
-			},
-			{
-				"name": "APICC",
-				"amount": "331379.00"
-			},
-			{
-				"name": "Layout security deposits",
-				"amount": "110000.00"
-			},
-			{
-				"name": "Old Iron",
-				"amount": "15300.00"
-			},
-			{
-				"name": "Market payments",
-				"amount": "156535.00"
-			},
-			{
-				"name": "Citizen Grant",
-				"amount": "24467.00"
-			},
-			{
-				"name": "Others",
-				"amount": "148000.00"
-			}														
+				"name": "Association Dues",
+				"amount": "120000.00"
+			}													
 		]			
-	},
-	{
-		"regionUniqueName": "dowlaiswaram", 		
-		"year": "2013",
-		"revenue": "15203829.20",
-		"expenses": "17437109.00",
-		"forwardedSurplus": "3917732.00",
-		"reserve": "1684452.00"
-	},
-	{
-		"regionUniqueName": "dowlaiswaram", 		
-		"year": "2012",
-		"revenue": "16281486.00",
-		"expenses": "14771575.00", 												
-		"forwardedSurplus": "2407621.00",
-		"reserve": "3917532.00"
-	},
-	{
-		"regionUniqueName": "srikrishnapatnam", 		
-		"year": "2014",
-		"revenue": "600000.00",
-		"expenses": "600000.00"
 	}
 ]
 }

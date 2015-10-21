@@ -20,6 +20,95 @@ angular.module('starter.controllers')
     $scope.regionErrorMessage="Unable to retrieve region information.";
     console.log("Error retrieving region " + JSON.stringify(error));
   });
+
+})
+
+.controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
+  var residency=$stateParams.regionUniqueName;
+  if(residency=="native") {
+    residency=Parse.User.current().get("residency");
+  }
+  
+  $scope.region=null;
+  RegionService.getRegion(residency).then(function(data) {
+    $scope.region=data;
+  }, function(error) {
+    $scope.regionErrorMessage="Unable to retrieve region information.";
+    console.log("Error retrieving region " + JSON.stringify(error));
+  });
+
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();
+  
+  $scope.deleteLegis=function(legisTitle){
+    $scope.legislatives=$scope.region.get('legiRepList');
+    for(var i=0; i < $scope.legislatives.length; i++){
+      if($scope.legislatives[i].title==legisTitle){
+        break;
+      }
+    }
+    $scope.legislatives.splice(i,1);
+    for(var i=0; i <$scope.legislatives.length;i++){
+      delete $scope.legislatives[i].$$hashKey;
+    }
+    // console.log(JSON.stringify($scope.region));
+    $scope.region.save(null, {
+      success: function(region) {
+        $scope.$apply(function(){
+          console.log("delete is success");
+        });
+      },
+      error: function(region, error) {
+        console.log("Error in deleting the legislative " + error.message);
+        $scope.deleteErrorMessage="Unable to process your delete request.";
+      }
+    });
+
+  };
+
+  $scope.openLegisPopover=function($event, legisTitle) {
+    $scope.intendedTitle=legisTitle;
+    $scope.popover.show($event);
+  };
+
+  $ionicPopover.fromTemplateUrl('templates/region/popover-edit-remove.html', {
+    scope: $scope,
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+
+  $scope.editThis=function() {
+    $scope.popover.hide();
+    $state.go("tab.editlegis",{regionUniqueName:$scope.region.get('uniqueName'), uniqueLegisTitle: $scope.intendedTitle});    
+  }
+
+  $scope.removeThis=function() {
+    $scope.popover.hide();
+    $cordovaDialogs.confirm('Do you want to delete this legislative contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+        $scope.deleteLegis($scope.intendedTitle);
+      } else {
+        console.log("Canceled removal of legislative delete");
+      }
+    });
+  }
+})
+
+.controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
+  var residency=$stateParams.regionUniqueName;
+  if(residency=="native") {
+    residency=Parse.User.current().get("residency");
+  }
+  
+  $scope.region=null;
+  RegionService.getRegion(residency).then(function(data) {
+    $scope.region=data;
+  }, function(error) {
+    $scope.regionErrorMessage="Unable to retrieve region information.";
+    console.log("Error retrieving region " + JSON.stringify(error));
+  });
+
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();
+
   $scope.deleteOffice=function(officeName){
     $scope.offices=$scope.region.get("execOffAddrList");
     $scope.officeToBeDeleted=null;
@@ -41,7 +130,8 @@ angular.module('starter.controllers')
 
     $scope.region.save(null, {
       success: function(region) {
-        $scope.$apply(function(){
+        RegionService.updateRegion(region.get("uniqueName"), region);        
+        $scope.$apply(function(){ // To refresh the view with the delete
           console.log("delete is success");
         });
       },
@@ -52,42 +142,13 @@ angular.module('starter.controllers')
     });
 
   };
-  
-  $scope.deleteLegis=function(legisTitle){
-    $scope.legislatives=$scope.region.get('legiRepList');
-    for(var i=0; i < $scope.legislatives.length; i++){
-      if($scope.legislatives[i].title==legisTitle){
-        break;
-      }
-    }
-    $scope.legislatives.splice(i,1);
-    for(var i=0; i <$scope.legislatives.length;i++){
-      delete $scope.legislatives[i].$$hashKey;
-    }
-    console.log(JSON.stringify($scope.region));
-    $scope.region.save(null, {
-      success: function(region) {
-        $scope.$apply(function(){
-          console.log("delete is success");
-        });
-      },
-      error: function(region, error) {
-
-        console.log("Error in deleting the legislative " + error.message);
-        $scope.deleteErrorMessage="Unable to process your delete request.";
-      }
-    });
-
-  };
-
-  $scope.canUpdateRegion=AccountService.canUpdateRegion();
 
   $scope.openOfficePopover=function($event, officeName) {
     $scope.intendedOffice=officeName;
     $scope.popover.show($event);
   };
 
-  $ionicPopover.fromTemplateUrl('templates/region/popover-office-mgmt.html', {
+  $ionicPopover.fromTemplateUrl('templates/region/popover-edit-remove.html', {
     scope: $scope,
   }).then(function(popover) {
     $scope.popover = popover;
@@ -96,50 +157,29 @@ angular.module('starter.controllers')
   $scope.editThis=function() {
     $scope.popover.hide();
     $state.go("tab.editoffices",{regionUniqueName:$scope.region.get('uniqueName'), uniqueOfficeName: $scope.intendedOffice});    
-  }
-
-  $scope.removeThis=function() {
-    $scope.popover.hide();
-    $scope.deleteOffice($scope.intendedOffice);
-  }  
-
-  $scope.openLegisPopover=function($event, legisTitle) {
-    $scope.intendedTitle=legisTitle;
-    $scope.popover.show($event);
   };
 
-  $ionicPopover.fromTemplateUrl('templates/region/popover-legis-mgmt.html', {
-    scope: $scope,
-  }).then(function(popover) {
-    $scope.popover = popover;
-  });
-
-  $scope.editThis=function() {
-    $scope.popover.hide();
-    $state.go("tab.editlegis",{regionUniqueName:$scope.region.get('uniqueName'), uniqueLegisTitle: $scope.intendedTitle});    
-  }
-
   $scope.removeThis=function() {
     $scope.popover.hide();
-    $scope.deleteLegis($scope.intendedTitle);
-  }
+    $cordovaDialogs.confirm('Do you want to delete this office?', 'Delete Office', ['Delete','Cancel']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+        $scope.deleteOffice($scope.intendedOffice);    
+      } else {
+        console.log("Canceled removal of activity");
+      }
+    });
+  };
+
 })
 
-.controller('AddOfficeCtrl', function($scope, $stateParams, $state) {
+.controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService) {
 
-  var Region = Parse.Object.extend("Region");
-  var query = new Parse.Query(Region);
-  query.equalTo("uniqueName", $stateParams.regionUniqueName);
-  query.find({
-    success: function(regions) {
-      $scope.$apply(function(){
-        $scope.region=regions[0];
-      });
-    },
-    error: function(error) {
-      console.log("Error retrieving region " + JSON.stringify(error));
-    }
-  });
+  RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
+    $scope.region=data;
+  }, function(error) {
+    $scope.officeErrorMessage="Unable to retrieve region information.";
+    console.log("Error retrieving region " + JSON.stringify(error));
+  });  
 
   $scope.officeErrorMessage=null;
   $scope.phoneNums={officeNum:"",execNum:""};
@@ -162,9 +202,8 @@ angular.module('starter.controllers')
         $scope.region.add("execOffAddrList",$scope.newOfficeObj);
         $scope.region.save(null, {
           success: function(region) {
-            $scope.$apply(function(){
-              $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
-            });
+            RegionService.updateRegion(region.get("uniqueName"), region);
+            $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
           },
           error: function(region, error) {
             console.log("Error in saving the office details " + error.message);
@@ -172,8 +211,9 @@ angular.module('starter.controllers')
           }
         });
     }
-    else
-      $scope.officeErrorMessage="Provide office name and address line";
+    else {
+      $scope.officeErrorMessage="Provide office name, office address, admin name and title.";
+    }
   };
 
   $scope.cancel=function(){
@@ -231,11 +271,12 @@ angular.module('starter.controllers')
         }
     }
     $scope.region.save(null, {
-        success: function(accessRequest) {
-          console.log("edit is success");
+        success: function(region) {
+          console.log("edit is success");          
+          RegionService.updateRegion(region.get("uniqueName"), region);          
+          $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});          
         }
     });
-    $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
   };
 
   $scope.cancel=function(){
@@ -244,7 +285,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AddLegisCtrl', function($scope, $stateParams, $state) {
+.controller('AddLegisCtrl', function($scope, $stateParams, $state, RegionService) {
 
   var Region = Parse.Object.extend("Region");
   var query = new Parse.Query(Region);
@@ -264,7 +305,7 @@ angular.module('starter.controllers')
   $scope.phoneNums={legisNums:""};
   $scope.newLegisObj={title:"", name:"", addressLine1:"", addressLine2:"", phoneNumberList:[]};
   $scope.submit=function(){
-    if($scope.newLegisObj.title!="" && $scope.newLegisObj.name!="" && $scope.newLegisObj.addressLine1!=""){
+    if($scope.newLegisObj.title!="" && $scope.newLegisObj.name!=""){
         if($scope.phoneNums.legisNums!=""){
           var num=$scope.phoneNums.legisNums.split(",");
           for(var i=0;i < num.length;i++)
@@ -272,13 +313,11 @@ angular.module('starter.controllers')
         }
         $scope.region.add("legiRepList",$scope.newLegisObj);
         $scope.region.save(null, {
-          success: function(legislative) {
-            $scope.$apply(function(){
-              console.log(JSON.stringify($scope.region));
-              $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
-            });
+          success: function(region) {
+            RegionService.updateRegion(region.get("uniqueName"), region);
+            $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
           },
-          error: function(legislative, error) {
+          error: function(region, error) {
             console.log("Error in saving the legislative details " + error.message);
             $scope.legisErrorMessage="Unable to submit your add request.";
           }
@@ -295,8 +334,6 @@ angular.module('starter.controllers')
 
 .controller('EditLegisDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, $state) {
 
-  // $scope.newExecObj={};
-  // $scope.newOfficeObj={};
   var residency=$stateParams.regionUniqueName;
   var legisTitle=$stateParams.uniqueLegisTitle;
   console.log(legisTitle);
@@ -309,7 +346,6 @@ angular.module('starter.controllers')
         $scope.region=regions[0];
         //console.log(JSON.stringify($scope.region));
         $scope.newLegisObj=$scope.region.get('legiRepList');
-        console.log(JSON.stringify($scope.newLegisObj));
         for(var i=0; i < $scope.newLegisObj.length ; i++){
           if($scope.newLegisObj[i].title==legisTitle){
             $scope.legisToBeEdited=$scope.newLegisObj[i];
@@ -333,13 +369,12 @@ angular.module('starter.controllers')
       }
     }
     $scope.region.save(null, {
-        success: function(legislative) {
+        success: function(region) {
           console.log("edit is success");
-          console.log(JSON.stringify($scope.legisToBeEdited));
-          console.log(JSON.stringify($scope.region));
+          RegionService.updateRegion(region.get("uniqueName"), region);
+          $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});          
         }
     });
-    $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
   };
 
   $scope.cancel=function(){
@@ -414,7 +449,6 @@ angular.module('starter.controllers')
     success: function(regions) {
       $scope.$apply(function(){
         $scope.region=regions[0];
-        // console.log("Region : " + JSON.stringify($scope.region.get('demography')));        
         $scope.newDemoObj=$scope.region.get('demography');
       });
     },
@@ -426,8 +460,8 @@ angular.module('starter.controllers')
   $scope.submit=function(){
     $scope.region.set("demography",$scope.newDemoObj);
     $scope.region.save(null, {
-        success: function(accessRequest) {
-          // console.log(JSON.stringify(accessRequest));
+        success: function(region) {
+          RegionService.updateRegion(region.get("uniqueName"), region);
         }
     });
     $state.go("tab.demo",{regionUniqueName:$scope.region.get('uniqueName')});

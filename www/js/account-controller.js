@@ -84,25 +84,26 @@ angular.module('starter.controllers')
   query.equalTo("status", "PEND");
   query.find({
     success: function(results) {
-        if(results!=null && results.length>0) {
-            console.log(JSON.stringify(results));
-            $scope.$apply(function(){
-              $scope.accessRequests=results;
-            });
-          } else {
-              $scope.adminAccessRequestListError="No role changes requests to review";
-          }
-        }, 
-        error: function(error) {
-          $scope.adminAccessRequestListError="Unable to get role change requests";
+      if(results!=null && results.length>0) {
+          console.log(JSON.stringify(results));
+          $scope.$apply(function(){
+            $scope.accessRequests=results;
+          });
+        } else {
+            $scope.adminAccessRequestListError="No role changes requests to review";
         }
-      });
-
+      }, 
+      error: function(error) {
+        $scope.adminAccessRequestListError="Unable to get role change requests";
+      }
+    });
 })
 
 .controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService, NotificationService) {
 
-  $scope.user={countryCode: "91"};
+  $scope.countryList=COUNTRY_LIST;
+  $scope.selectedValues={country: $scope.countryList[0], highLevelRegion:null, finalLevelRegion: null};  
+  $scope.user={};
   $scope.userRegistered=true;
   $scope.registerErrorMessage=null;
 
@@ -111,27 +112,31 @@ angular.module('starter.controllers')
       $ionicLoading.show({
         template: "<ion-spinner></ion-spinner> Verifying your phone number..."
       });      
-      var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
+      var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
       Parse.User.logIn(userName, "custom", {
         success: function(user) {
           console.log("User exists in the system. Skipping registration flow.");
           RegionService.initializeRegionCacheByCurrentUser();          
+          if(user.get("deviceReg")=="N") {
+            console.log("Device is not registered, attempting to register");
+            $scope.registerDevice();
+          } else {
+            console.log("Device already registered");
+          }
           $ionicLoading.hide();
-          $scope.$apply(function(){
-            $state.go("tab.dash");
-          });
+          $state.go("tab.dash");
         },
         error: function(user, error) {
           console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
           $scope.$apply(function() {
             $scope.userRegistered=false;
             $scope.registerErrorMessage=null;          
-            RegionService.getLiteRegionList("regionType", ["city", "mandal"]).then(function(data) {
+            RegionService.getLiteRegionList("regionType", REG_TOP_REGION_TYPES).then(function(data) {
               $scope.highLevelRegionList=data;
-              $scope.selectedValues={highLevelRegion:null, finalLevelRegion: null};
+              // $scope.selectedValues={highLevelRegion:null, finalLevelRegion: null};
               $ionicLoading.hide();
             }, function(error) {
-              console.log("Error while retrieving mandal list " + JSON.stringify(error));
+              console.log("Error while retrieving city list " + JSON.stringify(error));
               $registerErrorMessage="Unable to get city list for registration";
               $ionicLoading.hide();              
             });
@@ -150,8 +155,8 @@ angular.module('starter.controllers')
       $scope.selectedValues.finalLevelRegion=$scope.finalLevelRegionList[0];
       $scope.$apply();
     }, function(error) {
-      console.log("Unable to get village list for registration : " + JSON.stringify(error));
-      $registerErrorMessage="Unable to get village list for registration";
+      console.log("Unable to get next level region list for registration : " + JSON.stringify(error));
+      $registerErrorMessage="Unable to get next level region list for registration";
     });
   };
 
@@ -173,54 +178,23 @@ angular.module('starter.controllers')
     }
 
     var user=new Parse.User();
-    var userName=$scope.user.countryCode+""+$scope.user.phoneNum;
+    var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
     user.set("username", userName);
     user.set("password", "custom");
     user.set("firstName", $scope.user.firstName);
     user.set("lastName", $scope.user.lastName);
     user.set("residency", $scope.selectedValues.finalLevelRegion.get("uniqueName"));
     user.set("phoneNum", $scope.user.phoneNum);
-    user.set("countryCode", $scope.user.countryCode);
+    user.set("countryCode", $scope.selectedValues.country.countryCode);
     user.set("role", "CTZEN");
     user.set("notifySetting", true);
+    user.set("deviceReg", "N");
     user.signUp(null, {
       success: function(user) {
         console.log("Signup is success");        
-
         RegionService.initializeRegionCache($scope.selectedValues.finalLevelRegion);
-
-        if(ionic.Platform.isWebView() && ionic.Platform.isAndroid()) {
-          // Register with GCM
-          var androidConfig = {
-            "senderID": GCM_SENDER_ID
-          };
-
-          $cordovaPush.register(androidConfig).then(function(result) {
-            LogService.log({type:"INFO", message: "Registration attempt to GCM is success " + JSON.stringify(result)}); 
-          }, function(err) {
-            LogService.log({type:"ERROR", message: "Registration attempt to GCM is failed for  " + Parse.User.current().id + " " +  JSON.stringify(err)}); 
-          });
-
-        } else if(ionic.Platform.isWebView() && ionic.Platform.isIOS()){
-
-          var iosConfig = {
-              "badge": true,
-              "sound": true,
-              "alert": true,
-            };          
-
-          $cordovaPush.register(iosConfig).then(function(deviceToken) {
-            var channelList=RegionService.getRegionHierarchy();            
-            LogService.log({type:"INFO", message: "iOS Registration is success : " + deviceToken + " registering for channel list : " + channelList + " for user : " + Parse.User.current().id});             
-            NotificationService.addIOSInstallation(Parse.User.current().id, deviceToken, channelList);            
-          }, function(err) {
-            LogService.log({type:"ERROR", message: "IOS registration attempt failed for " + Parse.User.current().id + "  " + JSON.stringify(err)}); 
-          });
-        }
-
-        $scope.$apply(function(){
-          $state.go("tab.dash");
-        });
+        $scope.registerDevice();
+        $state.go("tab.dash");
       },
       error: function(user, error) {
         console.log("Signup error  : " + error.code + " " + error.message);
@@ -228,7 +202,39 @@ angular.module('starter.controllers')
         $scope.apply();
       }
     });
-  }
+  };
+
+  $scope.registerDevice=function() {
+    if(ionic.Platform.isWebView() && ionic.Platform.isAndroid()) {
+      // Register with GCM
+      var androidConfig = {
+        "senderID": GCM_SENDER_ID
+      };
+
+      $cordovaPush.register(androidConfig).then(function(result) {
+        LogService.log({type:"INFO", message: "Registration attempt to GCM is success " + JSON.stringify(result)}); 
+      }, function(err) {
+        LogService.log({type:"ERROR", message: "Registration attempt to GCM is failed for  " + Parse.User.current().id + " " +  JSON.stringify(err)}); 
+      });
+
+    } else if(ionic.Platform.isWebView() && ionic.Platform.isIOS()){
+
+      var iosConfig = {
+          "badge": true,
+          "sound": true,
+          "alert": true,
+        };          
+
+      $cordovaPush.register(iosConfig).then(function(deviceToken) {
+        var channelList=RegionService.getRegionHierarchy();            
+        LogService.log({type:"INFO", message: "iOS Registration is success : " + deviceToken + " registering for channel list : " + channelList + " for user : " + Parse.User.current().id});             
+        NotificationService.addIOSInstallation(Parse.User.current().id, deviceToken, channelList);            
+      }, function(err) {
+        LogService.log({type:"ERROR", message: "IOS registration attempt failed for " + Parse.User.current().id + "  " + JSON.stringify(err)}); 
+      });
+    }
+  };
+
 })
 
 .controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaPush) {
@@ -286,26 +292,39 @@ angular.module('starter.controllers')
   };
 
   $scope.isLogoutAllowed=function() {
-    if(ionic.Platform.isAndroid() && $scope.user.get("lastName")!="Pragada") {
-      return false;
+    if(Parse.User.current()!=null) {
+      if(ionic.Platform.isAndroid() && Parse.User.current().get("lastName")!="Pragada") {
+        return false;
+      } else {
+        return true;
+      }      
     } else {
-      return true;
+      return false;
     }
   };
 
   $scope.logout=function() {    
-      Parse.User.logOut();
-      $scope.user=null;
-      console.log("After user has been made null");
-      $state.go("register");    
+    Parse.User.logOut();
+    $scope.user=null;
+    // $scope.$apply(function(){
+      $state.go("register");      
+    // });
   };
 
   $scope.isSuperAdmin=function(){
-    return AccountService.isSuperAdmin(Parse.User.current().get("role"));
+    if(Parse.User.current()!=null) {
+      return AccountService.isSuperAdmin(Parse.User.current().get("role"));  
+    } else {
+      return false;
+    }
   };
 
   $scope.isCitizen=function(){
-    return AccountService.isCitizen(Parse.User.current().get("role"));
+    if(Parse.User.current()!=null) {
+      return AccountService.isCitizen(Parse.User.current().get("role"));
+    } else {
+      return false;
+    }    
   }
 
   $scope.notifySettingChanged=function(settingName, settingValue) {

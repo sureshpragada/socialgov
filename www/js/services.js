@@ -123,6 +123,10 @@ angular.module('starter.services', [])
       } else {
         return regionHeirarchy;
       }
+    },
+    updateRegion: function(regionName, region) {
+      regionCache.remove(regionName);
+      regionCache.put(regionName, region);                
     }
   };
 }])
@@ -131,11 +135,11 @@ angular.module('starter.services', [])
   return {
     getAllowedActivities: function(role) {
       var allowedActivities=[
-        {id:"ISSU", label:"Report Issue"},      
-        {id:"EVNT", label:"Public Meeting"},         
+        {id:"ISSU", label:"Report Problem"},      
         {id:"IDEA", label:"Development Idea"}
       ];
       if(role!=null && role!="CTZEN") {
+        allowedActivities.unshift({id:"EVNT", label:"Public Program"});        
         allowedActivities.unshift({id:"NOTF", label:"Notification"});
       }
       return allowedActivities;
@@ -187,29 +191,12 @@ angular.module('starter.services', [])
 }])
 
 .factory('AccountService', ['CacheFactory', 'RegionService', function(CacheFactory, RegionService) {
-    var roles=[
-      {id:"LEGI", label:"Legislative", titles:[
-        {id:"Sarpanch", label:"Sarpanch"},
-        {id:"Ward Member", label:"Ward Member"},
-        {id:"MPTC", label:"MPTC"},        
-        {id:"Mayor", label:"Mayor"},
-        {id:"Corporator", label:"Corporator"}                
-      ]}, 
-      {id:"EXEC", label:"Executive Officer", titles:[
-        {id:"Secretary", label:"Secretary"},
-        {id:"MPDO", label:"MPDO"}
-      ]},
-      {id:"JNLST", label:"Journalist", titles:[]}, 
-      {id:"SOACT", label:"Social Activist", titles:[]},
-      {id:"CTZEN", label:"Citizen"},
-      {id:"SUADM", label:"Administrator"} 
-    ];      
 
   var userLastRefreshTimeStamp=null; new Date().getTime();
 
   return {
     getRolesAllowedToChange: function() {
-      return [roles[0], roles[1], roles[2], roles[3]];      
+      return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
     },    
     getRegionsAllowedToPost: function(role, residency) {
       if(role=="CTZEN") {
@@ -219,9 +206,9 @@ angular.module('starter.services', [])
       }
     },
     getRoleNameFromRoleCode: function(roleCode) {
-      for(var i=0;i<roles.length;i++) {
-        if(roles[i].id==roleCode) {
-          return roles[i].label;
+      for(var i=0;i<USER_ROLES.length;i++) {
+        if(USER_ROLES[i].id==roleCode) {
+          return USER_ROLES[i].label;
         }
       }
       return "Citizen";
@@ -242,6 +229,7 @@ angular.module('starter.services', [])
     },
     canUpdateRegion: function(){
       var user=Parse.User.current();
+      // console.log("User role : " + user.get("role"));
       if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
         return true;
       }else{
@@ -278,8 +266,6 @@ angular.module('starter.services', [])
 }])
 
 .factory('NotificationService', ['$http', 'LogService', function($http, LogService) {
-  var PARSE_APPLICATION_KEY="kkpgMBxA7F9PgV6tjISEOWFbXvAgha9pXp7FWvWW";
-  var PARSE_REST_API_KEY="EAz3Z0La6QiOA5XLQdJX8SRvvmCVfHdzyzJBFx1t";
   return {
     getInstallationByInstallationId: function(installationId, successCallback, errorCallback) {
       var paramsRequest={"where":{"objectId":installationId}};
@@ -326,7 +312,9 @@ angular.module('starter.services', [])
           }
         }
       };
+      var self=this;
       $http(req).then( function(result){ 
+          self.updateUserDeviceRegStatus();
           LogService.log({type:"INFO", message: "Registered android device " + JSON.stringify(result.data)}); 
         }, function(error) {
           LogService.log({type:"ERROR", message: "Failed to register android device " + JSON.stringify(error)});                        
@@ -343,7 +331,7 @@ angular.module('starter.services', [])
           "deviceType": "ios",
           "deviceToken": deviceToken,
           "channels": channelArray,
-          "appIdentifier": "org.socialgov",
+          "appIdentifier": IOS_APP_IDENTIFIER,
           "timeZone": "Asia/Kolkata",            
           "user": {
             "__type": "Pointer",
@@ -352,12 +340,19 @@ angular.module('starter.services', [])
           }
         }
       };
-      $http(req).then( function(result){ 
+      var self=this;
+      $http(req).then(function(result){ 
+          self.updateUserDeviceRegStatus();
           LogService.log({type:"INFO", message: "Registered IOS device " + JSON.stringify(result.data)}); 
         }, function(error) {
           LogService.log({type:"ERROR", message: "Failed to register IOS device " + JSON.stringify(error)});                        
       });
-    }    
+    },    
+    updateUserDeviceRegStatus: function() {
+      var user=Parse.User.current();
+      user.set("deviceReg", "Y");
+      user.save();
+    }
   };
 }])
 ;

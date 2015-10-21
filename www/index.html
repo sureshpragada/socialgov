@@ -19,7 +19,7 @@
     <script src="lib/ionic/js/ionic.bundle.min.js"></script>
     <script src="lib/ngcordova/ng-cordova.min.js"></script>
     <script src="lib/angular-cache/angular-cache.min.js"></script>
-        
+    <script src="lib/translate/angular-translate.min.js"></script>
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
 
@@ -51,8 +51,31 @@
     var GCM_SENDER_ID="731778874423";
     //var REGION_JSON_URL="http://socialgov-dev.parseapp.com/js/region.json";
 
-
     Parse.initialize(PARSE_APPLICATION_KEY, PARSE_JAVASCRIPT_KEY);  
+
+    var COUNTRY_LIST=[{countryCode: "91", name: "India"}];
+    var REG_TOP_REGION_TYPES=["city", "mandal"];
+    var IOS_APP_IDENTIFIER="org.socialgov";   
+    var LANG_PREF="sg-en";
+    var IMGUR_KEY="7969d63af05026f";
+    var USER_ROLES=[
+      {id:"LEGI", label:"Legislative", titles:[
+        {id:"Sarpanch", label:"Sarpanch"},
+        {id:"Ward Member", label:"Ward Member"},
+        {id:"MPTC", label:"MPTC"},        
+        {id:"Mayor", label:"Mayor"},
+        {id:"Corporator", label:"Corporator"}                
+      ]}, 
+      {id:"EXEC", label:"Executive Officer", titles:[
+        {id:"Secretary", label:"Secretary"},
+        {id:"MPDO", label:"MPDO"}
+      ]},
+      {id:"JNLST", label:"Journalist", titles:[]}, 
+      {id:"SOACT", label:"Social Activist", titles:[]},
+      {id:"CTZEN", label:"Citizen"},
+      {id:"SUADM", label:"Administrator"} 
+    ];
+
   </script>
 
     <!--
