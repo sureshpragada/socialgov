@@ -22,7 +22,7 @@ cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-vibrat
 cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
 cordova plugin add cordova-plugin-camera
 
-TODO >> Background service (https://github.com/Red-Folder/bgs-core/wiki/Using-the-MyService-Sample, http://stackoverflow.com/questions/25038694/how-do-i-get-parse-com-push-notifications-working-in-a-cordova-phonegap-android/25038695#25038695)
+TODO >> Background service (https://github.com/Red-Folder/bgs-core/wiki/Using-the-MyService-Sample, http://stackoverflow.com/questions/25038694/how-do-i-get-parse-com-push-notifications-working-in-a-cordova-phonegap-android/25038695#25038695, https://github.com/driftyco/ng-cordova/issues/963)
 
 
 Android push notifications : 
