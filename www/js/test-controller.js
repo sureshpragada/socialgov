@@ -64,6 +64,12 @@ var hideSheet = $ionicActionSheet.show({
 
 
   }
+
+
+  $scope.testActivityPushNotification=function() {
+    var activityId="WT9t96kS4X";
+    alert(activityId);
+  };
   ////////////////// Test 2 : Create object and retrieve
 
   // var Activity = Parse.Object.extend("Activity");

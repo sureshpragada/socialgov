@@ -72,3 +72,32 @@ Parse.Cloud.define("pushNotification", function(request, response) {
 	});
 
 });
+
+Parse.Cloud.define("pushNotificationToUserGroup", function(request, response) {
+  
+	var userQuery = new Parse.Query(Parse.User);
+	userQuery.equalTo("notifySetting", true);
+	// userQuery.equalTo("residency", request.params.residency);
+
+	// Find devices associated with these users
+	var pushQuery = new Parse.Query(Parse.Installation);
+	pushQuery.matchesQuery('user', userQuery);
+	pushQuery.equalTo("channels", request.params.residency);
+
+	Parse.Push.send({
+	  where: pushQuery,
+	  data: {
+	    alert: request.params.message 
+	  }
+	}, {
+	  success: function() {
+	  	console.log("Push is successful " + request.params.residency + " Message : " + request.params.message);
+	    response.success("Push is successful");
+	  },
+	  error: function(error) {
+	    console.log("Push is failed :  " + JSON.stringify(error));
+	    response.error(error);
+	  }
+	});
+
+});
