@@ -22,7 +22,7 @@
 	    <p ng-if="execOffAddr.phoneNumberList">
 		    <i class="icon ion-iphone"></i>
 		    <span ng-repeat="phNo in execOffAddr.phoneNumberList">
-		    	<a href="tel:{{phNo}}">{{phNo}} </a>{{$last ? '' : ', '}}
+		    	{{phNo}} {{$last ? '' : ', '}}
 		    </span>
 	    </p>
 	      <div ng-repeat="admin in execOffAddr.execAdmin" class="nameContact">
@@ -31,7 +31,7 @@
 				{{admin.name}}&nbsp;
 		        <i class="icon ion-iphone" ng-show="admin.phoneNumberList"></i>
 			    <span ng-repeat="adminPhNo in admin.phoneNumberList">
-			    	<a href="tel:{{adminPhNo}}">{{adminPhNo}} </a>{{$last ? '' : ', '}}
+			    	{{adminPhNo}} {{$last ? '' : ', '}}
 			    </span>	        	        
 			</p>
 	      </div>	    	

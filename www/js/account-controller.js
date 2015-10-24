@@ -238,7 +238,7 @@ angular.module('starter.controllers')
 })
 
 .controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaPush) {
-  $scope.user = Parse.User.current();
+  $scope.user = AccountService.getUser();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.accessRequestMessage=null;
   $scope.accessRequest=null;

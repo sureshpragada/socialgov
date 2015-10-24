@@ -131,7 +131,7 @@ angular.module('starter.services', [])
   };
 }])
 
-.factory('ActivityService', ['$http', 'AccountService', function($http, AccountService) {
+.factory('ActivityService', ['$http', 'AccountService', 'NotificationService', 'LogService', function($http, AccountService, NotificationService, LogService) {
   return {
     getAllowedActivities: function(role) {
       var allowedActivities=[
@@ -184,15 +184,26 @@ angular.module('starter.services', [])
       var activity = new Activity();
       activity.set("id", activityId);
       activity.increment("spam", 1);
-      // TODO :: Send a push notification to the super admin or remove post if spamCount exceeds some threshold
-      return activity.save();
+      activity.save();      
+      // TODO :: Move this query to AccountService
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.containedIn("role", ["SUADM", "JNLST", "SOACT"]);
+      userQuery.equalTo("residency", Parse.User.current().get("residency"));
+      userQuery.descending("role");
+      userQuery.first({
+        success: function(authoritativeUser) {
+          NotificationService.pushNotificationToUserList([authoritativeUser.id], "Spam has been reported. Activity ID : " + activityId);
+        }, error: function(err) {
+          LogService.log({type:"ERROR", message: "No admin found to report spam " + JSON.stringify(err)}); 
+        }
+      });
     }    
   };
 }])
 
 .factory('AccountService', ['CacheFactory', 'RegionService', function(CacheFactory, RegionService) {
 
-  var userLastRefreshTimeStamp=null; new Date().getTime();
+  var userLastRefreshTimeStamp=null; //new Date().getTime();
 
   return {
     getRolesAllowedToChange: function() {
@@ -236,11 +247,13 @@ angular.module('starter.services', [])
         return false;
       }
     },
-    refreshUser: function() {
-      if(new Date().getTime()-userLastRefreshTimeStamp>(24* 60 * 60*1000)) {
+    getUser: function() {
+      if(new Date().getTime()-userLastRefreshTimeStamp>(24 * 60 * 60 * 1000)) {
+        Parse.User.current().fetch();        
         userLastRefreshTimeStamp=new Date().getTime();
-        Parse.User.current().fetch();
-      }
+        console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
+      } 
+      return Parse.User.current();
     }
   };
 }])
@@ -284,13 +297,31 @@ angular.module('starter.services', [])
         success: successCallback, 
         error: errorCallback
       });
-    },   
+    },                 
     pushNotification: function(residency, message, successCallback, errorCallback) {
       Parse.Cloud.run('pushNotification', {"residency": residency, "message":message}, {
-        success: successCallback, 
-        error: errorCallback
+        success: function(response) {
+          console.log("Response from pushNotification : " + JSON.stringify(response));
+          LogService.log({type:"INFO", message: "Push notification is success " + JSON.stringify(response)}); 
+        }, 
+        error: function(error) {
+          console.log("Error from pushNotification : " + JSON.stringify(error));
+          LogService.log({type:"ERROR", message: "Push notification is failed " + JSON.stringify(error)}); 
+        }
       });
     },         
+    pushNotificationToUserList: function(userList, message) {
+      Parse.Cloud.run('pushNotificationToUserList', {"userList": userList, "message":message}, {
+        success: function(response) {
+          console.log("Response from pushNotification : " + JSON.stringify(response));
+          LogService.log({type:"INFO", message: "Push notification is success " + JSON.stringify(response)}); 
+        }, 
+        error: function(error) {
+          console.log("Error from pushNotification : " + JSON.stringify(error));
+          LogService.log({type:"ERROR", message: "Push notification is failed " + JSON.stringify(error)}); 
+        }
+      });
+    },             
     addAndroidInstallation: function(userObjectId, deviceToken, channelArray) {
       var req = {
        method: 'POST',

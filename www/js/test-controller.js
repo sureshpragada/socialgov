@@ -1,6 +1,6 @@
 angular.module('starter.controllers')
 
-.controller('TestCtrl', function($scope, $ionicPopover, $ionicActionSheet, $timeout) {
+.controller('TestCtrl', function($scope, $ionicPopover, $ionicActionSheet, $timeout, NotificationService) {
   /////////////////// Test 1 : Working with select boxes
   $scope.colors = [
       {name:'black', shade:'dark'},
@@ -65,10 +65,47 @@ var hideSheet = $ionicActionSheet.show({
 
   }
 
-
   $scope.testActivityPushNotification=function() {
     var activityId="WT9t96kS4X";
-    alert(activityId);
+
+    var users=["PM0VE24LmA", "Q797sqw1Md"];
+
+
+    var userQuery = new Parse.Query(Parse.User);
+    userQuery.equalTo("notifySetting", true);
+    userQuery.containedIn("objectId", users);
+
+    var Debate = Parse.Object.extend("Debate");
+    var query = new Parse.Query(Debate);
+    query.matchesQuery("user", userQuery);
+
+    // var users=["PM0VE24LmA", "Q797sqw1Md"];
+    // var userPointers=[];
+    // for(var i=0;i<users.length;i++) {
+    //   var userPointer={
+    //     __type: "Pointer",
+    //     className: "_User",
+    //     objectId: users[i]
+    //   };
+    //   userPointers.push(userPointer);
+    // }
+    // query.containedIn('user', userPointers);
+
+    query.find({
+      success: function(results) {
+        //alert("Response : " + JSON.stringify(results));
+        alert("Response count : " + results.length);
+      },
+      error: function(error) {
+        alert("Error : " + JSON.stringify(error));
+      }
+    })
+
+    //var notifyUsers=["XdDgeUqpyY"]; 
+    var notifyUsers=["PM0VE24LmA","Q797sqw1Md","RWOHlrbepU"];
+    NotificationService.pushNotificationToUserList(notifyUsers, "Testing comment notifications");
+
+
   };
   ////////////////// Test 2 : Create object and retrieve
 

@@ -5,7 +5,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.debateList=[];
   $scope.argumentMessageList=[];
   $scope.user=Parse.User.current();
-
   $ionicLoading.show({
     template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency")
   });
@@ -98,8 +97,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.postDebateArgument=function(activityId, index) {
-    var activity=$scope.activities[index];
+    if($scope.argumentMessageList[index]==null || $scope.argumentMessageList[index].length==0) {
+      $cordovaDialogs.alert('Please enter the feedback', 'Feedback', 'OK');
+      return;
+    }
 
+    var activity=$scope.activities[index];
     var Debate = Parse.Object.extend("Debate");
     var debate = new Debate();
     debate.set("user", Parse.User.current());
@@ -112,9 +115,17 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           activity.increment("debate", 1);
           activity.save();              
           $scope.argumentMessageList[index]="";
-          // console.log("newly added debate entry : " + JSON.stringify(newDebate));
           $scope.debateList[index].unshift(newDebate);
-          console.log("Successfully added debate entry");
+          // Send notification to all other commenetators and post author
+          var notifyUsers=[activity.get("user").id]; 
+          for(var i=0;i<$scope.debateList[index].length;i++) {
+            var userId=$scope.debateList[index][i].get("user").id;
+            if(notifyUsers.indexOf(userId)==-1) {
+              notifyUsers.push(userId);  
+            }
+          }
+          NotificationService.pushNotificationToUserList(notifyUsers, debate.get("argument"));
+          console.log("Successfully added debate entry");          
         });
       },
       error: function(debate, error) {
@@ -123,6 +134,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     });          
 
   };
+
 
   $scope.isThisActionChosen=function(activityId, action) {
     for(var j=0;j<($scope.userActivityList!=null?$scope.userActivityList.length:0);j++) {
@@ -232,11 +244,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.reportSpam=function(activityId) {
-    ActivityService.reportSpam(activityId).then(function(post) {
-      $cordovaDialogs.alert('Thank you for spotting the spam. We will take action on this post shortly.', 'Spam Report', 'OK');
-    }, function(error) {
-      console.log("Unable to report posting as spam " + JSON.stringify(error));
-    });
+    ActivityService.reportSpam(activityId);
+    $cordovaDialogs.alert('Thank you for spotting the spam. We will take action on this post shortly.', 'Spam Report', 'OK');
   };
 
   $scope.openUserActionSheet=function(activityId, activityIndex) {
@@ -368,16 +377,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           activity.save($scope.post, {
             success: function(activity) {
               // Send the push notification
-              NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage, function(response) {
-                console.log("Response from pushNotification : " + JSON.stringify(response));
-                LogService.log({type:"INFO", message: "Push notification is success " + JSON.stringify(response)}); 
-              }, function(error) {
-                console.log("Error from pushNotification : " + JSON.stringify(error));
-                LogService.log({type:"ERROR", message: "Push notification is failed " + JSON.stringify(error)}); 
-              });
-
+              NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);
               $ionicLoading.hide();          
-
               // Push the new activity to the top of activity chart, probably through Activity service
               $scope.$apply(function(){
                 PictureManagerService.reset();
