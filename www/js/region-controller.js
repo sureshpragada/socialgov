@@ -408,6 +408,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionFinancialDetailsCtrl', function($scope, $stateParams, RegionService) {
+  $scope.pageTitle=$stateParams.reqDetails=="revenue"?"Revenue":"Expenses";
   var RegionFinancial = Parse.Object.extend("RegionFinancial");
   var query = new Parse.Query(RegionFinancial);
   query.equalTo("regionUniqueName", $stateParams.regionUniqueName);
@@ -435,7 +436,15 @@ angular.module('starter.controllers')
       console.log("Error retrieving region financial details " + JSON.stringify(error));
       $scope.finDetailsErrorMessage="Unable to load financial details at this time.";
     }
-  });           
+  });      
+
+  $scope.isCategory=function(finItem) {
+    if(finItem.amount=='CATEGORY') {
+      return "item-divider";
+    } else {
+      return;
+    }
+  };     
 
 })
 

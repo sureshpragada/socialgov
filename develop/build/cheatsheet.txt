@@ -7,7 +7,7 @@ ionic emulate android
 ionic emulate android --livereload 
 ionic serve
 ionic serve --lab
-cordova prepare android
+cordova prepare android 
 ionic run android
 
 ionic resources --icon

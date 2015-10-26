@@ -181,8 +181,8 @@ angular.module('starter.controllers')
     var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
     user.set("username", userName);
     user.set("password", "custom");
-    user.set("firstName", $scope.user.firstName);
-    user.set("lastName", $scope.user.lastName);
+    user.set("firstName", $scope.user.firstName.capitalizeFirstLetter());
+    user.set("lastName", $scope.user.lastName.capitalizeFirstLetter());
     user.set("residency", $scope.selectedValues.finalLevelRegion.get("uniqueName"));
     user.set("phoneNum", $scope.user.phoneNum);
     user.set("countryCode", $scope.selectedValues.country.countryCode);

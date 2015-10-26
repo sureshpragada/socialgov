@@ -1,8 +1,9 @@
-<ion-view title="Financials Details">
+<ion-view title="{{pageTitle}}">
   <ion-content>
     <div ng-show="finDetailsErrorMessage" class="card padding assertive">{{finDetailsErrorMessage}}</div>    
-    <ion-item ng-repeat="finItem in finLineItems">
-        {{finItem.name}} <span class="item-note">{{'Currency' | translate}} {{finItem.amount}}</span>
+    <ion-item ng-repeat="finItem in finLineItems" ng-class="isCategory(finItem)">
+        {{finItem.name}} 
+        <span class="item-note" ng-if="finItem.amount!='CATEGORY'">{{'Currency' | translate}} {{finItem.amount}}</span>
     </ion-item>    
   </ion-content>
 </ion-view>

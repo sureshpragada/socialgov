@@ -6,7 +6,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.argumentMessageList=[];
   $scope.user=Parse.User.current();
   $ionicLoading.show({
-    template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency")
+    template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency").capitalizeFirstLetter()
   });
 
   // $scope.activities=ActivityService.getMockData();  
