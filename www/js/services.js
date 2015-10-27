@@ -134,23 +134,28 @@ angular.module('starter.services', [])
 .factory('ActivityService', ['$http', 'AccountService', 'NotificationService', 'LogService', function($http, AccountService, NotificationService, LogService) {
   return {
     getAllowedActivities: function(role) {
-      var allowedActivities=[
-        {id:"ISSU", label:"Report Problem"},      
-        {id:"IDEA", label:"Development Idea"}
-      ];
+      var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1]];
       if(role!=null && role!="CTZEN") {
-        allowedActivities.unshift({id:"EVNT", label:"Public Program"});        
-        allowedActivities.unshift({id:"NOTF", label:"Notification"});
+        allowedActivities.unshift(ACTIVITY_LIST[2]);        
+        allowedActivities.unshift(ACTIVITY_LIST[3]);
       }
       return allowedActivities;
     },
-    getActivityInAList: function(activityId, activityList) {
+    getActivityTypeInAList: function(activityId, activityList) {
       for(var i=0;i<activityList.length;i++) {
         if(activityId==activityList[i].id) {
           return activityList[i];
         }
       }
       return activityList[0];
+    },
+    getActivityRegionInAList: function(regionUniqueName, regionList) {
+      for(var i=0;i<regionList.length;i++) {
+        if(regionUniqueName==regionList[i].id) {
+          return regionList[i];
+        }
+      }
+      return regionList[0];
     },
     getActionCode: function(action) {
       if("support"==action) {
@@ -178,30 +183,28 @@ angular.module('starter.services', [])
       activity.set("status", "D");
       return activity.save();
     },
-    reportSpam: function(activityId) {
-      console.log("Updating status field of activity");
+    reportActivitySpam: function(activityId) {
+      console.log("Updating status field of activity " + activityId);
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
       activity.set("id", activityId);
       activity.increment("spam", 1);
       activity.save();      
-      // TODO :: Move this query to AccountService
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.containedIn("role", ["SUADM", "JNLST", "SOACT"]);
-      userQuery.equalTo("residency", Parse.User.current().get("residency"));
-      userQuery.descending("role");
-      userQuery.first({
-        success: function(authoritativeUser) {
-          NotificationService.pushNotificationToUserList([authoritativeUser.id], "Spam has been reported. Activity ID : " + activityId);
-        }, error: function(err) {
-          LogService.log({type:"ERROR", message: "No admin found to report spam " + JSON.stringify(err)}); 
-        }
-      });
-    }    
+      AccountService.sendNotificationToSuperUser("Spam has been reported. Activity ID : " + activityId);
+    },
+    reportDebateSpam: function(debateId) {
+      console.log("Updating status field of debate " + debateId);
+      var Debate = Parse.Object.extend("Debate");
+      var debate = new Debate();
+      debate.set("id", debateId);
+      debate.increment("spam", 1);
+      debate.save();      
+      AccountService.sendNotificationToSuperUser("Spam has been reported. Debate ID : " + debateId);
+    }        
   };
 }])
 
-.factory('AccountService', ['CacheFactory', 'RegionService', function(CacheFactory, RegionService) {
+.factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', function(CacheFactory, RegionService, NotificationService, LogService) {
 
   var userLastRefreshTimeStamp=null; //new Date().getTime();
 
@@ -254,6 +257,19 @@ angular.module('starter.services', [])
         console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
       } 
       return Parse.User.current();
+    },
+    sendNotificationToAdmin: function(message) {
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.containedIn("role", ["SUADM", "JNLST", "SOACT"]);
+      userQuery.equalTo("residency", Parse.User.current().get("residency"));
+      userQuery.descending("role");
+      userQuery.first({
+        success: function(authoritativeUser) {
+          NotificationService.pushNotificationToUserList([authoritativeUser.id], message);
+        }, error: function(err) {
+          LogService.log({type:"ERROR", message: "No admin found to report spam " + JSON.stringify(err) + " Message : " + message}); 
+        }
+      });    
     }
   };
 }])
