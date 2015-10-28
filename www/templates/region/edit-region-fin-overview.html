@@ -1,0 +1,39 @@
+<ion-view title="Edit Financials">
+	<ion-content>
+		<div class="padding card assertive" ng-if="editFinancialErrorMessage">
+			{{editFinancialErrorMessage}}
+		</div>
+		<ion-list>
+			<label class="item item-input" >
+				<span class="input-label">
+				       Year
+				</span>
+				<input type="text" name="year"  ng-model="financial.year">
+			</label>
+			<label class="item item-input" >
+				<span class="input-label">
+				     Revenue
+				</span>
+				<input type="text" name="revenue"  ng-model="financial.revenue">
+			</label>
+			<label class="item item-input">
+				<textarea placeholder="" rows="5" ng-model="financial.regionExpenses"></textarea>
+		    </label>
+			<label class="item item-input" >
+				<span class="input-label">
+				      Expenses
+				</span>
+				<input type="text" name="expenses"  ng-model="financial.expenses">
+			</label>
+			<label class="item item-input">
+				<textarea placeholder="" rows="5" ng-model="financial.regionRevenue"></textarea>
+		    </label>
+		</ion-list>
+		<div class="padding" >
+        	<button class="button button-block button-balanced" ng-click="save()">save</button>
+     	</div>
+     	<div class="padding" >
+        	<button class="button button-block button-assertive" ng-click="cancel()">cancel</button>
+    	</div>
+	</ion-content>
+</ion-view>

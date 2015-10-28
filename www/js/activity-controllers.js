@@ -344,6 +344,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $scope.postErrorMessage=null;
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
 
+      $scope.post.notifyMessage = ActivityService.toProperPost($scope.post.notifyMessage);
       $cordovaDialogs.confirm('Do you want to post this activity?', 'Post Activity', ['Post','Continue Edit']).then(function(buttonIndex) { 
         if(buttonIndex==1) {
          
