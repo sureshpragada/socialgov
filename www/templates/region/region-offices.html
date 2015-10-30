@@ -27,6 +27,9 @@
 			    	{{phNo}} {{$last ? '' : ', '}}
 			    </span>
 		    </p>
+		    <p ng-if="execOffAddr.email">
+		    	{{execOffAddr.email}}
+		    </p>		    
 		      <div ng-repeat="admin in execOffAddr.execAdmin" class="nameContact">
 		        <h2>{{admin.title}}</h2>
 		        <p>
@@ -36,6 +39,9 @@
 				    	{{adminPhNo}} {{$last ? '' : ', '}}
 				    </span>	        	        
 				</p>
+		        <p ng-if="admin.email">
+					{{admin.email}}
+				</p>				
 		      </div>	    	
 		  </div>
 		</div>

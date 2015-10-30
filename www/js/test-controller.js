@@ -158,72 +158,58 @@ var hideSheet = $ionicActionSheet.show({
   // };
 
     $scope.getComplexChartData=function() {
-      var lineItems=[
-        {name: "A", amount:12.00},
-        {name: "B", amount:10.00},
-        {name: "C", amount:14.00},
-        {name: "D", amount:11.00},
-        {name: "E", amount:16.00},
-        {name: "F", amount:17.00},
-        {name: "G", amount:18.00},
-        {name: "H", amount:19.00}
-      ];
+    
+    var data = [
+{
+    value : 3781464.00,
+    color: "#D97041",
+    title : "NMR Contract Salaries"
+},
+{
+    value : 2880141.00,
+    color: "#C7604C",
+    title : "Hospital Staff Salaries"
+},
+{
+    value : 732000.00,
+    color: "#21323D",
+    title : "Hospital maintenance"
+},
+{
+    value : 462096.00,
+    color: "#9D9B7F",
+    title : "Power bill"
+},
+{
+    value : 402008.00,
+    color: "#7D4F6D",
+    title : "Street lights"
+},
+{
+    value : 329481.00,
+    color: "#584A5E",
+    title : "Misc"
+}
+];
 
-      // var lineItems=[
-      //   {name: "A", amount:12.00},
-      //   {name: "B", amount:10.00},
-      //   {name: "C", amount:14.00},
-      //   {name: "D", amount:11.00}
-      // ];
+var myoptions = { 
+legend : true,
+inGraphDataShow : true, 
+inGraphDataAnglePosition : 2,
+inGraphDataRadiusPosition: 2,
+inGraphDataRotate : "inRadiusAxisRotateLabels",
+inGraphDataAlign : "center",
+inGraphDataVAlign : "middle",
+inGraphDataFontColor : "white",
+inGraphDataFontSize : 12,
+inGraphDataTmpl: "<%=v6+'%'%>"
+}  ;  
 
-
-    var chartData=[
-      {color:"#F7464A",highlight: "#FF5A5E"},
-      {color:"#46BFBD",highlight: "#5AD3D1"},
-      {color:"#FDB45C",highlight: "#FFC870"},
-      {color:"#949FB1",highlight: "#A8B3C5"},
-      {color:"#4D5360",highlight: "#616774"},
-      {color:"#4BC459",highlight: "#38E04C"}
-    ];
-    var misc={value: 0.00, label: "Misc"};
-    // Filter category items and make a copy not to impact showing of original list
-    var sortedLineItems=[];
-    for(var i=0;i<lineItems.length;i++) {
-      if(lineItems[i].amount!="CATEGORY") {
-        sortedLineItems.push(lineItems[i]);
-      }
-    }
-    // Sort the array
-    sortedLineItems.sort(function(a, b) {
-      return parseFloat(b.amount) - parseFloat(a.amount);
-    });
-    // Populate chart data based on sorted array 
-    for(var i=0;i<chartData.length;i++) {
-      if(i<sortedLineItems.length && i<chartData.length-1) {
-        chartData[i].value=sortedLineItems[i].amount;
-        chartData[i].label=sortedLineItems[i].name;        
-      } else if(i<sortedLineItems.length && i==chartData.length-1){
-        // Preopare misc item
-        var miscAmount=0.00;
-        for(var j=i;j<sortedLineItems.length;j++) {
-          miscAmount=miscAmount+sortedLineItems[j].amount;
-        }
-        chartData[i].value=miscAmount;
-        chartData[i].label="Misc";        
-      } 
-    }
-    var finalChartData=[];
-    for(var i=0;i<chartData.length;i++) {
-      if(chartData[i].value!=null) {
-        finalChartData.push(chartData[i]);
-      }
-    }
-    console.log(JSON.stringify(finalChartData));
 
     var ctx = document.getElementById("expChart").getContext("2d");
-    var myNewChart = new Chart(ctx).Pie(finalChartData);
-    $scope.legend=myNewChart.generateLegend();
-    console.log($scope.legend);
+    var myNewChart = new Chart(ctx).Pie(data, myoptions);
+    // $scope.legend=myNewChart.generateLegend();
+    // console.log($scope.legend);
 
   };
 

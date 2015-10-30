@@ -202,7 +202,7 @@ angular.module('starter.services', [])
       activity.set("id", activityId);
       activity.increment("spam", 1);
       activity.save();      
-      AccountService.sendNotificationToSuperUser("Spam has been reported. Activity ID : " + activityId);
+      AccountService.sendNotificationToAdmin("Spam has been reported. Activity ID : " + activityId);
     },
     reportDebateSpam: function(debateId) {
       console.log("Updating status field of debate " + debateId);
@@ -211,7 +211,7 @@ angular.module('starter.services', [])
       debate.set("id", debateId);
       debate.increment("spam", 1);
       debate.save();      
-      AccountService.sendNotificationToSuperUser("Spam has been reported. Debate ID : " + debateId);
+      AccountService.sendNotificationToAdmin("Spam has been reported. Debate ID : " + debateId);
     }        
   };
 }])

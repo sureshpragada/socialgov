@@ -3,7 +3,7 @@
     <div ng-show="finDetailsErrorMessage" class="card padding assertive">{{finDetailsErrorMessage}}</div>    
     <!-- style="margin: auto; width: 60%; padding: 10px;" -->
     <div style="width: 100%; padding: 10px;">
-    	<canvas id="expChart" width="300" height="300"></canvas>
+    	<canvas id="expChart" width="300" height="300" style="display: block; margin-left: auto; margin-right: auto;"></canvas>
     </div>
     <ion-item ng-repeat="finItem in finLineItems" ng-class="isCategory(finItem)">
         {{finItem.name}} 

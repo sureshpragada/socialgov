@@ -243,8 +243,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     });
   };
 
-  $scope.reportSpam=function(activityId) {
-    ActivityService.reportSpam(activityId);
+  $scope.reportActivitySpam=function(activityId) {
+    ActivityService.reportActivitySpam(activityId);
+    $cordovaDialogs.alert('Thank you for spotting the spam. We will take action on this post shortly.', 'Spam Report', 'OK');
+  };
+
+  $scope.reportDebateSpam=function(debateId) {
+    ActivityService.reportDebateSpam(debateId);
     $cordovaDialogs.alert('Thank you for spotting the spam. We will take action on this post shortly.', 'Spam Report', 'OK');
   };
 
@@ -268,7 +273,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           } else if(index==1) { // Delete post
             $scope.removePost($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
           } else if(index==2) { // Report spam
-            $scope.reportSpam($scope.actionSheetActivityId);
+            $scope.reportActivitySpam($scope.actionSheetActivityId);
           } 
           return true;
        }

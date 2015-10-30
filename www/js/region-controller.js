@@ -382,10 +382,18 @@ angular.module('starter.controllers')
     if(lineItems!=null) {
       // Render the graph
       var ctx = document.getElementById("expChart").getContext("2d");
-      var myNewChart = new Chart(ctx).Pie(getChartData($scope.finLineItems, {
-        multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>"
-      }));
-      // $scope.legend=myNewChart.generateLegend();      
+      var myNewChart = new Chart(ctx).Pie(getChartData($scope.finLineItems), {    
+          inGraphDataShow : true, 
+          legend: true,
+          inGraphDataAnglePosition : 2,
+          inGraphDataRadiusPosition: 2,
+          inGraphDataRotate : "inRadiusAxisRotateLabels",
+          inGraphDataAlign : "center",
+          inGraphDataVAlign : "middle",
+          inGraphDataFontColor : "white",
+          inGraphDataFontSize : 12,
+          inGraphDataTmpl: "<%=v6+'%'%>"
+     });
     } else {
       $scope.chartErrorMessage="Chart data not available";
     }
@@ -393,8 +401,8 @@ angular.module('starter.controllers')
 
   function getChartData(lineItems) {
     var chartData=[
-      {color:"#F7464A",highlight: "#FF5A5E"}, {color:"#46BFBD",highlight: "#5AD3D1"}, {color:"#FDB45C",highlight: "#FFC870"},
-      {color:"#949FB1",highlight: "#A8B3C5"}, {color:"#4D5360",highlight: "#616774"}, {color:"#4BC459",highlight: "#38E04C"}
+      {color:"#F7464A"}, {color:"#46BFBD"}, {color:"#FDB45C"},
+      {color:"#949FB1"}, {color:"#4D5360"}, {color:"#4BC459"}
     ];
     // Filter category items and make a copy not to impact showing of original list
     var sortedLineItems=[];
@@ -411,7 +419,7 @@ angular.module('starter.controllers')
     for(var i=0;i<chartData.length;i++) {
       if(i<sortedLineItems.length && i<chartData.length-1) {
         chartData[i].value=sortedLineItems[i].amount;
-        chartData[i].label=sortedLineItems[i].name;        
+        chartData[i].title=sortedLineItems[i].name;        
       } else if(i<sortedLineItems.length && i==chartData.length-1){
         // Preopare misc item
         var miscAmount=0.00;
@@ -419,7 +427,7 @@ angular.module('starter.controllers')
           miscAmount=parseFloat(miscAmount)+parseFloat(sortedLineItems[j].amount);
         }
         chartData[i].value=miscAmount;
-        chartData[i].label="Misc";        
+        chartData[i].title="Misc";        
       } 
     }
     var finalChartData=[];
@@ -428,7 +436,7 @@ angular.module('starter.controllers')
         finalChartData.push(chartData[i]);
       }
     }
-    console.log(JSON.stringify(finalChartData));
+    // console.log(JSON.stringify(finalChartData));
     return finalChartData;
   };
 
