@@ -41,6 +41,18 @@ angular.module('starter.services', [])
       }
       return deferred.promise;
     },
+    getRegionListFromCache: function() {
+      var regions=[];      
+      if(regionHeirarchy!=null) {
+        for(var i=0;i<regionHeirarchy.length;i++) {
+          var region=regionCache.get(regionHeirarchy[i]);  
+          if(region!=null) {
+            regions.push(region);
+          }
+        }
+      }
+      return regions;
+    },
     getLiteRegionList: function(selectQuery, value) {
       // TODO :: Cache these for short interval and flush aggressively
       var Region = Parse.Object.extend("Region");
@@ -134,10 +146,10 @@ angular.module('starter.services', [])
 .factory('ActivityService', ['$http', 'AccountService', 'NotificationService', 'LogService', function($http, AccountService, NotificationService, LogService) {
   return {
     getAllowedActivities: function(role) {
-      var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1]];
+      var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1], ACTIVITY_LIST[2]];
       if(role!=null && role!="CTZEN") {
-        allowedActivities.unshift(ACTIVITY_LIST[2]);        
-        allowedActivities.unshift(ACTIVITY_LIST[3]);
+        allowedActivities.unshift(ACTIVITY_LIST[3]);        
+        allowedActivities.unshift(ACTIVITY_LIST[4]);
       }
       return allowedActivities;
     },

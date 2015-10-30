@@ -24,101 +24,51 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
-  var residency=$stateParams.regionUniqueName;
-  if(residency=="native") {
-    residency=Parse.User.current().get("residency");
-  }
   
-  $scope.region=null;
-  RegionService.getRegion(residency).then(function(data) {
-    $scope.region=data;
-  }, function(error) {
-    $scope.regionErrorMessage="Unable to retrieve region information.";
-    console.log("Error retrieving region " + JSON.stringify(error));
-  });
-
+  $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
-  $scope.deleteLegis=function(legisTitle){
-    $scope.legislatives=$scope.region.get('legiRepList');
-    for(var i=0; i < $scope.legislatives.length; i++){
-      if($scope.legislatives[i].title==legisTitle){
-        break;
-      }
-    }
-    $scope.legislatives.splice(i,1);
-    for(var i=0; i <$scope.legislatives.length;i++){
-      delete $scope.legislatives[i].$$hashKey;
-    }
-    // console.log(JSON.stringify($scope.region));
-    $scope.region.save(null, {
-      success: function(region) {
-        $scope.$apply(function(){
-          console.log("delete is success");
-        });
-      },
-      error: function(region, error) {
-        console.log("Error in deleting the legislative " + error.message);
-        $scope.deleteErrorMessage="Unable to process your delete request.";
-      }
-    });
-
-  };
-
-  $scope.openLegisPopover=function($event, legisTitle) {
-    $scope.intendedTitle=legisTitle;
-    $scope.popover.show($event);
-  };
-
-  $ionicPopover.fromTemplateUrl('templates/region/popover-edit-remove.html', {
-    scope: $scope,
-  }).then(function(popover) {
-    $scope.popover = popover;
-  });
-
-  $scope.editThis=function() {
-    $scope.popover.hide();
-    $state.go("tab.editlegis",{regionUniqueName:$scope.region.get('uniqueName'), uniqueLegisTitle: $scope.intendedTitle});    
-  }
-
-  $scope.removeThis=function() {
-    $scope.popover.hide();
+  $scope.deleteLegis=function(regionIndex, legisIndex){
     $cordovaDialogs.confirm('Do you want to delete this legislative contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
-        $scope.deleteLegis($scope.intendedTitle);
+        $scope.legislatives=$scope.regions[regionIndex].get('legiRepList');
+        $scope.legislatives.splice(legisIndex,1);
+        for(var i=0; i <$scope.legislatives.length;i++){
+          delete $scope.legislatives[i].$$hashKey;
+        }
+
+        $scope.regions[regionIndex].save(null, {
+          success: function(region) {
+            RegionService.updateRegion(region.get("uniqueName"), region);
+            $scope.$apply(function(){
+              console.log("delete is success");
+            });
+          },
+          error: function(region, error) {
+            console.log("Error in deleting the legislative " + error.message);
+            $scope.deleteErrorMessage="Unable to process your delete request.";
+          }
+        });
       } else {
         console.log("Canceled removal of legislative delete");
       }
     });
+  };
+
+  $scope.editLegis=function(regionIndex, legislatureIndex) {
+    $state.go("tab.editlegis",{regionUniqueName: $scope.regions[regionIndex].get('uniqueName'), legisIndex: legislatureIndex});    
   }
+
 })
 
 .controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
-  var residency=$stateParams.regionUniqueName;
-  if(residency=="native") {
-    residency=Parse.User.current().get("residency");
-  }
   
-  $scope.region=null;
-  RegionService.getRegion(residency).then(function(data) {
-    $scope.region=data;
-  }, function(error) {
-    $scope.regionErrorMessage="Unable to retrieve region information.";
-    console.log("Error retrieving region " + JSON.stringify(error));
-  });
-
+  $scope.regions=RegionService.getRegionListFromCache();  
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
 
-  $scope.deleteOffice=function(officeName){
-    $scope.offices=$scope.region.get("execOffAddrList");
-    $scope.officeToBeDeleted=null;
-    for(var i=0;i<$scope.offices.length;i++){
-      if($scope.offices[i].officeName==officeName){
-        $scope.officeToBeDeletedIndex=i;
-        break;
-      }
-    }
-    $scope.offices.splice(i,1);
+  $scope.deleteOffice=function(regionIndex, officeIndex){
+    $scope.offices=$scope.regions[regionIndex].get("execOffAddrList");
+    $scope.offices.splice(officeIndex,1);
     for(var i=0; i < $scope.offices.length;i++) { 
       delete $scope.offices[i].$$hashKey;
       if($scope.offices[i].execAdmin!=null) {
@@ -128,7 +78,7 @@ angular.module('starter.controllers')
       }
     }
 
-    $scope.region.save(null, {
+    $scope.regions[regionIndex].save(null, {
       success: function(region) {
         RegionService.updateRegion(region.get("uniqueName"), region);        
         $scope.$apply(function(){ // To refresh the view with the delete
@@ -143,8 +93,10 @@ angular.module('starter.controllers')
 
   };
 
-  $scope.openOfficePopover=function($event, officeName) {
-    $scope.intendedOffice=officeName;
+  $scope.openOfficePopover=function($event, regionIndex, officeIndex) {
+    console.log("On popover : " + regionIndex + " " + officeIndex);
+    $scope.officeIndex=officeIndex;
+    $scope.regionIndex=regionIndex;
     $scope.popover.show($event);
   };
 
@@ -156,14 +108,14 @@ angular.module('starter.controllers')
 
   $scope.editThis=function() {
     $scope.popover.hide();
-    $state.go("tab.editoffices",{regionUniqueName:$scope.region.get('uniqueName'), uniqueOfficeName: $scope.intendedOffice});    
+    $state.go("tab.editoffices",{regionUniqueName: $scope.regions[$scope.regionIndex].get('uniqueName'), officeIndex: $scope.officeIndex});    
   };
 
   $scope.removeThis=function() {
     $scope.popover.hide();
     $cordovaDialogs.confirm('Do you want to delete this office?', 'Delete Office', ['Delete','Cancel']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
-        $scope.deleteOffice($scope.intendedOffice);    
+        $scope.deleteOffice($scope.regionIndex, $scope.officeIndex);    
       } else {
         console.log("Canceled removal of activity");
       }
@@ -172,7 +124,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService) {
+.controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService) {
 
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
@@ -203,7 +155,7 @@ angular.module('starter.controllers')
         $scope.region.save(null, {
           success: function(region) {
             RegionService.updateRegion(region.get("uniqueName"), region);
-            $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
+            $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});
           },
           error: function(region, error) {
             console.log("Error in saving the office details " + error.message);
@@ -217,7 +169,7 @@ angular.module('starter.controllers')
   };
 
   $scope.cancel=function(){
-    $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
+    $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});
   };
 })
 
@@ -225,33 +177,29 @@ angular.module('starter.controllers')
 
   $scope.newExecObj={};
   $scope.newOfficeObj={};
-  var residency=$stateParams.regionUniqueName;
-  var officeName=$stateParams.uniqueOfficeName;
-  var Region = Parse.Object.extend("Region");
-  var query = new Parse.Query(Region);
-  query.equalTo("uniqueName", residency);
-  query.find({
-    success: function(regions) {
-      $scope.$apply(function(){
-        $scope.region=regions[0];
-        $scope.newExecObj=$scope.region.get('execOffAddrList');
-        for(var i=0; i < $scope.newExecObj.length ; i++){
-          if($scope.newExecObj[i].officeName==officeName){
-            $scope.newOfficeObj=$scope.newExecObj[i];
-            break;
-          }
-        }
-      });
-    },
-    error: function(error) {
-      console.log("Error retrieving region " + JSON.stringify(error));
-    }
+  var regionUniqueName=$stateParams.regionUniqueName;
+  var officeIndex=$stateParams.officeIndex;
+
+  RegionService.getRegion(regionUniqueName).then(function(data) {
+    $scope.region=data;
+    $scope.newOfficeObj=$scope.region.get('execOffAddrList')[officeIndex];
+  }, function(error) {
+    $scope.regionErrorMessage="Unable to retrieve region information.";
+    console.log("Error retrieving region " + JSON.stringify(error));
   });
 
   $scope.submit=function(){
     for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
       delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
     }
+    for(var i=0; i <$scope.region.get('execOffAddrList').length;i++){
+      var execOffAddr=$scope.region.get('execOffAddrList')[i];
+      delete execOffAddr.$$hashKey;
+      for(var j=0;j<execOffAddr.execAdmin.length;j++) {
+        delete execOffAddr.execAdmin[j].$$hashKey;
+      }
+    }
+
     if(typeof($scope.newOfficeObj.phoneNumberList)=="string"){
       $scope.officeNum=$scope.newOfficeObj.phoneNumberList;
       $scope.newOfficeObj.phoneNumberList=[];
@@ -270,38 +218,31 @@ angular.module('starter.controllers')
           }
         }
     }
+
     $scope.region.save(null, {
         success: function(region) {
           console.log("edit is success");          
           RegionService.updateRegion(region.get("uniqueName"), region);          
-          $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});          
+          $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});          
         }
     });
   };
 
   $scope.cancel=function(){
-    $state.go("tab.offices",{regionUniqueName:$scope.region.get('uniqueName')});
+    $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});
   };
 
 })
 
-.controller('AddLegisCtrl', function($scope, $stateParams, $state, RegionService) {
-
-  var Region = Parse.Object.extend("Region");
-  var query = new Parse.Query(Region);
-  query.equalTo("uniqueName", $stateParams.regionUniqueName);
-  query.find({
-    success: function(regions) {
-      $scope.$apply(function(){
-        $scope.region=regions[0];
-      });
-    },
-    error: function(error) {
-      console.log("Error retrieving region " + JSON.stringify(error));
-    }
+.controller('AddLegisCtrl', function($scope, $stateParams, $state, RegionService, AccountService) {
+  $scope.legisErrorMessage=null;
+  RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
+    $scope.region=data;
+  }, function(error) {
+    $scope.legisErrorMessage="Unable to retrieve region information.";
+    console.log("Error retrieving region " + JSON.stringify(error));
   });
 
-  $scope.legisErrorMessage=null;
   $scope.phoneNums={legisNums:""};
   $scope.newLegisObj={title:"", name:"", addressLine1:"", addressLine2:"", phoneNumberList:[]};
   $scope.submit=function(){
@@ -315,7 +256,7 @@ angular.module('starter.controllers')
         $scope.region.save(null, {
           success: function(region) {
             RegionService.updateRegion(region.get("uniqueName"), region);
-            $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
+            $state.go("tab.legis",{regionUniqueName: AccountService.getUser().get('residency')});
           },
           error: function(region, error) {
             console.log("Error in saving the legislative details " + error.message);
@@ -328,35 +269,21 @@ angular.module('starter.controllers')
   };
 
   $scope.cancel=function(){
-    $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
+    $state.go("tab.legis",{regionUniqueName: AccountService.getUser().get('residency')});
   };
 })
 
 .controller('EditLegisDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, $state) {
 
-  var residency=$stateParams.regionUniqueName;
-  var legisTitle=$stateParams.uniqueLegisTitle;
-  console.log(legisTitle);
-  var Region = Parse.Object.extend("Region");
-  var query = new Parse.Query(Region);
-  query.equalTo("uniqueName", residency);
-  query.find({
-    success: function(regions) {
-      $scope.$apply(function(){
-        $scope.region=regions[0];
-        //console.log(JSON.stringify($scope.region));
-        $scope.newLegisObj=$scope.region.get('legiRepList');
-        for(var i=0; i < $scope.newLegisObj.length ; i++){
-          if($scope.newLegisObj[i].title==legisTitle){
-            $scope.legisToBeEdited=$scope.newLegisObj[i];
-            break;
-          }
-        }
-      });
-    },
-    error: function(error) {
-      console.log("Error retrieving region " + JSON.stringify(error));
-    }
+  var regionUniqueName=$stateParams.regionUniqueName;
+  var legisIndex=$stateParams.legisIndex;
+
+  RegionService.getRegion(regionUniqueName).then(function(data) {
+    $scope.region=data;
+    $scope.legisToBeEdited=$scope.region.get('legiRepList')[legisIndex];
+  }, function(error) {
+    $scope.regionErrorMessage="Unable to retrieve region information.";
+    console.log("Error retrieving region " + JSON.stringify(error));
   });
 
   $scope.submit=function(){
@@ -368,17 +295,21 @@ angular.module('starter.controllers')
         $scope.legisToBeEdited.phoneNumberList.push(numbers[i]);
       }
     }
+    for(var i=0; i <$scope.region.get('legiRepList').length;i++){
+      delete $scope.region.get('legiRepList')[i].$$hashKey;
+    }
+
     $scope.region.save(null, {
         success: function(region) {
           console.log("edit is success");
           RegionService.updateRegion(region.get("uniqueName"), region);
-          $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});          
+          $state.go("tab.legis",{regionUniqueName: AccountService.getUser().get('residency')});          
         }
     });
   };
 
   $scope.cancel=function(){
-    $state.go("tab.legis",{regionUniqueName:$scope.region.get('uniqueName')});
+    $state.go("tab.legis",{regionUniqueName: AccountService.getUser().get('residency')});
   };
 
 })
@@ -430,6 +361,7 @@ angular.module('starter.controllers')
             $scope.finDetailsErrorMessage="Expense records showing line items not available for "+ $stateParams.year + " finanical year.";      
           }
         }
+        renderChart($scope.finLineItems);        
       });
     },
     error: function(error) {
@@ -444,7 +376,61 @@ angular.module('starter.controllers')
     } else {
       return;
     }
-  };     
+  };   
+
+  function renderChart(lineItems) {
+    if(lineItems!=null) {
+      // Render the graph
+      var ctx = document.getElementById("expChart").getContext("2d");
+      var myNewChart = new Chart(ctx).Pie(getChartData($scope.finLineItems, {
+        multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>"
+      }));
+      // $scope.legend=myNewChart.generateLegend();      
+    } else {
+      $scope.chartErrorMessage="Chart data not available";
+    }
+  }; 
+
+  function getChartData(lineItems) {
+    var chartData=[
+      {color:"#F7464A",highlight: "#FF5A5E"}, {color:"#46BFBD",highlight: "#5AD3D1"}, {color:"#FDB45C",highlight: "#FFC870"},
+      {color:"#949FB1",highlight: "#A8B3C5"}, {color:"#4D5360",highlight: "#616774"}, {color:"#4BC459",highlight: "#38E04C"}
+    ];
+    // Filter category items and make a copy not to impact showing of original list
+    var sortedLineItems=[];
+    for(var i=0;i<lineItems.length;i++) {
+      if(lineItems[i].amount!="CATEGORY") {
+        sortedLineItems.push(lineItems[i]);
+      }
+    }
+    // Sort the array
+    sortedLineItems.sort(function(a, b) {
+      return parseFloat(b.amount) - parseFloat(a.amount);
+    });    
+    // Populate chart data based on sorted array 
+    for(var i=0;i<chartData.length;i++) {
+      if(i<sortedLineItems.length && i<chartData.length-1) {
+        chartData[i].value=sortedLineItems[i].amount;
+        chartData[i].label=sortedLineItems[i].name;        
+      } else if(i<sortedLineItems.length && i==chartData.length-1){
+        // Preopare misc item
+        var miscAmount=0.00;
+        for(var j=i;j<sortedLineItems.length;j++) {
+          miscAmount=parseFloat(miscAmount)+parseFloat(sortedLineItems[j].amount);
+        }
+        chartData[i].value=miscAmount;
+        chartData[i].label="Misc";        
+      } 
+    }
+    var finalChartData=[];
+    for(var i=0;i<chartData.length;i++) {
+      if(chartData[i].value!=null) {
+        finalChartData.push(chartData[i]);
+      }
+    }
+    console.log(JSON.stringify(finalChartData));
+    return finalChartData;
+  };
 
 })
 

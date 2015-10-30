@@ -1,6 +1,10 @@
 <ion-view title="{{pageTitle}}">
   <ion-content>
     <div ng-show="finDetailsErrorMessage" class="card padding assertive">{{finDetailsErrorMessage}}</div>    
+    <!-- style="margin: auto; width: 60%; padding: 10px;" -->
+    <div style="width: 100%; padding: 10px;">
+    	<canvas id="expChart" width="300" height="300"></canvas>
+    </div>
     <ion-item ng-repeat="finItem in finLineItems" ng-class="isCategory(finItem)">
         {{finItem.name}} 
         <span class="item-note" ng-if="finItem.amount!='CATEGORY'">{{'Currency' | translate}} {{finItem.amount}}</span>

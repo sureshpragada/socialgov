@@ -15,13 +15,13 @@
 	    	<p >{{debate.get("user")}}</p>
 	    </div> -->
 
-	   <ion-list>
+<!-- 	   <ion-list>
 	   	<ion-item><button ng-click="openPopover($event, 1);">popover 1</button></ion-item>
 	   	<ion-item><button ng-click="openPopover($event, 2);">popover 2</button></ion-item>
 	   	<ion-item><button ng-click="openPopover($event, 3);">popover 3</button></ion-item>
 	   </ion-list>
 
-	    
+ -->	    
 	    <button ng-click="openActionSheet('admin');">open Action sheet</button>
 
 
@@ -41,6 +41,17 @@
     </script>
 
 <button ng-click="testActivityPushNotification()">Test Activity Push Notification</button>
+<button ng-click="getComplexChartData()">Test Sort</button>
+
+	    <div style="margin: auto; width: 60%; padding: 10px;">
+<!--     		<canvas id="expChart"></canvas> -->
+    		<canvas id="expChart" width="200" height="200"></canvas>
+    	</div>
+    	<ion-item>
+    		{{legend}}
+    	</ion-item>
+
+    	<ul class="pie-legend"><li><span style="background-color:#F7464A"></span>C</li><li><span style="background-color:#F7464A"></span>A</li><li><span style="background-color:#F7464A"></span>D</li><li><span style="background-color:#F7464A"></span>B</li></ul>
 
 
 	</ion-content>

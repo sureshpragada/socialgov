@@ -4,7 +4,7 @@
   </ion-nav-buttons>
   <ion-content class="visible-cards">
     <div ng-show="activityError" class="card">
-      <div class="item item-text-wrap">
+      <div class="item item-text-wrap warn">
         {{activityError}}
       </div>
     </div>
@@ -57,6 +57,16 @@
           Comment ({{activity.get("debate")}})
         </a>
       </div>            
+      <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')=='ASK'">
+        <a class="tab-item" ng-click="respond(activity.id, 'support')">
+          <i class="icon ion-thumbsup"  ng-class="isThisActionChosen(activity.id, 'support')"></i>
+          Useful ({{activity.get("support")}})
+        </a>
+        <a class="tab-item" ng-click="beginDebate(activity.id, $index)">
+          <i class="icon ion-chatbox royal"></i>
+          Answer ({{activity.get("debate")}})
+        </a>
+      </div>                  
       <div class="item item-body" ng-if="isDebateRequested(activity.id, $index)">
         <label class="item item-input">
           <textarea placeholder="Type in your message" rows="5" ng-model="argumentMessageList[$index]"></textarea>
@@ -64,6 +74,7 @@
         <div class="padding">
           <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">Submit Feedback</button>
           <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)" ng-if="activity.get('activityType')=='NOTF' || activity.get('activityType')=='EVNT'">Comment</button>          
+          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)" ng-if="activity.get('activityType')=='ASK'">Submit Answer</button>                    
         </div>        
       </div> 
       <div ng-if="isDebateRequested(activity.id, $index)">

@@ -335,7 +335,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate) {
 
   var user=Parse.User.current();  
   var stateData=PictureManagerService.getState();
@@ -349,6 +349,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.allowImageUpload=ionic.Platform.isWebView();
   $scope.pictureUploaded=stateData.imageUrl;
 
+  displayActivityWarnMessage();
   $scope.submitPost=function() {
     $scope.postErrorMessage=null;
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
@@ -402,10 +403,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     } else {
       $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
     }
-  };
+  };  
 
   $scope.cancelPost=function(){
-    $cordovaDialogs.confirm('Do you want to abort posting activity?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
+    $cordovaDialogs.confirm('Do you want to abort posting?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
         $state.go("tab.dash");
       } else {
@@ -417,6 +418,20 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.goToAttachPicture=function() {
     PictureManagerService.setData({message: $scope.post.notifyMessage});
     $state.go("tab.picman");
+  };
+
+  $scope.handleActivitySelection=function() {
+    displayActivityWarnMessage();
+  };
+
+  function displayActivityWarnMessage() {
+    if($scope.selectChoices.selectedActivityType.id=="ASK") {
+      $scope.postWarnMessage="Messages.PostActivityAskWarn";  
+    } else if($scope.selectChoices.selectedActivityType.id=="ISSU") {
+      $scope.postWarnMessage="Messages.PostActivityIssueWarn";  
+    } else {
+      $scope.postWarnMessage=null;  
+    }
   };
 
 })

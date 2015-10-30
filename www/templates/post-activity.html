@@ -1,12 +1,17 @@
 <ion-view view-title="Post Activity">
 	<ion-content>
-		<div ng-show="postErrorMessage" class="card padding assertive">{{postErrorMessage}}</div>
+		<div class="card" ng-if="postErrorMessage">
+		  <div class="item item-text-wrap warn"> {{postErrorMessage}}</div>
+		</div>    
+		<div class="card" ng-show="postWarnMessage">
+		  <div class="item item-text-wrap success">{{postWarnMessage | translate}}</div>	
+		</div>				
 		<div class="list">
 			<label class="item item-input item-select">
 			    <div class="input-label">
 			      Activity Type
 			    </div>
-			    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities">
+			    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities" ng-change="handleActivitySelection()">
 			    </select>
 			  </label>
 			<label class="item item-input item-select">

@@ -30,3 +30,11 @@ input {
     padding: 8px 10px;
     font-size: 14px;
 }
+
+.warn {
+    background-color: #f2dede;
+}
+
+.success {
+    background-color: #dff0d8;
+}

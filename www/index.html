@@ -20,6 +20,7 @@
     <script src="lib/ngcordova/ng-cordova.min.js"></script>
     <script src="lib/angular-cache/angular-cache.min.js"></script>
     <script src="lib/translate/angular-translate.min.js"></script>
+    <script src="lib/chart/chart_new.js"></script>    
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
 
@@ -76,10 +77,11 @@
       {id:"CTZEN", label:"Citizen"},
       {id:"SUADM", label:"Administrator"} 
     ];
-    var allowedActivities=[
+    var ACTIVITY_LIST=[
+      {id:"ASK", label:"Ask Community"},          
       {id:"ISSU", label:"Report Problem"},      
       {id:"IDEA", label:"Development Idea"},
-      {id:"EVNT", label:"Community Event"},        
+      {id:"EVNT", label:"Public Program"},        
       {id:"NOTF", label:"Notification"}      
     ];    
 

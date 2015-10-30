@@ -1,31 +1,32 @@
 <ion-view title="Legislature">
-  <ion-nav-buttons side="secondary" >
-      <a class="button" href="#/tab/addlegis/{{region.get('uniqueName')}}" ng-show="canUpdateRegion">
-      	<i class="icon ion-plus"></i>
-      </a>
-  </ion-nav-buttons>
   <ion-content>
-  	<div ng-show="region.get('legiRepList').length==0" class="card padding assertive">Legislature representative list not available for {{region.get("name")}}</div>    
-    <div class="card" ng-repeat="legi in region.get('legiRepList')">
-	  <div class="item item-divider item-icon-right">
-	  	<a ng-click="openLegisPopover($event, legi.title)" ng-if="canUpdateRegion"><i class="icon ion-navicon royal"></i></a>
-	    {{legi.title}}
-	  </div>
-	  <div class="item item-text-wrap">
-	  	<h2>{{legi.name}}</h2>
-	    <div>
-	    	<div ng-if="legi.addressLine1">{{legi.addressLine1}}</div>
-	    	<div ng-if="legi.addressLine2">{{legi.addressLine2}}</div>
-	    	<div ng-if="legi.landmark">{{legi.landmark}}</div>
+    <ion-list ng-repeat="region in regions track by $index" ng-init="regionIndex = $index" can-swipe="canUpdateRegion">
+	    <div class="item item-divider item-icon-right" ng-if="region.get('legiRepList').length">
+	    	{{region.get("name")}}
+		    <a href="#/tab/addlegis/{{region.get('uniqueName')}}" ng-show="canUpdateRegion">
+	      	  <i class="icon ion-android-add-circle balanced"></i>
+	        </a>	    	
 	    </div>
-	    <p ng-if="legi.phoneNumberList">
-		    <i class="icon ion-iphone"></i>
-		    <span ng-repeat="phNo in legi.phoneNumberList">
-<!-- 		    	<a href="tel:{{phNo}}">{{phNo}} </a> -->
-		    	{{phNo}} {{$last ? '' : ', '}}
-		    </span>
-	    </p>
+	    <ion-item class="item-thumbnail-left" ng-repeat="legi in region.get('legiRepList')" ng-init="legisIndex = $index">
+	      <img ng-src="{{legi.avatar}}" ng-if="legi.avatar">
+	      <img ng-src="img/blank_avatar.png" ng-if="!legi.avatar">
+	      <h2>{{legi.name}}</h2>
+	      <p>{{legi.title}}</p>
+		    <p ng-if="legi.phoneNumberList">
+			    <i class="icon ion-iphone"></i>
+			    <span ng-repeat="phNo in legi.phoneNumberList">
+			    	{{phNo}} {{$last ? '' : ', '}}
+			    </span>
+		    </p>	      
+		    <!-- Pass index x, index y  instead of legi.title -->
+		    <ion-option-button class="button-info button-positive" ng-click="editLegis(regionIndex, legisIndex)">Edit</ion-option-button>
+		    <ion-option-button class="button-info button-assertive" ng-click="deleteLegis(regionIndex, legisIndex)">Delete</ion-option-button>
+	    </ion-item>
+    </ion-list>
+	<div class="card" ng-if="!regions.length">
+	  <div class="item item-text-wrap warn"> 
+	    Legislative contacts have not found in any of your regions.
 	  </div>
-	</div>
+	</div>    
   </ion-content>
 </ion-view>

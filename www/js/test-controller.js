@@ -157,4 +157,74 @@ var hideSheet = $ionicActionSheet.show({
 
   // };
 
+    $scope.getComplexChartData=function() {
+      var lineItems=[
+        {name: "A", amount:12.00},
+        {name: "B", amount:10.00},
+        {name: "C", amount:14.00},
+        {name: "D", amount:11.00},
+        {name: "E", amount:16.00},
+        {name: "F", amount:17.00},
+        {name: "G", amount:18.00},
+        {name: "H", amount:19.00}
+      ];
+
+      // var lineItems=[
+      //   {name: "A", amount:12.00},
+      //   {name: "B", amount:10.00},
+      //   {name: "C", amount:14.00},
+      //   {name: "D", amount:11.00}
+      // ];
+
+
+    var chartData=[
+      {color:"#F7464A",highlight: "#FF5A5E"},
+      {color:"#46BFBD",highlight: "#5AD3D1"},
+      {color:"#FDB45C",highlight: "#FFC870"},
+      {color:"#949FB1",highlight: "#A8B3C5"},
+      {color:"#4D5360",highlight: "#616774"},
+      {color:"#4BC459",highlight: "#38E04C"}
+    ];
+    var misc={value: 0.00, label: "Misc"};
+    // Filter category items and make a copy not to impact showing of original list
+    var sortedLineItems=[];
+    for(var i=0;i<lineItems.length;i++) {
+      if(lineItems[i].amount!="CATEGORY") {
+        sortedLineItems.push(lineItems[i]);
+      }
+    }
+    // Sort the array
+    sortedLineItems.sort(function(a, b) {
+      return parseFloat(b.amount) - parseFloat(a.amount);
+    });
+    // Populate chart data based on sorted array 
+    for(var i=0;i<chartData.length;i++) {
+      if(i<sortedLineItems.length && i<chartData.length-1) {
+        chartData[i].value=sortedLineItems[i].amount;
+        chartData[i].label=sortedLineItems[i].name;        
+      } else if(i<sortedLineItems.length && i==chartData.length-1){
+        // Preopare misc item
+        var miscAmount=0.00;
+        for(var j=i;j<sortedLineItems.length;j++) {
+          miscAmount=miscAmount+sortedLineItems[j].amount;
+        }
+        chartData[i].value=miscAmount;
+        chartData[i].label="Misc";        
+      } 
+    }
+    var finalChartData=[];
+    for(var i=0;i<chartData.length;i++) {
+      if(chartData[i].value!=null) {
+        finalChartData.push(chartData[i]);
+      }
+    }
+    console.log(JSON.stringify(finalChartData));
+
+    var ctx = document.getElementById("expChart").getContext("2d");
+    var myNewChart = new Chart(ctx).Pie(finalChartData);
+    $scope.legend=myNewChart.generateLegend();
+    console.log($scope.legend);
+
+  };
+
 });
