@@ -416,7 +416,7 @@ angular.module('starter.controllers')
       });
     }
     else{
-      $scope.addFinancialErrorMessage="please fill year, revenue, expenses fields!!";
+      $scope.addFinancialErrorMessage="Please provide year, revenue and expenses details.";
     }
   };
 
@@ -440,13 +440,13 @@ angular.module('starter.controllers')
           $scope.financial.revenue=financials[0].get('revenue');  
           $scope.financial.expenses=financials[0].get('expenses');
           var regionExpenses=financials[0].get('regionExpenses');
-          console.log(regionExpenses);
+          // console.log(regionExpenses);
           if(regionExpenses!=null){
             var detailedExpenses="";
             for(var i=0; i < regionExpenses.length;i++)
                 detailedExpenses += (regionExpenses[i].name+','+regionExpenses[i].amount)+'\n';
             $scope.financial.regionExpenses = detailedExpenses;
-            console.log(detailedExpenses);
+            // console.log(detailedExpenses);
           }
           var regionRevenue=financials[0].get('regionRevenue');  
           if(regionRevenue!=null){

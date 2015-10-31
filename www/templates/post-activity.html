@@ -1,11 +1,7 @@
 <ion-view view-title="Post Activity">
 	<ion-content>
-		<div class="card" ng-if="postErrorMessage">
-		  <div class="item item-text-wrap warn"> {{postErrorMessage}}</div>
-		</div>    
-		<div class="card" ng-show="postWarnMessage">
-		  <div class="item item-text-wrap success">{{postWarnMessage | translate}}</div>	
-		</div>				
+		<div class="card padding warn" ng-if="postErrorMessage">{{postErrorMessage}}</div>    
+		<div class="card padding success" ng-show="postWarnMessage">{{postWarnMessage | translate}}</div>				
 		<div class="list">
 			<label class="item item-input item-select">
 			    <div class="input-label">

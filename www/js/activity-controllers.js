@@ -456,7 +456,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     success: function(activity) {
       $scope.preActivity=activity;
       $scope.post.notifyMessage=activity.get("notifyMessage");
-      $scope.selectChoices={selectedActivityType: ActivityService.getActivityInAList(activity.get('activityType'), $scope.allowedActivities), selectedRegion: $scope.allowedRegions[0]};            
+      $scope.selectChoices={selectedActivityType: ActivityService.getActivityTypeInAList(activity.get('activityType'), $scope.allowedActivities), selectedRegion: $scope.allowedRegions[0]};            
     }, 
     error: function(error) {
       console.log("Error while retrieving post to edit : " + JSON.stringify(error));
@@ -469,7 +469,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
       $scope.preActivity.set("activityType", $scope.selectChoices.selectedActivityType.id);
       $scope.preActivity.set("regionUniqueName", $scope.selectChoices.selectedRegion.id);   
-      $scope.preActivity.set("notifyMessage", $scope.post.notifyMessage);
+      $scope.preActivity.set("notifyMessage", ActivityService.toProperPost($scope.post.notifyMessage));
 
       $scope.preActivity.save(null, {
         success: function(activity) {
