@@ -279,7 +279,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
           controller: 'RegionFinancialOverviewCtrl'
         }
       }
-    })  
+    })
+
+    .state('tab.addfinview', {
+      url: '/addfinview/{regionUniqueName}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region/add-region-fin-overview.html',
+            controller: 'AddRegionFinancialOverviewCtrl'
+          }
+        }
+    })
+
+    .state('tab.editfinancial', {
+      url: '/editfinancial/{id}',
+        views: {
+          'tab-region': {
+            templateUrl: 'templates/region/edit-region-fin-overview.html',
+            controller: 'EditRegionFinancialOverviewCtrl'
+          }
+        }
+    })
+
     .state('tab.findet', {
       url: '/findet/{regionUniqueName}/{year}/{reqDetails}',
       cache: false,            

@@ -212,7 +212,31 @@ angular.module('starter.services', [])
       debate.increment("spam", 1);
       debate.save();      
       AccountService.sendNotificationToAdmin("Spam has been reported. Debate ID : " + debateId);
-    }        
+    },
+    toProperPost: function(post) {
+      var count=post.replace(/[^A-Z]/g, "").length;
+      var splitArray=post.split(' ');
+      if((count/(post.length - splitArray.length-1))*100 > 90){
+        splitArray[0]=splitArray[0].toLowerCase();
+        var properPost = splitArray[0].charAt(0).toUpperCase() + splitArray[0].substring(1) + ' ';
+        for(var i=1; i< splitArray.length ;i++){
+          splitArray[i] = splitArray[i].toLowerCase();
+          var dotFlag = splitArray[i].indexOf(".");
+          if(dotFlag == -1){
+            properPost += splitArray[i] + ' ';
+          }
+          else{
+            properPost += splitArray[i]+ ' ';
+            if(i != splitArray.length-1){
+              i++;
+              properPost += splitArray[i].charAt(0).toUpperCase() + splitArray[i].toLowerCase().substring(1) + ' ';
+            }
+          }
+        }
+        return properPost;
+      }
+      return post;
+    }    
   };
 }])
 

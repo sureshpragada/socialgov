@@ -1,0 +1,39 @@
+<ion-view title="Add Financials">
+	<ion-content>
+		<div class="padding card assertive" ng-if="addFinancialErrorMessage">
+			{{addFinancialErrorMessage}}
+		</div>
+		<ion-list>
+			<label class="item item-input" >
+				<span class="input-label">
+				       Year
+				</span>
+				<input type="text" name="offName"  ng-model="newFinancialObj.year">
+			</label>
+			<label class="item item-input" >
+				<span class="input-label">
+				     Revenue
+				</span>
+				<input type="text" name="addr1"  ng-model="newFinancialObj.revenue">
+			</label>
+			<label class="item item-input">
+				<textarea placeholder="Enter region expenses in CSV format. Ex: Management Office,30000.00" rows="5" ng-model="regionExpRev.regExp"></textarea>
+		    </label>
+			<label class="item item-input" >
+				<span class="input-label">
+				      Expenses
+				</span>
+				<input type="text" name="addr2"  ng-model="newFinancialObj.expenses">
+			</label>
+			<label class="item item-input">
+				<textarea placeholder="Enter region revenue in CSV format" rows="5" ng-model="regionExpRev.regRev"></textarea>
+		    </label>
+		</ion-list>
+		<div class="padding" >
+        	<button class="button button-block button-balanced" ng-click="submit()">Submit</button>
+     	</div>
+     	<div class="padding" >
+        	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+    	</div>
+	</ion-content>
+</ion-view>

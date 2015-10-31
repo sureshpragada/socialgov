@@ -315,16 +315,19 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionFinancialOverviewCtrl', function($scope, $stateParams, RegionService) {
+.controller('RegionFinancialOverviewCtrl', function($scope, $stateParams, $state, AccountService, RegionService, $ionicPopover, $cordovaDialogs) {
   var RegionFinancial = Parse.Object.extend("RegionFinancial");
   var query = new Parse.Query(RegionFinancial);
   query.equalTo("regionUniqueName", $stateParams.regionUniqueName);
+  query.equalTo("status","A");
+  $scope.uniqueName = $stateParams.regionUniqueName;
   query.descending("year");
   query.find({
     success: function(financials) {
       $scope.$apply(function(){
         if(financials!=null && financials.length>0) {
           $scope.financials=financials;  
+          console.log(JSON.stringify($scope.financials));
         } else {
           $scope.finOverviewErrorMessage="No financial records available for your region.";    
         }
@@ -334,8 +337,184 @@ angular.module('starter.controllers')
       console.log("Error retrieving region financials " + JSON.stringify(error));
       $scope.finOverviewErrorMessage="Unable to load financial overview at this time.";
     }
-  });          
+  }); 
 
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();  
+
+  $scope.deleteFinancial=function(index){
+    var financialRecord=$scope.financials[index];
+    financialRecord.set("status","D");
+    financialRecord.save();
+    //TODO-delete this record from html view
+  };
+
+  $scope.openFinancialPopover=function($event, index, financialRecordId) {
+    $scope.financialRecordId=financialRecordId;
+    $scope.intendedRecord=index;
+    console.log("object Id " + $scope.financialRecordId);
+    $scope.popover.show($event);
+  };
+
+  $ionicPopover.fromTemplateUrl('templates/region/popover-edit-remove.html', {
+    scope: $scope,
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+
+  $scope.editThis=function() {
+    $scope.popover.hide();
+    $state.go("tab.editfinancial",{id: $scope.financialRecordId});    
+  }
+
+  $scope.removeThis=function() {
+    $scope.popover.hide();
+    $cordovaDialogs.confirm('Do you want to delete this financial detail?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+        $scope.deleteFinancial($scope.intendedRecord);
+      } else {
+        console.log("Canceled removal of financial delete");
+      }
+    });
+  }
+
+})
+
+.controller('AddRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state) {
+  
+  $scope.addFinancialErrorMessage=null;         
+
+  $scope.newFinancialObj = { year:"", revenue:"", expenses:"", regionUniqueName:$stateParams.regionUniqueName, regionExpenses:[], regionRevenue:[], status:"A" };
+  $scope.regionExpRev={regExp:"", regRev:""};
+
+  $scope.submit=function(){
+
+    if($scope.newFinancialObj.year!="" && $scope.newFinancialObj.revenue!="" && $scope.newFinancialObj.expenses!=""){
+      
+      if($scope.regionExpRev.regExp!=""){
+        var regExpLine = $scope.regionExpRev.regExp.split('\n');
+        for(var i=0; i < regExpLine.length; i++){
+          var regExpense = regExpLine[i].split(',');
+          $scope.newFinancialObj.regionExpenses.push( {name:regExpense[0], amount:regExpense[1]} );
+        }
+      }
+
+      if($scope.regionExpRev.regRev!=""){
+        var regRevLine = $scope.regionExpRev.regRev.split('\n');
+        for(var i=0; i < regRevLine.length; i++){
+          var regRevenue = regRevLine[i].split(',');
+          $scope.newFinancialObj.regionRevenue.push( {name:regRevenue[0], amount:regRevenue[1]} );
+        }
+      }
+
+      var RegionFinancial = Parse.Object.extend("RegionFinancial");
+      var regionFinancial = new RegionFinancial();
+      regionFinancial.save($scope.newFinancialObj, {
+        success: function(financials) {
+          console.log(JSON.stringify(financials));
+          $state.go("tab.finview",{regionUniqueName:$stateParams.regionUniqueName});          
+        }
+      });
+    }
+    else{
+      $scope.addFinancialErrorMessage="please fill year, revenue, expenses fields!!";
+    }
+  };
+
+  $scope.cancel=function(){
+    $state.go("tab.finview",{regionUniqueName:$stateParams.regionUniqueName});          
+  };
+})
+
+.controller('EditRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state) {
+  
+  $scope.financial={};
+  var RegionFinancial = Parse.Object.extend("RegionFinancial");
+  var query = new Parse.Query(RegionFinancial);
+  query.equalTo("objectId", $stateParams.id);
+  query.find({
+    success: function(financials) {
+      $scope.$apply(function(){
+        if(financials!=null && financials.length>0) {
+          $scope.parseFinancial=financials[0];
+          $scope.financial.year=financials[0].get('year');  
+          $scope.financial.revenue=financials[0].get('revenue');  
+          $scope.financial.expenses=financials[0].get('expenses');
+          var regionExpenses=financials[0].get('regionExpenses');
+          console.log(regionExpenses);
+          if(regionExpenses!=null){
+            var detailedExpenses="";
+            for(var i=0; i < regionExpenses.length;i++)
+                detailedExpenses += (regionExpenses[i].name+','+regionExpenses[i].amount)+'\n';
+            $scope.financial.regionExpenses = detailedExpenses;
+            console.log(detailedExpenses);
+          }
+          var regionRevenue=financials[0].get('regionRevenue');  
+          if(regionRevenue!=null){
+            var detailedRevenue="";
+            for(var i=0;i<regionRevenue.length;i++)
+                detailedRevenue += (regionRevenue[i].name+','+regionRevenue[i].amount)+'\n';
+            $scope.financial.regionRevenue = detailedRevenue;
+            console.log($scope.detailedRevenue);
+          }
+          $scope.financial.regionUniqueName=financials[0].get('regionUniqueName');  
+
+          console.log(JSON.stringify($scope.financial));
+        } else {
+          $scope.finOverviewErrorMessage="No financial records available for your region.";    
+        }
+      });
+    },
+    error: function(error) {
+      console.log("Error retrieving region financials " + JSON.stringify(error));
+      $scope.finOverviewErrorMessage="Unable to load financial overview at this time.";
+    }
+  });
+  
+  $scope.editFinancialErrorMessage=null;
+
+  $scope.save=function(){
+    $scope.parseFinancial.set("year",$scope.financial.year);
+    $scope.parseFinancial.set("revenue",$scope.financial.revenue);
+    $scope.parseFinancial.set("expenses",$scope.financial.expenses);
+    console.log($scope.financial.regionExpenses);
+    if($scope.financial.regionExpenses!=null){
+        var regionExpenses=[];
+        var regExpLines = $scope.financial.regionExpenses.split('\n');
+        if(regExpLines[regExpLines.length-1]==""){
+          regExpLines.pop();
+        }
+        console.log(regExpLines);
+        for(var i=0; i < regExpLines.length; i++){
+          var regExpense = regExpLines[i].split(',');
+          regionExpenses.push( {name:regExpense[0], amount:regExpense[1]} );
+        }
+        $scope.parseFinancial.set("regionExpenses",regionExpenses);
+      }
+
+    if($scope.financial.regionRevenue!=null){
+      var regionRevenue=[];
+      var regRevLines = $scope.financial.regionRevenue.split('\n');
+      if(regRevLines[regRevLines.length-1]==""){
+        regRevLines.pop();
+      }
+      console.log(regRevLines);
+      for(var i=0; i < regRevLines.length; i++){
+        var regRevenue = regRevLines[i].split(',');
+        regionRevenue.push( {name:regRevenue[0], amount:regRevenue[1]} );
+       }
+      $scope.parseFinancial.set("regionRevenue",regionRevenue);
+    }
+    $scope.parseFinancial.save(null, {
+        success: function(financials) {
+          console.log(JSON.stringify(financials));
+          $state.go("tab.finview",{regionUniqueName:$scope.financial.regionUniqueName});          
+        }
+      });
+  };
+
+  $scope.cancel=function(){
+    $state.go("tab.finview",{regionUniqueName:$scope.financial.regionUniqueName});          
+  };
 })
 
 .controller('RegionFinancialDetailsCtrl', function($scope, $stateParams, RegionService) {
@@ -349,15 +528,19 @@ angular.module('starter.controllers')
       $scope.$apply(function(){
         //console.log("Region financials : " + JSON.stringify(financials));
         if($stateParams.reqDetails=="revenue") {
-          if(financials[0].get("regionRevenue")!=null) {
+          if(financials[0].get("regionRevenue")!=null && financials[0].get("regionRevenue").length>0) {
+            console.log(JSON.stringify(financials[0]));
             $scope.finLineItems=financials[0].get("regionRevenue");  
           } else {
+            console.log(JSON.stringify(financials[0]));
             $scope.finDetailsErrorMessage="Revenue records showing line items not available for "+ $stateParams.year + " finanical year.";      
           }          
         } else {
-          if(financials[0].get("regionExpenses")!=null) {
+          if(financials[0].get("regionExpenses")!=null && financials[0].get("regionExpenses").length>0) {
+            console.log(JSON.stringify(financials[0]));
             $scope.finLineItems=financials[0].get("regionExpenses");
           } else {
+            console.log("yes");
             $scope.finDetailsErrorMessage="Expense records showing line items not available for "+ $stateParams.year + " finanical year.";      
           }
         }
