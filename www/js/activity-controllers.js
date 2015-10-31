@@ -299,7 +299,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         },
        buttonClicked: function(index) {
           if(index==0) { // Report spam
-            $scope.reportSpam($scope.actionSheetActivityId);
+            $scope.reportActivitySpam($scope.actionSheetActivityId);
           } 
           return true;
        }
