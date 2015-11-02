@@ -5,7 +5,7 @@
       </a>
   </ion-nav-buttons>
   <ion-content>
-    <div ng-show="finOverviewErrorMessage" class="card padding assertive">{{finOverviewErrorMessage}}</div>    
+    <div ng-show="finOverviewErrorMessage" class="card padding warn">{{finOverviewErrorMessage}}</div>    
     <ion-list ng-repeat="financial  in financials">
       <div class="item item-divider item-icon-right">
         <a ng-click="openFinancialPopover($event, $index, financial.id)" ng-if="canUpdateRegion"><i class="icon ion-navicon royal"></i></a>

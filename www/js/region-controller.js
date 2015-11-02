@@ -602,7 +602,11 @@ angular.module('starter.controllers')
     for(var i=0;i<chartData.length;i++) {
       if(i<sortedLineItems.length && i<chartData.length-1) {
         chartData[i].value=sortedLineItems[i].amount;
-        chartData[i].title=sortedLineItems[i].name;        
+        if(sortedLineItems[i].name.length>20) {
+          chartData[i].title=sortedLineItems[i].name.slice(0,20)       
+        } else {
+          chartData[i].title=sortedLineItems[i].name;
+        }        
       } else if(i<sortedLineItems.length && i==chartData.length-1){
         // Preopare misc item
         var miscAmount=0.00;
