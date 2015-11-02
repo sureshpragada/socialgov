@@ -327,7 +327,7 @@ angular.module('starter.controllers')
       $scope.$apply(function(){
         if(financials!=null && financials.length>0) {
           $scope.financials=financials;  
-          console.log(JSON.stringify($scope.financials));
+          // console.log(JSON.stringify($scope.financials));
         } else {
           $scope.finOverviewErrorMessage="No financial records available for your region.";    
         }
@@ -537,7 +537,7 @@ angular.module('starter.controllers')
           }          
         } else {
           if(financials[0].get("regionExpenses")!=null && financials[0].get("regionExpenses").length>0) {
-            console.log(JSON.stringify(financials[0]));
+            // console.log(JSON.stringify(financials[0]));
             $scope.finLineItems=financials[0].get("regionExpenses");
           } else {
             console.log("yes");
