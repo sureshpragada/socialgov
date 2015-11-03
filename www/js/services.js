@@ -143,7 +143,7 @@ angular.module('starter.services', [])
   };
 }])
 
-.factory('ActivityService', ['$http', 'AccountService', 'NotificationService', 'LogService', function($http, AccountService, NotificationService, LogService) {
+.factory('ActivityService', ['$http', 'AccountService', 'NotificationService', 'LogService', 'paragraph', function($http, AccountService, NotificationService, LogService, paragraph) {
   return {
     getAllowedActivities: function(role) {
       var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1], ACTIVITY_LIST[2]];
@@ -236,7 +236,10 @@ angular.module('starter.services', [])
         return properPost;
       }
       return post;
-    }    
+    },
+    getBadWordsFromMesage: function(message) {
+      return paragraph.isGentle(message);
+    }
   };
 }])
 

@@ -102,6 +102,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       return;
     }
 
+    var badwords=ActivityService.getBadWordsFromMesage($scope.argumentMessageList[index]);
+    if(badwords!=null && badwords.length>0) {
+      $cordovaDialogs.alert("Please remove bad words " + JSON.stringify(badwords) + " from the message.", 'Feedback', 'OK');
+      return;
+    }    
+
     var activity=$scope.activities[index];
     var Debate = Parse.Object.extend("Debate");
     var debate = new Debate();
@@ -357,58 +363,65 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   displayActivityWarnMessage();
   $scope.submitPost=function() {
     $scope.postErrorMessage=null;
-    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
-
-      $scope.post.notifyMessage = ActivityService.toProperPost($scope.post.notifyMessage);
-      $cordovaDialogs.confirm('Do you want to post this activity?', 'Post Activity', ['Post','Continue Edit']).then(function(buttonIndex) { 
-        if(buttonIndex==1) {
-         
-          $ionicLoading.show({
-            template: "<ion-spinner></ion-spinner> Posting activity "
-          });
-
-          $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
-          $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
-          $scope.post.support=0;
-          $scope.post.oppose=0;
-          $scope.post.debate=0;
-          $scope.post.status="A";
-          $scope.post.user=Parse.User.current();
-          if(PictureManagerService.getState().imageUrl!=null) {
-            $scope.post.images=[PictureManagerService.getState().imageUrl];  
-          }
-
-          // alert(JSON.stringify($scope.post));
-          var Activity = Parse.Object.extend("Activity");
-          var activity = new Activity();
-          activity.save($scope.post, {
-            success: function(activity) {
-              // Send the push notification
-              NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);
-              $ionicLoading.hide();          
-              // Push the new activity to the top of activity chart, probably through Activity service
-              $scope.$apply(function(){
-                PictureManagerService.reset();
-                $state.go("tab.dash");  
-              });
-            },
-            error: function(activity, error) {
-              console.log("Error in posting message " + error.message);
-              $ionicLoading.hide();          
-              $scope.postError=true;
-              $scope.postErrorMessage=error.message;
-              $scope.$apply();
-            }
-          });
-
-        } else {
-          console.log("Canceled posting of activity");
-        }
-      });
-
-    } else {
+    if($scope.post.notifyMessage==null || $scope.post.notifyMessage.length<10 || $scope.post.notifyMessage.length>2048) {
       $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
+      return;
+    }      
+
+
+    var badwords=ActivityService.getBadWordsFromMesage($scope.post.notifyMessage);
+    if(badwords!=null && badwords.length>0) {
+      $scope.postErrorMessage="Please remove bad words " + JSON.stringify(badwords) + " from the message.";      
+      return;
     }
+
+    $scope.post.notifyMessage = ActivityService.toProperPost($scope.post.notifyMessage);
+    $cordovaDialogs.confirm('Do you want to post this activity?', 'Post Activity', ['Post','Continue Edit']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+       
+        $ionicLoading.show({
+          template: "<ion-spinner></ion-spinner> Posting activity "
+        });
+
+        $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
+        $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
+        $scope.post.support=0;
+        $scope.post.oppose=0;
+        $scope.post.debate=0;
+        $scope.post.status="A";
+        $scope.post.user=Parse.User.current();
+        if(PictureManagerService.getState().imageUrl!=null) {
+          $scope.post.images=[PictureManagerService.getState().imageUrl];  
+        }
+
+        // alert(JSON.stringify($scope.post));
+        var Activity = Parse.Object.extend("Activity");
+        var activity = new Activity();
+        activity.save($scope.post, {
+          success: function(activity) {
+            // Send the push notification
+            NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);
+            $ionicLoading.hide();          
+            // Push the new activity to the top of activity chart, probably through Activity service
+            $scope.$apply(function(){
+              PictureManagerService.reset();
+              $state.go("tab.dash");  
+            });
+          },
+          error: function(activity, error) {
+            console.log("Error in posting message " + error.message);
+            $ionicLoading.hide();          
+            $scope.postError=true;
+            $scope.postErrorMessage=error.message;
+            $scope.$apply();
+          }
+        });
+
+      } else {
+        console.log("Canceled posting of activity");
+      }
+    });
+
   };  
 
   $scope.cancelPost=function(){
@@ -466,6 +479,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.postErrorMessage=null;
   $scope.editPost=function() {
+
+    var badwords=ActivityService.getBadWordsFromMesage($scope.post.notifyMessage);
+    if(badwords!=null && badwords.length>0) {
+      $scope.postErrorMessage="Please remove bad words " + JSON.stringify(badwords) + " from the message.";      
+      return;
+    }
+
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10 && $scope.post.notifyMessage.length<2048) {
       $scope.preActivity.set("activityType", $scope.selectChoices.selectedActivityType.id);
       $scope.preActivity.set("regionUniqueName", $scope.selectChoices.selectedRegion.id);   
