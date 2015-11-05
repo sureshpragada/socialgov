@@ -99,7 +99,7 @@ angular.module('starter.controllers')
     });
 })
 
-.controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService, NotificationService) {
+.controller('RegisterCtrl', function($http, $scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService, NotificationService, $cordovaDialogs) {
 
   $scope.countryList=COUNTRY_LIST;
   $scope.selectedValues={country: $scope.countryList[0], highLevelRegion:null, finalLevelRegion: null};  
@@ -107,46 +107,64 @@ angular.module('starter.controllers')
   $scope.userRegistered=true;
   $scope.registerErrorMessage=null;
 
-  $scope.authPhoneNum=function() {
+  $scope.validateSignIn=function() {
+
     if($scope.user.phoneNum!=null && $scope.user.phoneNum.length==10) {
-      $ionicLoading.show({
-        template: "<ion-spinner></ion-spinner> Verifying your phone number..."
-      });      
-      var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
-      Parse.User.logIn(userName, "custom", {
-        success: function(user) {
-          console.log("User exists in the system. Skipping registration flow.");
-          RegionService.initializeRegionCacheByCurrentUser();          
-          if(user.get("deviceReg")=="N") {
-            console.log("Device is not registered, attempting to register");
-            $scope.registerDevice();
-          } else {
-            console.log("Device already registered");
-          }
-          $ionicLoading.hide();
-          $state.go("tab.dash");
-        },
-        error: function(user, error) {
-          console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
-          $scope.$apply(function() {
-            $scope.userRegistered=false;
-            $scope.registerErrorMessage=null;          
-            RegionService.getLiteRegionList("regionType", REG_TOP_REGION_TYPES).then(function(data) {
-              $scope.highLevelRegionList=data;
-              // $scope.selectedValues={highLevelRegion:null, finalLevelRegion: null};
-              $ionicLoading.hide();
-            }, function(error) {
-              console.log("Error while retrieving city list " + JSON.stringify(error));
-              $registerErrorMessage="Unable to get city list for registration";
-              $ionicLoading.hide();              
+      // if (ionic.Platform.isIOS()) {
+          $http.get("img/license.txt")
+            .success(function(data) {
+              $cordovaDialogs.confirm(data, 'License Agreement', ['I Agree','Cancel'])
+              .then(function(buttonIndex) {      
+                if(buttonIndex==1) {
+                  $scope.authPhoneNum();
+                } else {
+                  $scope.registerErrorMessage="Please accept license agreement.";
+                }
+              });
+            }).error(function() {
+                $scope.registerErrorMessage="Unable to read license content";
             });
-          });
-        }
-      });
+      //}
     } else {
       $scope.registerErrorMessage="Please enter 10 digit phone number.";
     }
+  }
 
+  $scope.authPhoneNum=function() {
+    $ionicLoading.show({
+      template: "<ion-spinner></ion-spinner> Verifying your phone number..."
+    });      
+    var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
+    Parse.User.logIn(userName, "custom", {
+      success: function(user) {
+        console.log("User exists in the system. Skipping registration flow.");
+        RegionService.initializeRegionCacheByCurrentUser();          
+        if(user.get("deviceReg")=="N") {
+          console.log("Device is not registered, attempting to register");
+          $scope.registerDevice();
+        } else {
+          console.log("Device already registered");
+        }
+        $ionicLoading.hide();
+        $state.go("tab.dash");
+      },
+      error: function(user, error) {
+        console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
+        $scope.$apply(function() {
+          $scope.userRegistered=false;
+          $scope.registerErrorMessage=null;          
+          RegionService.getLiteRegionList("regionType", REG_TOP_REGION_TYPES).then(function(data) {
+            $scope.highLevelRegionList=data;
+            // $scope.selectedValues={highLevelRegion:null, finalLevelRegion: null};
+            $ionicLoading.hide();
+          }, function(error) {
+            console.log("Error while retrieving city list " + JSON.stringify(error));
+            $registerErrorMessage="Unable to get city list for registration";
+            $ionicLoading.hide();              
+          });
+        });
+      }
+    });
   };
 
   $scope.showNextLevelRegions=function() {
@@ -189,6 +207,7 @@ angular.module('starter.controllers')
     user.set("role", "CTZEN");
     user.set("notifySetting", true);
     user.set("deviceReg", "N");
+    user.set("status", "A");
     user.signUp(null, {
       success: function(user) {
         console.log("Signup is success");        

@@ -102,3 +102,36 @@ Parse.Cloud.define("pushNotificationToUserList", function(request, response) {
 	});
 
 });
+
+
+Parse.Cloud.define("modifyUser", function(request, response) {
+  if (!request.user) {
+    response.error("Must be signed in to call this Cloud Function.");
+    return;
+  } else {
+  	// Perform any authroization whether this user is admin
+  }
+
+  Parse.Cloud.useMasterKey();
+
+  var query = new Parse.Query(Parse.User);
+  query.equalTo("objectId", request.params.targetUserId);
+  // Get the first user which matches the above constraints.
+  query.first({
+    success: function(anotherUser) {
+      anotherUser.set(request.params.userObjectKey, request.params.userObjectValue);
+      // Save the user.
+      anotherUser.save(null, {
+        success: function(anotherUser) {
+          response.success("Successfully updated user.");
+        },
+        error: function(anotherUser, error) {
+          response.error("Could not save changes to user.");
+        }
+      });
+    },
+    error: function(error) {
+      response.error("Could not find user.");
+    }
+  });
+});

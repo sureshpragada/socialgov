@@ -195,24 +195,45 @@ angular.module('starter.services', [])
       activity.set("status", "D");
       return activity.save();
     },
-    reportActivitySpam: function(activityId) {
-      console.log("Updating status field of activity " + activityId);
-      var Activity = Parse.Object.extend("Activity");
-      var activity = new Activity();
-      activity.set("id", activityId);
-      activity.increment("spam", 1);
+    reportActivitySpam: function(activity) {
+      console.log("Updating status field of activity " + activity.id);
+      var spamReportedUsers=activity.get("spamRep");
+      if(spamReportedUsers==null) {
+        spamReportedUsers=[Parse.User.current().id];
+      } else {
+        spamReportedUsers.push(Parse.User.current().id);
+      }
+      activity.set("spamRep", spamReportedUsers);
+      activity.set("status", "S");      
       activity.save();      
-      AccountService.sendNotificationToAdmin("Spam has been reported. Activity ID : " + activityId);
+      AccountService.sendNotificationToAdmin("Activity spam notice : " + activity.get('notifyMessage'));
     },
-    reportDebateSpam: function(debateId) {
-      console.log("Updating status field of debate " + debateId);
-      var Debate = Parse.Object.extend("Debate");
-      var debate = new Debate();
-      debate.set("id", debateId);
-      debate.increment("spam", 1);
+    removeActivitySpamFlag: function(activity) {
+      console.log("Updating status field of activity " + activity.id);
+      activity.set("status", "A");      
+      activity.save();      
+      return activity;
+    },    
+    reportDebateSpam: function(debate) {
+      console.log("Updating status field of debate " + debate.id);
+      var spamReportedUsers=debate.get("spamRep");
+      if(spamReportedUsers==null) {
+        spamReportedUsers=[Parse.User.current().id];
+      } else {
+        spamReportedUsers.push(Parse.User.current().id);
+      }
+      debate.set("spamRep", spamReportedUsers);
+      debate.set("status", "S");  
       debate.save();      
-      AccountService.sendNotificationToAdmin("Spam has been reported. Debate ID : " + debateId);
+      AccountService.sendNotificationToAdmin("Comment spam notice : " + debate.get("argument"));
     },
+    removeDebateSpamFlag: function(debate) {
+      console.log("Updating status field of debate " + debate.id);
+      debate.set("status", "A");  
+      debate.save();
+      return debate;      
+    },    
+    // TODO :: Move this to utilities.js
     toProperPost: function(post) {
       var count=post.replace(/[^A-Z]/g, "").length;
       var splitArray=post.split(' ');
@@ -239,7 +260,10 @@ angular.module('starter.services', [])
     },
     getBadWordsFromMesage: function(message) {
       return paragraph.isGentle(message);
-    }
+    },
+    flagUserAbusive: function(activity) {
+      AccountService.flagUserAbusive(activity.get("user").id);
+    }    
   };
 }])
 
@@ -309,6 +333,16 @@ angular.module('starter.services', [])
           LogService.log({type:"ERROR", message: "No admin found to report spam " + JSON.stringify(err) + " Message : " + message}); 
         }
       });    
+    },
+    flagUserAbusive: function(userId) {
+      Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'status', userObjectValue: 'S' }, {
+        success: function(status) {
+          console.log("Successfully blocked the user " + JSON.stringify(status));
+        },
+        error: function(error) {
+          console.log("Unable to block the user : " + JSON.stringify(error));
+        }
+      });      
     }
   };
 }])
@@ -418,7 +452,7 @@ angular.module('starter.services', [])
           "deviceToken": deviceToken,
           "channels": channelArray,
           "appIdentifier": IOS_APP_IDENTIFIER,
-          "timeZone": "Asia/Kolkata",            
+          "timeZone": TIMEZONE_ID,            
           "user": {
             "__type": "Pointer",
             "className": "_User",

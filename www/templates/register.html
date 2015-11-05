@@ -1,7 +1,7 @@
 
 <ion-view view-title="Authenticate">
 	<ion-content>
-			<div ng-show="registerErrorMessage" class="padding assertive">{{registerErrorMessage}}</div>
+			<div class="card padding warn" ng-if="registerErrorMessage">{{registerErrorMessage}}</div>    
 			<div class="list">
 				<label class="item item-input item-select">
 				    <span class="input-label">
@@ -50,7 +50,7 @@
 				</div>				  
 			</div>
 			<div class="padding" ng-hide="phoneVerified" ng-show="userRegistered">
-				<button class="button button-block button-balanced" ng-click="authPhoneNum()">Verify Phone Number</button>
+				<button class="button button-block button-balanced" ng-click="validateSignIn()">Verify Phone Number</button>
 			</div>			
 	</ion-content>
 </ion-view>

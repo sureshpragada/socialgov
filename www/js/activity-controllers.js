@@ -1,6 +1,6 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout) {
+.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService) {
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
@@ -9,13 +9,19 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency").capitalizeFirstLetter()
   });
 
+  console.log("user status : " + $scope.user.get('status'));
+
   // $scope.activities=ActivityService.getMockData();  
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
   var regionList=RegionService.getRegionHierarchy();
   // console.log("Region list to get activity : " + JSON.stringify(regionList));
   query.containedIn("regionUniqueName", regionList);
-  query.equalTo("status", "A");
+  if(AccountService.canUpdateRegion()) {
+    query.containedIn("status", ["A","S"]);
+  } else {
+    query.equalTo("status", "A");  
+  }
   query.include("user");
   query.descending("createdAt");
   query.find({
@@ -68,6 +74,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       var Debate = Parse.Object.extend("Debate");
       var query = new Parse.Query(Debate);
       query.equalTo("activity", $scope.activities[index]);
+      if(AccountService.canUpdateRegion()) {
+        query.containedIn("status", ["A","S"]);
+      } else {
+        query.equalTo("status", "A");  
+      }      
       query.include("user");
       query.descending("createdAt");
       query.find({
@@ -113,6 +124,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     var debate = new Debate();
     debate.set("user", Parse.User.current());
     debate.set("activity", activity);
+    debate.set("status", "A");
     debate.set("argument", $scope.argumentMessageList[index]);
     
     debate.save(null, {
@@ -238,7 +250,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         ActivityService.removePost(activityId).then(function(post) {
           console.log("Removed post Successfullly");
           $scope.$apply(function() {
-            delete $scope.activities[index];      
+            $scope.activities.splice(index,1);      
           });          
         }, function(error) {
           console.log("Error removing post " + JSON.stringify(error));
@@ -249,14 +261,124 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     });
   };
 
-  $scope.reportActivitySpam=function(activityId) {
-    ActivityService.reportActivitySpam(activityId);
-    $cordovaDialogs.alert('Thank you for spotting the spam. We will take action on this post shortly.', 'Spam Report', 'OK');
+  $scope.reportActivitySpam=function(activityId, index) {
+    $cordovaDialogs.confirm('Is this activity really spam?', 'Spam confirmation', ['Yes, it is spam','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        ActivityService.reportActivitySpam($scope.activities[index]);
+        $scope.activities.splice(index, 1);
+      } else {
+        console.log("Canceled reporting of activity spam");
+      }
+    });    
   };
 
-  $scope.reportDebateSpam=function(debateId) {
-    ActivityService.reportDebateSpam(debateId);
-    $cordovaDialogs.alert('Thank you for spotting the spam. We will take action on this post shortly.', 'Spam Report', 'OK');
+  $scope.removeActivitySpamFlag=function(activityId, index) {
+    $cordovaDialogs.confirm('Do you really want to remove spam flag?', 'Spam confirmation', ['Not a spam','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        $scope.activities[index]=ActivityService.removeActivitySpamFlag($scope.activities[index]);
+      } else {
+        console.log("Canceled reporting of activity spam");
+      }
+    });    
+  };  
+
+  $scope.reportDebateSpam=function(debateId, activityIndex, debateIndex) {
+    $cordovaDialogs.confirm('Is this response really spam?', 'Spam confirmation', ['Yes, it is spam','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        ActivityService.reportDebateSpam($scope.debateList[activityIndex][debateIndex]);
+        $scope.debateList[activityIndex].splice(debateIndex, 1);      
+      } else {
+        console.log("Canceled reporting of response spam");
+      }
+    });    
+  };
+
+  $scope.removeDebateSpamFlag=function(debateId, activityIndex, debateIndex) {
+    $cordovaDialogs.confirm('Do you really want to remove spam flag on this response?', 'Spam confirmation', ['Not a spam','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        $scope.debateList[activityIndex][debateIndex]=ActivityService.removeDebateSpamFlag($scope.debateList[activityIndex][debateIndex]);
+      } else {
+        console.log("Canceled reporting of response spam");
+      }
+    });    
+  };  
+
+  $scope.flagUserAbusive=function(activityId, index) {
+    var activity=$scope.activities[index];
+    // if(activity.get("user").id==Parse.User.current().id) {
+    //   $cordovaDialogs.alert('Cannot self block. Please try other user.', 'Confirmation', 'OK');  
+    //   return;
+    // }
+    $cordovaDialogs.confirm('Do you want to mark this user abusive?', 'User action confirmation', ['Yes, abusive','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        ActivityService.flagUserAbusive(activity);
+        $cordovaDialogs.alert('User has been marked abusive. His content generation rights have been revoked.', 'Confirmation', 'OK');   
+      } else {
+        console.log("Canceled reporting of activity spam");
+      }
+    });    
+  };  
+
+  $scope.flagCommentUserAbusive=function(debateId, activityIndex, debateIndex) {
+    $cordovaDialogs.confirm('Do you want to mark this user abusive?', 'Block user confirmation', ['Yes, abusive','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        ActivityService.flagUserAbusive($scope.debateList[activityIndex][debateIndex]);
+        $cordovaDialogs.alert('User has been marked abusive. His content generation rights have been revoked.', 'Confirmation', 'OK');   
+      } else {
+        console.log("Canceled reporting of activity spam");
+      }
+    });    
+  };  
+
+
+  $scope.openAdminActionSheet=function(activityId, activityIndex, activityStatus) {
+    $scope.actionSheetActivityId=activityId;
+    $scope.actionSheetActivityIndex=activityIndex;
+    $scope.actionSheetActivityStatus=activityStatus;
+    // TODO :: Should this variable be created outside to avoid creation of dom everytime?
+    var buttonsArray=[
+         { text: 'Edit Post' },
+         { text: 'Delete Post' }
+      ];
+      if($scope.actionSheetActivityStatus=="S") {
+        buttonsArray.push({ text: 'Remove Spam Flag' });
+      } else {
+        buttonsArray.push({ text: 'Report Spam' });
+      }
+      buttonsArray.push({ text: 'Block User' });
+    var hideSheet = $ionicActionSheet.show({
+       buttons: buttonsArray,
+       cancelText: 'Cancel',
+       cancel: function() {
+          console.log("Action has been cancelled");
+        },
+       buttonClicked: function(index) {
+          if(index==0) { // Edit post
+            $state.go("tab.editpost", {activityId: $scope.actionSheetActivityId});   
+          } else if(index==1) { // Delete post
+            $scope.removePost($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
+          } else if(index==2) { // Report spam
+            if(buttonsArray[index].text=="Report Spam") {
+              $scope.reportActivitySpam($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
+            } else {
+              $scope.removeActivitySpamFlag($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
+            }
+          } else if(index==3) { // Flag user abusive
+            $scope.flagUserAbusive($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
+          } 
+          return true;
+       }
+     });
+
+    $timeout(function() {
+         hideSheet();
+       }, 5000);
   };
 
   $scope.openUserActionSheet=function(activityId, activityIndex) {
@@ -267,7 +389,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
        buttons: [
          { text: 'Edit Post' },
          { text: 'Delete Post' },
-         { text: 'Report spam' }
+         { text: 'Report Spam' }
        ],
        cancelText: 'Cancel',
        cancel: function() {
@@ -279,7 +401,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           } else if(index==1) { // Delete post
             $scope.removePost($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
           } else if(index==2) { // Report spam
-            $scope.reportActivitySpam($scope.actionSheetActivityId);
+            $scope.reportActivitySpam($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
           } 
           return true;
        }
@@ -297,7 +419,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     // TODO :: Should this variable be created outside to avoid creation of dom everytime?
     var hideSheet = $ionicActionSheet.show({
        buttons: [
-         { text: 'Report spam' }
+         { text: 'Report Spam' }
        ],
        cancelText: 'Cancel',
        cancel: function() {
@@ -305,7 +427,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         },
        buttonClicked: function(index) {
           if(index==0) { // Report spam
-            $scope.reportActivitySpam($scope.actionSheetActivityId);
+            $scope.reportActivitySpam($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
           } 
           return true;
        }
@@ -367,7 +489,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
       return;
     }      
-
 
     var badwords=ActivityService.getBadWordsFromMesage($scope.post.notifyMessage);
     if(badwords!=null && badwords.length>0) {
