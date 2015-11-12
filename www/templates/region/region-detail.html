@@ -3,13 +3,7 @@
     {{region.get("name")}}
   </ion-nav-title>
   <ion-content>
-    <div ng-if="regionErrorMessage" class="card padding assertive">{{regionErrorMessage}}</div>
-<!--     <div class="list card" ng-if="!regionErrorMessage">
-      <div class="item item-image">
-        <img src="{{region.get('thumbnail')}}">
-      </div>
-    </div>
- -->  	
+    <div ng-if="regionErrorMessage" class="card padding warn">{{regionErrorMessage}}</div>
       <ion-list ng-if="!regionErrorMessage">
       <div class="item item-image">
         <img ng-src="{{region.get('thumbnail')}}">

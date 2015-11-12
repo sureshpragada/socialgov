@@ -5,10 +5,6 @@
       </a>
     </ion-nav-buttons>
   <ion-content class="visible-cards">
-<!--   	<div ng-show="region.get('execOffAddrList').length==0" class="card padding assertive">
-  		Executive office list not available for {{region.get("name")}}
-  	</div>   -->
-
   	<div ng-repeat="region in regions track by $index" ng-init="regionIndex = $index">
 	    <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')" ng-init="officeIndex = $index">
 		  <div class="item item-icon-right">

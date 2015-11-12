@@ -143,6 +143,54 @@ angular.module('starter.services', [])
   };
 }])
 
+.factory('RegionFinancialService', ['CacheFactory', '$q', function(CacheFactory, $q) {
+  var regionFinancials=null;
+  return {
+    getRegionFinancials: function(regionUniqueName) {
+      var deferred = $q.defer();      
+      if(regionFinancials!=null) {
+        console.log("Returning existing records");
+        deferred.resolve(regionFinancials);  
+      } else {
+        console.log("Retrieving financial records");
+        var RegionFinancial = Parse.Object.extend("RegionFinancial");
+        var query = new Parse.Query(RegionFinancial);
+        query.equalTo("regionUniqueName", regionUniqueName);
+        query.equalTo("status","A");
+        query.descending("year");
+        query.find({
+          success: function(financials) {
+            console.log("Successfully retrieved financial records");            
+            regionFinancials=[];            
+            for(var i=0;i<financials.length;i++) {
+              var financialEntry={key: financials[i].get("year")+"-"+regionUniqueName, value: financials[i]};
+              regionFinancials.push(financialEntry);
+            }
+            // console.log("Completed cache development " + JSON.stringify(regionFinancials));
+            deferred.resolve(regionFinancials);  
+          },
+          error: function(error) {
+            console.log("Failed to get financial records");            
+            deferred.reject(error)
+          }
+        }); 
+      }
+      console.log("Returning promise");
+      return deferred.promise;
+    },
+    getRegionFinancialDetails: function(regionUniqueName, year) {
+      if(regionFinancials!=null) {
+        for(var i=0;i<regionFinancials.length;i++) {
+          if(regionFinancials[i].key==year+"-"+regionUniqueName) {
+            return regionFinancials[i].value;
+          }
+        }
+      }
+      return null;
+    }
+  };
+}])
+
 .factory('ActivityService', ['$http', 'AccountService', 'NotificationService', 'LogService', 'paragraph', function($http, AccountService, NotificationService, LogService, paragraph) {
   return {
     getAllowedActivities: function(role) {
@@ -267,9 +315,16 @@ angular.module('starter.services', [])
   };
 }])
 
-.factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', function(CacheFactory, RegionService, NotificationService, LogService) {
-
+.factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, $q) {
+  var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
   var userLastRefreshTimeStamp=null; //new Date().getTime();
+  var accessRequestCache;
+  if (!CacheFactory.get('accessRequestCache')) {
+    accessRequestCache = CacheFactory('accessRequestCache', {
+      maxAge: 24 * 60 * 60 * 1000, // 1 Day
+      deleteOnExpire: 'none'
+    });
+  }
 
   return {
     getRolesAllowedToChange: function() {
@@ -321,6 +376,43 @@ angular.module('starter.services', [])
       } 
       return Parse.User.current();
     },
+    updateAccessRequest: function(accessRequest) {
+      accessRequestCache.put("accessRequest", accessRequest);
+    },
+    getAccessRequest: function() {
+      var deferred = $q.defer();
+      var cachedObjectInfo=accessRequestCache.info("accessRequest");
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        // console.log("Found hit " + JSON.stringify(regionCache.info()) + " Item info : " + JSON.stringify(cachedObjectInfo));
+        deferred.resolve(accessRequestCache.get("accessRequest"));  
+      } else {
+        console.log("No hit for accessRequest, attempting to retrieve from parse ");
+        var AccessRequest = Parse.Object.extend("AccessRequest");
+        var query=new Parse.Query(AccessRequest);
+        query.equalTo("user", Parse.User.current());
+        query.descending("createdAt");
+        query.find({
+          success: function(results) {
+            if(results!=null && results.length>0) {
+              accessRequestCache.remove("accessRequest");
+              accessRequestCache.put("accessRequest", results[0]);          
+              deferred.resolve(results[0]);
+            } else {
+              accessRequestCache.put("accessRequest", NO_DATA_FOUND_KEY);
+              deferred.resolve(NO_DATA_FOUND_KEY);
+            }
+          }, error: function(error) {
+            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              console.log("Unable to refresh access request hence passing cached one ");
+              deferred.resolve(accessRequestCache.get("accessRequest"));  
+            } else {
+              deferred.reject(error)
+            }
+          }
+        }); 
+      }
+      return deferred.promise;
+    },
     sendNotificationToAdmin: function(message) {
       var userQuery = new Parse.Query(Parse.User);
       userQuery.containedIn("role", ["SUADM", "JNLST", "SOACT"]);
@@ -343,7 +435,25 @@ angular.module('starter.services', [])
           console.log("Unable to block the user : " + JSON.stringify(error));
         }
       });      
-    }
+    },
+    updateRoleAndTitle: function(userId, role, title) {
+      Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
+        success: function(status1) {
+          console.log("Successfully updated user role " + JSON.stringify(status1));
+          Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'title', userObjectValue: title }, {
+            success: function(status2) {
+              console.log("Successfully updated user title " + JSON.stringify(status2));
+            },
+            error: function(error) {
+              LogService.log({type:"ERROR", message: "Unable to update user title " + JSON.stringify(error) + " UserId : " + userId}); 
+            }
+          });      
+        },
+        error: function(error) {
+          LogService.log({type:"ERROR", message: "Unable to update user role " + JSON.stringify(error) + " UserId : " + userId}); 
+        }
+      });      
+    }    
   };
 }])
 

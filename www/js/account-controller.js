@@ -25,6 +25,7 @@ angular.module('starter.controllers')
         console.log(JSON.stringify(accessRequest));
         accessRequest.save(null, {
           success: function(accessRequest) {
+            AccountService.updateAccessRequest(accessRequest);
             $scope.$apply(function(){
               $state.go("tab.account");    
             });
@@ -46,7 +47,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('AdminAccessReqDetailCtrl', function($scope, $stateParams, $state) {
+.controller('AdminAccessReqDetailCtrl', function($scope, $stateParams, $state, AccountService) {
   var AccessRequest = Parse.Object.extend("AccessRequest");
   var query=new Parse.Query(AccessRequest);
   query.include("user");
@@ -61,6 +62,7 @@ angular.module('starter.controllers')
   });
 
   $scope.update=function(status){
+      AccountService.updateRoleAndTitle($scope.accessRequest.get('user').id, $scope.accessRequest.get('role'), $scope.accessRequest.get('title'));
       $scope.accessRequest.set("status",status);
       $scope.accessRequest.save(null, {
         success: function(accessRequest) {
@@ -261,44 +263,21 @@ angular.module('starter.controllers')
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.accessRequestMessage=null;
   $scope.accessRequest=null;
-  var AccessRequest = Parse.Object.extend("AccessRequest");
-  var query=new Parse.Query(AccessRequest);
-  query.equalTo("user", $scope.user);
-  query.descending("createdAt");
-  query.find({
-    success: function(results) {
-      if(results!=null && results.length>0) {
-        console.log(JSON.stringify(results));
-          $scope.$apply(function(){
-            $scope.accessRequest=results[0];
-            if($scope.accessRequest.get("status")=="APPR"){
-              $scope.user.set("role",$scope.accessRequest.get("role"));
-              $scope.user.set("title",$scope.accessRequest.get("title"));
-              $scope.accessRequest.set("status","CMPL");
-              $scope.accessRequest.save(null, {
-                error: function(error) {
-                  LogService.log({type:"ERROR", message: "Error while saving accessrequest :" + JSON.stringify(error)});           
-                }
-              });
-              $scope.user.save(null, {
-                error: function(error) {
-                  LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
-                }
-              });
-            } else if($scope.accessRequest.get("status")=="PEND"){              
-                $scope.accessRequestMessage="Your role change request is in review.";
-            } else {
-              console.log("Role change is completed.")
-            }
-          });
-        } else {
-            console.log("No access requests found");
-        }
-      }, 
-      error: function(error) {
-        console.log("Error retrieving role change requests. " + JSON.stringify(error));          
-      }
-    });
+  $scope.isPendingRequest=false;
+  AccountService.getAccessRequest().then(function(accessrequest){
+    console.log("Access request returned from cache : " + JSON.stringify(accessrequest));
+    if(accessrequest!=null && accessrequest!="NO_DATA_FOUND") {
+      $scope.accessRequest=accessrequest;
+      if($scope.accessRequest.get("status")=="PEND"){              
+        $scope.accessRequestMessage="Your role change request is in review.";
+        $scope.isPendingRequest=true;
+      } else if($scope.accessRequest.get("status")=="RJCT") {
+        $scope.accessRequestMessage="Your role change request is rejected.";
+      }      
+    }
+  }, function() {
+    $scope.accessRequestMessage="Unable to retrieve status of your role change request.";
+  });
 
   RegionService.getRegion($scope.user.get("residency")).then(function(region){
     $scope.regionDisplayName=region.get("name");
