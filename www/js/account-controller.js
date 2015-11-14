@@ -290,12 +290,8 @@ angular.module('starter.controllers')
   };
 
   $scope.isLogoutAllowed=function() {
-    if(Parse.User.current()!=null) {
-      if(ionic.Platform.isAndroid() && Parse.User.current().get("lastName")!="Pragada") {
-        return false;
-      } else {
-        return true;
-      }      
+    if(Parse.User.current()!=null && Parse.User.current().get("lastName")=="Pragada") {
+      return true;
     } else {
       return false;
     }

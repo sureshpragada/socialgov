@@ -146,7 +146,8 @@ angular.module('starter.services', [])
 .factory('RegionFinancialService', ['CacheFactory', '$q', function(CacheFactory, $q) {
   var regionFinancials=null;
   return {
-    getRegionFinancials: function(regionUniqueName) {
+    getRegionFinancials: function(regionUniqueNameList) {
+      // console.log("List being requested " + JSON.stringify(regionUniqueNameList));
       var deferred = $q.defer();      
       if(regionFinancials!=null) {
         console.log("Returning existing records");
@@ -155,7 +156,7 @@ angular.module('starter.services', [])
         console.log("Retrieving financial records");
         var RegionFinancial = Parse.Object.extend("RegionFinancial");
         var query = new Parse.Query(RegionFinancial);
-        query.equalTo("regionUniqueName", regionUniqueName);
+        query.containedIn("regionUniqueName", regionUniqueNameList);
         query.equalTo("status","A");
         query.descending("year");
         query.find({
@@ -163,7 +164,7 @@ angular.module('starter.services', [])
             console.log("Successfully retrieved financial records");            
             regionFinancials=[];            
             for(var i=0;i<financials.length;i++) {
-              var financialEntry={key: financials[i].get("year")+"-"+regionUniqueName, value: financials[i]};
+              var financialEntry={key: financials[i].get("year")+"-"+financials[i].get("regionUniqueName"), value: financials[i]};
               regionFinancials.push(financialEntry);
             }
             // console.log("Completed cache development " + JSON.stringify(regionFinancials));
@@ -175,7 +176,6 @@ angular.module('starter.services', [])
           }
         }); 
       }
-      console.log("Returning promise");
       return deferred.promise;
     },
     getRegionFinancialDetails: function(regionUniqueName, year) {

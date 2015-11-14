@@ -237,6 +237,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     })
 
+    .state('tab.service', {
+      url: '/service/{regionUniqueName}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-service-contacts.html',
+          controller: 'RegionServiceContactsCtrl'
+        }
+      }
+    })
+
     .state('tab.legis', {
       url: '/legis/{regionUniqueName}',
       cache: false,      

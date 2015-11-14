@@ -7,6 +7,10 @@ input {
     text-align: right; 
 }
 
+input.textAlignLeft { 
+    text-align: left; 
+}
+
 .nameContact {
 	margin-top: 10px;
 }

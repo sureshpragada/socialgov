@@ -12,7 +12,7 @@
 	      <img ng-src="img/blank_avatar.png" ng-if="!legi.avatar">
 	      <h2>{{legi.name}}</h2>
 	      <p>{{legi.title}}</p>
-		    <p ng-if="legi.phoneNumberList">
+		    <p ng-if="legi.phoneNumberList.length">
 			    <i class="icon ion-iphone"></i>
 			    <span ng-repeat="phNo in legi.phoneNumberList">
 			    	{{phNo}} {{$last ? '' : ', '}}

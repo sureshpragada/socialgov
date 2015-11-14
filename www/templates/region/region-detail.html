@@ -25,6 +25,11 @@
           Financials 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
+      <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="showServiceContacts">
+        <i class="icon ion-wrench royal"></i>
+          Service Contacts
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>            
       <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
         <i class="icon ion-earth royal"></i>      
           Demography

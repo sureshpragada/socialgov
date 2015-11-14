@@ -1,0 +1,24 @@
+<ion-view title="Service Contacts">
+  <ion-content>
+    <ion-list ng-repeat="region in regions track by $index" ng-init="regionIndex = $index">
+	    <div class="item item-divider" ng-if="region.get('serviceContactList').length">
+	    	{{region.get("name")}}
+	    </div>
+	    <ion-item ng-repeat="serviceContact in region.get('serviceContactList')" ng-init="legisIndex = $index">
+	      <h2>{{serviceContact.name}}</h2>
+	      <p ng-if="serviceContact.type">{{serviceContact.type}}</p>
+		    <p ng-if="serviceContact.phoneNumberList">
+			    <i class="icon ion-iphone"></i>
+			    <span ng-repeat="phNo in serviceContact.phoneNumberList">
+			    	{{phNo}} {{$last ? '' : ', '}}
+			    </span>
+		    </p>	      
+	    </ion-item>
+    </ion-list>
+	<div class="card" ng-if="!regions.length">
+	  <div class="item item-text-wrap warn"> 
+	    Service contacts have not found in any of your regions.
+	  </div>
+	</div>    
+  </ion-content>
+</ion-view>

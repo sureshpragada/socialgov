@@ -13,6 +13,8 @@ angular.module('starter.controllers')
     residency=Parse.User.current().get("residency");
   }
   
+  $scope.showServiceContacts=SHOW_SERVICE_CONTACTS;
+
   $scope.region=null;
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
@@ -22,6 +24,12 @@ angular.module('starter.controllers')
   });
 
 })
+
+.controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {  
+  $scope.regions=RegionService.getRegionListFromCache();  
+  // TODO :: Retrieve personal service contacts
+})
+
 
 .controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   
@@ -252,7 +260,11 @@ angular.module('starter.controllers')
           for(var i=0;i < num.length;i++)
             $scope.newLegisObj.phoneNumberList.push(num[i]);
         }
-        $scope.region.add("legiRepList",$scope.newLegisObj);
+        $scope.region.add("legiRepList",$scope.newLegisObj);        
+        console.log("Legi representative list : " + JSON.stringify($scope.region.get("legiRepList")));
+        for(var i=0; i <$scope.region.get('legiRepList').length;i++){
+          delete $scope.region.get('legiRepList')[i].$$hashKey;
+        }        
         $scope.region.save(null, {
           success: function(region) {
             RegionService.updateRegion(region.get("uniqueName"), region);
@@ -260,12 +272,13 @@ angular.module('starter.controllers')
           },
           error: function(region, error) {
             console.log("Error in saving the legislative details " + error.message);
-            $scope.legisErrorMessage="Unable to submit your add request.";
+            $scope.legisErrorMessage="Unable to add legislative contact.";
           }
         });
     }
-    else
-      $scope.legisErrorMessage="Provide title, name and address line";
+    else {
+      $scope.legisErrorMessage="Legislative name and title are mandatory";
+    }
   };
 
   $scope.cancel=function(){
@@ -282,7 +295,7 @@ angular.module('starter.controllers')
     $scope.region=data;
     $scope.legisToBeEdited=$scope.region.get('legiRepList')[legisIndex];
   }, function(error) {
-    $scope.regionErrorMessage="Unable to retrieve region information.";
+    $scope.legisErrorMessage="Unable to retrieve region information.";
     console.log("Error retrieving region " + JSON.stringify(error));
   });
 
@@ -299,11 +312,16 @@ angular.module('starter.controllers')
       delete $scope.region.get('legiRepList')[i].$$hashKey;
     }
 
+    console.log("Legi representative list : " + JSON.stringify($scope.region.get("legiRepList")));
     $scope.region.save(null, {
         success: function(region) {
           console.log("edit is success");
           RegionService.updateRegion(region.get("uniqueName"), region);
           $state.go("tab.legis",{regionUniqueName: AccountService.getUser().get('residency')});          
+        },
+        error: function(region, error) {
+          console.log("Error in updating the legislative details " + error.message);
+          $scope.legisErrorMessage="Unable to update legislative contact.";
         }
     });
   };
@@ -316,10 +334,11 @@ angular.module('starter.controllers')
 
 
 .controller('RegionFinancialOverviewCtrl', function($scope, $stateParams, $state, AccountService, RegionService, RegionFinancialService, $ionicPopover, $cordovaDialogs) {
-  RegionFinancialService.getRegionFinancials($stateParams.regionUniqueName).then(function(financials) {
+  RegionFinancialService.getRegionFinancials(RegionService.getRegionHierarchy()).then(function(financials) {
     if(financials.length==0) {
       $scope.finOverviewErrorMessage="Financial records not available in your region.";
     } else {
+      // Divider here based on region
       $scope.financials=[];
       for(var i=0;i<financials.length;i++) {
         $scope.financials.push(financials[i].value);

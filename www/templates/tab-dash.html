@@ -5,11 +5,15 @@
   <ion-content class="visible-cards">
     <div class="card padding warn" ng-if="activityError">{{activityError}}</div>    
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError" ng-init="activityIndex = $index">
-      <div class="item item-icon-right">
+      <div class="item item-avatar item-icon-right">
+        <img src="img/idea_blue.png" ng-if="activity.get('activityType')=='IDEA'">
+        <img src="img/problem_4.png" ng-if="activity.get('activityType')=='ISSU'">
+        <img src="img/notify_1.png" ng-if="activity.get('activityType')=='NOTF'">
+        <img src="img/ask_1.jpg" ng-if="activity.get('activityType')=='ASK'">
+        <img src="img/event_2.png" ng-if="activity.get('activityType')=='EVNT'">
         <a ng-click="openAdminActionSheet(activity.id, activityIndex, activity.get('status'))" ng-if="user.get('role')=='SUADM'"><i class="icon ion-navicon royal"></i></a>      
         <a ng-click="openUserActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id==user.id && user.get('role')!='SUADM'"><i class="icon ion-navicon royal"></i></a>
         <a ng-click="openActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id!=user.id && user.get('role')!='SUADM'"><i class="icon ion-navicon royal"></i></a>
-<!--         <img src="http://placehold.it/60/009999"> -->
         <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
         <p ng-show="activity.get('activityType')=='NOTF'">{{activity.get("user").get("title")}}</p>
         <p>{{activity.createdAt | date:'medium'}}</p>
