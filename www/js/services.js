@@ -1,12 +1,12 @@
-angular.module('starter.services', [])
+angular.module('starter.services', ['ionic'])
 
 
-.factory('RegionService', ['CacheFactory', '$q', function(CacheFactory, $q) {
+.factory('RegionService', ['CacheFactory', 'LogService', '$q', function(CacheFactory, LogService, $q) {
   var regionHeirarchy=null;
   var regionCache;
   if (!CacheFactory.get('regionCache')) {
     regionCache = CacheFactory('regionCache', {
-      maxAge: 24 * 60 * 60 * 1000, // 1 Day
+      maxAge: 7 * 60 * 60 * 1000, // 1 Day
       deleteOnExpire: 'none'
     });
   }
@@ -20,6 +20,9 @@ angular.module('starter.services', [])
         deferred.resolve(regionCache.get(regionUniqueName));  
       } else {
         console.log("No hit, attempting to retrieve from parse " + regionUniqueName + " Info : " + JSON.stringify(cachedObjectInfo));
+        if(ionic.Platform.isAndroid()) {
+          LogService.log({type:"INFO", message: "No hit, attempting to retrieve from parse " + regionUniqueName + " Info : " + JSON.stringify(cachedObjectInfo)});   
+        }
         var Region = Parse.Object.extend("Region");
         var query = new Parse.Query(Region);
         query.equalTo("uniqueName", regionUniqueName);
@@ -74,6 +77,9 @@ angular.module('starter.services', [])
         regionHeirarchy.push(region.get("parentRegion")[i]);
       }
       console.log("Final region list for cache : " + JSON.stringify(regionHeirarchy));
+      if(ionic.Platform.isAndroid()) {
+        LogService.log({type:"INFO", message: "Final region list for cache " + JSON.stringify(regionHeirarchy)});   
+      }            
       var Region = Parse.Object.extend("Region");
       var query = new Parse.Query(Region);
       // TODO :: Evaluate whether it helps to load if it missing in cache      

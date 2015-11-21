@@ -32,10 +32,14 @@ app.service('paragraph', function() {
         if (input) {
             var badwords = [];
             for(var i =0 ; i <swearwords.length; i++) {
-                var swear = new RegExp(swearwords[i], 'g');
-                if (input.match(swear)) {
+                var found=new RegExp("\\b" + swearwords[i] + "\\b", "gi").exec(input);
+                if(found!=null) {
                     badwords.push(swearwords[i]);
                 }
+                // var swear = new RegExp(swearwords[i], 'g');
+                // if (input.match(swear)) {
+                //     badwords.push(swearwords[i]);
+                // }
             }
             return badwords;
         }

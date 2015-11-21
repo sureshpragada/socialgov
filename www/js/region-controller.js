@@ -27,9 +27,97 @@ angular.module('starter.controllers')
 
 .controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {  
   $scope.regions=RegionService.getRegionListFromCache();  
-  // TODO :: Retrieve personal service contacts
+
+  $scope.personalServiceContacts=null;
+  var ServiceContact = Parse.Object.extend("ServiceContact");
+  var query = new Parse.Query(ServiceContact);
+  query.equalTo("region", AccountService.getUser().get("residency"));
+  query.equalTo("status", "A");  
+  query.include("user");
+  query.descending("createdAt");
+  query.find({
+    success: function(personalServiceContacts) {
+      $scope.$apply(function(){
+        if(personalServiceContacts!=null && personalServiceContacts.length>0) {
+          $scope.personalServiceContacts=personalServiceContacts;
+        } else {
+          console.log("No service contacts have been found.");
+        }
+      });
+    },
+    error: function(serviceContact, error) {
+      console.log("Error retrieving service contacts " + error.message);
+    }
+  });          
+
+  $scope.gotoAddServiceContact=function() {
+    $state.go("tab.add-service-contact",{regionUniqueName: $stateParams.regionUniqueName});
+  };
+
+  $scope.deleteServiceContact=function(index) {
+    $cordovaDialogs.confirm('Do you want to delete this service contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {
+        $scope.personalServiceContacts[index].save({status: "D"}, {
+          success: function(updatedServiceContact) {
+            $scope.$apply(function(){
+              $scope.personalServiceContacts.splice(index,1);        
+            });
+          },
+          error: function(serviceContact, error) {
+            console.log("Error removing service contact " + JSON.stringify(error));
+            $cordovaDialogs.alert("Unable to delete service contact at this time.");
+          }
+        });    
+      } else {
+        console.log("Canceled deletion of service contact");
+      }
+    });
+  };
+
 })
 
+.controller('AddServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {  
+  $scope.serviceContact={
+    status: "A", 
+    type: "Plumber", 
+    user: Parse.User.current(),
+    region: Parse.User.current().get("residency"),
+    serviceName: null,
+    servicePhoneNumber: null,
+    serviceAddressLine1: null,
+    serviceAddressLine2: null
+  };
+
+  $scope.submit=function() {
+    if($scope.serviceContact.serviceName==null || $scope.serviceContact.serviceName.length==0) {
+      $scope.serviceContactErrorMessage="Please enter service provider name.";
+      return;
+    }
+
+    if($scope.serviceContact.servicePhoneNumber==null || $scope.serviceContact.servicePhoneNumber.length==0) {
+      $scope.serviceContactErrorMessage="Please enter service provider phone number.";
+      return;
+    }
+
+    var ServiceContact = Parse.Object.extend("ServiceContact");
+    var serviceContact = new ServiceContact();
+    serviceContact.save($scope.serviceContact, {
+      success: function(newServiceContact) {
+        $state.go("tab.service",{regionUniqueName: AccountService.getUser().get('residency')});
+      },
+      error: function(serviceContact, error) {
+        $scope.serviceContactErrorMessage="Unable to add this service contact.";
+        console.log("Error adding service contact " + JSON.stringify(error));
+      }
+    });     
+
+  };
+  
+  $scope.cancel=function(){
+    $state.go("tab.service",{regionUniqueName: AccountService.getUser().get('residency')});
+  };
+
+})
 
 .controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   

@@ -1,5 +1,11 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
+.controller('TabsCtrl', function($scope) {
+  $scope.badges = {
+    activity : 0
+  };      
+})
+
 .controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService) {
   $scope.activityError=null;
   $scope.debateList=[];
@@ -8,10 +14,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $ionicLoading.show({
     template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency").capitalizeFirstLetter()
   });
+  console.log("Activity controller");
 
-  console.log("user status : " + $scope.user.get('status'));
-
-  // $scope.activities=ActivityService.getMockData();  
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
   var regionList=RegionService.getRegionHierarchy();
@@ -29,6 +33,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
         if(activityList!=null && activityList.length>0) {
           $scope.activities=activityList;  
+          $scope.notifyUserUnreadActivityCount();
 
           var UserActivity = Parse.Object.extend("UserActivity");
           var userActivityQuery=new Parse.Query(UserActivity);
@@ -68,6 +73,29 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       });
     }
   });
+
+  $scope.notifyUserUnreadActivityCount=function() {
+    var lastActivityViewTimestamp=Parse.User.current().get("lastActivityView");
+    // console.log("Parse user object " + JSON.stringify(Parse.User.current()));
+    console.log("Last activity view : " + lastActivityViewTimestamp);
+    if(lastActivityViewTimestamp!=null) {
+      var unreadCount=0;
+      for(var i=0;i<$scope.activities.length;i++) {
+        if($scope.activities[i].createdAt.getTime()>lastActivityViewTimestamp) {
+          unreadCount++;
+        } else {
+          break;
+        }
+      }
+      if(unreadCount>10) {
+        $scope.$parent.badges.activity="10+";
+      } else {
+        $scope.$parent.badges.activity=unreadCount;
+      }
+    }
+    Parse.User.current().set("lastActivityView", new Date().getTime());
+    // console.log("Parse user object " + JSON.stringify(Parse.User.current()));
+  }
 
   $scope.beginDebate=function(activityId, index) {
     if(!$scope.isDebateRequested(activityId, index)) {

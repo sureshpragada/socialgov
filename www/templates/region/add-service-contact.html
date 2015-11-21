@@ -1,0 +1,41 @@
+<ion-view title="Add Service Contact">
+	<ion-content>
+		<div class="padding card warn" ng-if="serviceContactErrorMessage">{{serviceContactErrorMessage}}</div>
+		<ion-list>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Service Provider Name</span>
+				<input type="text" name="name"  ng-model="serviceContact.serviceName" class="textAlignLeft">
+			</label>
+
+			<label class="item item-input item-select">
+			    <div class="input-label" >
+			      Service Category
+			    </div>
+			    <select ng-model="serviceContact.type">
+			    	<option value="Plumber">Plumber</option>
+			    	<option value="Electrician">Electrician</option>
+			    	<option value="Handyman">Handyman</option>
+			    	<option value="Landscape">Landscape</option>			    	
+			    </select>				    
+			</label>
+	    	<label class="item item-input item-stacked-label">
+	        	<span class="input-label">Phone Number</span>
+	      		<input type="text" name="numbers"  ng-model="serviceContact.servicePhoneNumber" class="textAlignLeft">
+	    	</label>			
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Address Line 1</span>
+				<input type="text" name="addr1"  ng-model="serviceContact.serviceAddressLine1" class="textAlignLeft">
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">City</span>
+				<input type="text" name="addr2"  ng-model="serviceContact.serviceAddressLine2" class="textAlignLeft">
+			</label>
+    	</ion-list>
+    	<div class="padding" >
+        	<button class="button button-block button-balanced" ng-click="submit()">Add Service Contact</button>
+     	</div>
+     	<div class="padding" >
+        	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+    	</div>
+	</ion-content>
+</ion-view>

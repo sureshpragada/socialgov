@@ -86,6 +86,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: "/tab",
       abstract: true,
       templateUrl: "templates/tabs.html",
+      controller: 'TabsCtrl',
       onEnter: function($state) {
         var user=Parse.User.current();
         if(user==null || !user.authenticated()) {
@@ -247,6 +248,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
       }
     })
+
+    .state('tab.add-service-contact', {
+      url: '/add-service-contact/{regionUniqueName}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/add-service-contact.html',
+          controller: 'AddServiceContactsCtrl'
+        }
+      }
+    })    
 
     .state('tab.legis', {
       url: '/legis/{regionUniqueName}',
@@ -416,8 +428,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     PostalCode: 'ZIP Codes',
     Currency: '$',
     Messages: {
-      PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of the board.',
-      PostActivityIssueWarn: 'Report problem to management company for home specific issues.'      
+      PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of the association board.',
+      PostActivityIssueWarn: 'Report community level problems here. Reach out to management company for any home specific issues.'      
     }
   });  
 
