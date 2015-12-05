@@ -25,6 +25,7 @@ angular.module('starter.controllers')
         console.log(JSON.stringify(accessRequest));
         accessRequest.save(null, {
           success: function(accessRequest) {
+            AccountService.updateAccessRequest(accessRequest);
             $scope.$apply(function(){
               $state.go("tab.account");    
             });
@@ -46,7 +47,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('AdminAccessReqDetailCtrl', function($scope, $stateParams, $state) {
+.controller('AdminAccessReqDetailCtrl', function($scope, $stateParams, $state, AccountService) {
   var AccessRequest = Parse.Object.extend("AccessRequest");
   var query=new Parse.Query(AccessRequest);
   query.include("user");
@@ -61,6 +62,7 @@ angular.module('starter.controllers')
   });
 
   $scope.update=function(status){
+      AccountService.updateRoleAndTitle($scope.accessRequest.get('user').id, $scope.accessRequest.get('role'), $scope.accessRequest.get('title'));
       $scope.accessRequest.set("status",status);
       $scope.accessRequest.save(null, {
         success: function(accessRequest) {
@@ -99,7 +101,7 @@ angular.module('starter.controllers')
     });
 })
 
-.controller('RegisterCtrl', function($scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService, NotificationService) {
+.controller('RegisterCtrl', function($http, $scope, $state, $cordovaPush, LogService, RegionService, $ionicLoading, AccountService, NotificationService, $cordovaDialogs) {
 
   $scope.countryList=COUNTRY_LIST;
   $scope.selectedValues={country: $scope.countryList[0], highLevelRegion:null, finalLevelRegion: null};  
@@ -107,46 +109,64 @@ angular.module('starter.controllers')
   $scope.userRegistered=true;
   $scope.registerErrorMessage=null;
 
-  $scope.authPhoneNum=function() {
+  $scope.validateSignIn=function() {
+
     if($scope.user.phoneNum!=null && $scope.user.phoneNum.length==10) {
-      $ionicLoading.show({
-        template: "<ion-spinner></ion-spinner> Verifying your phone number..."
-      });      
-      var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
-      Parse.User.logIn(userName, "custom", {
-        success: function(user) {
-          console.log("User exists in the system. Skipping registration flow.");
-          RegionService.initializeRegionCacheByCurrentUser();          
-          if(user.get("deviceReg")=="N") {
-            console.log("Device is not registered, attempting to register");
-            $scope.registerDevice();
-          } else {
-            console.log("Device already registered");
-          }
-          $ionicLoading.hide();
-          $state.go("tab.dash");
-        },
-        error: function(user, error) {
-          console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
-          $scope.$apply(function() {
-            $scope.userRegistered=false;
-            $scope.registerErrorMessage=null;          
-            RegionService.getLiteRegionList("regionType", REG_TOP_REGION_TYPES).then(function(data) {
-              $scope.highLevelRegionList=data;
-              // $scope.selectedValues={highLevelRegion:null, finalLevelRegion: null};
-              $ionicLoading.hide();
-            }, function(error) {
-              console.log("Error while retrieving city list " + JSON.stringify(error));
-              $registerErrorMessage="Unable to get city list for registration";
-              $ionicLoading.hide();              
+      // if (ionic.Platform.isIOS()) {
+          $http.get("img/license.txt")
+            .success(function(data) {
+              $cordovaDialogs.confirm(data, 'License Agreement', ['I Agree','Cancel'])
+              .then(function(buttonIndex) {      
+                if(buttonIndex==1) {
+                  $scope.authPhoneNum();
+                } else {
+                  $scope.registerErrorMessage="Please accept license agreement.";
+                }
+              });
+            }).error(function() {
+                $scope.registerErrorMessage="Unable to read license content";
             });
-          });
-        }
-      });
+      //}
     } else {
       $scope.registerErrorMessage="Please enter 10 digit phone number.";
     }
+  }
 
+  $scope.authPhoneNum=function() {
+    $ionicLoading.show({
+      template: "<ion-spinner></ion-spinner> Verifying your phone number..."
+    });      
+    var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
+    Parse.User.logIn(userName, "custom", {
+      success: function(user) {
+        console.log("User exists in the system. Skipping registration flow.");
+        RegionService.initializeRegionCacheByCurrentUser();          
+        if(user.get("deviceReg")=="N") {
+          console.log("Device is not registered, attempting to register");
+          $scope.registerDevice();
+        } else {
+          console.log("Device already registered");
+        }
+        $ionicLoading.hide();
+        $state.go("tab.dash");
+      },
+      error: function(user, error) {
+        console.log("User does not exists, continue with singup flow. Error login : " + error.code + " message : " + error.message);
+        $scope.$apply(function() {
+          $scope.userRegistered=false;
+          $scope.registerErrorMessage=null;          
+          RegionService.getLiteRegionList("regionType", REG_TOP_REGION_TYPES).then(function(data) {
+            $scope.highLevelRegionList=data;
+            // $scope.selectedValues={highLevelRegion:null, finalLevelRegion: null};
+            $ionicLoading.hide();
+          }, function(error) {
+            console.log("Error while retrieving city list " + JSON.stringify(error));
+            $registerErrorMessage="Unable to get city list for registration";
+            $ionicLoading.hide();              
+          });
+        });
+      }
+    });
   };
 
   $scope.showNextLevelRegions=function() {
@@ -181,14 +201,15 @@ angular.module('starter.controllers')
     var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
     user.set("username", userName);
     user.set("password", "custom");
-    user.set("firstName", $scope.user.firstName);
-    user.set("lastName", $scope.user.lastName);
+    user.set("firstName", $scope.user.firstName.capitalizeFirstLetter());
+    user.set("lastName", $scope.user.lastName.capitalizeFirstLetter());
     user.set("residency", $scope.selectedValues.finalLevelRegion.get("uniqueName"));
     user.set("phoneNum", $scope.user.phoneNum);
     user.set("countryCode", $scope.selectedValues.country.countryCode);
     user.set("role", "CTZEN");
     user.set("notifySetting", true);
     user.set("deviceReg", "N");
+    user.set("status", "A");
     user.signUp(null, {
       success: function(user) {
         console.log("Signup is success");        
@@ -238,48 +259,25 @@ angular.module('starter.controllers')
 })
 
 .controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaPush) {
-  $scope.user = Parse.User.current();
+  $scope.user = AccountService.getUser();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.accessRequestMessage=null;
   $scope.accessRequest=null;
-  var AccessRequest = Parse.Object.extend("AccessRequest");
-  var query=new Parse.Query(AccessRequest);
-  query.equalTo("user", $scope.user);
-  query.descending("createdAt");
-  query.find({
-    success: function(results) {
-      if(results!=null && results.length>0) {
-        console.log(JSON.stringify(results));
-          $scope.$apply(function(){
-            $scope.accessRequest=results[0];
-            if($scope.accessRequest.get("status")=="APPR"){
-              $scope.user.set("role",$scope.accessRequest.get("role"));
-              $scope.user.set("title",$scope.accessRequest.get("title"));
-              $scope.accessRequest.set("status","CMPL");
-              $scope.accessRequest.save(null, {
-                error: function(error) {
-                  LogService.log({type:"ERROR", message: "Error while saving accessrequest :" + JSON.stringify(error)});           
-                }
-              });
-              $scope.user.save(null, {
-                error: function(error) {
-                  LogService.log({type:"ERROR", message: "Error while saving user :" + JSON.stringify(error)});                               
-                }
-              });
-            } else if($scope.accessRequest.get("status")=="PEND"){              
-                $scope.accessRequestMessage="Your role change request is in review.";
-            } else {
-              console.log("Role change is completed.")
-            }
-          });
-        } else {
-            console.log("No access requests found");
-        }
-      }, 
-      error: function(error) {
-        console.log("Error retrieving role change requests. " + JSON.stringify(error));          
-      }
-    });
+  $scope.isPendingRequest=false;
+  AccountService.getAccessRequest().then(function(accessrequest){
+    console.log("Access request returned from cache : " + JSON.stringify(accessrequest));
+    if(accessrequest!=null && accessrequest!="NO_DATA_FOUND") {
+      $scope.accessRequest=accessrequest;
+      if($scope.accessRequest.get("status")=="PEND"){              
+        $scope.accessRequestMessage="Your role change request is in review.";
+        $scope.isPendingRequest=true;
+      } else if($scope.accessRequest.get("status")=="RJCT") {
+        $scope.accessRequestMessage="Your role change request is rejected.";
+      }      
+    }
+  }, function() {
+    $scope.accessRequestMessage="Unable to retrieve status of your role change request.";
+  });
 
   RegionService.getRegion($scope.user.get("residency")).then(function(region){
     $scope.regionDisplayName=region.get("name");
@@ -292,12 +290,8 @@ angular.module('starter.controllers')
   };
 
   $scope.isLogoutAllowed=function() {
-    if(Parse.User.current()!=null) {
-      if(ionic.Platform.isAndroid() && Parse.User.current().get("lastName")!="Pragada") {
-        return false;
-      } else {
-        return true;
-      }      
+    if(Parse.User.current()!=null && Parse.User.current().get("lastName")=="Pragada") {
+      return true;
     } else {
       return false;
     }

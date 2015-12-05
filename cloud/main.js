@@ -73,16 +73,17 @@ Parse.Cloud.define("pushNotification", function(request, response) {
 
 });
 
-Parse.Cloud.define("pushNotificationToUserGroup", function(request, response) {
+Parse.Cloud.define("pushNotificationToUserList", function(request, response) {
   
-	var userQuery = new Parse.Query(Parse.User);
-	userQuery.equalTo("notifySetting", true);
-	// userQuery.equalTo("residency", request.params.residency);
+  	console.log("pushNotificationToUserList : " + JSON.stringify(request.params.userList));
+
+    var userQuery = new Parse.Query(Parse.User);
+    userQuery.equalTo("notifySetting", true);
+    userQuery.containedIn("objectId", request.params.userList);	
 
 	// Find devices associated with these users
 	var pushQuery = new Parse.Query(Parse.Installation);
 	pushQuery.matchesQuery('user', userQuery);
-	pushQuery.equalTo("channels", request.params.residency);
 
 	Parse.Push.send({
 	  where: pushQuery,
@@ -91,7 +92,7 @@ Parse.Cloud.define("pushNotificationToUserGroup", function(request, response) {
 	  }
 	}, {
 	  success: function() {
-	  	console.log("Push is successful " + request.params.residency + " Message : " + request.params.message);
+	  	console.log("Push is successful to user list " + request.params.userList + " Message : " + request.params.message);
 	    response.success("Push is successful");
 	  },
 	  error: function(error) {
@@ -100,4 +101,37 @@ Parse.Cloud.define("pushNotificationToUserGroup", function(request, response) {
 	  }
 	});
 
+});
+
+
+Parse.Cloud.define("modifyUser", function(request, response) {
+  if (!request.user) {
+    response.error("Must be signed in to call this Cloud Function.");
+    return;
+  } else {
+  	// Perform any authroization whether this user is admin
+  }
+
+  Parse.Cloud.useMasterKey();
+
+  var query = new Parse.Query(Parse.User);
+  query.equalTo("objectId", request.params.targetUserId);
+  // Get the first user which matches the above constraints.
+  query.first({
+    success: function(anotherUser) {
+      anotherUser.set(request.params.userObjectKey, request.params.userObjectValue);
+      // Save the user.
+      anotherUser.save(null, {
+        success: function(anotherUser) {
+          response.success("Successfully updated user.");
+        },
+        error: function(anotherUser, error) {
+          response.error("Could not save changes to user.");
+        }
+      });
+    },
+    error: function(error) {
+      response.error("Could not find user.");
+    }
+  });
 });

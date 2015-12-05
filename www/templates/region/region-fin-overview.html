@@ -5,11 +5,12 @@
       </a>
   </ion-nav-buttons>
   <ion-content>
-    <div ng-show="finOverviewErrorMessage" class="card padding assertive">{{finOverviewErrorMessage}}</div>    
+    <div ng-show="finOverviewErrorMessage" class="card padding warn">{{finOverviewErrorMessage}}</div>    
+<!--     <div class="item item-divider">Arrivare</div> -->
     <ion-list ng-repeat="financial  in financials">
       <div class="item item-divider item-icon-right">
         <a ng-click="openFinancialPopover($event, $index, financial.id)" ng-if="canUpdateRegion"><i class="icon ion-navicon royal"></i></a>
-         {{financial.get("year")}}
+         {{financial.get("year")}} - {{financial.get("regionDisplayName")}}
        </div>
       <ion-item href="#/tab/findet/{{financial.get('regionUniqueName')}}/{{financial.get('year')}}/revenue" class="item-icon-right">
           Revenue <span class="item-note">{{'Currency' | translate}} {{financial.get("revenue")}}</span>
@@ -19,8 +20,8 @@
           Expenses <span class="item-note">{{'Currency' | translate}} {{financial.get("expenses")}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
-      <ion-item ng-if="financial.get('surplus')">
-          Surplus <span class="item-note">{{'Currency' | translate}} {{financial.get("surplus")}}</span>
+      <ion-item ng-if="financial.get('reserve')">
+          Reserves <span class="item-note">{{'Currency' | translate}} {{financial.get("reserve")}}</span>
       </ion-item>    
       <ion-item ng-if="financial.get('defecit')">
           Defecit <span class="item-note">{{'Currency' | translate}} {{financial.get("defecit")}}</span>

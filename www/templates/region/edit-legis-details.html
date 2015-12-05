@@ -1,35 +1,26 @@
 <ion-view title="Edit Legislative Representative">
 	<ion-content>
 	  <ion-list>
-   		<label class="item item-input" >
-				<span class="input-label">
-				      Title 
-				</span>
-			<input type="text" name="offName"  ng-model="legisToBeEdited.title">
+	  	<div class="padding card warn" ng-if="legisErrorMessage">{{legisErrorMessage}}</div>
+		<label class="item item-input item-stacked-label">
+			<span class="input-label">Full Name</span>
+			<input type="text" name="offName"  ng-model="legisToBeEdited.name" class="textAlignLeft">
+		</label>	  	
+   		<label class="item item-input item-stacked-label">
+			<span class="input-label">Legislative Title </span>
+			<input type="text" name="offName"  ng-model="legisToBeEdited.title" class="textAlignLeft">
 		</label>
-		<label class="item item-input" >
-				<span class="input-label">
-				      Name 
-				</span>
-			<input type="text" name="offName"  ng-model="legisToBeEdited.name">
+		<label class="item item-input item-stacked-label">
+			<span class="input-label">Address Line 1</span>
+			<input type="text" name="addr1"  ng-model="legisToBeEdited.addressLine1" class="textAlignLeft">
 		</label>
-		<label class="item item-input" >
-				<span class="input-label">
-				      Address Line 1
-				</span>
-			<input type="text" name="addr1"  ng-model="legisToBeEdited.addressLine1">
+		<label class="item item-input item-stacked-label">
+			<span class="input-label">Address Line 2</span>
+			<input type="text" name="addr2"  ng-model="legisToBeEdited.addressLine2" class="textAlignLeft">
 		</label>
-		<label class="item item-input" >
-				<span class="input-label">
-				      Address Line 2
-				</span>
-			<input type="text" name="addr2"  ng-model="legisToBeEdited.addressLine2">
-		</label>
-		<label class="item item-input" >
-        	<span class="input-label">
-              Phone Number List
-        	</span>
-      		<input type="text" name="phoneNums"  ng-model="legisToBeEdited.phoneNumberList" >
+		<label class="item item-input item-stacked-label">
+        	<span class="input-label">Phone Number (separate by comma)</span>
+      		<input type="text" name="phoneNums"  ng-model="legisToBeEdited.phoneNumberList" class="textAlignLeft">
     	</label>
 	  </ion-list>
 	<div class="padding" >

@@ -65,7 +65,7 @@ angular.module('starter.controllers')
         method: 'POST',
         headers: {
           'Content-Type': file.type,
-          "Authorization": "Client-ID 7969d63af05026f"
+          "Authorization": "Client-ID " + IMGUR_KEY
         },
         data: file
       }).then(function(response) {

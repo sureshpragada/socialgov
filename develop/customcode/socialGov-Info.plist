@@ -1,0 +1,12 @@
+    <key>NSAppTransportSecurity</key>
+    <dict>
+      <key>NSAllowsArbitraryLoads</key>
+      <true/>
+    </dict>
+    <key>UIRequiresFullScreen</key>
+    <true/>
+
+
+Build settings should have --> Search paths --> Header search paths
+
+"$(OBJROOT)/UninstalledProducts/$(PLATFORM_NAME)/include"

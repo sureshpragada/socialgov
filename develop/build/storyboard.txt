@@ -1,8 +1,13 @@
 Storyboard
 
-SocialGov helps bringing citizens, executives, legislatives, journalists and social activist together to communicate and engage each other to bring transparent governance. Every user on this platform will have a specific role which gives them specific responsibilities and rights to do activities on the platform. Legislatives can post any development ideas and have citizens debate on them to get unbiased view on the idea. Citizens can post development ideas and city level problems which can be visible to legislatives and executives to work on. Executives can post any notifications and events happening in the city to empower citizens with the information.
+SocialGov helps bringing citizens, executives and legislatives together to communicate and engage each other to bring transparent governance.  Legislatives can post any development ideas and have citizens debate on them to get unbiased view on the idea.  
 
-Citizens can find city information including executives and legislative hierarchical contacts and financial transactions of their city bringing the transparency in the system. 	
+Citizens can find city financial transactions, executives and legislative hierarchical contacts to bring transparency in the system.
+
+Every user on this platform will have a specific role which gives them specific responsibilities and rights to do activities on the platform.
+
+Citizens can post development ideas and city level problems which can be visible to legislatives and executives to work on. Executives can post any notifications and events happening in the city to empower citizens with the information.
+ 	
 
 Eveyone can view the activity happening in the city and have rights to make decisions in their own city, not in other cities. 
 
@@ -29,4 +34,21 @@ Public meeting          Join, comment
 Development Idea        Support, Oppose, Debate (Should we call this as feedback? in more respectful way)
 Report an issue         Agree, Disagree, Feedback/Solution
 
+
+iOS app submission 
+===================
+Description : 
+SocialGov platform is to bring citizens, executives, legislatives, journalists and social activist together to communicate and engage each other to bring transparence governance. Every user on this platform will have a specific role which gives them specific responsibilities and rights to do activities on the platform. 
+
+Legislatives can post any development ideas and have citizens debate on them to get unbiased view on the idea. Citizens can post development ideas and city level problems which can be visible to legislatives and executives to work on. Executives can post any notifications and events happening in the city to empower citizens with the information.
+
+Keywords : social governance socialgov
+URL : http://socialgov.in
+
+Notes : 
+User name # 4088324304 do not require any password. Please enter given number as phone number and you should be able to get into the app.
+
+Follow up on previous rejection item : 
+-------------------------------------------
+Please tap on more icon (3 horizontal bars) on top right corner of each post to see options available and you should see options for users to report spam. This will mark the post as spam and sent a push notification to the admin who will take action on the post.
 

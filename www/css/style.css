@@ -7,6 +7,10 @@ input {
     text-align: right; 
 }
 
+input.textAlignLeft { 
+    text-align: left; 
+}
+
 .nameContact {
 	margin-top: 10px;
 }
@@ -29,4 +33,12 @@ input {
 .popover .item {
     padding: 8px 10px;
     font-size: 14px;
+}
+
+.warn {
+    background-color: #f2dede;
+}
+
+.success {
+    background-color: #dff0d8;
 }

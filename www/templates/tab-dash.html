@@ -1,18 +1,19 @@
 <ion-view view-title="Activity">
   <ion-nav-buttons side="primary">
-    <a class="button button-icon icon ion-compose" href="#/tab/post"></a>
+    <a class="button button-icon icon ion-compose" href="#/tab/post" ng-if="user.get('status')!='S'"></a>
   </ion-nav-buttons>
   <ion-content class="visible-cards">
-    <div ng-show="activityError" class="card">
-      <div class="item item-text-wrap">
-        {{activityError}}
-      </div>
-    </div>
-    <div class="list card" ng-repeat="activity in activities" ng-hide="activityError">
-      <div class="item item-icon-right">
-        <a ng-click="openUserActionSheet(activity.id, $index)" ng-if="activity.get('user').id==user.id || user.get('role')=='SUADM'"><i class="icon ion-navicon royal"></i></a>
-        <a ng-click="openActionSheet(activity.id, $index)" ng-if="activity.get('user').id!=user.id"><i class="icon ion-navicon royal"></i></a>
-<!--         <img src="http://placehold.it/60/009999"> -->
+    <div class="card padding warn" ng-if="activityError">{{activityError}}</div>    
+    <div class="list card" ng-repeat="activity in activities" ng-hide="activityError" ng-init="activityIndex = $index">
+      <div class="item item-avatar item-icon-right">
+        <img src="img/idea_blue.png" ng-if="activity.get('activityType')=='IDEA'">
+        <img src="img/problem_4.png" ng-if="activity.get('activityType')=='ISSU'">
+        <img src="img/notify_1.png" ng-if="activity.get('activityType')=='NOTF'">
+        <img src="img/ask_1.jpg" ng-if="activity.get('activityType')=='ASK'">
+        <img src="img/event_2.png" ng-if="activity.get('activityType')=='EVNT'">
+        <a ng-click="openAdminActionSheet(activity.id, activityIndex, activity.get('status'))" ng-if="user.get('role')=='SUADM'"><i class="icon ion-navicon royal"></i></a>      
+        <a ng-click="openUserActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id==user.id && user.get('role')!='SUADM'"><i class="icon ion-navicon royal"></i></a>
+        <a ng-click="openActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id!=user.id && user.get('role')!='SUADM'"><i class="icon ion-navicon royal"></i></a>
         <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
         <p ng-show="activity.get('activityType')=='NOTF'">{{activity.get("user").get("title")}}</p>
         <p>{{activity.createdAt | date:'medium'}}</p>
@@ -21,6 +22,9 @@
       <div class="item item-body">
         <img class="full-image" ng-src="{{activity.get('images')[0]}}" ng-if="activity.get('images')">
         <p ng-bind-html="activity.get('notifyMessage') | nl2br">
+        </p>
+        <p ng-if="activity.get('status')=='S'" >
+          <span class="assertive">* Content marked as spam</span>
         </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">
@@ -32,7 +36,7 @@
           <i class="icon ion-thumbsdown" ng-class="isThisActionChosen(activity.id, 'oppose')"></i>
           Oppose ({{activity.get("oppose")}})
         </a>        
-        <a class="tab-item" ng-click="beginDebate(activity.id, $index)">
+        <a class="tab-item" ng-click="beginDebate(activity.id, activityIndex)">
           <i class="icon ion-chatbox royal"></i>
           Feedback ({{activity.get("debate")}})
         </a>
@@ -42,7 +46,7 @@
           <i class="icon ion-thumbsup"  ng-class="isThisActionChosen(activity.id, 'support')"></i>
           Join ({{activity.get("support")}})
         </a>
-        <a class="tab-item" ng-click="beginDebate(activity.id, $index)">
+        <a class="tab-item" ng-click="beginDebate(activity.id, activityIndex)">
           <i class="icon ion-chatbox royal"></i>
           Comment ({{activity.get("debate")}})
         </a>
@@ -52,25 +56,40 @@
           <i class="icon ion-thumbsup"  ng-class="isThisActionChosen(activity.id, 'support')"></i>
           Acknowledge ({{activity.get("support")}})
         </a>
-        <a class="tab-item" ng-click="beginDebate(activity.id, $index)">
+        <a class="tab-item" ng-click="beginDebate(activity.id, activityIndex)">
           <i class="icon ion-chatbox royal"></i>
           Comment ({{activity.get("debate")}})
         </a>
       </div>            
-      <div class="item item-body" ng-if="isDebateRequested(activity.id, $index)">
+      <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')=='ASK'">
+        <a class="tab-item" ng-click="respond(activity.id, 'support')">
+          <i class="icon ion-thumbsup"  ng-class="isThisActionChosen(activity.id, 'support')"></i>
+          Useful ({{activity.get("support")}})
+        </a>
+        <a class="tab-item" ng-click="beginDebate(activity.id, activityIndex)">
+          <i class="icon ion-chatbox royal"></i>
+          Answer ({{activity.get("debate")}})
+        </a>
+      </div>                  
+      <div class="item item-body" ng-if="isDebateRequested(activity.id, activityIndex) &&  user.get('status')!='S'">
         <label class="item item-input">
-          <textarea placeholder="Type in your message" rows="5" ng-model="argumentMessageList[$index]"></textarea>
+          <textarea placeholder="Type in your message" rows="5" ng-model="argumentMessageList[activityIndex]"></textarea>
         </label>
         <div class="padding">
-          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">Submit Feedback</button>
-          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, $index)" ng-if="activity.get('activityType')=='NOTF' || activity.get('activityType')=='EVNT'">Comment</button>          
+          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, activityIndex)" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">Submit Feedback</button>
+          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, activityIndex)" ng-if="activity.get('activityType')=='NOTF' || activity.get('activityType')=='EVNT'">Comment</button>          
+          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, activityIndex)" ng-if="activity.get('activityType')=='ASK'">Submit Answer</button>                    
         </div>        
       </div> 
-      <div ng-if="isDebateRequested(activity.id, $index)">
-        <div class="item" ng-repeat="debate in debateList[$index]">
-          <div class="commentUserDivider item-text-wrap" ng-bind-html="debate.get('argument') | nl2br"></div>
-          <p class="item-text-wrap">{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}</p>
-          <p>{{debate.createdAt | date:'medium'}}</p>
+      <div ng-if="isDebateRequested(activity.id, activityIndex)">
+        <div class="item" ng-repeat="debate in debateList[activityIndex]" ng-init="debateIndex = $index">
+          <div class="commentUserDivider item-text-wrap" ng-bind-html="debate.get('argument') | nl2br"></div>          
+          <p class="item-text-wrap">{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}&nbsp;&nbsp;{{debate.createdAt | date:'short'}}</p>
+          <p>
+            <a ng-click="reportDebateSpam(debate.id, activityIndex, debateIndex)" class="assertive">Report Spam</a> &nbsp;
+            <a ng-click="removeDebateSpamFlag(debate.id, activityIndex, debateIndex)" class="balanced" ng-if="debate.get('status')=='S'">Remove spam flag</a> &nbsp;
+            <a ng-click="flagCommentUserAbusive(debate.id, activityIndex, debateIndex)" class="assertive" ng-if="debate.get('status')=='S'">Block user</a>
+          </p> 
         </div>
       </div>       
     </div>

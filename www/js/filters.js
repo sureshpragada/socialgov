@@ -5,3 +5,8 @@ angular.module('starter.filters', [])
 	   return input.replace(/\n\r?/g, '<br/>');  	
   };
 })
+.filter('capitalize', function() {
+    return function(input) {
+      return (!!input) ? input.charAt(0).toUpperCase() + input.substr(1).toLowerCase() : '';
+    }
+});

@@ -1,13 +1,14 @@
 Ionic useful commands : 
 ======================
-ionic start todo blank
+ionic start todo blank 
+ionic start homebites blank --id com.homebites 
 ionic platform add android
 ionic build android
 ionic emulate android
 ionic emulate android --livereload 
 ionic serve
 ionic serve --lab
-cordova prepare android
+cordova prepare android 
 ionic run android
 
 ionic resources --icon

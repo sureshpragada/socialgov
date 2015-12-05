@@ -5,8 +5,8 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate'])
-.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService) {
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle'])
+.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -86,6 +86,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       url: "/tab",
       abstract: true,
       templateUrl: "templates/tabs.html",
+      controller: 'TabsCtrl',
       onEnter: function($state) {
         var user=Parse.User.current();
         if(user==null || !user.authenticated()) {
@@ -216,7 +217,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
 
     .state('tab.editoffices', {
-      url: '/editoffices/{regionUniqueName}/{uniqueOfficeName}',
+      url: '/editoffices/{regionUniqueName}/{officeIndex}',
       cache: false,      
       views: {
         'tab-region': {
@@ -236,6 +237,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
       }
     })
+
+    .state('tab.service', {
+      url: '/service/{regionUniqueName}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-service-contacts.html',
+          controller: 'RegionServiceContactsCtrl'
+        }
+      }
+    })
+
+    .state('tab.add-service-contact', {
+      url: '/add-service-contact/{regionUniqueName}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/add-service-contact.html',
+          controller: 'AddServiceContactsCtrl'
+        }
+      }
+    })    
 
     .state('tab.legis', {
       url: '/legis/{regionUniqueName}',
@@ -260,7 +283,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
 
     .state('tab.editlegis', {
-      url: '/editlegis/{regionUniqueName}/{uniqueLegisTitle}',
+      url: '/editlegis/{regionUniqueName}/{legisIndex}',
       cache: false,      
       views: {
         'tab-region': {
@@ -272,12 +295,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('tab.finview', {
       url: '/finview/{regionUniqueName}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/region-fin-overview.html',
-            controller: 'RegionFinancialOverviewCtrl'
-          }
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-fin-overview.html',
+          controller: 'RegionFinancialOverviewCtrl'
         }
+      }
     })
 
     .state('tab.addfinview', {
@@ -302,12 +326,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('tab.findet', {
       url: '/findet/{regionUniqueName}/{year}/{reqDetails}',
-        views: {
-          'tab-region': {
-            templateUrl: 'templates/region/region-fin-details.html',
-            controller: 'RegionFinancialDetailsCtrl'
-          }
+      cache: false,            
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-fin-details.html',
+          controller: 'RegionFinancialDetailsCtrl'
         }
+      }
     })      
     // .state('tab.account.settings', {
     //   url: '/settings',
@@ -384,7 +409,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     FirstLevelRegion: 'Village/Division',
     Population: 'Population',
     PostalCode: 'PIN Codes',
-    Currency: 'Rs'
+    Currency: 'Rs',
+    Messages: {
+      PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of Government.',
+      PostActivityIssueWarn: 'Please report village level problems. Do not use this forum for personal problems.'
+    }
   });
   $translateProvider.translations('ob-en', {
     FName: 'First Name',
@@ -397,7 +426,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     FirstLevelRegion: 'Association',
     Population: 'Homes',
     PostalCode: 'ZIP Codes',
-    Currency: '$'
+    Currency: '$',
+    Messages: {
+      PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of the association board.',
+      PostActivityIssueWarn: 'Report community level problems here. Reach out to management company for any home specific issues.'      
+    }
   });  
 
   $translateProvider.translations('sg-te', {
