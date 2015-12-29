@@ -3,6 +3,10 @@ ion-content.visible-cards{
 	background-color: #eeeeee;
 }
 
+.card {
+  margin: 15px 10px;
+}
+
 input { 
     text-align: right; 
 }
@@ -41,4 +45,38 @@ input.textAlignLeft {
 
 .success {
     background-color: #dff0d8;
+}
+
+.quote {
+  background: #f9f9f9;
+  /*border-left: 10px solid #90d4c4;*/
+  border-left: 10px solid #afeeee;
+  padding: 0.5em 10px;
+}
+
+.vcenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.custom-badge {
+  background-color: #ffa500; 
+  color: #FFFFFF; 
+  padding: 5px; 
+  font-weight: bold;
+}
+
+.item-icon-left ion-spinner {
+  float: left;
+  margin-left: -3.2em;
+  margin-right: 1em;
+  margin-top: -0.2em;
+ }
+
+.spinner svg {
+  width: 28px;
+  height: 28px;
+  stroke: #999;
+  fill: #999;
 }

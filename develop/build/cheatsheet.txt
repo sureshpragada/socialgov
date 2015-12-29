@@ -1,6 +1,6 @@
 Ionic useful commands : 
 ======================
-ionic start todo blank 
+ionic start todo blank
 ionic start homebites blank --id com.homebites 
 ionic platform add android
 ionic build android
@@ -22,6 +22,8 @@ cordova plugin add https://github.com/phonegap-build/PushPlugin.git
 cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-vibration.git
 cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
 cordova plugin add cordova-plugin-camera
+cordova plugin add cordova-plugin-contacts
+
 
 TODO >> Background service (https://github.com/Red-Folder/bgs-core/wiki/Using-the-MyService-Sample, http://stackoverflow.com/questions/25038694/how-do-i-get-parse-com-push-notifications-working-in-a-cordova-phonegap-android/25038695#25038695, https://github.com/driftyco/ng-cordova/issues/963)
 
@@ -40,6 +42,14 @@ API Key : AIzaSyD0aMFB6caKkR6h5WO-LR8zYuKpRa1J6Bc
 Ourblock :
 Project ID : 69658048825
 API Key : AIzaSyCCDhH28GowCG4qEc9IRk5swR2N6CUDQh0
+
+Homebites-dev:
+Project ID : 113290303197
+API Key : AIzaSyC6piftx_y8obUBTSkdtNiIy8UIpWa5p6w
+
+Homebites-prod : 
+Project ID : 241920018460
+API Key : AIzaSyCDjgvo0tu06rywGp4YFQzWO1NMvlxfeQs
 
 
 Android Google play store : 

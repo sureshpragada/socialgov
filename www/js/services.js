@@ -1,7 +1,7 @@
 angular.module('starter.services', ['ionic'])
 
 
-.factory('RegionService', ['CacheFactory', 'LogService', '$q', function(CacheFactory, LogService, $q) {
+.factory('RegionService', ['CacheFactory', 'LogService', 'SettingsService', '$q', function(CacheFactory, LogService, SettingsService, $q) {
   var regionHeirarchy=null;
   var regionCache;
   if (!CacheFactory.get('regionCache')) {
@@ -76,6 +76,7 @@ angular.module('starter.services', ['ionic'])
       for(var i=0;i<region.get("parentRegion").length;i++) {
         regionHeirarchy.push(region.get("parentRegion")[i]);
       }
+      SettingsService.set("regionHeirarchy", regionHeirarchy);
       console.log("Final region list for cache : " + JSON.stringify(regionHeirarchy));
       if(ionic.Platform.isAndroid()) {
         LogService.log({type:"INFO", message: "Final region list for cache " + JSON.stringify(regionHeirarchy)});   
@@ -128,16 +129,22 @@ angular.module('starter.services', ['ionic'])
     },
     getRegionHierarchy: function() {
       if(regionHeirarchy==null) {
-        this.getRegion(Parse.User.current().get('residency')).then(function(data) {
-          regionHeirarchy=[data.get("uniqueName")];
-          var parentRegionArray=data.get("parentRegion");
-          for(var i=0;i<parentRegionArray.length;i++) {
-            regionHeirarchy.push(parentRegionArray[i]);
-          }
-        }, function(error) {
-          console.log("Unable to form region hierarchy");
-        });
-        return [Parse.User.current().get("residency")];  
+        var regionHierarchyFromCache=SettingsService.get("regionHeirarchy");
+        if(regionHierarchyFromCache!=null) {
+          console.log("Returning region hierarchy from cache");
+          return regionHierarchyFromCache;
+        } else {
+          this.getRegion(Parse.User.current().get('residency')).then(function(data) {
+            regionHeirarchy=[data.get("uniqueName")];
+            var parentRegionArray=data.get("parentRegion");
+            for(var i=0;i<parentRegionArray.length;i++) {
+              regionHeirarchy.push(parentRegionArray[i]);
+            }
+          }, function(error) {
+            console.log("Unable to form region hierarchy");
+          });          
+          return [Parse.User.current().get("residency")];            
+        }
       } else {
         return regionHeirarchy;
       }
@@ -351,15 +358,25 @@ angular.module('starter.services', ['ionic'])
       }
       return "Citizen";
     },
-    isSuperAdmin: function(roleCode){
-      if(roleCode=="SUADM"){
+    isSuperAdmin: function(){
+      var user=Parse.User.current();
+      if(user!=null || user.get("role")=="SUADM"){
+        return true;
+      }else{
+        return false;
+      }      
+    },
+    isCitizen: function(){
+      var user=Parse.User.current();
+      if(user!=null || user.get("role")=="CTZEN"){
         return true;
       }else{
         return false;
       }
     },
-    isCitizen: function(roleCode){
-      if(roleCode==null || roleCode=="CTZEN"){
+    isLogoutAllowed: function(){
+      var user=Parse.User.current();
+      if(user!=null || user.get("lastName")=="Pragada"){
         return true;
       }else{
         return false;
@@ -367,8 +384,7 @@ angular.module('starter.services', ['ionic'])
     },
     canUpdateRegion: function(){
       var user=Parse.User.current();
-      // console.log("User role : " + user.get("role"));
-      if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
+      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
         return true;
       }else{
         return false;
@@ -482,6 +498,30 @@ angular.module('starter.services', ['ionic'])
     }
   };
 }])
+
+.factory('SettingsService', ['CacheFactory', '$http', function(CacheFactory, $http) {
+  var settingsCache;
+  if (!CacheFactory.get('settingsCache')) {
+    settingsCache = CacheFactory('settingsCache', {
+      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 Day
+      deleteOnExpire: 'none', 
+      storageMode: 'localStorage'
+    });
+  }
+
+  return {
+    get: function(key) {
+      var cachedValue=settingsCache.get(key);
+      // console.log("Getting cache " + key + " " + cachedValue);
+      return cachedValue;
+    },
+    set: function(key, value) {
+      // console.log("Setting cache " + key + " " + value);
+      settingsCache.put(key, value);
+    }
+  };
+}])
+
 
 .factory('NotificationService', ['$http', 'LogService', function($http, LogService) {
   return {

@@ -261,6 +261,12 @@ angular.module('starter.controllers')
 .controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaPush) {
   $scope.user = AccountService.getUser();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
+  $scope.privs={
+    isSuperAdmin: AccountService.isSuperAdmin(), 
+    isCitizen: AccountService.isCitizen(),
+    isLogoutAllowed: AccountService.isLogoutAllowed()
+  };
+
   $scope.accessRequestMessage=null;
   $scope.accessRequest=null;
   $scope.isPendingRequest=false;
@@ -289,37 +295,12 @@ angular.module('starter.controllers')
     return AccountService.getRoleNameFromRoleCode(role);
   };
 
-  $scope.isLogoutAllowed=function() {
-    if(Parse.User.current()!=null && Parse.User.current().get("lastName")=="Pragada") {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
   $scope.logout=function() {    
     Parse.User.logOut();
     $scope.user=null;
-    // $scope.$apply(function(){
-      $state.go("register");      
-    // });
+    $state.go("register");      
   };
 
-  $scope.isSuperAdmin=function(){
-    if(Parse.User.current()!=null) {
-      return AccountService.isSuperAdmin(Parse.User.current().get("role"));  
-    } else {
-      return false;
-    }
-  };
-
-  $scope.isCitizen=function(){
-    if(Parse.User.current()!=null) {
-      return AccountService.isCitizen(Parse.User.current().get("role"));
-    } else {
-      return false;
-    }    
-  }
 
   $scope.notifySettingChanged=function(settingName, settingValue) {
     var user=Parse.User.current();
@@ -330,6 +311,78 @@ angular.module('starter.controllers')
         $scope.user=user;
         $scope.$apply();
       }
+    });
+  };
+
+})
+
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts) {
+  console.log("Invite citizen controller");
+  $scope.user={};
+  $scope.invite=function() {
+    console.log("invited " + JSON.stringify($scope.user));
+    //SettingsService
+    $state.go("tab.account");
+  };
+
+
+/**
+
+{"id":"1","rawId":"1","displayName":"Plumber","name":{"familyName":"Doe","givenName":"Jane","formatted":"Jane Doe"},"nickname":"Plumber","phoneNumbers":[{"id":"2","pref":false,"value":"212-555-1234","type":"work"},{"id":"3","pref":false,"value":"917-555-5432","type":"mobile"},{"id":"4","pref":false,"value":"203-555-7890","type":"home"}],"emails":null,"addresses":null,"ims":null,"organizations":null,"birthday":null,"note":null,"photos":null,"categories":null,"urls":null}
+
+*/
+
+  $scope.pickContact=function() {
+    console.log("About to pickup service contact");
+    $cordovaContacts.pickContact().then(function (contactPicked) {
+      console.log("Contact picked  : " + JSON.stringify($scope.contact));      
+      if(contactPicked.name!=null) {
+        if(contactPicked.name.givenName!=null) {
+          $scope.user.firstName=contactPicked.name.givenName;
+        }
+        if(contactPicked.name.familyName!=null) {
+          $scope.user.lastName=contactPicked.name.familyName;
+        }
+      }
+
+      if(contactPicked.phoneNumbers!=null && contactPicked.phoneNumbers.length>0) {
+        var phoneNum=null;
+        for(var i=0;i<contactPicked.phoneNumbers.length;i++) {
+          if(contactPicked.phoneNumbers[i].type=="mobile") {
+            phoneNum=contactPicked.phoneNumbers[i].value;
+            break;
+          }
+        }
+        if(phoneNum==null) {
+          phoneNum=contactPicked.phoneNumbers[0].value;
+        }
+        $scope.user.phoneNum=phoneNum;
+      }
+
+    });
+  };
+
+  $scope.saveContact=function() {
+  // create a new contact object
+  var contact = navigator.contacts.create();
+  contact.displayName = "Plumber";
+  contact.nickname = "Plumber";            // specify both to support all devices
+  // populate some fields
+  var name = new ContactName();
+  name.givenName = "Jane";
+  name.familyName = "Doe";
+  contact.name = name;
+  // store contact phone numbers in ContactField[]
+  var phoneNumbers = [];
+  phoneNumbers[0] = new ContactField('work', '212-555-1234', false);
+  phoneNumbers[1] = new ContactField('mobile', '917-555-5432', true); // preferred number
+  phoneNumbers[2] = new ContactField('home', '203-555-7890', false);
+  contact.phoneNumbers = phoneNumbers;
+  // save to device
+  contact.save(function onSuccess(contact) {
+        console.log("Save Success " + JSON.stringify(contact));
+    },function onError(contactError) {
+        console.log("Error = " + JSON.stringify(contactError.code));
     });
   };
 
