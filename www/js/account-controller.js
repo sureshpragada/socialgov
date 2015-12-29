@@ -290,7 +290,7 @@ angular.module('starter.controllers')
   };
 
   $scope.isLogoutAllowed=function() {
-    if(Parse.User.current()!=null && Parse.User.current().get("lastName")=="Pragada") {
+    if(Parse.User.current()!=null && Parse.User.current().get("lastName")=="Pragada" || Parse.User.current().get("lastName")=="kaatnam") {
       return true;
     } else {
       return false;
