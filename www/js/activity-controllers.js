@@ -77,7 +77,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   });
 
   $scope.notifyUserUnreadActivityCount=function() {
-    var lastActivityViewTimestamp=SettingsService.get("lastActivityView"); 
+    var lastActivityViewTimestamp=SettingsService.getPreference("lastActivityView"); 
     console.log("Last activity view : " + lastActivityViewTimestamp);
     if(lastActivityViewTimestamp!=null) {
       var unreadCount=0;
@@ -94,7 +94,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         $scope.$parent.badges.activity=unreadCount;
       }
     }
-    SettingsService.set("lastActivityView", new Date().getTime());
+    SettingsService.setPreference("lastActivityView", new Date().getTime());
   }
 
   $scope.beginDebate=function(activityId, index) {

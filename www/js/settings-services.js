@@ -2,7 +2,6 @@ angular.module('settings.services', [])
 
 .factory('SettingsService', ['$http', 'CacheFactory', function($http, CacheFactory) {
   var appMessage=null;
-  var orderSubmitted=false;
 
   var settingsCache;
   if (!CacheFactory.get('settingsCache')) {
@@ -60,12 +59,6 @@ angular.module('settings.services', [])
         message: infoMessage, 
         type: "INFO"
       };
-    },
-    setOrderSubmittedStatus: function(status) {
-      this.orderSubmitted=status;
-    },
-    getOrderSubmittedStatus: function() {
-      return this.orderSubmitted;
     }
   };
 }]);

@@ -76,7 +76,7 @@ angular.module('starter.services', ['ionic'])
       for(var i=0;i<region.get("parentRegion").length;i++) {
         regionHeirarchy.push(region.get("parentRegion")[i]);
       }
-      SettingsService.set("regionHeirarchy", regionHeirarchy);
+      SettingsService.setPreference("regionHeirarchy", regionHeirarchy);
       console.log("Final region list for cache : " + JSON.stringify(regionHeirarchy));
       if(ionic.Platform.isAndroid()) {
         LogService.log({type:"INFO", message: "Final region list for cache " + JSON.stringify(regionHeirarchy)});   
@@ -129,7 +129,7 @@ angular.module('starter.services', ['ionic'])
     },
     getRegionHierarchy: function() {
       if(regionHeirarchy==null) {
-        var regionHierarchyFromCache=SettingsService.get("regionHeirarchy");
+        var regionHierarchyFromCache=SettingsService.getPreference("regionHeirarchy");
         if(regionHierarchyFromCache!=null) {
           console.log("Returning region hierarchy from cache");
           return regionHierarchyFromCache;
@@ -328,157 +328,6 @@ angular.module('starter.services', ['ionic'])
   };
 }])
 
-.factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, $q) {
-  var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
-  var userLastRefreshTimeStamp=null; //new Date().getTime();
-  var accessRequestCache;
-  if (!CacheFactory.get('accessRequestCache')) {
-    accessRequestCache = CacheFactory('accessRequestCache', {
-      maxAge: 24 * 60 * 60 * 1000, // 1 Day
-      deleteOnExpire: 'none'
-    });
-  }
-
-  return {
-    getRolesAllowedToChange: function() {
-      return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
-    },    
-    getRegionsAllowedToPost: function(role, residency) {
-      if(role=="CTZEN") {
-        return [RegionService.getAllowedRegions(residency)[0]];
-      } else {
-        return RegionService.getAllowedRegions(residency);
-      }
-    },
-    getRoleNameFromRoleCode: function(roleCode) {
-      for(var i=0;i<USER_ROLES.length;i++) {
-        if(USER_ROLES[i].id==roleCode) {
-          return USER_ROLES[i].label;
-        }
-      }
-      return "Citizen";
-    },
-    isSuperAdmin: function(){
-      var user=Parse.User.current();
-      if(user!=null || user.get("role")=="SUADM"){
-        return true;
-      }else{
-        return false;
-      }      
-    },
-    isCitizen: function(){
-      var user=Parse.User.current();
-      if(user!=null || user.get("role")=="CTZEN"){
-        return true;
-      }else{
-        return false;
-      }
-    },
-    isLogoutAllowed: function(){
-      var user=Parse.User.current();
-      if(user!=null || user.get("lastName")=="Pragada"){
-        return true;
-      }else{
-        return false;
-      }
-    },
-    canUpdateRegion: function(){
-      var user=Parse.User.current();
-      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
-        return true;
-      }else{
-        return false;
-      }
-    },
-    getUser: function() {
-      if(new Date().getTime()-userLastRefreshTimeStamp>(24 * 60 * 60 * 1000)) {
-        Parse.User.current().fetch();        
-        userLastRefreshTimeStamp=new Date().getTime();
-        console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
-      } 
-      return Parse.User.current();
-    },
-    updateAccessRequest: function(accessRequest) {
-      accessRequestCache.put("accessRequest", accessRequest);
-    },
-    getAccessRequest: function() {
-      var deferred = $q.defer();
-      var cachedObjectInfo=accessRequestCache.info("accessRequest");
-      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
-        // console.log("Found hit " + JSON.stringify(regionCache.info()) + " Item info : " + JSON.stringify(cachedObjectInfo));
-        deferred.resolve(accessRequestCache.get("accessRequest"));  
-      } else {
-        console.log("No hit for accessRequest, attempting to retrieve from parse ");
-        var AccessRequest = Parse.Object.extend("AccessRequest");
-        var query=new Parse.Query(AccessRequest);
-        query.equalTo("user", Parse.User.current());
-        query.descending("createdAt");
-        query.find({
-          success: function(results) {
-            if(results!=null && results.length>0) {
-              accessRequestCache.remove("accessRequest");
-              accessRequestCache.put("accessRequest", results[0]);          
-              deferred.resolve(results[0]);
-            } else {
-              accessRequestCache.put("accessRequest", NO_DATA_FOUND_KEY);
-              deferred.resolve(NO_DATA_FOUND_KEY);
-            }
-          }, error: function(error) {
-            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
-              console.log("Unable to refresh access request hence passing cached one ");
-              deferred.resolve(accessRequestCache.get("accessRequest"));  
-            } else {
-              deferred.reject(error)
-            }
-          }
-        }); 
-      }
-      return deferred.promise;
-    },
-    sendNotificationToAdmin: function(message) {
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.containedIn("role", ["SUADM", "JNLST", "SOACT"]);
-      userQuery.equalTo("residency", Parse.User.current().get("residency"));
-      userQuery.descending("role");
-      userQuery.first({
-        success: function(authoritativeUser) {
-          NotificationService.pushNotificationToUserList([authoritativeUser.id], message);
-        }, error: function(err) {
-          LogService.log({type:"ERROR", message: "No admin found to report spam " + JSON.stringify(err) + " Message : " + message}); 
-        }
-      });    
-    },
-    flagUserAbusive: function(userId) {
-      Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'status', userObjectValue: 'S' }, {
-        success: function(status) {
-          console.log("Successfully blocked the user " + JSON.stringify(status));
-        },
-        error: function(error) {
-          console.log("Unable to block the user : " + JSON.stringify(error));
-        }
-      });      
-    },
-    updateRoleAndTitle: function(userId, role, title) {
-      Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
-        success: function(status1) {
-          console.log("Successfully updated user role " + JSON.stringify(status1));
-          Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'title', userObjectValue: title }, {
-            success: function(status2) {
-              console.log("Successfully updated user title " + JSON.stringify(status2));
-            },
-            error: function(error) {
-              LogService.log({type:"ERROR", message: "Unable to update user title " + JSON.stringify(error) + " UserId : " + userId}); 
-            }
-          });      
-        },
-        error: function(error) {
-          LogService.log({type:"ERROR", message: "Unable to update user role " + JSON.stringify(error) + " UserId : " + userId}); 
-        }
-      });      
-    }    
-  };
-}])
-
 
 .factory('LogService', ['$http', function($http) {
   return {
@@ -498,30 +347,6 @@ angular.module('starter.services', ['ionic'])
     }
   };
 }])
-
-.factory('SettingsService', ['CacheFactory', '$http', function(CacheFactory, $http) {
-  var settingsCache;
-  if (!CacheFactory.get('settingsCache')) {
-    settingsCache = CacheFactory('settingsCache', {
-      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 Day
-      deleteOnExpire: 'none', 
-      storageMode: 'localStorage'
-    });
-  }
-
-  return {
-    get: function(key) {
-      var cachedValue=settingsCache.get(key);
-      // console.log("Getting cache " + key + " " + cachedValue);
-      return cachedValue;
-    },
-    set: function(key, value) {
-      // console.log("Setting cache " + key + " " + value);
-      settingsCache.put(key, value);
-    }
-  };
-}])
-
 
 .factory('NotificationService', ['$http', 'LogService', function($http, LogService) {
   return {
@@ -628,6 +453,22 @@ angular.module('starter.services', ['ionic'])
       var user=Parse.User.current();
       user.set("deviceReg", "Y");
       user.save();
+    },
+    sendInvitationCode: function(invitationCode) {
+      var androidAppLink="http://tinyurl.com/nhezg94"; // https://play.google.com/store/apps/details?id=org.socialgov&hl=en
+      var iosAppLink="http://tinyurl.com/gtfwdee"; // https://itunes.apple.com/us/app/my-homebites/id1063077788?ls=1&mt=8
+
+      if(ionic.Platform.isWebView()) {
+        var message="You have been invited to SocialGov. Use invitation code, "+ invitationCode + " to login to the serve. Download app at ";
+        if(ionic.Platform.isAndroid()) {
+          message+=androidAppLink;
+        } else if(ionic.Platform.isIOS()) {
+          message+=iosAppLink;
+        }
+        console.log("Making cloud call to send invitation code " + invitationCode);
+      } else {
+        console.log("Invitation code cannot be send to non webview users. " + invitationCode);
+      }
     }
   };
 }])

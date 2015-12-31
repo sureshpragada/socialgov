@@ -316,22 +316,38 @@ angular.module('starter.controllers')
 
 })
 
-.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts) {
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService) {
   console.log("Invite citizen controller");
   $scope.user={};
+
   $scope.invite=function() {
     console.log("invited " + JSON.stringify($scope.user));
-    //SettingsService
-    $state.go("tab.account");
+    if($scope.user.firstName==null || $scope.user.lastName==null) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
+    } else if ($scope.user.phoneNum==null || $scope.user.phoneNum.length<10) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
+    } else {
+      // Create user
+      AccountService.addInvitedContact($scope.user).then(function(newUser) {
+        // Send invitation
+        NotificationService.sendInvitationCode(newUser.id);
+        SettingsService.setAppSuccessMessage("Invitation has been sent successfully.");
+        $state.go("tab.account");
+      }, function(error) {
+        // Verify if this user exist message
+        if(error.code==202) {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");  
+        } else {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to invite this contact.");  
+        }
+        $scope.$apply();
+      });
+    }
   };
 
-
 /**
-
 {"id":"1","rawId":"1","displayName":"Plumber","name":{"familyName":"Doe","givenName":"Jane","formatted":"Jane Doe"},"nickname":"Plumber","phoneNumbers":[{"id":"2","pref":false,"value":"212-555-1234","type":"work"},{"id":"3","pref":false,"value":"917-555-5432","type":"mobile"},{"id":"4","pref":false,"value":"203-555-7890","type":"home"}],"emails":null,"addresses":null,"ims":null,"organizations":null,"birthday":null,"note":null,"photos":null,"categories":null,"urls":null}
-
 */
-
   $scope.pickContact=function() {
     console.log("About to pickup service contact");
     $cordovaContacts.pickContact().then(function (contactPicked) {
@@ -339,10 +355,14 @@ angular.module('starter.controllers')
       if(contactPicked.name!=null) {
         if(contactPicked.name.givenName!=null) {
           $scope.user.firstName=contactPicked.name.givenName;
-        }
+        } 
         if(contactPicked.name.familyName!=null) {
           $scope.user.lastName=contactPicked.name.familyName;
         }
+      }
+
+      if($scope.user.firstName==null && $scope.user.lastName==null) {
+        $scope.user.firstName=contactPicked.displayName;
       }
 
       if(contactPicked.phoneNumbers!=null && contactPicked.phoneNumbers.length>0) {
@@ -358,7 +378,6 @@ angular.module('starter.controllers')
         }
         $scope.user.phoneNum=phoneNum;
       }
-
     });
   };
 
