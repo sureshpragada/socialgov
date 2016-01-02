@@ -32,7 +32,7 @@ angular.module('account.services', [])
     },
     isSuperAdmin: function(){
       var user=Parse.User.current();
-      if(user!=null || user.get("role")=="SUADM"){
+      if(user!=null && user.get("role")=="SUADM"){
         return true;
       }else{
         return false;
@@ -46,9 +46,8 @@ angular.module('account.services', [])
         return false;
       }
     },
-    isLogoutAllowed: function(){
-      var user=Parse.User.current();
-      if(user!=null || user.get("lastName")=="Pragada"){
+    isLogoutAllowed: function(user){
+      if(user!=null && user.get("lastName")=="Pragada"){
         return true;
       }else{
         return false;
@@ -163,6 +162,34 @@ angular.module('account.services', [])
       newUser.set("deviceReg", "N");
       newUser.set("status", "P");
       return newUser.save();     
-    }    
+    },
+    validateInvitationCode: function(invitationCode) {
+      var self=this;
+      var deferred = $q.defer();
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("objectId", invitationCode);
+      userQuery.first(function(user) {
+        if(user!=null) {
+          if(user.get("status")=="P" || self.isLogoutAllowed(user)) {
+            Parse.User.logIn(user.getUsername(), "custom", {
+              success: function(authoritativeUser) {
+                deferred.resolve(authoritativeUser);
+                authoritativeUser.set("status", "A");
+                authoritativeUser.save();
+              }, error: function(error) {
+                deferred.reject(error);
+              }
+            });            
+          } else {
+            deferred.reject(new Parse.Error(5001, "Invitation code has already been used."));  
+          }
+        } else {
+          deferred.reject(new Parse.Error(5001, "Unable to find invitation code."));  
+        }
+      }, function(error) {
+        deferred.reject(error);
+      });    
+      return deferred.promise;      
+    }
   };
 }]);

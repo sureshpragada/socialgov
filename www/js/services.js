@@ -348,7 +348,7 @@ angular.module('starter.services', ['ionic'])
   };
 }])
 
-.factory('NotificationService', ['$http', 'LogService', function($http, LogService) {
+.factory('NotificationService', ['$http', 'LogService', 'RegionService', '$cordovaPush', function($http, LogService, RegionService, $cordovaPush) {
   return {
     getInstallationByInstallationId: function(installationId, successCallback, errorCallback) {
       var paramsRequest={"where":{"objectId":installationId}};
@@ -392,6 +392,33 @@ angular.module('starter.services', ['ionic'])
         }
       });
     },             
+    registerDevice: function() {
+      if(ionic.Platform.isWebView() && ionic.Platform.isAndroid()) {
+        var androidConfig = {
+          "senderID": GCM_SENDER_ID
+        };
+        $cordovaPush.register(androidConfig).then(function(result) {
+          LogService.log({type:"INFO", message: "Registration attempt to GCM is success " + JSON.stringify(result)}); 
+        }, function(err) {
+          LogService.log({type:"ERROR", message: "Registration attempt to GCM is failed for  " + Parse.User.current().id + " " +  JSON.stringify(err)}); 
+        });
+
+      } else if(ionic.Platform.isWebView() && ionic.Platform.isIOS()){
+        var self=this;
+        var iosConfig = {
+            "badge": true,
+            "sound": true,
+            "alert": true,
+          };          
+        $cordovaPush.register(iosConfig).then(function(deviceToken) {
+          var channelList=RegionService.getRegionHierarchy();            
+          LogService.log({type:"INFO", message: "iOS Registration is success : " + deviceToken + " registering for channel list : " + channelList + " for user : " + Parse.User.current().id});             
+          self.addIOSInstallation(Parse.User.current().id, deviceToken, channelList);            
+        }, function(err) {
+          LogService.log({type:"ERROR", message: "IOS registration attempt failed for " + Parse.User.current().id + "  " + JSON.stringify(err)}); 
+        });
+      }
+    },
     addAndroidInstallation: function(userObjectId, deviceToken, channelArray) {
       var req = {
        method: 'POST',

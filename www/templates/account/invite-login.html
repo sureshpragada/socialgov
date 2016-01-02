@@ -1,15 +1,19 @@
-<ion-view hide-nav-bar="false" view-title="HomeBITES">
+<ion-view hide-nav-bar="true">
 	<ion-content class="vcenter padding">
+		<img class="full-image" src="img/socialgov.png">	
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">
 		  <label class="item item-input item-stacked-label">
 		    <span class="input-label">Invitation Code</span>
-		    <input type="text" placeholder="xRtJKLMN">
-		  </label>
+		    <input type="text" ng-model="inputForm.invitationCode" placeholder="xRtJKLMN" class="textAlignLeft">
+		  </label>      		  
 		</div>
-		<div class="padding">
-			<button class="button button-block button-balanced" ng-click="validateSignIn()">Access</button>
+		<div>
+			<button class="button button-block button-calm" ng-click="validateInvitationCode()">Use Invitation Code</button>
 		</div>			
+<!-- 		<div>
+			<button class="button button-block button-assertive" ng-click="requestInvitationCode()">Request Invitation Code</button>
+		</div>					 -->
 	</ion-content>
 </ion-view>
 
