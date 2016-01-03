@@ -163,6 +163,12 @@ angular.module('account.services', [])
       newUser.set("status", "P");
       return newUser.save();     
     },
+    updateAccount: function(inputUser) {
+      var user=Parse.User.current();
+      user.set("firstName", inputUser.firstName);
+      user.set("lastName", inputUser.lastName);
+      return user.save();
+    },
     validateInvitationCode: function(invitationCode) {
       var self=this;
       var deferred = $q.defer();

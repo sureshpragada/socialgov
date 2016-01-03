@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'activity.services', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle'])
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -350,6 +350,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         "tab-account": {
           templateUrl: 'templates/account/tab-account.html',
           controller: 'AccountCtrl'        
+        }
+      }
+    })
+
+    .state('tab.account-update', {
+      url: '/account-update',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/account/account-update.html',
+          controller: 'AccountUpdateCtrl'        
         }
       }
     })

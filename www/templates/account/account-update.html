@@ -1,0 +1,25 @@
+<ion-view view-title="Account Update">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">		
+			<label class="item item-input">
+				<span class="input-label">First Name</span>
+				<input type="text" name="firstName"  ng-model="inputUser.firstName">
+			</label>
+			<label class="item item-input">
+				<span class="input-label">Last Name</span>
+				<input type="text" name="lastName" ng-model="inputUser.lastName">
+			</label>			
+			<div class="row">
+				<div class="col">
+					<a class="button button-block" href="#/tab/account">Cancel</a>	
+				</div>
+				<div class="col">
+					<a class="button button-block button-balanced" ng-click="update()">Update</a>	
+				</div>					
+			</div>
+		</div>
+	</ion-content>
+</ion-view>
+
+

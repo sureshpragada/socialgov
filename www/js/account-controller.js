@@ -317,6 +317,31 @@ angular.module('starter.controllers')
 
 })
 
+.controller('AccountUpdateCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService) {
+  console.log("Account update controller");
+
+  var user=Parse.User.current();
+  $scope.inputUser={
+    firstName: user.get("firstName"), 
+    lastName: user.get("lastName")
+  };
+
+  $scope.update=function() {
+    console.log("Update request " + JSON.stringify($scope.inputUser));
+    if($scope.inputUser.firstName==null || $scope.inputUser.lastName==null) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
+    } else {
+      AccountService.updateAccount($scope.inputUser).then(function(newUser) {
+        SettingsService.setAppSuccessMessage("Account update is successfull.");
+        $state.go("tab.account");
+      }, function(error) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update your account.");  
+      });
+    }
+  };
+
+})
+
 .controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaPush, SettingsService, NotificationService) {
   $scope.inputForm={invitationCode: null};
   $scope.validateInvitationCode=function() {

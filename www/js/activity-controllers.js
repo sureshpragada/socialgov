@@ -57,20 +57,20 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             },
             error: function(error) {
               console.log("Unable to get activities : " + error.message);
-              $scope.activityError="Unable to get activities.";              
+              $scope.activityError=SettingsService.getControllerInfoMessage("Unable to get activities.");            
               $ionicLoading.hide();
             }
           });
 
         } else {
-          $scope.activityError="No activity found in your region.";
+          $scope.activityError=SettingsService.getControllerInfoMessage("No activity found in your region.");
           $ionicLoading.hide();          
         }
     }, 
     error: function(error) {
       $scope.$apply(function(){
         console.log("Unable to get activities : " + error.message);
-        $scope.activityError="Unable to get activities.";
+        $scope.activityError=SettingsService.getControllerInfoMessage("Unable to get activities.");            
         $ionicLoading.hide();
       });
     }
