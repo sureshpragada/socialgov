@@ -1,4 +1,4 @@
-angular.module('starter.services', ['ionic'])
+angular.module('log.services', ['ionic'])
 
 .factory('LogService', ['$http', function($http) {
   return {
