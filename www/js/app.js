@@ -5,13 +5,14 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'starter.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'activity.services', 'region.services', 'region-financial.services', 'notification.services', 'log.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle'])
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
     if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(false);      
+      cordova.plugins.Keyboard.disableScroll(true);      
     }
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
@@ -91,7 +92,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         var user=Parse.User.current();
         if(user==null || !user.authenticated()) {
           console.log("User is not authenticated");
-          $state.go("register");
+          $state.go("invite-login");
         }
       }
     })
@@ -101,7 +102,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         'tab-dash': {
-          templateUrl: 'templates/tab-dash.html',
+          templateUrl: 'templates/activity/tab-dash.html',
           controller: 'DashboardCtrl'
         }
       }
@@ -112,7 +113,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         'tab-dash': {
-          templateUrl: 'templates/activity-detail.html',
+          templateUrl: 'templates/activity/activity-detail.html',
           controller: 'ActivityCtrl'
         }
       }
@@ -123,7 +124,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         'tab-dash': {
-          templateUrl: 'templates/post-activity.html',
+          templateUrl: 'templates/activity/post-activity.html',
           controller: 'PostActivityCtrl'
         }
       }
@@ -134,7 +135,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         'tab-dash': {
-          templateUrl: 'templates/edit-post-activity.html',
+          templateUrl: 'templates/activity/edit-post-activity.html',
           controller: 'EditPostActivityCtrl'
         }
       }
@@ -348,8 +349,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         "tab-account": {
-          templateUrl: 'templates/tab-account.html',
+          templateUrl: 'templates/account/tab-account.html',
           controller: 'AccountCtrl'        
+        }
+      }
+    })
+
+    .state('tab.account-update', {
+      url: '/account-update',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/account/account-update.html',
+          controller: 'AccountUpdateCtrl'        
         }
       }
     })
@@ -359,7 +371,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         "tab-account": {
-          templateUrl: 'templates/invite-citizen.html',
+          templateUrl: 'templates/account/invite-citizen.html',
           controller: 'InviteCitizenCtrl'        
         }
       }
@@ -370,7 +382,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         "tab-account": {
-          templateUrl: 'templates/admin-access-request.html',
+          templateUrl: 'templates/account/admin-access-request.html',
           controller: 'AdminAccessReqCtrl'        
         }
       }
@@ -381,7 +393,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         "tab-account": {
-          templateUrl: 'templates/admin-access-request-list.html',
+          templateUrl: 'templates/account/admin-access-request-list.html',
           controller: 'AdminAccessReqListCtrl'        
         }
       }
@@ -392,15 +404,22 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,
       views: {
         "tab-account": {
-          templateUrl: 'templates/admin-access-request-detail.html',
+          templateUrl: 'templates/account/admin-access-request-detail.html',
           controller: 'AdminAccessReqDetailCtrl'        
         }
       }
     })    
 
+    .state('invite-login', {
+      url: '/invite-login',
+      templateUrl: 'templates/account/invite-login.html',
+      controller: 'InvitationLoginCtrl',
+      cache: false
+    })
+
     .state('register', {
       url: '/register',
-      templateUrl: 'templates/register.html',
+      templateUrl: 'templates/account/register.html',
       controller: 'RegisterCtrl',
       cache: false
     });

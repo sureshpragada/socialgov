@@ -3,7 +3,8 @@
     <a class="button button-icon icon ion-compose" href="#/tab/post" ng-if="user.get('status')!='S'"></a>
   </ion-nav-buttons>
   <ion-content class="visible-cards">
-    <div class="card padding warn" ng-if="activityError">{{activityError}}</div>    
+    <my-app-message info="appMessage"></my-app-message>
+    <my-app-message info="activityError"></my-app-message>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError" ng-init="activityIndex = $index">
       <div class="item item-avatar item-icon-right">
         <img src="img/idea_blue.png" ng-if="activity.get('activityType')=='IDEA'">

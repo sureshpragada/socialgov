@@ -1,13 +1,10 @@
 <ion-view view-title="Account">
   <ion-content class="visible-cards">
-<!--     <div ng-if="accessRequestMessage" class="card padding warn">
-        {{accessRequestMessage}}
-    </div>                 
- -->  
+  <my-app-message info="accessRequestMessage"></my-app-message>
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Profile</h4> -->
     <div class="card">
       <div class="item item-icon-right">
-        <a href="#/guest/info-edit"><i class="icon ion-compose calm"></i></a>      
+        <a href="#/tab/account-update"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
       </div>
       <ion-item>
@@ -31,7 +28,7 @@
       <ion-toggle ng-model="settings.notifications" ng-change="notifySettingChanged('notifySetting', settings.notifications)">
           {{'Notify' | translate}}
       </ion-toggle>          
-      <ion-item class="item-icon-right" ng-click="registerDevice()" ng-if="user.get('deviceReg')!='Y'">
+      <ion-item class="item-icon-right" ng-click="registerDevice()" ng-if="ionic.Platform.isWebView() && user.get('deviceReg')!='Y'">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Register device
       </ion-item>  

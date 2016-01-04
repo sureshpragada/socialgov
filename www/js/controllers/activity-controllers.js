@@ -17,6 +17,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   });
   console.log("Activity controller");
 
+  $scope.appMessage=SettingsService.getAppMessage();
+  console.log("App message : " + $scope.appMessage);
+
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
   var regionList=RegionService.getRegionHierarchy();
@@ -57,27 +60,27 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             },
             error: function(error) {
               console.log("Unable to get activities : " + error.message);
-              $scope.activityError="Unable to get activities.";              
+              $scope.activityError=SettingsService.getControllerInfoMessage("Unable to get activities.");            
               $ionicLoading.hide();
             }
           });
 
         } else {
-          $scope.activityError="No activity found in your region.";
+          $scope.activityError=SettingsService.getControllerInfoMessage("No activity found in your region.");
           $ionicLoading.hide();          
         }
     }, 
     error: function(error) {
       $scope.$apply(function(){
         console.log("Unable to get activities : " + error.message);
-        $scope.activityError="Unable to get activities.";
+        $scope.activityError=SettingsService.getControllerInfoMessage("Unable to get activities.");            
         $ionicLoading.hide();
       });
     }
   });
 
   $scope.notifyUserUnreadActivityCount=function() {
-    var lastActivityViewTimestamp=SettingsService.get("lastActivityView"); 
+    var lastActivityViewTimestamp=SettingsService.getPreference("lastActivityView"); 
     console.log("Last activity view : " + lastActivityViewTimestamp);
     if(lastActivityViewTimestamp!=null) {
       var unreadCount=0;
@@ -94,7 +97,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         $scope.$parent.badges.activity=unreadCount;
       }
     }
-    SettingsService.set("lastActivityView", new Date().getTime());
+    SettingsService.setPreference("lastActivityView", new Date().getTime());
   }
 
   $scope.beginDebate=function(activityId, index) {
@@ -498,7 +501,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate) {
+.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService) {
 
   var user=Parse.User.current();  
   var stateData=PictureManagerService.getState();
@@ -516,13 +519,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.submitPost=function() {
     $scope.postErrorMessage=null;
     if($scope.post.notifyMessage==null || $scope.post.notifyMessage.length<10 || $scope.post.notifyMessage.length>2048) {
-      $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
+      $scope.postErrorMessage=SettingsService.getControllerErrorMessage("Message should be minimum 10 and maximum 2048 characters.");
       return;
     }      
 
     var badwords=ActivityService.getBadWordsFromMesage($scope.post.notifyMessage);
     if(badwords!=null && badwords.length>0) {
-      $scope.postErrorMessage="Please remove bad words " + JSON.stringify(badwords) + " from the message.";      
+      $scope.postErrorMessage=SettingsService.getControllerErrorMessage("Please remove bad words " + JSON.stringify(badwords) + " from the message.");
       return;
     }
 
@@ -554,6 +557,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);
             $ionicLoading.hide();          
             // Push the new activity to the top of activity chart, probably through Activity service
+            SettingsService.setAppSuccessMessage("Activity has been posted.");            
             $scope.$apply(function(){
               PictureManagerService.reset();
               $state.go("tab.dash");  
@@ -563,7 +567,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             console.log("Error in posting message " + error.message);
             $ionicLoading.hide();          
             $scope.postError=true;
-            $scope.postErrorMessage=error.message;
+            $scope.postErrorMessage=SettingsService.getControllerErrorMessage(error.message);
             $scope.$apply();
           }
         });
@@ -606,7 +610,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService) {
+.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService) {
   var user=Parse.User.current();  
   $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
   $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
@@ -624,7 +628,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     }, 
     error: function(error) {
       console.log("Error while retrieving post to edit : " + JSON.stringify(error));
-      $scope.postErrorMessage="Unable to retrieve post to edit. Please try again later.";
+      $scope.postErrorMessage=SettingsService.getControllerErrorMessage("Unable to retrieve post to edit. Please try again later.");
     }
   });
 
@@ -633,7 +637,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
     var badwords=ActivityService.getBadWordsFromMesage($scope.post.notifyMessage);
     if(badwords!=null && badwords.length>0) {
-      $scope.postErrorMessage="Please remove bad words " + JSON.stringify(badwords) + " from the message.";      
+      $scope.postErrorMessage=SettingsService.getControllerErrorMessage("Please remove bad words " + JSON.stringify(badwords) + " from the message.");
       return;
     }
 
@@ -645,18 +649,19 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.preActivity.save(null, {
         success: function(activity) {
           // Push the new activity to the top of activity chart, probably through Activity service
+          SettingsService.setAppSuccessMessage("Activity has been updated.");
           $state.go("tab.dash");  
         },
         error: function(activity, error) {
           // Notify user that post has failed
           console.log("Error in posting message " + error.message);
           $scope.postError=true;
-          $scope.postErrorMessage=error.message;
+          $scope.postErrorMessage=SettingsService.getControllerErrorMessage(error.message);
           $scope.$apply();
         }
       });
     } else {
-      $scope.postErrorMessage="Message should be minimum 10 and maximum 2048 characters.";
+      $scope.postErrorMessage=SettingsService.getControllerErrorMessage("Message should be minimum 10 and maximum 2048 characters.");
     }
   };
 
