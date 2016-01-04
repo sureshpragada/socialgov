@@ -1,15 +1,15 @@
 <ion-view view-title="Account">
-  <ion-content>
-    <ion-list>
-      <ion-item>
-        {{'FName' | translate}}<span class="item-note">{{user.get("firstName")}}</span>
-      </ion-item>
-      <ion-item>
-        {{'LName' | translate}}<span class="item-note">{{user.get("lastName")}}</span>      
-      </ion-item>
-      <ion-item>
-        {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
-      </ion-item>
+  <ion-content class="visible-cards">
+<!--     <div ng-if="accessRequestMessage" class="card padding warn">
+        {{accessRequestMessage}}
+    </div>                 
+ -->  
+<!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Profile</h4> -->
+    <div class="card">
+      <div class="item item-icon-right">
+        <a href="#/guest/info-edit"><i class="icon ion-compose calm"></i></a>      
+        <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
+      </div>
       <ion-item>
         Residency<span class="item-note">{{regionDisplayName}}</span>                  
       </ion-item>                        
@@ -21,23 +21,37 @@
       </ion-item>                        
       <ion-item ng-if="user.get('title')">
         Honorable Title<span class="item-note">{{user.get("title")}}</span>                        
-      </ion-item>                        
-      <div ng-if="accessRequestMessage" class="card padding warn">
-          {{accessRequestMessage}}
-      </div>                 
+      </ion-item>                       
+      <ion-item>
+        {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
+      </ion-item>      
+    </div>    
+<!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
+    <div class="card">
       <ion-toggle ng-model="settings.notifications" ng-change="notifySettingChanged('notifySetting', settings.notifications)">
           {{'Notify' | translate}}
-      </ion-toggle>      
-    </ion-list>
-    <div class="padding" ng-show=" isLogoutAllowed()">
-      <button class="button button-block button-assertive" ng-click="logout()">Sign out</button>
-    </div>
-    <div class="padding" ng-if="!isPendingRequest && !isSuperAdmin()">
-      <a href="#/tab/adminaccess" class="button button-block button-royal">Request Role Change</a>    
-    </div>
-    <div class="padding" ng-if="isSuperAdmin()">
-      <a href="#/tab/adminAccessList" class="button button-block button-balanced">Review Role Change Requests</a>
-    </div>
+      </ion-toggle>          
+      <ion-item class="item-icon-right" ng-click="registerDevice()" ng-if="user.get('deviceReg')!='Y'">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        Register device
+      </ion-item>  
+      <ion-item class="item-icon-right" href="#/tab/adminaccess" ng-if="!isPendingRequest && !privs.isSuperAdmin">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        Request Role Change
+      </ion-item>            
+      <ion-item class="item-icon-right" href="#/tab/adminAccessList" ng-if="privs.isSuperAdmin">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        Review Role Changes
+      </ion-item>      
+      <ion-item class="item-icon-right" href="#/tab/invite-citizen">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        Invite Citizen
+      </ion-item>      
+      <ion-item class="item-icon-right" ng-click="logout()" ng-if="privs.isLogoutAllowed">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        Sign Out
+      </ion-item>      
+    </div>        
 
   </ion-content>
 </ion-view>

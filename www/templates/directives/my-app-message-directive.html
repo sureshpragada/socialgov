@@ -1,0 +1,8 @@
+<div class="card" ng-if="appMessage">
+  <ion-item class="item-icon-left item-text-wrap">
+    <i class="icon ion-checkmark-circled balanced" ng-if="appMessage.type=='SUCCESS'"></i>
+    <i class="icon ion-alert-circled assertive" ng-if="appMessage.type=='ERROR'"></i>
+    <i class="icon ion-information-circled royal" ng-if="appMessage.type=='INFO'"></i>
+    <div ng-bind-html="appMessage.message | nl2br">
+  </ion-item>          
+</div>

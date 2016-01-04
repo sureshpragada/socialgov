@@ -6,10 +6,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };      
 })
 
-.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService) {
+.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService) {
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
+  $scope.commentStatusList=[];
   $scope.user=Parse.User.current();
   $ionicLoading.show({
     template: "<ion-spinner></ion-spinner> Finding activity in " + $scope.user.get("residency").capitalizeFirstLetter()
@@ -19,7 +20,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
   var regionList=RegionService.getRegionHierarchy();
-  // console.log("Region list to get activity : " + JSON.stringify(regionList));
+  console.log("Region list to get activity : " + JSON.stringify(regionList));
   query.containedIn("regionUniqueName", regionList);
   if(AccountService.canUpdateRegion()) {
     query.containedIn("status", ["A","S"]);
@@ -46,6 +47,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
                   for(var k=0;k<activityList.length;k++) {
                     $scope.argumentMessageList.push("");
                     $scope.debateList.push(null);
+                    $scope.commentStatusList.push(false);
                   }
                 } else {
                   $scope.userActivityList=[];
@@ -75,8 +77,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   });
 
   $scope.notifyUserUnreadActivityCount=function() {
-    var lastActivityViewTimestamp=Parse.User.current().get("lastActivityView");
-    // console.log("Parse user object " + JSON.stringify(Parse.User.current()));
+    var lastActivityViewTimestamp=SettingsService.get("lastActivityView"); 
     console.log("Last activity view : " + lastActivityViewTimestamp);
     if(lastActivityViewTimestamp!=null) {
       var unreadCount=0;
@@ -93,8 +94,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         $scope.$parent.badges.activity=unreadCount;
       }
     }
-    Parse.User.current().set("lastActivityView", new Date().getTime());
-    // console.log("Parse user object " + JSON.stringify(Parse.User.current()));
+    SettingsService.set("lastActivityView", new Date().getTime());
   }
 
   $scope.beginDebate=function(activityId, index) {
@@ -125,14 +125,16 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
       });          
     }
+    $scope.commentStatusList[index]=$scope.commentStatusList[index]?false:true;
   };
 
   $scope.isDebateRequested=function(activityId, index) {
-    if($scope.debateList[index]!=null) {
-      return true;
-    } else {
-      return false;
-    }
+    return $scope.commentStatusList[index];
+    // if($scope.debateList[index]!=null) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
   };
 
   $scope.postDebateArgument=function(activityId, index) {
