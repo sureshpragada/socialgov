@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title>OurBlock - Building Stronger Communities</title>
+    <style type="text/css">
+    p {
+      font: inherit;
+      font-size: 15px;
+      margin: 10px;
+      color: #666;
+      white-space: normal;
+      vertical-align: baseline;
+      text-align: justify;
+      padding: 5px;  
+      line-height: 20px;
+    }
+    </style>
+  </head>
+  <body>
+      <script type="text/javascript">
+
+        var androidAppLink="https://play.google.com/store/apps/details?id=com.ourblock&hl=en";
+        var iosAppLink="https://itunes.apple.com/us/app/our-block/id1054806662?mt=8";
+
+        var isMobile = {
+            Android: function() {
+                return navigator.userAgent.match(/Android/i);
+            },
+            BlackBerry: function() {
+                return navigator.userAgent.match(/BlackBerry/i);
+            },
+            iOS: function() {
+                return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+            },
+            Opera: function() {
+                return navigator.userAgent.match(/Opera Mini/i);
+            },
+            Windows: function() {
+                return navigator.userAgent.match(/IEMobile/i);
+            },
+            any: function() {
+                return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+            }
+        };
+
+        if(isMobile.iOS()) {
+          window.open(iosAppLink);
+        } else if(isMobile.Android()) {
+          window.location=androidAppLink;
+        } else {
+          console.log("App not supported for this browser " + navigator.userAgent);
+        }
+
+      </script>
+        <div style="text-align:center;">
+          <img style="max-width: 100%; height: auto;" src="img/ourblock.png">
+          </div>
+          <p>
+          OurBlock platform will bring residents, board of directors and management company together to communicate and engage each other to build stronger community. 
+          </p>
+          <p>
+          Residents can bring up development ideas in their community along with any problems and they can find line itmes of the community expenses to bring transparency.
+          </p>
+          <p>
+          We support Android and iOS platforms at this time. Please stay tuned for other platforms.
+          </p>          
+          <p  style="text-align: center;">
+            <a href="https://itunes.apple.com/us/app/our-block/id1054806662?mt=8" target="_blank" >
+              <img alt="iOS app on App Store"
+                   src="appstore_badge.svg" height="43px" />
+            </a>
+            &nbsp;
+            <a href="https://play.google.com/store/apps/details?id=com.ourblock">
+              <img alt="Android app on Google Play"
+                   src="https://developer.android.com/images/brand/en_app_rgb_wo_45.png" />
+            </a>                        
+<!--             <a href="https://play.google.com/store/apps/details?id=org.socialgov">
+              <img alt="Android app on Google Play"
+                   src="https://developer.android.com/images/brand/en_app_rgb_wo_60.png" />
+            </a> -->
+          </p>          
+
+  </body>
+</html>

@@ -133,21 +133,19 @@ angular.module('notification.services', ['ionic'])
       user.set("deviceReg", "Y");
       user.save();
     },
-    sendInvitationCode: function(invitationCode) {
-      var androidAppLink="http://tinyurl.com/nhezg94"; // https://play.google.com/store/apps/details?id=org.socialgov&hl=en
-      var iosAppLink="http://tinyurl.com/gtfwdee"; // https://itunes.apple.com/us/app/my-homebites/id1063077788?ls=1&mt=8
-
-      if(ionic.Platform.isWebView()) {
-        var message="You have been invited to SocialGov. Use invitation code, "+ invitationCode + " to login to the serve. Download app at ";
-        if(ionic.Platform.isAndroid()) {
-          message+=androidAppLink;
-        } else if(ionic.Platform.isIOS()) {
-          message+=iosAppLink;
+    sendInvitationCode: function(invitationCode, phoneNumber) {
+      //sendSmsPlivo
+      Parse.Cloud.run('sendSmsPlivo', {"phoneNumber": phoneNumber, "invitationCode": invitationCode}, {
+        success: function(response) {
+          console.log("Response from sendSmsPlivo : " + JSON.stringify(response));
+          LogService.log({type:"INFO", message: "SMS Send is success " + JSON.stringify(response)}); 
+        }, 
+        error: function(error) {
+          console.log("Response from sendSmsPlivo : " + JSON.stringify(error));
+          LogService.log({type:"ERROR", message: "SMS send is failed " + JSON.stringify(error)}); 
         }
-        console.log("Making cloud call to send invitation code " + invitationCode);
-      } else {
-        console.log("Invitation code cannot be send to non webview users. " + invitationCode);
-      }
+      });
+
     }
   };
 }])
