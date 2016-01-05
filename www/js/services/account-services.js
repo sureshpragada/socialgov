@@ -148,15 +148,16 @@ angular.module('account.services', [])
       });      
     },
     addInvitedContact: function(inputUser) {
+      var currentUser=this.getUser();
       var newUser=new Parse.User();
-      var userName=COUNTRY_LIST[0].countryCode+""+inputUser.phoneNum;
+      var userName=currentUser.get("countryCode")+""+inputUser.phoneNum;
       newUser.set("username", userName);
       newUser.set("password", "custom");
       newUser.set("firstName", inputUser.firstName.capitalizeFirstLetter());
       newUser.set("lastName", inputUser.lastName.capitalizeFirstLetter());
       newUser.set("residency", Parse.User.current().get("residency"));
       newUser.set("phoneNum", inputUser.phoneNum);
-      newUser.set("countryCode", COUNTRY_LIST[0].countryCode);
+      newUser.set("countryCode", currentUser.get("countryCode"));
       newUser.set("role", "CTZEN");
       newUser.set("notifySetting", true);
       newUser.set("deviceReg", "N");

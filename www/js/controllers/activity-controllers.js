@@ -18,7 +18,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   console.log("Activity controller");
 
   $scope.appMessage=SettingsService.getAppMessage();
-  console.log("App message : " + $scope.appMessage);
 
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);

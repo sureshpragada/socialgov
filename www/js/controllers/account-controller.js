@@ -267,6 +267,8 @@ angular.module('starter.controllers')
     isLogoutAllowed: AccountService.isLogoutAllowed($scope.user)
   };
 
+  $scope.appMessage=SettingsService.getAppMessage();  
+
   $scope.isPendingRequest=false;
   AccountService.getAccessRequest().then(function(accessrequest){
     console.log("Access request returned from cache : " + JSON.stringify(accessrequest));
@@ -342,8 +344,8 @@ angular.module('starter.controllers')
 
 })
 
-.controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaPush, SettingsService, NotificationService) {
-  $scope.inputForm={invitationCode: null};
+.controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaDialogs, SettingsService, NotificationService, $http) {
+  $scope.inputForm={invitationCode: null, terms: true};
   $scope.validateInvitationCode=function() {
     console.log("Validating invitation code");
     if($scope.inputForm.invitationCode!=null && $scope.inputForm.invitationCode.length>0) {
@@ -363,6 +365,15 @@ angular.module('starter.controllers')
     $state.go("request-invitation");
   };  
 
+  $scope.showTerms=function() {    
+    $http.get("img/license.txt")
+      .success(function(data) {
+        $cordovaDialogs.alert(data, 'Terms & Conditions');
+      }).error(function() {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to read license content");
+      });    
+  };
+
 })
 
 .controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService) {
@@ -373,25 +384,37 @@ angular.module('starter.controllers')
     console.log("invited " + JSON.stringify($scope.user));
     if($scope.user.firstName==null || $scope.user.lastName==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
-    } else if ($scope.user.phoneNum==null || $scope.user.phoneNum.length<10) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
+      return;
+    } 
+    
+    if ($scope.user.phoneNum!=null) {
+      var formattedPhone = $scope.user.phoneNum.replace(/[^0-9]/g, '');  
+
+      if(formattedPhone.length != 10) { 
+         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
+         return;
+      } 
     } else {
-      // Create user
-      AccountService.addInvitedContact($scope.user).then(function(newUser) {
-        // Send invitation
-        NotificationService.sendInvitationCode(newUser.id);
-        SettingsService.setAppSuccessMessage("Invitation has been sent successfully.");
-        $state.go("tab.account");
-      }, function(error) {
-        // Verify if this user exist message
-        if(error.code==202) {
-          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");  
-        } else {
-          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to invite this contact.");  
-        }
-        $scope.$apply();
-      });
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
+      return;
     }
+      
+    // Create user
+    AccountService.addInvitedContact($scope.user).then(function(newUser) {
+      // Send invitation
+      NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));
+      SettingsService.setAppSuccessMessage("Invitation has been sent.");
+      $state.go("tab.account");
+    }, function(error) {
+      // Verify if this user exist message
+      if(error.code==202) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");  
+      } else {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to invite this contact.");  
+      }
+      $scope.$apply();
+    });
+
   };
 
 /**
