@@ -147,28 +147,63 @@ angular.module('account.services', [])
         }
       });      
     },
-    addInvitedContact: function(inputUser) {
-      var currentUser=this.getUser();
+    addContact: function(inputUser) {
       var newUser=new Parse.User();
       var userName=currentUser.get("countryCode")+""+inputUser.phoneNum;
       newUser.set("username", userName);
       newUser.set("password", "custom");
       newUser.set("firstName", inputUser.firstName.capitalizeFirstLetter());
       newUser.set("lastName", inputUser.lastName.capitalizeFirstLetter());
-      newUser.set("residency", Parse.User.current().get("residency"));
       newUser.set("phoneNum", inputUser.phoneNum);
       newUser.set("countryCode", currentUser.get("countryCode"));
       newUser.set("role", "CTZEN");
       newUser.set("notifySetting", true);
       newUser.set("deviceReg", "N");
+      return newUser;
+    },
+    addLookUpContact: function(lookUpUser) {
+      var newUser = this.addContact(lookUpUser);
+      newUser.set("residency", lookUpUser.residency);
+      newUser.set("status", "T");
+      newUser.set("sentInviteMessageCount",0);
+      return newUser.save();        
+    },
+    addInvitedContact: function(inputUser) {
+      var newUser = this.addContact(inputUser);
+      newUser.set("residency", Parse.User.current().get("residency"));
       newUser.set("status", "P");
-      return newUser.save();     
+      return newUser.save();        
     },
     updateAccount: function(inputUser) {
       var user=Parse.User.current();
       user.set("firstName", inputUser.firstName);
       user.set("lastName", inputUser.lastName);
       return user.save();
+    },
+    getUserObjectByPhoneNumber: function(number){
+      var User = Parse.Object.extend("User");
+      var query = new Parse.Query(User);
+      query.equalTo("phoneNum",number);
+      query.find({
+        success: function(results) {
+          console.log(JSON.stringify(results));
+          var objectId = results[0].id;
+          var sentMessageCount = results[0].sentInviteMessageCount;
+          console.log(objectId+" "+sentMessageCount);
+          console.log(sentMessageCount==null);
+          if(sentMessageCount==null || sentMessageCount<=3){
+            console.log("yes");
+            return objectId;
+          }
+          else{
+            console.log("No");
+            return null;
+          }
+        },
+        error: function(error) {
+          console.log("unable to find the user");
+        }
+      });
     },
     validateInvitationCode: function(invitationCode) {
       var self=this;
