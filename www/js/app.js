@@ -417,6 +417,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false
     })
 
+    .state('request-invitation', {
+      url: '/request-invitation',
+      templateUrl: 'templates/account/region-lookup.html',
+      controller: 'RegionLookUpCtrl',
+      cache: false
+    })    
+
     .state('register', {
       url: '/register',
       templateUrl: 'templates/account/register.html',
