@@ -139,28 +139,30 @@ Parse.Cloud.define("modifyUser", function(request, response) {
 Parse.Cloud.define("sendSmsPlivo", function(request, response) {
   var auth_id = "MANJA3NWVJYTAYMTQ0YT";
   var auth_token = "MTI0NjhmZGU5ODQyZDIzZTU1NDJjZGRjNjBjYmNh";
-  var plivo_number = "16622695426";
+  var plivo_number = "16623561633";
   
   var invitationCode=request.params.invitationCode;
   var downloadUrl="http://tinyurl.com/zvu26om"; // http://socialgov.in/redirect/socialgov.html
-  var message="You have been invited to SocialGov. Use invitation code, "+ invitationCode + " to login to the serve. Download app at " + downloadUrl;
+  var message="You have been invited to SocialGov. Use invitation code, "+ invitationCode + " to login to the service. Download app at " + downloadUrl;
 
   console.log("SMS will be sent to : " + request.params.phoneNumber + ", message : " + message);
 
-  // Parse.Cloud.httpRequest({
-  //   method: "POST",
-  //   headers: {'Content-Type': 'application/json',},
-  //   url: 'https://'+auth_id+':'+auth_token+'@api.plivo.com/v1/Account/'+auth_id+ '/Message/',
-  //   body: {
-  //     "src" : plivo_number,
-  //     "dst" : request.params.phoneNumber,
-  //     "text" : message
-  //   },
-  //   success: function(httpResponse) {
-  //     console.log(httpResponse.text);
-  //   },
-  //   error: function(httpResponse) {
-  //     console.error('Request failed with response code ' + httpResponse.status);
-  //   }
-  // });
+  Parse.Cloud.httpRequest({
+    method: "POST",
+    headers: {'Content-Type': 'application/json',},
+    url: 'https://'+auth_id+':'+auth_token+'@api.plivo.com/v1/Account/'+auth_id+ '/Message/',
+    body: {
+      "src" : plivo_number,
+      "dst" : request.params.phoneNumber,
+      "text" : message
+    },
+    success: function(httpResponse) {
+      	console.log(httpResponse.text);
+      	response.success("Successfully sent SMS to the invitee.");
+    },
+    error: function(httpResponse) {
+    	console.error('Request failed with response code ' + httpResponse.status);
+    	response.error('Request failed with response code ' + httpResponse.status);
+    }
+  });
 });

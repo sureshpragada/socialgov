@@ -83,9 +83,9 @@
         </div>        
       </div> 
       <div ng-if="isDebateRequested(activity.id, activityIndex)">
-        <div class="item" ng-repeat="debate in debateList[activityIndex]" ng-init="debateIndex = $index">
-          <p class="commentUserDivider item-text-wrap quote" ng-bind-html="debate.get('argument') | nl2br"></p>          
-          <p class="item-text-wrap">{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}&nbsp;&nbsp;{{debate.createdAt | date:'short'}}</p>
+        <div class="item item-text-wrap" ng-repeat="debate in debateList[activityIndex]" ng-init="debateIndex = $index">
+          <p class="commentUserDivider quote" ng-bind-html="debate.get('argument') | nl2br"></p>          
+          <p>{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}&nbsp;&nbsp;{{debate.createdAt | date:'short'}}</p>
           <p>
             <a ng-click="reportDebateSpam(debate.id, activityIndex, debateIndex)" class="assertive">Report Spam</a> &nbsp;
             <a ng-click="removeDebateSpamFlag(debate.id, activityIndex, debateIndex)" class="balanced" ng-if="debate.get('status')=='S'">Remove spam flag</a> &nbsp;

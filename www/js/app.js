@@ -294,6 +294,160 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.financial', {
+      url: '/financial',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/tab-financial.html',
+          controller: 'FinancialCtrl'        
+        }
+      }
+    })
+
+    .state('tab.how-to-make-payment', {
+      url: '/how-to-make-payment',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/how-to-make-payment.html',
+          controller: 'HowToMakePaymentCtrl'        
+        }
+      }
+    })
+
+    .state('tab.payment-history', {
+      url: '/payment-history',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/payment-history.html',
+          controller: 'PaymentHistoryCtrl'        
+        }
+      }
+    })    
+    
+    .state('tab.revenue-list', {
+      url: '/revenue-list',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/revenue-list.html',
+          controller: 'RevenueListCtrl'        
+        }
+      }
+    })    
+
+    .state('tab.payment-detail', {
+      url: '/payment-detail/{paymentId}',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/payment-detail.html',
+          controller: 'PaymentDetailCtrl'        
+        }
+      }
+    })        
+
+    .state('tab.expense-list', {
+      url: '/expense-list',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/expense-list.html',
+          controller: 'ExpenseListCtrl'        
+        }
+      }
+    })        
+
+    .state('tab.expense-detail', {
+      url: '/expense-detail/{expenseId}',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/expense-detail.html',
+          controller: 'ExpenseDetailCtrl'        
+        }
+      }
+    })                
+
+    .state('tab.reserves-detail', {
+      url: '/reserves-detail',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/reserves-detail.html',
+          controller: 'ReservesDetailCtrl'        
+        }
+      }
+    })                
+
+    .state('tab.dues-list', {
+      url: '/dues-list',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/dues-list.html',
+          controller: 'DuesListCtrl'        
+        }
+      }
+    })                    
+
+    .state('tab.balance-sheet', {
+      url: '/balance-sheet',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/balance-sheet.html',
+          controller: 'BalanceSheetCtrl'        
+        }
+      }
+    })                    
+
+    .state('tab.manage-dues', {
+      url: '/manage-dues',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/manage-dues.html',
+          controller: 'ManageDuesCtrl'        
+        }
+      }
+    })                        
+
+    .state('tab.manage-revenue', {
+      url: '/manage-revenue',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/manage-revenue.html',
+          controller: 'ManageRevenueCtrl'        
+        }
+      }
+    })                        
+
+    .state('tab.manage-expense', {
+      url: '/manage-expense',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/manage-expense.html',
+          controller: 'ManageExpenseCtrl'        
+        }
+      }
+    })                        
+
+    .state('tab.manage-reserves', {
+      url: '/manage-reserves',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/manage-reserves.html',
+          controller: 'ManageReservesCtrl'        
+        }
+      }
+    })                        
+
     .state('tab.finview', {
       url: '/finview/{regionUniqueName}',
       cache: false,      
@@ -335,6 +489,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })      
+
+
     // .state('tab.account.settings', {
     //   url: '/settings',
     //   views: {
@@ -447,6 +603,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     FirstLevelRegion: 'Village/Division',
     Population: 'Population',
     PostalCode: 'PIN Codes',
+    InvitePage: 'Invite Citizen',
     Currency: 'Rs',
     Messages: {
       PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of Government.',
@@ -464,6 +621,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     FirstLevelRegion: 'Association',
     Population: 'Homes',
     PostalCode: 'ZIP Codes',
+    InvitePage: 'Invite Resident',
     Currency: '$',
     Messages: {
       PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of the association board.',

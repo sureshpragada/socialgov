@@ -1,5 +1,6 @@
 <ion-view view-title="Account">
   <ion-content class="visible-cards">
+  <my-app-message info="appMessage"></my-app-message>
   <my-app-message info="accessRequestMessage"></my-app-message>
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Profile</h4> -->
     <div class="card">
@@ -42,7 +43,7 @@
       </ion-item>      
       <ion-item class="item-icon-right" href="#/tab/invite-citizen">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
-        Invite Citizen
+        {{'InvitePage' | translate}}        
       </ion-item>      
       <ion-item class="item-icon-right" ng-click="logout()" ng-if="privs.isLogoutAllowed">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
