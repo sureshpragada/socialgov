@@ -1,0 +1,32 @@
+<ion-view view-title="Manage Revenue">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">		
+			<label class="item item-input">
+				<span class="input-label">Revenue Source</span>
+				<input type="text" name="revenueSource" ng-model="input.revenueSource">
+			</label>		
+			<label class="item item-input">
+				<span class="input-label">Revenue Amount</span>
+				<input type="number" name="revenueAmount"  ng-model="input.revenueAmount">
+			</label>
+			<label class="item item-input">
+				<span class="input-label">Revenue Date</span>
+				<input type="date" name="revenueDate"  ng-model="input.revenueDate">
+			</label>						
+			  <label class="item item-input">
+			    <textarea placeholder="Notes..." rows="5" ng-model="input.note"></textarea>
+			  </label>			
+			<div class="row">
+				<div class="col">
+					<a class="button button-block button-assertive" href="#/tab/revenue-list">Cancel</a>	
+				</div>
+				<div class="col">
+					<a class="button button-block button-calm" ng-click="addRevenue()">Add Revenue</a>	
+				</div>					
+			</div>
+		</div>
+	</ion-content>
+</ion-view>
+
+

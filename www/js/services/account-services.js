@@ -62,7 +62,7 @@ angular.module('account.services', [])
       }
     },
     getUser: function() {
-      if(new Date().getTime()-userLastRefreshTimeStamp>(1 * 60 * 60 * 1000)) {
+      if(new Date().getTime()-userLastRefreshTimeStamp>(5 * 60 * 1000)) {
         Parse.User.current().fetch();        
         userLastRefreshTimeStamp=new Date().getTime();
         console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        

@@ -1,0 +1,16 @@
+<ion-view view-title="Payment History">
+  <ion-content class="visible-cards">
+  <my-app-message info="appMessage"></my-app-message>
+  <my-app-message info="controllerMessage"></my-app-message>
+    <div class="card">
+      <ion-list>
+        <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/payment-detail/{{payment.paymentId}}">
+          {{payment.paymentDate | date:'MMM yyyy'}} 
+          <span class="item-note">Rs {{payment.amount}}</span>
+          <i class="icon ion-chevron-right icon-accessory"></i>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-view>
+ 

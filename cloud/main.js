@@ -139,7 +139,7 @@ Parse.Cloud.define("modifyUser", function(request, response) {
 Parse.Cloud.define("sendSmsPlivo", function(request, response) {
   var auth_id = "MANJA3NWVJYTAYMTQ0YT";
   var auth_token = "MTI0NjhmZGU5ODQyZDIzZTU1NDJjZGRjNjBjYmNh";
-  var plivo_number = "16622695426";
+  var plivo_number = "16623561633";
   
   var invitationCode=request.params.invitationCode;
   var downloadUrl="http://tinyurl.com/zvu26om"; // http://socialgov.in/redirect/socialgov.html
