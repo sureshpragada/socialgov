@@ -180,6 +180,7 @@ angular.module('account.services', [])
       var user=Parse.User.current();
       user.set("firstName", inputUser.firstName);
       user.set("lastName", inputUser.lastName);
+      user.set("homeNo", inputUser.homeNumber);
       return user.save();
     },
     getUserObjectByPhoneNumber: function(number){

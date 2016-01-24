@@ -6,7 +6,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };      
 })
 
-.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService) {
+.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal) {
   $scope.activityError=null;
   $scope.debateList=[];
   $scope.argumentMessageList=[];
@@ -470,6 +470,27 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
        }, 5000);
 
   };
+
+
+  $ionicModal.fromTemplateUrl('templates/picture-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  })  
+
+  $scope.showActivityImage = function(activityIndex) {
+    $scope.imageUrl=$scope.activities[activityIndex].get('images')[0];
+    $scope.modal.show();
+  }
+
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });  
 
 })
 

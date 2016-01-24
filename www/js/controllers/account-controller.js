@@ -258,7 +258,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal) {
   $scope.user = AccountService.getUser();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.privs={
@@ -317,19 +317,53 @@ angular.module('starter.controllers')
     });
   };
 
+  $ionicModal.fromTemplateUrl('templates/picture-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal
+  })  
+
+  $scope.showProfilePicture = function() {
+    if($scope.user.get("images")!=null && $scope.user.get("images").length>0) {
+      $scope.imageUrl=$scope.user.get("images")[0];
+    } else {
+      $scope.imageUrl="img/avatar2.png";
+    }
+    $scope.modal.show();
+  }
+
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
 })
 
-.controller('AccountUpdateCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService) {
+.controller('AccountUpdateCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Account update controller");
 
   var user=Parse.User.current();
   $scope.inputUser={
     firstName: user.get("firstName"), 
-    lastName: user.get("lastName")
+    lastName: user.get("lastName"),
+    homeNumber: user.get("homeNo")
   };
+  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
 
   $scope.update=function() {
     console.log("Update request " + JSON.stringify($scope.inputUser));
+
+    if($scope.regionSettings.supportHomeNumber==true) {
+      if($scope.inputUser.homeNumber==null || $scope.inputUser.homeNumber.length<=0) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
+        return;
+      }       
+    }    
+
     if($scope.inputUser.firstName==null || $scope.inputUser.lastName==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
     } else {
