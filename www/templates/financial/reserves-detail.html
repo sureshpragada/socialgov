@@ -6,29 +6,27 @@
       <div class="row">
         <div class="col" style="text-align: center;">
           <h4>Reserve Fund</h4>
-          <h2 class="royal">150000.00&nbsp;<i class="icon ion-arrow-up-a balanced"></i></h2>
+          <h2 class="royal" ng-if="currentReserve">
+            {{currentReserve.reserveAmount | currency}}&nbsp;
+            <i class="icon ion-arrow-up-a balanced" ng-if="currentReserve.progress=='UP'"></i>
+            <i class="icon ion-arrow-down-a assertive" ng-if="currentReserve.progress=='DOWN'"></i>
+          </h2>
+          <h2 class="royal" ng-if="!currentReserve">
+            NA
+          </h2>          
         </div>
       </div>     
-      <div class="padding">
+      <div class="padding" ng-if="isAdmin">
         <a class="button button-calm button-block" href="#/tab/manage-reserves">
-          Manage Reserves
+          Update Reserve
         </a>
       </div>      
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
-    <div class="card">
+    <div class="card" ng-if="reserveAuditList.length>0">
       <div class="item item-divider">Reserve History</div>
-      <ion-item>
-        Jan 2016 <span class="item-note">Rs 120000.00</span>
-      </ion-item>            
-      <ion-item>
-        Dec 2015 <span class="item-note">Rs 120000.00</span>
-      </ion-item>            
-      <ion-item>
-        Nov 2015 <span class="item-note">Rs 110000.00</span>
-      </ion-item>            
-      <ion-item>
-        Sep 2015 <span class="item-note">Rs 100000.00</span>
+      <ion-item ng-repeat="reserveAudit in reserveAuditList">
+        {{reserveAudit.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{reserveAudit.get("reserveAmount")  | currency}}</span>
       </ion-item>            
     </div>        
 

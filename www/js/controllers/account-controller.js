@@ -446,9 +446,10 @@ angular.module('starter.controllers')
 })
 
 
-.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService) {
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Invite citizen controller");
   $scope.user={status:"P"};
+  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));
 
   $scope.invite=function() {
     console.log("invited " + JSON.stringify($scope.user));
@@ -456,6 +457,13 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
       return;
     } 
+
+    if($scope.regionSettings.supportHomeNumber==true) {
+      if($scope.user.homeNumber==null || $scope.user.homeNumber.length<=0) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
+        return;
+      }       
+    }    
     
     if ($scope.user.phoneNum!=null) {
       var formattedPhone = $scope.user.phoneNum.replace(/[^0-9]/g, '');  

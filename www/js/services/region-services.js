@@ -5,7 +5,7 @@ angular.module('region.services', [])
   var regionCache;
   if (!CacheFactory.get('regionCache')) {
     regionCache = CacheFactory('regionCache', {
-      maxAge: 7 * 60 * 60 * 1000, // 1 Day
+      maxAge: 1 * 60 * 60 * 1000, // 1 Day
       deleteOnExpire: 'none'
     });
   }
@@ -151,6 +151,27 @@ angular.module('region.services', [])
     updateRegion: function(regionName, region) {
       regionCache.remove(regionName);
       regionCache.put(regionName, region);                
+    },
+    updateReserve: function(region, reserveInput) {
+      var currentReserve=region.get("reserve");
+      if(currentReserve!=null) {
+        if(reserveInput.reserveAmount>currentReserve.reserveAmount) {
+          region.set("reserve", {reserveAmount: reserveInput.reserveAmount, progress: "UP"});
+        } else {
+          region.set("reserve", {reserveAmount: reserveInput.reserveAmount, progress: "DOWN"});
+        }
+        return region.save();
+      } else {
+        region.set("reserve", {reserveAmount: reserveInput.reserveAmount, progress: "UP"});
+        return region.save();
+      }
+    },
+    getRegionSettings: function(regionName) {
+      var region=regionCache.get(regionName);  
+      if(region!=null) {
+        return region.get("settings");
+      } 
+      return {};
     }
   };
 }])

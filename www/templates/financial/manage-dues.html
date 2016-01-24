@@ -9,13 +9,16 @@
 			<label class="item item-input">
 				<span class="input-label">Effective Month</span>
 				<input type="month" name="effectiveMonth"  ng-model="input.effectiveMonth">
-			</label>						
+			</label>			
+			  <label class="item item-input">
+			    <textarea placeholder="Notes..." rows="5" ng-model="input.notes"></textarea>
+			  </label>									
 			<div class="row">
 				<div class="col">
 					<a class="button button-block button-assertive" href="#/tab/dues-list">Cancel</a>	
 				</div>
 				<div class="col">
-					<a class="button button-block button-calm" ng-click="updateDues()">Update</a>	
+					<a class="button button-block button-calm" ng-click="updateDues()">{{duesAction}}</a>	
 				</div>					
 			</div>
 		</div>
