@@ -3,15 +3,22 @@
   <my-app-message info="appMessage"></my-app-message>
   <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
-      <div class="item">Payment ID<span class="item-note">123456</span></div>
-      <div class="item">Payment Date<span class="item-note">19 Jan 2016</span></div>
-      <div class="item">Payment Amount<span class="item-note">Rs 3000.00</span></div>      
-      <div class="item">Category<span class="item-note">Member Dues</span></div>
-      <div class="item">Source<span class="item-note">G1</span></div>      
-      <div class="item">Status<span class="item-note">Paid</span></div>
+      <div class="item">Revenue ID<span class="item-note">{{revenueRecord.id}}</span></div>
+      <div class="item">Revenue Date<span class="item-note">{{revenueRecord.get("revenueDate") | date:'MMM yyyy'}}</span></div>
+      <div class="item">Revenue Amount<span class="item-note">{{revenueRecord.get("revenueAmount")}}</span></div>      
+      <!-- <div class="item">Category<span class="item-note">{{revenueRecord.id}}</span></div> -->
+      <div class="item">Source<span class="item-note">{{revenueRecord.get("revenueSource")}}</span></div>      
+      <!-- <div class="item">Status<span class="item-note">{{revenueRecord.id}}</span></div> -->
       <div class="item item-divider">Notes</div>
-      <div class="item item-text-wrap">I have paid this to watch man. Got some notification as well.</div>
+      <div class="item item-text-wrap">{{revenueRecord.get("note")}}</div>
     </div>
+    <button class="button button-calm button-block" ng-click="editRevenue()">
+      Edit
+    </button>
+    <button class="button button-block button-assertive" ng-click="deleteRevenue()">
+      Delete
+    </button>
   </ion-content>
+
 </ion-view>
  

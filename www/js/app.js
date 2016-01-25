@@ -339,7 +339,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })    
 
     .state('tab.payment-detail', {
-      url: '/payment-detail/{paymentId}',
+      url: '/payment-detail/{revenueId}',
       cache: false,
       views: {
         "tab-financial": {
@@ -367,6 +367,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         "tab-financial": {
           templateUrl: 'templates/financial/expense-detail.html',
           controller: 'ExpenseDetailCtrl'        
+        }
+      }
+    })                
+
+    .state('tab.edit-expense-detail', {
+      url: '/expense-detail-edit/{expenseId}',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/edit-expense-detail.html',
+          controller: 'EditExpenseDetailCtrl'        
         }
       }
     })                
