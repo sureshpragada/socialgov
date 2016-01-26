@@ -3,19 +3,22 @@
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
 			<label class="item item-input">
-				<span class="input-label">Adjust Amount</span>
-				<input type="number" name="adjustAmount"  ng-model="input.adjustAmount">
+				<span class="input-label">Reserve Amount</span>
+				<input type="number" name="reserveAmount"  ng-model="input.reserveAmount">
 			</label>
 			<label class="item item-input">
 				<span class="input-label">Effective Month</span>
 				<input type="month" name="effectiveMonth"  ng-model="input.effectiveMonth">
-			</label>						
+			</label>		
+			  <label class="item item-input">
+			    <textarea placeholder="Notes..." rows="5" ng-model="input.notes"></textarea>
+			  </label>																
 			<div class="row">
 				<div class="col">
 					<a class="button button-block button-assertive" href="#/tab/reserves-detail">Cancel</a>	
 				</div>
 				<div class="col">
-					<a class="button button-block button-calm" ng-click="updateReserve()">Update</a>	
+					<a class="button button-block button-calm" ng-click="updateReserve()">Update Reserve</a>	
 				</div>					
 			</div>
 		</div>

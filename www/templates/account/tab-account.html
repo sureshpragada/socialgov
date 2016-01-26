@@ -4,9 +4,11 @@
   <my-app-message info="accessRequestMessage"></my-app-message>
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Profile</h4> -->
     <div class="card">
-      <div class="item item-icon-right">
+      <div class="item item-avatar item-icon-right">
+        <img src="img/avatar2.png" ng-click="showProfilePicture()">
         <a href="#/tab/account-update"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
+        <p>Home # {{user.get("homeNo")}}</p>
       </div>
       <ion-item>
         Residency<span class="item-note">{{regionDisplayName}}</span>                  

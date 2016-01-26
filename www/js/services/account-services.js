@@ -149,6 +149,7 @@ angular.module('account.services', [])
     },
     addContact: function(inputUser) {
       var newUser=new Parse.User();
+      var currentUser=Parse.User.current();
       var userName=currentUser.get("countryCode")+""+inputUser.phoneNum;
       newUser.set("username", userName);
       newUser.set("password", "custom");
@@ -159,6 +160,7 @@ angular.module('account.services', [])
       newUser.set("role", "CTZEN");
       newUser.set("notifySetting", true);
       newUser.set("deviceReg", "N");
+      newUser.set("homeNo", inputUser.homeNumber);
       return newUser;
     },
     addLookUpContact: function(lookUpUser) {
@@ -178,6 +180,7 @@ angular.module('account.services', [])
       var user=Parse.User.current();
       user.set("firstName", inputUser.firstName);
       user.set("lastName", inputUser.lastName);
+      user.set("homeNo", inputUser.homeNumber);
       return user.save();
     },
     getUserObjectByPhoneNumber: function(number){

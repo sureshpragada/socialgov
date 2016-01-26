@@ -134,18 +134,19 @@ angular.module('notification.services', ['ionic'])
       user.save();
     },
     sendInvitationCode: function(invitationCode, phoneNumber) {
-      //sendSmsPlivo
-      Parse.Cloud.run('sendSmsPlivo', {"phoneNumber": phoneNumber, "invitationCode": invitationCode}, {
-        success: function(response) {
-          console.log("Response from sendSmsPlivo : " + JSON.stringify(response));
-          LogService.log({type:"INFO", message: "SMS Send is success " + JSON.stringify(response)}); 
-        }, 
-        error: function(error) {
-          console.log("Response from sendSmsPlivo : " + JSON.stringify(error));
-          LogService.log({type:"ERROR", message: "SMS send is failed " + JSON.stringify(error)}); 
-        }
-      });
-
+      if(ENV=="PROD") {
+        //sendSmsPlivo
+        Parse.Cloud.run('sendSmsPlivo', {"phoneNumber": phoneNumber, "invitationCode": invitationCode}, {
+          success: function(response) {
+            console.log("Response from sendSmsPlivo : " + JSON.stringify(response));
+            LogService.log({type:"INFO", message: "SMS Send is success " + JSON.stringify(response)}); 
+          }, 
+          error: function(error) {
+            console.log("Response from sendSmsPlivo : " + JSON.stringify(error));
+            LogService.log({type:"ERROR", message: "SMS send is failed " + JSON.stringify(error)}); 
+          }
+        });
+      }
     }
   };
 }])
