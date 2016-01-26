@@ -4,9 +4,15 @@
   <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
       <ion-list>
-        <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/payment-detail/{{payment.paymentId}}">
+
+<!--         <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/payment-detail/{{payment.paymentId}}">
           {{payment.source}} 
-          <span class="item-note">Rs {{payment.amount}}</span>
+          <span class="item-note">Rs {{payment.amount}}</span> -->
+
+        <ion-item class="item-icon-right" ng-repeat="revenue in revenueList" href="#/tab/payment-detail/{{revenue.id}}">
+          {{revenue.get("revenueDate") | date:'MMM yyyy'}} 
+          <span class="item-note">Rs {{revenue.get("revenueAmount")}}</span>
+
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>
