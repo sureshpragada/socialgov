@@ -4,8 +4,39 @@ angular.module('starter.controllers')
   console.log("Financial controller");
 })
 
-.controller('HowToMakePaymentCtrl', function($scope, $http) {
+.controller('HowToMakePaymentCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
   console.log("How to make payment controller");
+  $scope.isAdmin=AccountService.canUpdateRegion();
+  RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
+    $scope.paymentInstr=region.get("paymentInstr");
+    if($scope.paymentInstr==null || $scope.paymentInstr.length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Payment instructions are not available.");  
+    }
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get payment instructions.");
+  });  
+})
+
+.controller('UpdateHowToMakePaymentCtrl', function($scope, $state, $http, RegionService, SettingsService) {
+  console.log("Update how to make payment controller");
+  $scope.input={ paymentInstr: null};
+  RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
+    $scope.input.paymentInstr=region.get("paymentInstr");
+    $scope.region=region;
+  }, function(error) {
+    console.log("Unable to get region");
+  });  
+
+  $scope.updatePaymentInstr=function() {
+    if($scope.input.paymentInstr!=null && $scope.input.paymentInstr.length>0) {
+      $scope.region.set("paymentInstr", $scope.input.paymentInstr);
+      $scope.region.save();
+      $state.go("tab.how-to-make-payment");
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter payment instructions.");
+    }
+  };
+
 })
 
 .controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService) {
@@ -16,25 +47,29 @@ angular.module('starter.controllers')
     {
       paymentId: 1234,
       paymentDate: new Date(),
+      paidTo: "AP Transco",
       amount: "3000.00",
       status: "PAID"
     },
     {
       paymentId: 1234,
       paymentDate: new Date(),
+      paidTo: "Hyd Water works",
       amount: "3000.00",
       status: "UNPAID"
     },
     {
       paymentId: 1234,
       paymentDate: new Date(),
+      paidTo: "Watchman",
       amount: "3000.00",
       status: "PAID"
     },
     {
       paymentId: 1234,
       paymentDate: new Date(),
-      amount: "3000.00",
+      paidTo: "Electrician",
+      amount: "1000.00",
       status: "PAID"
     }
   ];
@@ -55,26 +90,26 @@ angular.module('starter.controllers')
   $scope.paymentList=[
     {
       paymentId: 1234,
-      paymentDate: new Date(),
+      paymentDate: "Jan 2016",
       amount: "3000.00",
       status: "PAID"
     },
     {
       paymentId: 1234,
-      paymentDate: new Date(),
+      paymentDate:  "Dec 2015",
       amount: "3000.00",
       status: "UNPAID"
     },
     {
       paymentId: 1234,
-      paymentDate: new Date(),
+      paymentDate:  "Nov 2015",
       amount: "3000.00",
       status: "PAID"
     },
     {
       paymentId: 1234,
-      paymentDate: new Date(),
-      amount: "3000.00",
+      paymentDate:  "Oct 2015",
+      amount: "2000.00",
       status: "PAID"
     }
   ];
@@ -89,24 +124,28 @@ angular.module('starter.controllers')
     {
       paymentId: 1234,
       paymentDate: new Date(),
+      source: "G1",
       amount: "3000.00",
       status: "PAID"
     },
     {
       paymentId: 1234,
       paymentDate: new Date(),
+      source: "G2",
       amount: "3000.00",
       status: "UNPAID"
     },
     {
       paymentId: 1234,
       paymentDate: new Date(),
+      source: "203",
       amount: "3000.00",
       status: "PAID"
     },
     {
       paymentId: 1234,
       paymentDate: new Date(),
+      source: "201",
       amount: "3000.00",
       status: "PAID"
     }

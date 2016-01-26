@@ -1,7 +1,7 @@
 angular.module('starter.controllers')
 
 .factory('PictureManagerService', ['$http', function($http) {
-  var state={fromPage: "tab.post", imageUrl: null, data: {}};
+  var state={fromPage: "tab.post", imageUrl: null, data: {}, fromPagePathParamValue: ""};
   return {
     setState: function(incomingState) {
       state=incomingState;
@@ -9,6 +9,12 @@ angular.module('starter.controllers')
     getState: function() {
       return state;
     },
+    setFromPage: function(fromPage) {
+      state.fromPage=fromPage;
+    },
+    setFromPagePathParamValue: function(fromPagePathParamValue) {
+      state.fromPagePathParamValue=fromPagePathParamValue;
+    },    
     setImageUrl: function(imageUrl) {
       state.imageUrl=imageUrl;
     },
@@ -16,7 +22,7 @@ angular.module('starter.controllers')
       state.data=data;
     },
     reset: function() {
-      state={imageUrl: null, data: {}};
+      state={fromPage: "tab.post", imageUrl: null, data: {}, fromPagePathParamValue: ""};
     }
   };
 }])
@@ -36,6 +42,8 @@ angular.module('starter.controllers')
           destinationType : Camera.DestinationType.DATA_URL, 
           sourceType : sourceType, 
           allowEdit : true,
+          targetWidth: 400,
+          targetHeight: 300,
           encodingType: Camera.EncodingType.file,
           popoverOptions: CameraPopoverOptions,
           saveToPhotoAlbum: false
@@ -71,10 +79,11 @@ angular.module('starter.controllers')
       }).then(function(response) {
           $ionicLoading.hide();        
           PictureManagerService.setImageUrl(response.data.data.link);
+          console.log("Picture URL : " + response.data.data.link);
           $scope.file="";
-          $state.go("tab.post");    
+          $state.go(PictureManagerService.getState().fromPage, {dishId: PictureManagerService.getState().fromPagePathParamValue});
         },function(error) {
-          console.log("Error uploading image file: " + error);          
+          console.log("Error uploading image file: " + JSON.stringify(error));          
           $ionicLoading.hide();
           $cordovaDialogs.alert('Unable to upload picture. Check your interenet and try again.', 'Upload failure', 'OK');
       }); 
@@ -82,7 +91,7 @@ angular.module('starter.controllers')
   };
 
   $scope.cancel=function() {
-    $state.go("tab.post");
+    $state.go(PictureManagerService.getState().fromPage, {dishId: PictureManagerService.getState().fromPagePathParamValue});
   };
 
 });

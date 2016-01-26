@@ -600,18 +600,22 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };  
 
   $scope.cancelPost=function(){
-    $cordovaDialogs.confirm('Do you want to abort posting?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
-      if(buttonIndex==1) {
-        $state.go("tab.dash");
-      } else {
-        console.log("Canceled posting of activity");
-      }
-    });
+    if(($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10) || PictureManagerService.getState().imageUrl!=null) {
+      $cordovaDialogs.confirm('Do you want to abort posting?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
+        if(buttonIndex==1) {
+          $state.go("tab.dash");
+        } else {
+          console.log("Canceled posting of activity");
+        }
+      });      
+    } else {
+      $state.go("tab.dash");
+    }
   };
 
   $scope.goToAttachPicture=function() {
     PictureManagerService.setData({message: $scope.post.notifyMessage});
-    $state.go("tab.picman");
+    $state.go("tab.activity-picman");
   };
 
   $scope.handleActivitySelection=function() {

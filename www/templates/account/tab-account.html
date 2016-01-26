@@ -5,10 +5,11 @@
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Profile</h4> -->
     <div class="card">
       <div class="item item-avatar item-icon-right">
-        <img src="img/avatar2.png" ng-click="showProfilePicture()">
+        <img ng-src="{{user.get('images')[0]}}" ng-click="showProfilePicture()" ng-if="user.get('images')">
+        <img src="img/avatar2.png" ng-click="showProfilePicture()" ng-if="!user.get('images')">
         <a href="#/tab/account-update"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
-        <p>Home # {{user.get("homeNo")}}</p>
+        <p ng-if="user.get('homeNo')">Home # {{user.get("homeNo")}}</p>
       </div>
       <ion-item>
         Residency<span class="item-note">{{regionDisplayName}}</span>                  
@@ -35,6 +36,10 @@
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Register device
       </ion-item>  
+      <ion-item class="item-icon-right" ng-click="uploadProfilePicture()">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        Upload Profile Picture
+      </ion-item>                  
       <ion-item class="item-icon-right" href="#/tab/adminaccess" ng-if="!isPendingRequest && !privs.isSuperAdmin">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Request Role Change

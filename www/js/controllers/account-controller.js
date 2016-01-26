@@ -258,7 +258,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService) {
   $scope.user = AccountService.getUser();
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.privs={
@@ -321,10 +321,11 @@ angular.module('starter.controllers')
     scope: $scope,
     animation: 'slide-in-up'
   }).then(function(modal) {
-    $scope.modal = modal
+    $scope.modal = modal;
   })  
 
   $scope.showProfilePicture = function() {
+    $scope.changeProfilePic=true;
     if($scope.user.get("images")!=null && $scope.user.get("images").length>0) {
       $scope.imageUrl=$scope.user.get("images")[0];
     } else {
@@ -340,6 +341,25 @@ angular.module('starter.controllers')
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
   });
+
+  var stateData=PictureManagerService.getState();
+  if(stateData.imageUrl!=null) {
+    var images=Parse.User.current().get("images");
+    if(images!=null && images.length>0) {
+      images.unshift(stateData.imageUrl);
+    } else {
+      images=[stateData.imageUrl];
+    }
+    Parse.User.current().set("images", images);
+    Parse.User.current().save();
+    PictureManagerService.reset();
+  }
+
+  $scope.uploadProfilePicture=function() {
+    PictureManagerService.reset();
+    PictureManagerService.setFromPage("tab.account");
+    $state.go("tab.account-picman");
+  };
 
 })
 

@@ -19,7 +19,7 @@
 			  </label>
 
 			  <label class="item item-input">
-			    <textarea placeholder="Message" rows="5" ng-model="post.notifyMessage"></textarea>
+			    <textarea placeholder="Message" rows="10" ng-model="post.notifyMessage"></textarea>
 			  </label>
 			  <a class="item item-icon-right" ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded==null">
 			    Picture
@@ -30,11 +30,13 @@
 			    <i class="icon ion-android-cloud-done balanced"></i>
 			  </a>			  
 		</div>
-		<div class="padding">
-			<button class="button button-block button-calm" ng-click="submitPost()">Post Activity</button>
-		</div>
-		<div class="padding">
-			<button class="button button-block button-assertive" ng-click="cancelPost()">Cancel</button>
+		<div class="row">
+			<div class="col">
+				<button class="button button-block button-assertive" ng-click="cancelPost()">Cancel</button>
+			</div>					
+			<div class="col">
+				<button class="button button-block button-calm" ng-click="submitPost()">Post Activity</button>
+			</div>
 		</div>
 	</ion-content>
 </ion-view>

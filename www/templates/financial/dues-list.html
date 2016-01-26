@@ -14,10 +14,12 @@
         </div>
       </div>  
       <div class="padding" ng-if="isAdmin">
-        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP" ng-if="!currentDues">
+        <!-- Show when there are no current and upcoming dues, first time setting up the community -->
+        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP" ng-if="!currentDues && !upcomingDues">
           Setup Dues
         </a>        
-        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP" ng-if="!upcomingDues">
+        <!-- Show when current dues available and not upcoming dues. If there are upcoming dues, it has capability to edit and delete -->
+        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP" ng-if="currentDues && !upcomingDues">
           Change Dues
         </a>                
       </div>      
