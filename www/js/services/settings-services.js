@@ -59,63 +59,6 @@ angular.module('settings.services', [])
         message: infoMessage, 
         type: "INFO"
       };
-    },
-    addExpense: function(input) {
-      var Expense = Parse.Object.extend("Expense");
-      var expense = new Expense();
-      expense.set("residency",Parse.User.current().get("residency"));
-      expense.set("createdBy",Parse.User.current());
-      expense.set("paidTo",input.paidTo);
-      expense.set("expenseAmount",input.expenseAmount);
-      expense.set("expenseDate",input.expenseDate);
-      expense.set("reason",input.reason);
-      console.log(JSON.stringify(expense));
-      return expense.save();
-    },
-    addRevenue: function(input) {
-      var Revenue = Parse.Object.extend("Revenue");
-      var revenue = new Revenue();
-      revenue.set("residency",Parse.User.current().get("residency"));
-      revenue.set("createdBy",Parse.User.current());
-      revenue.set("revenueSource",input.revenueSource);
-      revenue.set("revenueAmount",input.revenueAmount);
-      revenue.set("revenueDate",input.revenueDate);
-      revenue.set("note",input.note);
-      console.log(JSON.stringify(revenue));
-      return revenue.save();
-    },
-    getCurrentMonthExpenseList: function(region){
-      var Expense = Parse.Object.extend("Expense");
-      var query = new Parse.Query(Expense);
-      query.equalTo("residency",region);
-      return query.find();
-    },
-    getCurrentMonthRevenueList: function(region){
-      var Revenue = Parse.Object.extend("Revenue");
-      var query = new Parse.Query(Revenue);
-      query.equalTo("residency",region);
-      return query.find();
-    },
-    getExpenseRecord: function(id){
-      var Expense = Parse.Object.extend("Expense");
-      var query = new Parse.Query(Expense);
-      query.equalTo("objectId",id);
-      return query.find();
-    },
-    getRevenueRecord: function(id){
-      var Revenue = Parse.Object.extend("Revenue");
-      var query = new Parse.Query(Revenue);
-      query.equalTo("objectId",id);
-      return query.find();
-    },
-    deleteExpenseRecord: function(expenseRecord){
-      return expenseRecord.destroy();
-    },
-    deleteRevenueRecord: function(revenueRecord){
-      return revenueRecord.destroy();
-    },
-    saveExpense: function(expenseRecord){
-      return expenseRecord.save(); 
     }
   };
 }]);
