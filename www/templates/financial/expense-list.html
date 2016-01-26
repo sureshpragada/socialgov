@@ -7,9 +7,15 @@
     	<canvas id="expChart" width="300" height="300" style="display: block; margin-left: auto; margin-right: auto;"></canvas>
     </div> -->
       <ion-list>
-        <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/expense-detail/{{payment.paymentId}}">
+
+<!--         <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/expense-detail/{{payment.paymentId}}">
           {{payment.paidTo}} 
-          <span class="item-note">Rs {{payment.amount}}</span>
+          <span class="item-note">Rs {{payment.amount}}</span> -->
+
+        <ion-item class="item-icon-right" ng-repeat="expense in expenseList" href="#/tab/expense-detail/{{expense.id}}">
+          {{expense.get("expenseDate") | date:'MMM yyyy'}} 
+          <span class="item-note">Rs {{expense.get("expenseAmount")}}</span>
+
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>

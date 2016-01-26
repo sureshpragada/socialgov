@@ -1,14 +1,17 @@
 <ion-view view-title="Manage Expense">
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="card padding warn" ng-if="expenseErrorMessage">
+			{{expenseErrorMessage}}
+		</div>    
 		<div class="list">		
-			<label class="item item-input item-select">
+			<!-- <label class="item item-input item-select">
 			    <div class="input-label">
 			      Expense Category
 			    </div>
 			    <select ng-model="input.category" ng-options="allowedCategory.label for allowedCategory in allowedCategories">
 			    </select>
-			  </label>					
+			  </label>					 -->
 			<label class="item item-input">
 				<span class="input-label">Paid To</span>
 				<input type="text" name="paidTo" ng-model="input.paidTo">

@@ -1,6 +1,9 @@
 <ion-view view-title="Manage Revenue">
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="card padding warn" ng-if="expenseErrorMessage">
+			{{revenueErrorMessage}}
+		</div>  
 		<div class="list">		
 			<label class="item item-input">
 				<span class="input-label">Revenue Source</span>
