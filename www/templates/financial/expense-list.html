@@ -3,13 +3,13 @@
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
     <!-- style="margin: auto; width: 60%; padding: 10px;" -->
-    <div style="width: 100%; padding: 10px;">
+<!--     <div style="width: 100%; padding: 10px;">
     	<canvas id="expChart" width="300" height="300" style="display: block; margin-left: auto; margin-right: auto;"></canvas>
-    </div>
+    </div> -->
       <ion-list>
         <ion-item class="item-icon-right" ng-repeat="expense in expenseList" href="#/tab/expense-detail/{{expense.id}}">
-          {{expense.get("expenseDate") | date:'MMM yyyy'}} 
-          <span class="item-note">Rs {{expense.get("expenseAmount")}}</span>
+          {{expense.get("paidTo")}} 
+          <span class="item-note">{{expense.get("expenseAmount") | currency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>

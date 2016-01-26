@@ -5,7 +5,7 @@
     <div class="card">
       <ion-list>
         <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/payment-detail/{{payment.paymentId}}">
-          {{payment.paymentDate | date:'MMM yyyy'}} 
+          {{payment.paymentDate}} 
           <span class="item-note">Rs {{payment.amount}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>

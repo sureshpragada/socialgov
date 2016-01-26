@@ -2,18 +2,23 @@
   <ion-content class="visible-cards">
   <my-app-message info="appMessage"></my-app-message>
   <my-app-message info="controllerMessage"></my-app-message>
-    <div class="card padding">
+    <div class="card padding" ng-if="paymentInstr">
       <h4>
         Instructions to pay your association dues :
       </h4>
-      <div>
-        <ul class="bullet-list padding">
-            <li>Handover the payment to watchman.</li>
-            <li style="margin: 10px 0px;">Treasurer will collect your payment from watchman and mark your dues as paid.</li>         
-            <li>You will receive confirmation notification once your payment has been entered in ledger.</li>
-        </ul>   
-      </div>    
+      <div ng-bind-html="paymentInstr | nl2br" style="margin-bottom: 20px;"></div>    
     </div>
+      <div class="padding" ng-if="isAdmin">
+        <a class="button button-block button-royal" href="#/tab/update-how-to-make-payment">Update Instructions</a>
+      </div>    
   </ion-content>
 </ion-view>
+
+
+<!-- 
+1. Handover the payment to watchman.
+
+2. Treasurer will collect your payment from watchman and mark your dues as paid.
+
+3. You will receive confirmation notification once your payment has been entered in ledger. -->
  

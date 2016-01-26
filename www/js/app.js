@@ -141,8 +141,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
-    .state('tab.picman', {
-      url: '/picman',
+    .state('tab.activity-picman', {
+      url: '/activity-picman',
       cache: false,
       views: {
         'tab-dash': {
@@ -151,6 +151,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })    
+
+    .state('tab.account-picman', {
+      url: '/account-picman',
+      cache: false,
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/picture-manager.html',
+          controller: 'PictureManagerCtrl'
+        }
+      }
+    })        
 
     .state('tab.regions', {
       url: '/regions',
@@ -315,6 +326,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })
+
+    .state('tab.update-how-to-make-payment', {
+      url: '/update-how-to-make-payment',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/update-how-to-make-payment.html',
+          controller: 'UpdateHowToMakePaymentCtrl'        
+        }
+      }
+    })    
 
     .state('tab.payment-history', {
       url: '/payment-history',
@@ -532,6 +554,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })
+
+    // .state('tab.upload-profile-picture', {
+    //   url: '/account-update',
+    //   cache: false,
+    //   views: {
+    //     "tab-account": {
+    //       templateUrl: 'templates/account/account-update.html',
+    //       controller: 'AccountUpdateCtrl'        
+    //     }
+    //   }
+    // })
 
     .state('tab.invite-citizen', {
       url: '/invite-citizen',

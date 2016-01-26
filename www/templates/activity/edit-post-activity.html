@@ -8,24 +8,25 @@
 			    </div>
 			    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities">
 			    </select>
-			  </label>
+			</label>
 			<label class="item item-input item-select">
 			    <div class="input-label">
 			      Region
 			    </div>
 			    <select ng-model="selectChoices.selectedRegion" ng-options="region.label for region in allowedRegions">
 			    </select>
-			  </label>
-
-			  <label class="item item-input">
+			</label>
+			<label class="item item-input">
 			    <textarea placeholder="Message" rows="5" ng-model="post.notifyMessage"></textarea>
-			  </label>
+			</label>
 		</div>
-		<div class="padding">
-			<button class="button button-block button-calm" ng-click="editPost()">Update Post</button>
-		</div>
-		<div class="padding">
-			<button class="button button-block button-assertive" ng-click="cancelPost()">Cancel</button>
-		</div>
+		<div class="row">
+			<div class="col">
+				<button class="button button-block button-assertive" ng-click="cancelPost()">Cancel</button>
+			</div>					
+			<div class="col">
+				<button class="button button-block button-calm" ng-click="editPost()">Update Post</button>
+			</div>
+		</div>		
 	</ion-content>
 </ion-view>

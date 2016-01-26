@@ -1,0 +1,20 @@
+<ion-view view-title="Payment Instructions">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">		
+			  <label class="item item-input">
+			    <textarea placeholder="Payment Instructions..." rows="10" ng-model="input.paymentInstr"></textarea>
+			  </label>									
+			<div class="row">
+				<div class="col">
+					<a class="button button-block button-assertive" href="#/tab/how-to-make-payment">Cancel</a>	
+				</div>
+				<div class="col">
+					<a class="button button-block button-calm" ng-click="updatePaymentInstr()">Update</a>	
+				</div>					
+			</div>
+		</div>
+	</ion-content>
+</ion-view>
+
+
