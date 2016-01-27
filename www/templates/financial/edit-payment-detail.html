@@ -1,0 +1,30 @@
+<ion-view view-title="Edit Revenue Detail">
+  <ion-content class="visible-cards">
+    <div class="card">
+      <label class="item item-input">
+        <span class="input-label">Revenue Date</span>
+        <input type="date" name="expenseAmount"  ng-model="editRevenueRecord.revenueDate">
+      </label>
+      <label class="item item-input">
+        <span class="input-label">Revenue Amount</span>
+        <input type="number" name="expenseDate"  ng-model="editRevenueRecord.revenueAmount">
+      </label>
+      <label class="item item-input">
+        <span class="input-label">Source</span>
+        <input type="text" name="expenseDate"  ng-model="editRevenueRecord.revenueSource">
+      </label>                 
+        <label class="item item-input">
+          <textarea placeholder="Reason for expense..." rows="5" ng-model="editRevenueRecord.note"></textarea>
+        </label>      
+      <div class="row">
+        <div class="col">
+          <a class="button button-block button-assertive button-small" ng-click="cancel()">Cancel</a>  
+        </div>
+        <div class="col">
+          <a class="button button-block button-calm  button-small" ng-click="save()">Update Revenue</a>  
+        </div>          
+      </div>
+
+  </ion-content>
+</ion-view>
+ 
