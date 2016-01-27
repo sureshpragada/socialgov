@@ -148,6 +148,9 @@ angular.module('financial.services', [])
     },
     saveExpense: function(expenseRecord){
       return expenseRecord.save(); 
+    },
+    saveRevenue: function(revenueRecord){
+      return revenueRecord.save();
     }    
   };
 }]);
