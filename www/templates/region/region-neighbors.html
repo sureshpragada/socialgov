@@ -1,0 +1,13 @@
+<ion-view title="Neighbors">
+  <ion-content>
+  	<ion-list>
+    <ion-item class="item-thumbnail-left" ng-repeat="neighbor in neighborList">
+<!--       <img ng-src="{{neigh.avatar}}" ng-if="legi.avatar"> -->
+      <img ng-src="img/avatar2.png">
+      <h2>{{neighbor.get("firstName")}} {{neighbor.get("lastName")}}</h2>
+      <p>{{neighbor.get("phoneNum")}}</p>      
+      <p>Home # {{neighbor.get("homeNo")}}</p>
+    </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

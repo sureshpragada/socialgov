@@ -208,6 +208,12 @@ angular.module('account.services', [])
         }
       });
     },
+    getNeighborList: function(regionName) {
+      console.log("Region name : " + regionName);
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("residency", regionName);
+      return userQuery.find();   
+    },
     validateInvitationCode: function(invitationCode) {
       var self=this;
       var deferred = $q.defer();

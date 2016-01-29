@@ -14,11 +14,9 @@
       <ion-item>
         Residency<span class="item-note">{{regionDisplayName}}</span>                  
       </ion-item>                        
-      <ion-item>
+      <ion-item ng-if="!isCitizen">
          {{'Role' | translate}}
-          <span class="item-note">
-            {{getRoleNameFromRoleCode(user.get("role"))}}
-          </span>                  
+          <span class="item-note">{{getRoleNameFromRoleCode(user.get("role"))}}</span>                  
       </ion-item>                        
       <ion-item ng-if="user.get('title')">
         Honorable Title<span class="item-note">{{user.get("title")}}</span>                        

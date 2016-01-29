@@ -269,6 +269,27 @@ angular.module('starter.controllers')
 
   $scope.appMessage=SettingsService.getAppMessage();  
 
+  var stateData=PictureManagerService.getState();
+  if(stateData.imageUrl!=null) {
+    var images=Parse.User.current().get("images");
+    if(images!=null && images.length>0) {
+      images.unshift(stateData.imageUrl);
+      console.log("Image URL being added at front");
+    } else {
+      images=[stateData.imageUrl];
+      console.log("Image URL being added");
+    }
+    Parse.User.current().set("images", images);
+    Parse.User.current().save();
+    console.log("Images have been saved");
+    PictureManagerService.reset();
+    console.log("Picture service is reset");
+  } else {
+    console.log("Image URL is null");
+  }
+
+
+
   $scope.isPendingRequest=false;
   AccountService.getAccessRequest().then(function(accessrequest){
     console.log("Access request returned from cache : " + JSON.stringify(accessrequest));
@@ -286,8 +307,8 @@ angular.module('starter.controllers')
 
   RegionService.getRegion($scope.user.get("residency")).then(function(region){
     $scope.regionDisplayName=region.get("name");
-  }, function() {
-    $scope.regionDisplayName=user.get("residency");
+  }, function(error) {
+    $scope.regionDisplayName=$scope.user.get("residency").capitalizeFirstLetter();
   });
 
   $scope.getRoleNameFromRoleCode=function(role) {
@@ -341,19 +362,6 @@ angular.module('starter.controllers')
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
   });
-
-  var stateData=PictureManagerService.getState();
-  if(stateData.imageUrl!=null) {
-    var images=Parse.User.current().get("images");
-    if(images!=null && images.length>0) {
-      images.unshift(stateData.imageUrl);
-    } else {
-      images=[stateData.imageUrl];
-    }
-    Parse.User.current().set("images", images);
-    Parse.User.current().save();
-    PictureManagerService.reset();
-  }
 
   $scope.uploadProfilePicture=function() {
     PictureManagerService.reset();

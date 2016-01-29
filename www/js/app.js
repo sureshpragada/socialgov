@@ -305,6 +305,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.neighbors', {
+      url: '/neighbors',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-neighbors.html',
+          controller: 'NeighborListCtrl'
+        }
+      }
+    })             
+
     .state('tab.financial', {
       url: '/financial',
       cache: false,
@@ -482,10 +493,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })                        
 
     .state('tab.finview', {
-      url: '/finview/{regionUniqueName}',
+      url: '/finview',
       cache: false,      
       views: {
-        'tab-region': {
+        'tab-financial': {
           templateUrl: 'templates/region/region-fin-overview.html',
           controller: 'RegionFinancialOverviewCtrl'
         }
@@ -495,7 +506,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     .state('tab.addfinview', {
       url: '/addfinview/{regionUniqueName}',
         views: {
-          'tab-region': {
+          'tab-financial': {
             templateUrl: 'templates/region/add-region-fin-overview.html',
             controller: 'AddRegionFinancialOverviewCtrl'
           }
@@ -505,7 +516,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     .state('tab.editfinancial', {
       url: '/editfinancial/{id}',
         views: {
-          'tab-region': {
+          'tab-financial': {
             templateUrl: 'templates/region/edit-region-fin-overview.html',
             controller: 'EditRegionFinancialOverviewCtrl'
           }
@@ -516,12 +527,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       url: '/findet/{regionUniqueName}/{year}/{reqDetails}',
       cache: false,            
       views: {
-        'tab-region': {
+        'tab-financial': {
           templateUrl: 'templates/region/region-fin-details.html',
           controller: 'RegionFinancialDetailsCtrl'
         }
       }
-    })      
+    }) 
 
 
     // .state('tab.account.settings', {
@@ -649,6 +660,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     PostalCode: 'PIN Codes',
     InvitePage: 'Invite Citizen',
     Currency: 'Rs',
+    LegContact: 'Legislative Contacts',
+    ExecContact: 'Executive Offices',
     Messages: {
       PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of Government.',
       PostActivityIssueWarn: 'Please report village level problems. Do not use this forum for personal problems.'
@@ -667,6 +680,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     PostalCode: 'ZIP Codes',
     InvitePage: 'Invite Resident',
     Currency: '$',
+    LegContact: 'Board Members',
+    ExecContact: 'Management Offices',
     Messages: {
       PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of the association board.',
       PostActivityIssueWarn: 'Report community level problems here. Reach out to management company for any home specific issues.'      

@@ -5,22 +5,26 @@
     <div class="card">
       <ion-list>
         <div class="item">
-          <h2 class="positive" style="font-weight: bold;">Jan 2016</h2>
+          <h2 class="positive" style="font-weight: bold;">{{focusMonth | date:'MMM yyyy'}}</h2>
         </div>            
         <ion-item class="item-icon-right" href="#/tab/revenue-list">
           Revenue
-          <span class="item-note">Rs 34000.00</span>
+          <span class="item-note">{{revenueTotal | currency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
         <ion-item class="item-icon-right" href="#/tab/expense-list">
           Expenses
-          <span class="item-note">Rs 34240.00</span>
+          <span class="item-note">{{expenseTotal | currency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>        
-        <ion-item>
-          Defecit
-          <span class="item-note">Rs 240.00</span>
+        <ion-item ng-if="revenueTotal>=expenseTotal">
+          Reserve
+          <span class="item-note">{{revenueTotal-expenseTotal | currency}}</span>
         </ion-item>                
+        <ion-item ng-if="revenueTotal<expenseTotal">
+          Defecit
+          <span class="item-note">{{expenseTotal-revenueTotal | currency}}</span>
+        </ion-item>                        
       </ion-list>
     </div>
     
@@ -28,10 +32,10 @@
       <div class="row">
         <div class="col">
           <i class="icon ion-chevron-left"></i>
-          Jan 2016
+          Dec 2015
         </div>
         <div class="col" style="text-align: right;">
-          Jan 2016
+          Feb 2016
           <i class="icon ion-chevron-right"></i>          
         </div>        
       </div>        

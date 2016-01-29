@@ -1,7 +1,52 @@
 angular.module('starter.controllers')
 
-.controller('FinancialCtrl', function($scope, $http) {
+.controller('FinancialCtrl', function($scope, $http, $ionicLoading, FinancialService, SettingsService, RegionService) {
   console.log("Financial controller");
+  $scope.user=Parse.User.current();
+
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
+  });
+  // Payment status : Retrieve from user object
+  if($scope.user.get("lastPayment")!=null && $scope.user.get("lastPayment").date!=null) {
+    var lastPaymentDate=$scope.user.get("lastPayment").date;
+    var currentDate=new Date();
+    if(currentDate.getYear()>lastPaymentDate.getYear() || (currentDate.getYear()==lastPaymentDate.getYear() && currentDate.getMonth()>lastPaymentDate.getMonth())) {
+      $scope.paymentStatus="Unpaid";  
+    } else {
+      $scope.paymentStatus="Paid";  
+    }
+  } else {
+    $scope.paymentStatus="NA";
+  }
+
+  // Dues calculation
+  $scope.currentDues=null;  
+  FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {    
+    if(duesList!=null) {
+      $scope.currentDues=FinancialService.getCurrentDues(duesList);
+      if($scope.currentDues==null) {
+        $scope.currentDues=FinancialService.getUpcomingDues(duesList);
+      }
+    }
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community.");
+  });  
+
+  // Reserve Calculation
+  $scope.reserve="NA";
+  RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
+    var currentReserve=region.get("reserve");
+    if(currentReserve!=null) {
+      $scope.reserve=currentReserve.reserveAmount;
+    }
+    $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
+  }, function(error) {
+    console.log("Unable to get reserves details of this community.");
+  });  
+
+  $ionicLoading.hide();
+
 })
 
 .controller('HowToMakePaymentCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
@@ -140,35 +185,18 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('PaymentHistoryCtrl', function($scope, $http) {
+.controller('PaymentHistoryCtrl', function($scope, $http, SettingsService, FinancialService) {
   console.log("Payment history controller");
 
-  $scope.paymentList=[
-    {
-      paymentId: 1234,
-      paymentDate: "Jan 2016",
-      amount: "3000.00",
-      status: "PAID"
-    },
-    {
-      paymentId: 1234,
-      paymentDate:  "Dec 2015",
-      amount: "3000.00",
-      status: "UNPAID"
-    },
-    {
-      paymentId: 1234,
-      paymentDate:  "Nov 2015",
-      amount: "3000.00",
-      status: "PAID"
-    },
-    {
-      paymentId: 1234,
-      paymentDate:  "Oct 2015",
-      amount: "2000.00",
-      status: "PAID"
+  FinancialService.getMyPaymentHistory().then(function(paymentList) {
+    if(paymentList!=null && paymentList.length>0) {
+      $scope.paymentList=paymentList;
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not made any payments.");  
     }
-  ];
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your payment history.");
+  });
 
 })
 
@@ -211,11 +239,6 @@ angular.module('starter.controllers')
   console.log(JSON.stringify(Parse.User.current()));
   $scope.expenseErrorMessage=null;
   $scope.input={};
-  $scope.upcomingMonths=[
-      {id:new Date(), label:"Jan 2016"},      
-      {id:new Date(), label:"Feb 2016"},      
-      {id:new Date(), label:"Mar 2016"}      
-    ];
 
   $scope.addExpense=function() {
     if($scope.input.paidTo!=null && $scope.input.expenseAmount!=null && $scope.input.expenseDate!=null && $scope.input.reason!=null){
@@ -233,8 +256,36 @@ angular.module('starter.controllers')
 
 })
 
-.controller('BalanceSheetCtrl', function($scope, $http, $stateParams, SettingsService, AccountService) {
+.controller('BalanceSheetCtrl', function($scope, $http, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService) {
   console.log("Balance sheet controller ");
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading community balance sheet...<ion-spinner/></p>"
+  });
+
+  // TODO :: Focus month will be stateparam when we provide navigation to move between months, residents will be 
+  // to look at balance sheet till the createdAt timestamp of their community record
+  $scope.focusMonth=new Date();    
+  FinancialService.getMonthlyBalanceSheet(Parse.User.current().get("residency"), $scope.focusMonth).then(function(balanceSheet) {
+    console.log(JSON.stringify(balanceSheet));
+
+    var revenueList=balanceSheet[0];
+    $scope.revenueTotal=0;
+    for(var i=0;i<revenueList.length;i++) {
+      $scope.revenueTotal+=revenueList[i].get("revenueAmount");
+    }
+
+    var expenseList=balanceSheet[1];
+    $scope.expenseTotal=0;
+    for(var i=0;i<expenseList.length;i++) {
+      $scope.expenseTotal+=expenseList[i].get("expenseAmount");
+    }
+
+    $ionicLoading.hide();
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unabe to get your community balance sheet");
+    $ionicLoading.hide();
+  });
+
 })
 
 .controller('ReservesDetailCtrl', function($scope, $http, $stateParams, SettingsService, AccountService, RegionService, FinancialService) {
@@ -246,7 +297,7 @@ angular.module('starter.controllers')
     $scope.currentReserve=region.get("reserve");
     console.log("current reserve : " + JSON.stringify($scope.currentReserve));
   }, function(error) {
-    console.log("Unable to get reserve amount");
+    console.log("Unable to get reserves details of this community.");
   });  
 
   FinancialService.getAllReserveAudit(Parse.User.current().get("residency")).then(function(reserveAuditList) {
@@ -254,7 +305,7 @@ angular.module('starter.controllers')
     $scope.reserveAuditList=reserveAuditList;
     $scope.$apply();
   }, function(error) {
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community.");
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get reserves details of this community.");
   });
 
   $scope.deleteReserveAudit=function(index) {
@@ -300,11 +351,14 @@ angular.module('starter.controllers')
 
 })
 
-.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, AccountService) {
+.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, AccountService, $ionicLoading) {
   console.log("Dues List controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.canUpdateRegion();
 
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading community dues...<ion-spinner/></p>"
+  });
   console.log("Current region : " + Parse.User.current().get("residency"));
   FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {
     if(duesList!=null) {
@@ -316,8 +370,10 @@ angular.module('starter.controllers')
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Dues have not setup for this community.");
     }
+    $ionicLoading.hide();          
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community.");
+    $ionicLoading.hide();
   });
 
   $scope.deleteUpcomingDues=function() {

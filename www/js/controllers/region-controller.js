@@ -7,7 +7,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover) {
+.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
     residency=Parse.User.current().get("residency");
@@ -19,7 +19,7 @@ angular.module('starter.controllers')
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
   }, function(error) {
-    $scope.regionErrorMessage="Unable to retrieve region information.";
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information.");
     console.log("Error retrieving region " + JSON.stringify(error));
   });
 
@@ -745,4 +745,16 @@ angular.module('starter.controllers')
   $scope.cancel=function(){
     $state.go("tab.demo",{regionUniqueName:$scope.region.get('uniqueName')});
   };
-});
+})
+
+.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService) {
+  AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
+    $scope.neighborList=neighborList;
+    $scope.$apply();
+    console.log($scope.neighborList.length);
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
+  });
+
+})
+;

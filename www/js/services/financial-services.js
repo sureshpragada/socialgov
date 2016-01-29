@@ -116,16 +116,23 @@ angular.module('financial.services', [])
       console.log(JSON.stringify(revenue));
       return revenue.save();
     },
-    getCurrentMonthExpenseList: function(region){
-      var Expense = Parse.Object.extend("Expense");
-      var query = new Parse.Query(Expense);
-      query.equalTo("residency",region);
-      return query.find();
-    },
-    getCurrentMonthRevenueList: function(region){
+    getMyPaymentHistory: function(regionName, homeNo) {
       var Revenue = Parse.Object.extend("Revenue");
       var query = new Parse.Query(Revenue);
-      query.equalTo("residency",region);
+      query.equalTo("residency",regionName);
+      query.equalTo("revenueSource", homeNo);
+      return query.find();
+    },
+    getCurrentMonthExpenseList: function(regionName){
+      var Expense = Parse.Object.extend("Expense");
+      var query = new Parse.Query(Expense);
+      query.equalTo("residency",regionName);
+      return query.find();
+    },
+    getCurrentMonthRevenueList: function(regionName){
+      var Revenue = Parse.Object.extend("Revenue");
+      var query = new Parse.Query(Revenue);
+      query.equalTo("residency",regionName);
       return query.find();
     },
     getExpenseRecord: function(id){
@@ -148,6 +155,28 @@ angular.module('financial.services', [])
     },
     saveExpense: function(expenseRecord){
       return expenseRecord.save(); 
+    },
+    getMonthlyBalanceSheet: function(regionName, date) {
+      var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+      var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+      var Revenue = Parse.Object.extend("Revenue");
+      var revenueQuery = new Parse.Query(Revenue);
+      revenueQuery.equalTo("residency",regionName);
+      revenueQuery.greaterThan("revenueDate", firstDay);
+      revenueQuery.lessThan("revenueDate", lastDay);
+
+      var Expense = Parse.Object.extend("Expense");
+      var expenseQuery = new Parse.Query(Expense);
+      expenseQuery.equalTo("residency",regionName);
+      expenseQuery.greaterThan("expenseDate", firstDay);
+      expenseQuery.lessThan("expenseDate", lastDay);      
+
+      var deferred=$q.all([
+        revenueQuery.find(),
+        expenseQuery.find()
+      ]);
+      return deferred;
     }    
   };
 }]);

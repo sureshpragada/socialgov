@@ -3,28 +3,29 @@
     {{region.get("name")}}
   </ion-nav-title>
   <ion-content>
-    <div ng-if="regionErrorMessage" class="card padding warn">{{regionErrorMessage}}</div>
-      <ion-list ng-if="!regionErrorMessage">
+    <my-app-message info="appMessage"></my-app-message>
+    <my-app-message info="controllerMessage"></my-app-message>
+    <ion-list ng-if="!controllerMessage">
       <div class="item item-image">
         <img ng-src="{{region.get('thumbnail')}}">
       </div> 
       <ion-item href="#/tab/offices/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
         <i class="icon ion-ios-home royal"></i>            
-          Executive Offices
+          {{'ExecContact' | translate}}
         <span class="badge badge-balanced">{{region.get('execOffAddrList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
       <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
         <i class="icon ion-person-stalker royal"></i>
-          Legislature Contacts
+          {{'LegContact' | translate}}
         <span class="badge badge-balanced">{{region.get('legiRepList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-<!--       <ion-item href="#/tab/finview/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right">
           <i class="icon ion-card royal"></i>
-          Financials 
+          View Neighbors 
           <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>                 -->
+      </ion-item>                
       <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="showServiceContacts">
         <i class="icon ion-wrench royal"></i>
           Service Contacts
