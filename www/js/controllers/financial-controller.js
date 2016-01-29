@@ -95,6 +95,7 @@ angular.module('starter.controllers')
     } else {
       $scope.expenseList = expenseList;
     }
+    console.log(JSON.stringify($scope.expenseList));
     $scope.$apply();
   },function(error){
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve your community expenses list.");
@@ -105,7 +106,7 @@ angular.module('starter.controllers')
 .controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, AccountService, FinancialService) {
   console.log("Expense detail controller " + $stateParams.expenseId);
   $scope.isAdmin=AccountService.canUpdateRegion();
-
+  console.log($scope.isAdmin);
   FinancialService.getExpenseRecord($stateParams.expenseId).then(function(expenseRecord){
     $scope.expenseRecord = expenseRecord[0];
     console.log(JSON.stringify($scope.expenseRecord));
@@ -116,11 +117,11 @@ angular.module('starter.controllers')
 
   $scope.deleteExpense = function(){
     FinancialService.deleteExpenseRecord($scope.expenseRecord).then(function(success){
-      console.log("deleted successfully.");
+      SettingsService.setAppSuccessMessage("Successfully delted the expense record.");
+      $state.go("tab.expense-list");
     },function(error){
-      console.log("Unable to delete.");
+      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete.");
     });
-    $state.go("tab.expense-list");
   };
 
   $scope.editExpense = function(){
@@ -172,16 +173,54 @@ angular.module('starter.controllers')
     console.log(JSON.stringify($scope.revenueRecord));
     $scope.$apply();
   },function(error){
-    console.log("Unable to get revenue record");
+    $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to get revenue record");
   });
+
+  $scope.editRevenue = function(){
+    $state.go("tab.edit-payment-detail", {revenueId:$stateParams.revenueId});
+  };
 
   $scope.deleteRevenue = function(){
     FinancialService.deleteRevenueRecord($scope.revenueRecord).then(function(success){
-      console.log("Deleted successfully");
+      SettingsService.setAppSuccessMessage("Successfully deleted the revenue record.");
       $state.go("tab.revenue-list");
     },function(error){
-      console.log("unable to delete the record "+error);
+      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete the record");
     });
+  };
+})
+
+.controller('EditPaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
+  
+  console.log("Edit payment detail controller " + $stateParams.revenueId);
+
+  FinancialService.getRevenueRecord($stateParams.revenueId).then(function(revenueRecord){
+    $scope.revenueRecord = revenueRecord[0];
+    $scope.editRevenueRecord = {revenueAmount:$scope.revenueRecord.get("revenueAmount"),
+      revenueDate:$scope.revenueRecord.get("revenueDate"),
+      revenueSource:$scope.revenueRecord.get("revenueSource"),
+      note:$scope.revenueRecord.get("note")};
+    console.log(JSON.stringify($scope.editRevenueRecord));
+    $scope.$apply();
+  },function(error){
+    $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to get revenue record");
+  });
+
+  $scope.save = function(){
+    $scope.revenueRecord.set("revenueAmount",$scope.editRevenueRecord.revenueAmount);
+    $scope.revenueRecord.set("revenueDate",$scope.editRevenueRecord.revenueDate);
+    $scope.revenueRecord.set("revenueSource",$scope.editRevenueRecord.revenueSource);
+    $scope.revenueRecord.set("note",$scope.editRevenueRecord.note);
+    FinancialService.saveRevenue($scope.revenueRecord).then(function(success){
+      SettingsService.setAppSuccessMessage("Revenue record has been updated.");
+      $state.go("tab.payment-detail",{revenueId:$stateParams.revenueId});
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to edit revenue record.");
+    });
+  };
+
+  $scope.cancel=function() {
+    $state.go("tab.payment-detail", {revenueId: $stateParams.revenueId});
   };
 })
 
@@ -205,11 +244,15 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();  
 
   FinancialService.getCurrentMonthRevenueList(Parse.User.current().get("residency")).then(function(revenueList){
-    $scope.revenueList = revenueList;
+    if(revenueList==null || revenueList.length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Revenues have not found in your community.");
+    } else {
+      $scope.revenueList = revenueList;
+    }
     console.log(JSON.stringify($scope.revenueList));
     $scope.$apply();
   },function(error){
-    console.log(error);
+    $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to retrieve revenue records.");
   });
 
 })
@@ -250,7 +293,7 @@ angular.module('starter.controllers')
       SettingsService.setAppSuccessMessage("Expense has been recorded.");
       $state.go("tab.expense-list");
     }else{
-      $scope.expenseErrorMessage = "Please fill the details properly";
+      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Please fill the details properly.");
     }
   };
 

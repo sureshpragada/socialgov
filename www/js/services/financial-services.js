@@ -177,6 +177,9 @@ angular.module('financial.services', [])
         expenseQuery.find()
       ]);
       return deferred;
+    },
+    saveRevenue: function(revenueRecord){
+      return revenueRecord.save();
     }    
   };
 }]);
