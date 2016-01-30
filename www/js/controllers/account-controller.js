@@ -544,7 +544,7 @@ angular.module('starter.controllers')
       // Send invitation
       NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));
       SettingsService.setAppSuccessMessage("Invitation has been sent.");
-      $state.go("tab.account");
+      $state.go("tab.neighbors");
     }, function(error) {
       // Verify if this user exist message
       if(error.code==202) {

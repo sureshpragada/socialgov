@@ -19,11 +19,11 @@
         </ion-item>        
         <ion-item ng-if="revenueTotal>=expenseTotal">
           Reserve
-          <span class="item-note">{{revenueTotal-expenseTotal | currency}}</span>
+          <span class="item-note balanced">{{revenueTotal-expenseTotal | currency}}</span>
         </ion-item>                
         <ion-item ng-if="revenueTotal<expenseTotal">
           Defecit
-          <span class="item-note">{{expenseTotal-revenueTotal | currency}}</span>
+          <span class="item-note assertive">{{expenseTotal-revenueTotal | currency}}</span>
         </ion-item>                        
       </ion-list>
     </div>

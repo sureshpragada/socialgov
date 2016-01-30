@@ -14,6 +14,7 @@ angular.module('starter.controllers')
   }
   
   $scope.showServiceContacts=SHOW_SERVICE_CONTACTS;
+  $scope.isAdmin=AccountService.canUpdateRegion();
 
   $scope.region=null;
   RegionService.getRegion(residency).then(function(data) {
@@ -747,7 +748,8 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService) {
+.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
+  $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
     $scope.$apply();

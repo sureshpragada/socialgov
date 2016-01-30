@@ -16,7 +16,7 @@
           <h3 class="positive" ng-if="paymentStatus=='NA'">{{paymentStatus}}</h3>
         </div>
       </div>
-      <ion-item class="item-icon-right" href="#/tab/payment-history">
+      <ion-item class="item-icon-right" href="#/tab/payment-history" ng-if="user.get('homeNo')">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         My Payment History
       </ion-item>            

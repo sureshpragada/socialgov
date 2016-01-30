@@ -7,10 +7,12 @@
       <div class="item">Expense Date<span class="item-note">{{expenseRecord.get("expenseDate") | date:'mediumDate'}}</span></div>
       <div class="item">Expense Amount<span class="item-note">{{expenseRecord.get("expenseAmount") | currency}}</span></div>
       <div class="item">Paid To<span class="item-note">{{expenseRecord.get("paidTo")}}</span></div>
+
       <div class="item item-divider">Notes</div>
       <div class="item item-text-wrap">{{expenseRecord.get("reason")}}</div>
       <!-- <div class="item item-divider">Receipt</div>
       <img class="full-image" ng-src="http://i.imgur.com/eZtsvgE.jpg"> -->
+    </div>      
       <div class="padding" ng-if="isAdmin">
         <button class="button button-calm button-block" ng-click="editExpense()">
           Edit Expense
@@ -19,7 +21,6 @@
           Delete Expense
         </button>            
       </div>
-    </div>
   </ion-content>
 </ion-view>
  

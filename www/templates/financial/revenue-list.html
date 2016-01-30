@@ -10,8 +10,8 @@
           <span class="item-note">Rs {{payment.amount}}</span> -->
 
         <ion-item class="item-icon-right" ng-repeat="revenue in revenueList" href="#/tab/payment-detail/{{revenue.id}}">
-          {{revenue.get("revenueDate") | date:'MMM yyyy'}} 
-          <span class="item-note">Rs {{revenue.get("revenueAmount")}}</span>
+          {{revenue.get("revenueSource")}} 
+          <span class="item-note">{{revenue.get("revenueAmount") | currency}}</span>
 
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
@@ -20,9 +20,9 @@
         <a class="button button-energized button-block" href="#/tab/manage-revenue">
           Add Revenue Entry
         </a>      
-        <a class="button button-calm button-block" href="#/tab/manage-revenue">
+<!--         <a class="button button-calm button-block" href="#/tab/manage-revenue">
           Add Homeowner Payment
-        </a>      
+        </a>       -->
       </div>      
     </div>
   </ion-content>

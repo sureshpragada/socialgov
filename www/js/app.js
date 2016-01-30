@@ -592,7 +592,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       url: '/invite-citizen',
       cache: false,
       views: {
-        "tab-account": {
+        "tab-region": {
           templateUrl: 'templates/account/invite-citizen.html',
           controller: 'InviteCitizenCtrl'        
         }

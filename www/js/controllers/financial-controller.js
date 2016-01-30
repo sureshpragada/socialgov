@@ -28,6 +28,7 @@ angular.module('starter.controllers')
       if($scope.currentDues==null) {
         $scope.currentDues=FinancialService.getUpcomingDues(duesList);
       }
+      $scope.$apply();
     }
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community.");
@@ -89,13 +90,11 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();  
 
   FinancialService.getCurrentMonthExpenseList(Parse.User.current().get("residency")).then(function(expenseList){
-    console.log(JSON.stringify(expenseList));    
     if(expenseList==null || expenseList.length<=0) {
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("Expenses have not found in your community.");
     } else {
       $scope.expenseList = expenseList;
     }
-    console.log(JSON.stringify($scope.expenseList));
     $scope.$apply();
   },function(error){
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve your community expenses list.");
@@ -127,6 +126,25 @@ angular.module('starter.controllers')
   $scope.editExpense = function(){
     $state.go("tab.edit-expense-detail",{expenseId: $stateParams.expenseId});
   };
+})
+
+.controller('ManageExpenseCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
+  console.log("Manage Expense controller ");
+  $scope.input={};
+
+  $scope.addExpense=function() {
+    if($scope.input.paidTo!=null && $scope.input.expenseAmount!=null && $scope.input.expenseDate!=null && $scope.input.reason!=null) {
+      FinancialService.addExpense($scope.input).then(function(newExpense){
+        SettingsService.setAppSuccessMessage("Expense has been recorded.");
+        $state.go("tab.expense-list");        
+      },function(error){
+        $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to record the expense.");
+      });
+    }else{
+      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Please enter all details properly.");
+    }
+  };
+
 })
 
 .controller('EditExpenseDetailCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, $state) {
@@ -164,8 +182,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
-  
+.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {  
   console.log("Payment detail controller " + $stateParams.revenueId);
 
   FinancialService.getRevenueRecord($stateParams.revenueId).then(function(revenueRecord){
@@ -227,7 +244,8 @@ angular.module('starter.controllers')
 .controller('PaymentHistoryCtrl', function($scope, $http, SettingsService, FinancialService) {
   console.log("Payment history controller");
 
-  FinancialService.getMyPaymentHistory().then(function(paymentList) {
+  var user=Parse.User.current();
+  FinancialService.getMyPaymentHistory(user.get("residency"), user.get("homeNo")).then(function(paymentList) {
     if(paymentList!=null && paymentList.length>0) {
       $scope.paymentList=paymentList;
     } else {
@@ -272,28 +290,6 @@ angular.module('starter.controllers')
       });
     }else{
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter all revenue details.");
-    }
-  };
-
-})
-
-.controller('ManageExpenseCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
-  console.log("Manage Expense controller ");
-  console.log(JSON.stringify(Parse.User.current()));
-  $scope.expenseErrorMessage=null;
-  $scope.input={};
-
-  $scope.addExpense=function() {
-    if($scope.input.paidTo!=null && $scope.input.expenseAmount!=null && $scope.input.expenseDate!=null && $scope.input.reason!=null){
-      FinancialService.addExpense($scope.input).then(function(newExpense){
-        console.log(JSON.stringify(newExpense));
-      },function(error){
-        console.log(error);
-      });
-      SettingsService.setAppSuccessMessage("Expense has been recorded.");
-      $state.go("tab.expense-list");
-    }else{
-      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Please fill the details properly.");
     }
   };
 

@@ -1,8 +1,8 @@
 <ion-view view-title="Invite">
 	<ion-nav-buttons side="secondary">
-		<a class="button button-icon icon ion-person-add icon-assertive" ng-click="pickContact()"></a>
+<!-- 		<a class="button button-icon icon ion-person-add icon-assertive" ng-click="pickContact()"></a> -->
 <!-- 		<a class="button button-icon icon ion-ios-personadd icon-assertive" ng-click="pickContact()"></a> -->
-<!-- 		<a class="button button-light"  ng-click="pickContact()">Select Contact</a>     -->
+		<a class="button button-light" ng-click="pickContact()">Pick Contact</a>    
 	</ion-nav-buttons>
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
@@ -25,7 +25,7 @@
 			</label>
 			<div class="row">
 				<div class="col">
-					<a class="button button-block" href="#/tab/account">Cancel</a>	
+					<a class="button button-block" href="#/tab/neighbors">Cancel</a>	
 				</div>
 				<div class="col">
 					<a class="button button-block button-balanced" ng-click="invite()">Invite</a>	

@@ -11,14 +11,15 @@
       <!-- <div class="item">Status<span class="item-note">{{revenueRecord.id}}</span></div> -->
       <div class="item item-divider">Notes</div>
       <div class="item item-text-wrap">{{revenueRecord.get("note")}}</div>
+    </div>      
+    <div class="padding">
+      <button class="button button-calm button-block" ng-click="editRevenue()">
+        Edit Revenue
+      </button>
+      <button class="button button-block button-assertive" ng-click="deleteRevenue()">
+        Delete Revenue
+      </button>      
     </div>
-    <button class="button button-calm button-block" ng-click="editRevenue()">
-      Edit
-    </button>
-    <button class="button button-block button-assertive" ng-click="deleteRevenue()">
-      Delete
-    </button>
   </ion-content>
-
 </ion-view>
  
