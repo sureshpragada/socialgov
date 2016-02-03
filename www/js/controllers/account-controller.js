@@ -533,7 +533,9 @@ angular.module('starter.controllers')
       if(formattedPhone.length != 10) { 
          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
          return;
-      } 
+      } else {
+        $scope.user.phoneNum=formattedPhone;
+      }
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
       return;

@@ -4,9 +4,9 @@
   <my-app-message info="controllerMessage"></my-app-message>
     <div class="card" ng-if="paymentList">
       <ion-list>
-        <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/revenue-detail/{{payment.id}}">
+        <ion-item class="item-icon-right" ng-repeat="payment in paymentList" href="#/tab/payment-detail/{{payment.id}}">
           {{payment.get("revenueDate") | date:'mediumDate'}} 
-          <span class="item-note">{{payment.get("revenueAmount") | currency}}</span>
+          <span class="item-note">{{payment.get("revenueAmount") | number:2 | ourcurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>

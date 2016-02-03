@@ -36,7 +36,7 @@ angular.module('region.services', [])
               console.log("Unable to refresh region hence passing cached one " + regionUniqueName + " " + JSON.stringify(error));
               deferred.resolve(regionCache.get(regionUniqueName));  
             } else {
-              deferred.reject(error)
+              deferred.reject(error);
             }
           }
         }); 
@@ -98,10 +98,13 @@ angular.module('region.services', [])
     initializeRegionCacheByCurrentUser: function() {
       var self=this;
       if(Parse.User.current()!=null && Parse.User.current().get("residency")!=null) {
-        if(regionCache.get(Parse.User.current().get("residency"))!=null) {
-          self.initializeRegionCache(regionCache.get(Parse.User.current().get("residency")));
+        var region=regionCache.get(Parse.User.current().get("residency"))
+        if(region!=null) {
+          REGION_SETTINGS=region.get("settings");
+          self.initializeRegionCache(region);
         } else {
           self.getRegion(Parse.User.current().get("residency")).then(function(region) {
+            REGION_SETTINGS=region.get("settings");
             self.initializeRegionCache(region);
           }, function(error) {
             console.log("Unable to refresh region cache by user " + JSON.stringify(error));

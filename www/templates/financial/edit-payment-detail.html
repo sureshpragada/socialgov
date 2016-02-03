@@ -1,20 +1,32 @@
 <ion-view view-title="Edit Revenue Detail">
+  <my-app-message info="controllerMessage"></my-app-message>
   <ion-content class="visible-cards">
     <div class="card">
-      <label class="item item-input">
-        <span class="input-label">Revenue Date</span>
-        <input type="date" name="expenseAmount"  ng-model="editRevenueRecord.revenueDate">
+      <ion-toggle class="toggle-assertive" ng-model="editRevenueRecord.category">
+        Home Owner Payment
+      </ion-toggle>          
+      <label class="item item-input item-select" ng-if="editRevenueRecord.category && availableHomes">
+          <div class="input-label">Home Number</div>
+          <select ng-model="editRevenueRecord.home" ng-options="availableHome.label for availableHome in availableHomes"></select>
+      </label>          
+      <label class="item item-input" ng-if="editRevenueRecord.category && !availableHomes">
+        <span class="input-label">Home Number </span>
+        <input type="text" name="homeNo" ng-model="editRevenueRecord.homeNo">
+      </label>              
+      <label class="item item-input" ng-if="!editRevenueRecord.category">
+        <span class="input-label">Revenue Source</span>
+        <input type="text" name="revenueSource" ng-model="editRevenueRecord.revenueSource">
       </label>
       <label class="item item-input">
         <span class="input-label">Revenue Amount</span>
-        <input type="number" name="expenseDate"  ng-model="editRevenueRecord.revenueAmount">
-      </label>
+        <input type="number" name="revenueAmount" step="any" ng-model="editRevenueRecord.revenueAmount">
+      </label>                   
       <label class="item item-input">
-        <span class="input-label">Source</span>
-        <input type="text" name="expenseDate"  ng-model="editRevenueRecord.revenueSource">
-      </label>                 
+        <span class="input-label">Revenue Date</span>
+        <input type="date" name="revenueDate" ng-model="editRevenueRecord.revenueDate">
+      </label>
         <label class="item item-input">
-          <textarea placeholder="Reason for expense..." rows="5" ng-model="editRevenueRecord.note"></textarea>
+          <textarea placeholder="Revenue notes..." rows="5" ng-model="editRevenueRecord.note"></textarea>
         </label>      
       <div class="row">
         <div class="col">

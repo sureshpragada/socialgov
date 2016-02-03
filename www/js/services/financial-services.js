@@ -97,10 +97,11 @@ angular.module('financial.services', [])
       var expense = new Expense();
       expense.set("residency",Parse.User.current().get("residency"));
       expense.set("createdBy",Parse.User.current());
-      expense.set("paidTo",input.paidTo);
+      expense.set("paidTo",input.paidTo!=null?input.paidTo.capitalizeFirstLetter():input.paidTo);
       expense.set("expenseAmount",input.expenseAmount);
       expense.set("expenseDate",input.expenseDate);
       expense.set("reason",input.reason);
+      expense.set("expenseCategory",input.category.value);
       console.log(JSON.stringify(expense));
       return expense.save();
     },
@@ -109,10 +110,12 @@ angular.module('financial.services', [])
       var revenue = new Revenue();
       revenue.set("residency",Parse.User.current().get("residency"));
       revenue.set("createdBy",Parse.User.current());
-      revenue.set("revenueSource",input.revenueSource);
       revenue.set("revenueAmount",input.revenueAmount);
       revenue.set("revenueDate",input.revenueDate);
       revenue.set("note",input.note);
+      revenue.set("revenueSource",input.revenueSource);
+      revenue.set("revenueCategory",input.category?"MAINT_DUES":"OTHER");
+      revenue.set("homeNo",input.homeNo);            
       console.log(JSON.stringify(revenue));
       return revenue.save();
     },
@@ -120,19 +123,23 @@ angular.module('financial.services', [])
       var Revenue = Parse.Object.extend("Revenue");
       var query = new Parse.Query(Revenue);
       query.equalTo("residency",regionName);
-      query.equalTo("revenueSource", homeNo);
+      query.equalTo("homeNo", homeNo);
+      query.equalTo("revenueCategory", "MAINT_DUES");
+      query.descending("createdAt");
       return query.find();
     },
     getCurrentMonthExpenseList: function(regionName){
       var Expense = Parse.Object.extend("Expense");
       var query = new Parse.Query(Expense);
       query.equalTo("residency",regionName);
+      query.descending("createdAt");
       return query.find();
     },
     getCurrentMonthRevenueList: function(regionName){
       var Revenue = Parse.Object.extend("Revenue");
       var query = new Parse.Query(Revenue);
       query.equalTo("residency",regionName);
+      query.descending("createdAt");
       return query.find();
     },
     getExpenseRecord: function(id){
@@ -156,30 +163,71 @@ angular.module('financial.services', [])
     saveExpense: function(expenseRecord){
       return expenseRecord.save(); 
     },
-    getMonthlyBalanceSheet: function(regionName, date) {
-      var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-      var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
+    getAvailableBalanceSheetMonths: function(regionName) {
+      var deferred = $q.defer();
+      RegionService.getRegion(regionName).then(function(region) {
+        var balanceMonths=[];
+        var runningDate=new Date();
+        runningDate.setDate(1);
+        balanceMonths.push(runningDate.getTime());
+        while(runningDate.getTime()>region.createdAt.getTime()) {
+          // console.log("Running month : " + runningDate);
+          if(runningDate.getMonth()==0) {
+            runningDate.setFullYear(runningDate.getFullYear()-1);  
+            runningDate.setMonth(11);  
+          } else {
+            runningDate.setMonth(runningDate.getMonth()-1);    
+          }
+          balanceMonths.push(runningDate.getTime());
+        }
+        deferred.resolve(balanceMonths);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    getMonthlyRevenues: function(regionName, date) {
       var Revenue = Parse.Object.extend("Revenue");
       var revenueQuery = new Parse.Query(Revenue);
       revenueQuery.equalTo("residency",regionName);
-      revenueQuery.greaterThan("revenueDate", firstDay);
-      revenueQuery.lessThan("revenueDate", lastDay);
-
+      revenueQuery.greaterThan("revenueDate", date.firstDayOfMonth());
+      revenueQuery.lessThan("revenueDate", date.lastDayOfMonth());
+      return revenueQuery.find();
+    },
+    getMonthlyExpenses: function(regionName, date) {
       var Expense = Parse.Object.extend("Expense");
       var expenseQuery = new Parse.Query(Expense);
       expenseQuery.equalTo("residency",regionName);
-      expenseQuery.greaterThan("expenseDate", firstDay);
-      expenseQuery.lessThan("expenseDate", lastDay);      
-
+      expenseQuery.greaterThan("expenseDate", date.firstDayOfMonth());
+      expenseQuery.lessThan("expenseDate", date.lastDayOfMonth());      
+      return expenseQuery.find();
+    },
+    getMonthlyBalanceSheet: function(regionName, date) {
       var deferred=$q.all([
-        revenueQuery.find(),
-        expenseQuery.find()
+        this.getMonthlyRevenues(regionName, date),
+        this.getMonthlyExpenses(regionName, date)
       ]);
       return deferred;
     },
     saveRevenue: function(revenueRecord){
       return revenueRecord.save();
+    },
+    getExpenseCategories: function() {
+      return [
+        {label: "Water Supply", value : "Water Supply"},                              
+        {label: "Electricity", value : "Electricity"},
+        {label: "Garbage Collection", value : "Garbage Collection"},        
+        {label: "Watchmen", value : "Watchmen"},                
+        {label: "Other", value : "Other"}
+      ];
+    },
+    getSelectedExpenseCategory: function(categoryList, category) {
+      for(var i=0;i<categoryList.length;i++) {
+        if(categoryList[i].value==category) {
+          return categoryList[i];
+        }
+      }
+      return categoryList[0];
     }    
   };
 }]);

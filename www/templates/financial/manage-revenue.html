@@ -2,13 +2,24 @@
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
-			<label class="item item-input">
+	        <ion-toggle class="toggle-assertive" ng-model="input.category">
+	          Home Owner Payment
+	        </ion-toggle>          
+			<label class="item item-input item-select" ng-if="input.category && availableHomes">
+			    <div class="input-label">Home Number</div>
+			    <select ng-model="input.home" ng-options="availableHome.label for availableHome in availableHomes"></select>
+			</label>					
+			<label class="item item-input" ng-if="input.category && !availableHomes">
+				<span class="input-label">Home Number </span>
+				<input type="text" name="homeNo" ng-model="input.homeNo">
+			</label>			        
+			<label class="item item-input" ng-if="!input.category">
 				<span class="input-label">Revenue Source</span>
 				<input type="text" name="revenueSource" ng-model="input.revenueSource">
-			</label>		
+			</label>			        
 			<label class="item item-input">
 				<span class="input-label">Revenue Amount</span>
-				<input type="number" name="revenueAmount"  ng-model="input.revenueAmount">
+				<input type="number" name="revenueAmount" step="any" ng-model="input.revenueAmount">
 			</label>
 			<label class="item item-input">
 				<span class="input-label">Revenue Date</span>
@@ -19,7 +30,8 @@
 			  </label>			
 			<div class="row">
 				<div class="col">
-					<a class="button button-block button-assertive" href="#/tab/revenue-list">Cancel</a>	
+					<!-- <a class="button button-block button-assertive" href="#/tab/revenue-list">Cancel</a>	 -->
+					<a class="button button-block button-assertive" ng-click="cancel()">Cancel</a>	
 				</div>
 				<div class="col">
 					<a class="button button-block button-calm" ng-click="addRevenue()">Add Revenue</a>	

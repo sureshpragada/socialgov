@@ -209,10 +209,38 @@ angular.module('account.services', [])
       });
     },
     getNeighborList: function(regionName) {
-      console.log("Region name : " + regionName);
       var userQuery = new Parse.Query(Parse.User);
       userQuery.equalTo("residency", regionName);
+      userQuery.ascending("homeNo");
       return userQuery.find();   
+    },
+    getListOfHomesInCommunity: function(regionName) {
+      var deferred = $q.defer();
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("residency", regionName);
+      userQuery.ascending("homeNo");
+      userQuery.find().then(function(neighborList) {
+        var homeList=[];
+        var runningHomeNo="";
+        for(var i=0;i<neighborList.length;i++) {
+          if(neighborList[i].get("homeNo")!=null && runningHomeNo!=neighborList[i].get("homeNo")) {
+            runningHomeNo=neighborList[i].get("homeNo");
+            homeList.push({label: runningHomeNo, value: runningHomeNo});
+          }
+        }
+        deferred.resolve(homeList);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;  
+    },
+    getHomeRecordFromAvailableHomes: function(homesList, homeNo) {
+      for(var i=0;i<homesList.length;i++) {
+        if(homesList[i].value==homeNo) {
+          return homesList[i];
+        }
+      }
+      return homesList[0];
     },
     validateInvitationCode: function(invitationCode) {
       var self=this;

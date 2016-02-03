@@ -3,6 +3,7 @@ angular.module('starter.controllers')
 .controller('FinancialCtrl', function($scope, $http, $ionicLoading, FinancialService, SettingsService, RegionService) {
   console.log("Financial controller");
   $scope.user=Parse.User.current();
+  $scope.currencySymbol="Rs";
 
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
@@ -88,13 +89,15 @@ angular.module('starter.controllers')
 .controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService) {
   console.log("Expense List controller ");
   $scope.appMessage=SettingsService.getAppMessage();  
+  $scope.focusMonth=new Date(parseInt($stateParams.focusMonth));  
 
-  FinancialService.getCurrentMonthExpenseList(Parse.User.current().get("residency")).then(function(expenseList){
+  FinancialService.getMonthlyExpenses(Parse.User.current().get("residency"), $scope.focusMonth).then(function(expenseList){
     if(expenseList==null || expenseList.length<=0) {
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("Expenses have not found in your community.");
     } else {
       $scope.expenseList = expenseList;
     }
+    // console.log("Expense list : " + JSON.stringify($scope.expenseList));
     $scope.$apply();
   },function(error){
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve your community expenses list.");
@@ -115,9 +118,9 @@ angular.module('starter.controllers')
   });
 
   $scope.deleteExpense = function(){
-    FinancialService.deleteExpenseRecord($scope.expenseRecord).then(function(success){
+    FinancialService.deleteExpenseRecord($scope.expenseRecord).then(function(deletedExpenseRecord){
       SettingsService.setAppSuccessMessage("Successfully delted the expense record.");
-      $state.go("tab.expense-list");
+      $state.go("tab.expense-list", {focusMonth: deletedExpenseRecord.get("expenseDate").getTime()});
     },function(error){
       $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete.");
     });
@@ -130,32 +133,44 @@ angular.module('starter.controllers')
 
 .controller('ManageExpenseCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
   console.log("Manage Expense controller ");
-  $scope.input={};
+  $scope.availableCategories=FinancialService.getExpenseCategories();
+  $scope.focusMonth=new Date(parseInt($stateParams.focusMonth));  
+  $scope.input={
+    expenseDate: $scope.focusMonth.getMonth()==new Date().getMonth()?new Date():$scope.focusMonth,
+    category: $scope.availableCategories[0]
+  };
 
   $scope.addExpense=function() {
-    if($scope.input.paidTo!=null && $scope.input.expenseAmount!=null && $scope.input.expenseDate!=null && $scope.input.reason!=null) {
-      FinancialService.addExpense($scope.input).then(function(newExpense){
-        SettingsService.setAppSuccessMessage("Expense has been recorded.");
-        $state.go("tab.expense-list");        
-      },function(error){
-        $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to record the expense.");
-      });
-    }else{
-      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Please enter all details properly.");
+    if($scope.input.expenseAmount==null ||  $scope.input.expenseAmount.length<1) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter expense amount");
+      return;
     }
+    if($scope.input.category.value=='Other' && $scope.input.paidTo==null) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter paid to for other expense");
+      return;      
+    }
+
+    FinancialService.addExpense($scope.input).then(function(newExpense){
+      SettingsService.setAppSuccessMessage("Expense has been recorded.");
+      $state.go("tab.expense-list", {focusMonth: $scope.focusMonth.getTime()});        
+    },function(error){
+      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to record the expense.");
+    });
   };
 
 })
 
 .controller('EditExpenseDetailCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, $state) {
   console.log("Edit expense detail controller"+$stateParams.expenseId);
+  $scope.availableCategories=FinancialService.getExpenseCategories();
   FinancialService.getExpenseRecord($stateParams.expenseId).then(function(expenseRecord){
     $scope.expenseRecord = expenseRecord[0];
     $scope.editExpense = {
         expenseAmount: $scope.expenseRecord.get("expenseAmount"),
         paidTo: $scope.expenseRecord.get("paidTo"),
         expenseDate: $scope.expenseRecord.get("expenseDate"),
-        reason: $scope.expenseRecord.get("reason")
+        reason: $scope.expenseRecord.get("reason"),
+        category: FinancialService.getSelectedExpenseCategory($scope.availableCategories, $scope.expenseRecord.get("category"))
     };
     console.log(JSON.stringify($scope.editExpense));
     $scope.$apply();
@@ -168,19 +183,28 @@ angular.module('starter.controllers')
   };
 
   $scope.save = function(){
+    if($scope.editExpense.expenseAmount==null ||  $scope.editExpense.expenseAmount.length<1) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter expense amount");
+      return;
+    }
+    if($scope.editExpense.category.value=='Other' && $scope.editExpense.paidTo==null) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter paid to for other expense");
+      return;      
+    }
+
+    $scope.expenseRecord.set("expenseCategory",$scope.editExpense.category.value);
     $scope.expenseRecord.set("expenseAmount",$scope.editExpense.expenseAmount);
-    $scope.expenseRecord.set("paidTo",$scope.editExpense.paidTo);
+    $scope.expenseRecord.set("paidTo",$scope.editExpense.paidTo!=null?$scope.editExpense.paidTo.capitalizeFirstLetter():$scope.editExpense.paidTo);
     $scope.expenseRecord.set("expenseDate",$scope.editExpense.expenseDate);
     $scope.expenseRecord.set("reason",$scope.editExpense.reason);
-    FinancialService.saveExpense($scope.expenseRecord).then(function(success){
+    FinancialService.saveExpense($scope.expenseRecord).then(function(savedExpenseRecord){
       SettingsService.setAppSuccessMessage("Expense record has been updated.");
-      $state.go("tab.expense-list");
+      $state.go("tab.expense-list", {focusMonth: savedExpenseRecord.get("expenseDate").getTime()});
     },function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to edit expense record.");
     });
   };
 })
-
 
 .controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {  
   console.log("Payment detail controller " + $stateParams.revenueId);
@@ -200,30 +224,66 @@ angular.module('starter.controllers')
   $scope.deleteRevenue = function(){
     FinancialService.deleteRevenueRecord($scope.revenueRecord).then(function(success){
       SettingsService.setAppSuccessMessage("Successfully deleted the revenue record.");
-      $state.go("tab.revenue-list");
+      $state.go("tab.revenue-list", {focusMonth: $scope.revenueRecord.get("revenueDate").getTime()});
     },function(error){
       $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete the record");
     });
   };
 })
 
-.controller('EditPaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
-  
+.controller('EditPaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, AccountService) {  
   console.log("Edit payment detail controller " + $stateParams.revenueId);
 
   FinancialService.getRevenueRecord($stateParams.revenueId).then(function(revenueRecord){
     $scope.revenueRecord = revenueRecord[0];
-    $scope.editRevenueRecord = {revenueAmount:$scope.revenueRecord.get("revenueAmount"),
-      revenueDate:$scope.revenueRecord.get("revenueDate"),
-      revenueSource:$scope.revenueRecord.get("revenueSource"),
-      note:$scope.revenueRecord.get("note")};
+    $scope.editRevenueRecord = {
+      revenueAmount: $scope.revenueRecord.get("revenueAmount"),
+      revenueDate: $scope.revenueRecord.get("revenueDate"),
+      revenueSource: $scope.revenueRecord.get("revenueCategory")=="MAINT_DUES"?"":$scope.revenueRecord.get("revenueSource"),
+      note: $scope.revenueRecord.get("note"),
+      homeNo: $scope.revenueRecord.get("homeNo"),
+      category: $scope.revenueRecord.get("revenueCategory")=="MAINT_DUES"?true:false
+    };
     console.log(JSON.stringify($scope.editRevenueRecord));
-    $scope.$apply();
+
+    AccountService.getListOfHomesInCommunity(Parse.User.current().get("residency")).then(function(homesList) {
+      if(homesList!=null && homesList.length>0) {
+        $scope.availableHomes=homesList; 
+        $scope.editRevenueRecord.home=AccountService.getHomeRecordFromAvailableHomes($scope.availableHomes, $scope.revenueRecord.get("homeNo"));  
+      }
+    }, function(error) {
+      console.log("Unable to get available home number");
+    });
   },function(error){
     $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to get revenue record");
   });
 
   $scope.save = function(){
+    if($scope.editRevenueRecord.revenueAmount==null ||  $scope.editRevenueRecord.revenueAmount.length<1) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter revenue amount");
+      return;
+    }
+
+    if($scope.editRevenueRecord.category==true) {
+      if($scope.availableHomes!=null && $scope.availableHomes.length>0) {
+        $scope.editRevenueRecord.revenueSource="Home # " + $scope.editRevenueRecord.home.value;
+        $scope.editRevenueRecord.homeNo=$scope.editRevenueRecord.home.value;
+      } else {
+        if($scope.editRevenueRecord.homeNo==null ||  $scope.editRevenueRecord.homeNo.length<1) {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home number");
+          return;
+        }        
+      }
+    } else {
+      if($scope.editRevenueRecord.revenueSource==null ||  $scope.editRevenueRecord.revenueSource.length<1) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter revenue source");
+        return;
+      } else {
+        $scope.editRevenueRecord.homeNo="";
+      }
+    }
+
+    $scope.revenueRecord.set("revenueCategory",$scope.editRevenueRecord.category==true?"MAINT_DUES":"OTHER");
     $scope.revenueRecord.set("revenueAmount",$scope.editRevenueRecord.revenueAmount);
     $scope.revenueRecord.set("revenueDate",$scope.editRevenueRecord.revenueDate);
     $scope.revenueRecord.set("revenueSource",$scope.editRevenueRecord.revenueSource);
@@ -248,6 +308,7 @@ angular.module('starter.controllers')
   FinancialService.getMyPaymentHistory(user.get("residency"), user.get("homeNo")).then(function(paymentList) {
     if(paymentList!=null && paymentList.length>0) {
       $scope.paymentList=paymentList;
+      $scope.$apply();
     } else {
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not made any payments.");  
     }
@@ -257,17 +318,47 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RevenueListCtrl', function($scope, $http, SettingsService, FinancialService) {
+.controller('RevenueListCtrl', function($scope, $http, SettingsService, FinancialService, $stateParams, AccountService) {
   console.log("Revenue List controller");
   $scope.appMessage=SettingsService.getAppMessage();  
+  $scope.focusMonth=new Date(parseInt($stateParams.focusMonth));  
 
-  FinancialService.getCurrentMonthRevenueList(Parse.User.current().get("residency")).then(function(revenueList){
+  $scope.homeOwnerPaymentRevenueList=[];
+  $scope.otherRevenueList=[];
+
+  FinancialService.getMonthlyRevenues(Parse.User.current().get("residency"), $scope.focusMonth).then(function(revenueList){
     if(revenueList==null || revenueList.length<=0) {
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("Revenues have not found in your community.");
     } else {
-      $scope.revenueList = revenueList;
+      for(var i=0;i<revenueList.length;i++) {
+        if(revenueList[i].get("revenueCategory")=="MAINT_DUES") {
+          $scope.homeOwnerPaymentRevenueList.push(revenueList[i]);
+        } else {
+          $scope.otherRevenueList.push(revenueList[i]);
+        }
+      }
     }
-    console.log(JSON.stringify($scope.revenueList));
+
+    AccountService.getListOfHomesInCommunity(Parse.User.current().get("residency")).then(function(homesList) {
+      $scope.unpaidHomeOwnerList=[];
+      if(homesList.length>0) {
+        for(var i=0;i<homesList.length;i++) {
+          var found=false;
+          for(var j=0;j<$scope.homeOwnerPaymentRevenueList.length;j++) {
+            if(homesList[i].value==$scope.homeOwnerPaymentRevenueList[j].get("homeNo")) {
+              found=true;
+              break;
+            }
+          }
+          if(!found) {
+            $scope.unpaidHomeOwnerList.push(homesList[i]);
+          }
+        }
+      }
+    }, function(error) {
+      console.log("Unable to get available home numbers");
+    });  
+
     $scope.$apply();
   },function(error){
     $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to retrieve revenue records.");
@@ -275,22 +366,59 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
+.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService) {
   console.log("Manage Revenue controller ");
-  $scope.input={};
+  $scope.focusMonth=new Date(parseInt($stateParams.focusMonth));  
+  $scope.input={
+    revenueDate: $scope.focusMonth.getMonth()==new Date().getMonth()?new Date():$scope.focusMonth,
+    category: true
+  };
+
+  AccountService.getListOfHomesInCommunity(Parse.User.current().get("residency")).then(function(homesList) {
+    if(homesList!=null && homesList.length>0) {
+      $scope.availableHomes=homesList;      
+      $scope.input.home=$scope.availableHomes[0];  
+    }
+  }, function(error) {
+    console.log("Unable to get available home number");
+  });
 
   $scope.addRevenue=function() {
-    if($scope.input.revenueSource!=null && $scope.input.revenueAmount!=null && $scope.input.revenueDate!=null && $scope.input.note!=null){
-      FinancialService.addRevenue($scope.input).then(function(newRevenue){
-        console.log(JSON.stringify(newRevenue));
-        SettingsService.setAppSuccessMessage("Revenue has been recorded.");
-        $state.go("tab.revenue-list");        
-      },function(error){
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add revenue record.");
-      });
-    }else{
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter all revenue details.");
+
+    if($scope.input.revenueAmount==null ||  $scope.input.revenueAmount.length<1) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter revenue amount");
+      return;
     }
+
+    if($scope.input.category==true) {
+      if($scope.availableHomes!=null && $scope.availableHomes.length>0) {
+        $scope.input.revenueSource="Home # " + $scope.input.home.value;
+        $scope.input.homeNo=$scope.input.home.value;
+      } else {
+        if($scope.input.homeNo==null ||  $scope.input.homeNo.length<1) {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home number");
+          return;
+        }        
+      }
+    } else {
+      if($scope.input.revenueSource==null ||  $scope.input.revenueSource.length<1) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter revenue source");
+        return;
+      }
+    }
+  
+    FinancialService.addRevenue($scope.input).then(function(newRevenue){
+      console.log(JSON.stringify(newRevenue));
+      SettingsService.setAppSuccessMessage("Revenue has been recorded.");
+      $state.go("tab.revenue-list", {focusMonth: $scope.focusMonth.getTime()});        
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add revenue record.");
+    });
+
+  };
+
+  $scope.cancel=function() {
+    $ionicHistory.goBack(-1);
   };
 
 })
@@ -301,28 +429,47 @@ angular.module('starter.controllers')
     template: "<p class='item-icon-left'>Loading community balance sheet...<ion-spinner/></p>"
   });
 
-  // TODO :: Focus month will be stateparam when we provide navigation to move between months, residents will be 
-  // to look at balance sheet till the createdAt timestamp of their community record
-  $scope.focusMonth=new Date();    
-  FinancialService.getMonthlyBalanceSheet(Parse.User.current().get("residency"), $scope.focusMonth).then(function(balanceSheet) {
-    console.log(JSON.stringify(balanceSheet));
-
-    var revenueList=balanceSheet[0];
-    $scope.revenueTotal=0;
-    for(var i=0;i<revenueList.length;i++) {
-      $scope.revenueTotal+=revenueList[i].get("revenueAmount");
+  FinancialService.getAvailableBalanceSheetMonths(Parse.User.current().get("residency")).then(function(availableBalanceSheets) {
+    $scope.availableBalanceSheets=availableBalanceSheets;    
+    if($stateParams.focusMonth==0) {
+      $scope.focusMonth=new Date($scope.availableBalanceSheets[0]);
+    } else {
+      $scope.focusMonth=new Date(parseInt($stateParams.focusMonth));  
     }
+    console.log("Focus month : " + $scope.focusMonth);
+    
+    FinancialService.getMonthlyBalanceSheet(Parse.User.current().get("residency"), $scope.focusMonth).then(function(balanceSheet) {
 
-    var expenseList=balanceSheet[1];
-    $scope.expenseTotal=0;
-    for(var i=0;i<expenseList.length;i++) {
-      $scope.expenseTotal+=expenseList[i].get("expenseAmount");
-    }
+      var revenueList=balanceSheet[0];
+      $scope.revenueTotal=0;
+      for(var i=0;i<revenueList.length;i++) {
+        $scope.revenueTotal+=revenueList[i].get("revenueAmount");
+      }
 
-    $ionicLoading.hide();
+      var expenseList=balanceSheet[1];
+      $scope.expenseTotal=0;
+      for(var i=0;i<expenseList.length;i++) {
+        $scope.expenseTotal+=expenseList[i].get("expenseAmount");
+      }
+
+      // Remove projected balance sheet
+      for(var i=0;i<$scope.availableBalanceSheets.length;i++) {
+        var balanceSheetDate=new Date($scope.availableBalanceSheets[i]);
+        if(balanceSheetDate.getMonth()==$scope.focusMonth.getMonth() && 
+            balanceSheetDate.getFullYear()==$scope.focusMonth.getFullYear()) {
+          $scope.availableBalanceSheets.splice(i, 1);
+          break;
+        }
+      }
+
+      $ionicLoading.hide();
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unabe to get your community balance sheet");
+      $ionicLoading.hide();
+    });
   }, function(error) {
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unabe to get your community balance sheet");
-    $ionicLoading.hide();
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to identify available balance sheets");
+      $ionicLoading.hide();    
   });
 
 })
@@ -390,7 +537,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, AccountService, $ionicLoading) {
+.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, AccountService, $ionicLoading, LogService) {
   console.log("Dues List controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.canUpdateRegion();
@@ -398,21 +545,20 @@ angular.module('starter.controllers')
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading community dues...<ion-spinner/></p>"
   });
-  console.log("Current region : " + Parse.User.current().get("residency"));
   FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {
-    if(duesList!=null) {
-      console.log("Dues list : " + JSON.stringify(duesList));
+    if(duesList!=null && duesList.length>0) {
       $scope.currentDues=FinancialService.getCurrentDues(duesList);
       $scope.upcomingDues=FinancialService.getUpcomingDues(duesList);
       $scope.duesHistory=FinancialService.getDuesHistory(duesList);
-      $scope.$apply();
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Dues have not setup for this community.");
     }
+    $scope.$apply();        
     $ionicLoading.hide();          
   }, function(error) {
+    $ionicLoading.hide();    
+    LogService.log({type:"ERROR", message: "Dues list failure path" + JSON.stringify(error)});   
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community.");
-    $ionicLoading.hide();
   });
 
   $scope.deleteUpcomingDues=function() {
@@ -452,6 +598,15 @@ angular.module('starter.controllers')
 
   $scope.updateDues=function() {
     console.log("Input : " + JSON.stringify($scope.input));
+    if($scope.input.effectiveMonth==null) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter effective month.");
+      return;
+    }
+    if($scope.input.maintDues==null || $scope.input.maintDues.length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter maintenance dues amount.");
+      return;
+    }
+
     if($stateParams.duesId=="SETUP") {
       FinancialService.setupDues($scope.input).then(function(dues) {
         SettingsService.setAppSuccessMessage("Dues has been recorded.");

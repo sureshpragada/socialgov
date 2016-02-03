@@ -2,31 +2,28 @@
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
-			<!-- <label class="item item-input item-select">
-			    <div class="input-label">
-			      Expense Category
-			    </div>
-			    <select ng-model="input.category" ng-options="allowedCategory.label for allowedCategory in allowedCategories">
-			    </select>
-			  </label>					 -->
-			<label class="item item-input">
+			<label class="item item-input item-select">
+			    <div class="input-label">Expense Category</div>
+			    <select ng-model="input.category" ng-options="availableCategory.label for availableCategory in availableCategories"></select>
+			  </label>					
+			<label class="item item-input" ng-if="input.category.value=='Other'">
 				<span class="input-label">Paid To</span>
 				<input type="text" name="paidTo" ng-model="input.paidTo">
 			</label>		
 			<label class="item item-input">
 				<span class="input-label">Expense Amount</span>
-				<input type="number" name="expenseAmount"  ng-model="input.expenseAmount">
+				<input type="number" name="expenseAmount" step="any" ng-model="input.expenseAmount">
 			</label>
 			<label class="item item-input">
 				<span class="input-label">Expense Date</span>
 				<input type="date" name="expenseDate"  ng-model="input.expenseDate">
 			</label>						
 			  <label class="item item-input">
-			    <textarea placeholder="Reason for expense..." rows="5" ng-model="input.reason"></textarea>
+			    <textarea placeholder="Notes for expense..." rows="5" ng-model="input.reason"></textarea>
 			  </label>			
 			<div class="row">
 				<div class="col">
-					<a class="button button-block button-assertive" href="#/tab/expense-list">Cancel</a>	
+					<a class="button button-block button-assertive" href="#/tab/expense-list/{{focusMonth.getTime()}}">Cancel</a>	
 				</div>
 				<div class="col">
 					<a class="button button-block button-calm" ng-click="addExpense()">Add Expense</a>	

@@ -361,7 +361,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })    
     
     .state('tab.revenue-list', {
-      url: '/revenue-list',
+      url: '/revenue-list/{focusMonth}',
       cache: false,
       views: {
         "tab-financial": {
@@ -394,7 +394,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })        
 
     .state('tab.expense-list', {
-      url: '/expense-list',
+      url: '/expense-list/{focusMonth}',
       cache: false,
       views: {
         "tab-financial": {
@@ -449,7 +449,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })                    
 
     .state('tab.balance-sheet', {
-      url: '/balance-sheet',
+      url: '/balance-sheet/{focusMonth}',
       cache: false,
       views: {
         "tab-financial": {
@@ -471,7 +471,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })                        
 
     .state('tab.manage-revenue', {
-      url: '/manage-revenue',
+      url: '/manage-revenue/{focusMonth}',
       cache: false,
       views: {
         "tab-financial": {
@@ -482,7 +482,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })                        
 
     .state('tab.manage-expense', {
-      url: '/manage-expense',
+      url: '/manage-expense/{focusMonth}',
       cache: false,
       views: {
         "tab-financial": {

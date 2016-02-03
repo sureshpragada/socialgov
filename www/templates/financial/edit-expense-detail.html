@@ -1,13 +1,17 @@
 <ion-view view-title="Edit Expense Detail">
   <ion-content class="visible-cards">
     <div class="card">
-      <label class="item item-input">
+      <label class="item item-input item-select">
+          <div class="input-label">Expense Category</div>
+          <select ng-model="editExpense.category" ng-options="availableCategory.label for availableCategory in availableCategories"></select>
+      </label>          
+      <label class="item item-input" ng-if="editExpense.category.value=='Other'">
         <span class="input-label">Paid To</span>
         <input type="text" name="paidTo" ng-model="editExpense.paidTo">
       </label>    
       <label class="item item-input">
         <span class="input-label">Expense Amount</span>
-        <input type="number" name="expenseAmount"  ng-model="editExpense.expenseAmount">
+        <input type="number" name="expenseAmount" step="any" ng-model="editExpense.expenseAmount">
       </label>
       <label class="item item-input">
         <span class="input-label">Expense Date</span>

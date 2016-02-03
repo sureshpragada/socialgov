@@ -6,7 +6,7 @@
       <div class="row">
         <div class="col" style="text-align: center;">
           <h4>Dues</h4>
-          <h3 class="positive" ng-if="currentDues">{{currentDues.get("maintDues") | currency}}</h3>
+          <h3 class="positive" ng-if="currentDues">{{currentDues.get("maintDues")  | number:2 | ourcurrency}}</h3>
           <h3 class="positive" ng-if="!currentDues">NA</h3>
         </div>
         <div class="col" style="text-align: center;">
@@ -28,7 +28,7 @@
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
     <div class="card">
       <div class="item item-divider">Community</div>
-      <ion-item class="item-icon-right" href="#/tab/balance-sheet" ng-if="regionSettings.financialMgmt=='SELF'">
+      <ion-item class="item-icon-right" href="#/tab/balance-sheet/0" ng-if="regionSettings.financialMgmt=='SELF'">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Balance Sheet
       </ion-item>                  
@@ -47,7 +47,7 @@
       <ion-item class="item-icon-right" href="#/tab/dues-list">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Maintenance Dues
-        <span class="item-note">{{currentDues.get('maintDues') | currency}}</span>
+        <span class="item-note">{{currentDues.get('maintDues')  | number:2 | ourcurrency}}</span>
       </ion-item>      
 
 <!--       <ion-item class="item-icon-right" href="#/tab/expense-list">
@@ -61,7 +61,7 @@
       <ion-item class="item-icon-right" href="#/tab/reserves-detail">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Reserve Fund
-        <span class="item-note">{{reserve | currency}}</span>
+        <span class="item-note">{{reserve | number:2 | ourcurrency}}</span>
       </ion-item>      
     </div>        
 
