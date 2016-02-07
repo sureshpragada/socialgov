@@ -125,7 +125,7 @@ angular.module('financial.services', [])
       query.equalTo("residency",regionName);
       query.equalTo("homeNo", homeNo);
       query.equalTo("revenueCategory", "MAINT_DUES");
-      query.descending("createdAt");
+      query.descending("revenueDate");
       return query.find();
     },
     getCurrentMonthExpenseList: function(regionName){

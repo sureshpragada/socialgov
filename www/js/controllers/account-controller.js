@@ -515,8 +515,13 @@ angular.module('starter.controllers')
 
   $scope.invite=function() {
     console.log("invited " + JSON.stringify($scope.user));
-    if($scope.user.firstName==null || $scope.user.lastName==null) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
+    if($scope.user.firstName==null || $scope.user.firstName.trim().length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first name.");
+      return;
+    } 
+
+    if($scope.user.lastName==null || $scope.user.lastName.trim().length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter last name.");
       return;
     } 
 
@@ -544,7 +549,11 @@ angular.module('starter.controllers')
     // Create user
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation
-      NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));
+      if($scope.regionSettings.sendInvitationCode==true) {
+        NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));        
+      } else {
+        console.log("Region does not support sending invitation code");
+      }
       SettingsService.setAppSuccessMessage("Invitation has been sent.");
       $state.go("tab.neighbors");
     }, function(error) {
@@ -556,7 +565,7 @@ angular.module('starter.controllers')
       }
       $scope.$apply();
     });
-
+  
   };
 
 /**

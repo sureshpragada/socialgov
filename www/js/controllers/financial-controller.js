@@ -9,17 +9,22 @@ angular.module('starter.controllers')
     template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
   });
   // Payment status : Retrieve from user object
-  if($scope.user.get("lastPayment")!=null && $scope.user.get("lastPayment").date!=null) {
-    var lastPaymentDate=$scope.user.get("lastPayment").date;
-    var currentDate=new Date();
-    if(currentDate.getYear()>lastPaymentDate.getYear() || (currentDate.getYear()==lastPaymentDate.getYear() && currentDate.getMonth()>lastPaymentDate.getMonth())) {
-      $scope.paymentStatus="Unpaid";  
+  FinancialService.getMyPaymentHistory($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(paymentList) {
+    if(paymentList!=null && paymentList.length>0) {
+      var lastPaymentDate=paymentList[0].get("revenueDate");
+      var currentDate=new Date();
+      if(currentDate.getFullYear()>lastPaymentDate.getFullYear() || (currentDate.getFullYear()==lastPaymentDate.getFullYear() && currentDate.getMonth()>lastPaymentDate.getMonth())) {
+        $scope.paymentStatus="Unpaid";  
+      } else {
+        $scope.paymentStatus="Paid";  
+      }
     } else {
-      $scope.paymentStatus="Paid";  
+      $scope.paymentStatus="Unpaid";
     }
-  } else {
+  }, function(error) {
     $scope.paymentStatus="NA";
-  }
+    console.log("Unable to get payment history to calculate paid status " + JSON.stringify(error));
+  });
 
   // Dues calculation
   $scope.currentDues=null;  
@@ -86,10 +91,11 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService) {
+.controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, AccountService) {
   console.log("Expense List controller ");
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.focusMonth=new Date(parseInt($stateParams.focusMonth));  
+  $scope.isAdmin=AccountService.canUpdateRegion();
 
   FinancialService.getMonthlyExpenses(Parse.User.current().get("residency"), $scope.focusMonth).then(function(expenseList){
     if(expenseList==null || expenseList.length<=0) {
@@ -105,13 +111,30 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, AccountService, FinancialService) {
+.controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $ionicModal, $state, SettingsService, AccountService, FinancialService, PictureManagerService) {
   console.log("Expense detail controller " + $stateParams.expenseId);
   $scope.isAdmin=AccountService.canUpdateRegion();
   console.log($scope.isAdmin);
   FinancialService.getExpenseRecord($stateParams.expenseId).then(function(expenseRecord){
     $scope.expenseRecord = expenseRecord[0];
     console.log(JSON.stringify($scope.expenseRecord));
+
+    var stateData=PictureManagerService.getState();
+    if(stateData.imageUrl!=null) {
+      var images=$scope.expenseRecord.get("images");
+      if(images!=null && images.length>0) {
+        images.push(stateData.imageUrl);
+      } else {
+        images=[stateData.imageUrl];
+      }
+      $scope.expenseRecord.set("images", images);
+      $scope.expenseRecord.save();
+      PictureManagerService.reset();
+      console.log("Expense receipt uploaded");
+    } else {
+      console.log("Not expense receipt upload flow");
+    }
+
     $scope.$apply();
   },function(error){
     $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to get the expense record.");
@@ -129,6 +152,47 @@ angular.module('starter.controllers')
   $scope.editExpense = function(){
     $state.go("tab.edit-expense-detail",{expenseId: $stateParams.expenseId});
   };
+
+  $scope.attachPicture = function() {
+    PictureManagerService.reset();
+    PictureManagerService.setFromPage("tab.expense-detail");
+    PictureManagerService.setFromPagePathParamValue({expenseId: $stateParams.expenseId});
+    $state.go("tab.financial-picman");    
+  };
+
+  $scope.deleteExpenseReceipt=function() {
+    var images=$scope.expenseRecord.get("images");
+    images.splice($scope.viewingExpenseReceiptIndex, 1);
+    $scope.expenseRecord.set("images", images);
+    $scope.expenseRecord.save()
+    $scope.modal.hide();
+  }
+
+  $ionicModal.fromTemplateUrl('templates/picture-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  })  
+
+  $scope.showExpenseReceipt = function(index) {
+    $scope.removeExpenseReceipt=true;
+    $scope.viewingExpenseReceiptIndex=index;
+    if($scope.expenseRecord.get("images")!=null && $scope.expenseRecord.get("images").length>0) {
+      $scope.imageUrl=$scope.expenseRecord.get("images")[index];
+      $scope.modal.show();
+    } else {
+      console.log("Receipts not available for this expense");
+    }
+  }
+
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });  
 })
 
 .controller('ManageExpenseCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {
@@ -206,8 +270,9 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService) {  
+.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, AccountService) {  
   console.log("Payment detail controller " + $stateParams.revenueId);
+  $scope.isAdmin=AccountService.canUpdateRegion();
 
   FinancialService.getRevenueRecord($stateParams.revenueId).then(function(revenueRecord){
     $scope.revenueRecord = revenueRecord[0];
@@ -318,10 +383,11 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RevenueListCtrl', function($scope, $http, SettingsService, FinancialService, $stateParams, AccountService) {
+.controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, AccountService) {
   console.log("Revenue List controller");
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.focusMonth=new Date(parseInt($stateParams.focusMonth));  
+  $scope.isAdmin=AccountService.canUpdateRegion();
 
   $scope.homeOwnerPaymentRevenueList=[];
   $scope.otherRevenueList=[];
@@ -364,6 +430,10 @@ angular.module('starter.controllers')
     $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to retrieve revenue records.");
   });
 
+  $scope.goToManageRevenuePage=function(targetHomeNo) {
+    SettingsService.setPageTransitionData({homeNo: targetHomeNo});
+    $state.go("tab.manage-revenue", {focusMonth: $scope.focusMonth.getTime()});
+  }
 })
 
 .controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService) {
@@ -377,11 +447,32 @@ angular.module('starter.controllers')
   AccountService.getListOfHomesInCommunity(Parse.User.current().get("residency")).then(function(homesList) {
     if(homesList!=null && homesList.length>0) {
       $scope.availableHomes=homesList;      
-      $scope.input.home=$scope.availableHomes[0];  
+      var pageTransitionData=SettingsService.getPageTransitionData();
+      if(pageTransitionData!=null && pageTransitionData.homeNo!=null) {
+        $scope.input.home=AccountService.getHomeRecordFromAvailableHomes($scope.availableHomes, pageTransitionData.homeNo);
+      } else {
+        $scope.input.home=$scope.availableHomes[0];    
+      }
     }
   }, function(error) {
     console.log("Unable to get available home number");
   });
+
+  FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {    
+    if(duesList!=null) {
+      var currentDues=FinancialService.getCurrentDues(duesList);
+      if(currentDues!=null) {
+        $scope.input.revenueAmount=currentDues.get("maintDues");
+      } else {
+        var upcomingDues=FinancialService.getUpcomingDues(duesList);
+        if(upcomingDues!=null) {
+          $scope.input.revenueAmount=upcomingDues.get("maintDues");
+        }
+      }
+    }
+  }, function(error) {
+    console.log("Unable to retrieve dues of this community");
+  });      
 
   $scope.addRevenue=function() {
 
@@ -486,19 +577,22 @@ angular.module('starter.controllers')
     console.log("Unable to get reserves details of this community.");
   });  
 
-  FinancialService.getAllReserveAudit(Parse.User.current().get("residency")).then(function(reserveAuditList) {
-    console.log("Reserve Audit list : " + JSON.stringify(reserveAuditList));
-    $scope.reserveAuditList=reserveAuditList;
-    $scope.$apply();
-  }, function(error) {
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get reserves details of this community.");
-  });
+  $scope.getAllReserveAudit=function() {
+    FinancialService.getAllReserveAudit(Parse.User.current().get("residency")).then(function(reserveAuditList) {
+      console.log("Reserve Audit list : " + JSON.stringify(reserveAuditList));
+      $scope.reserveAuditList=reserveAuditList;
+      $scope.$apply();
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get reserves details of this community.");
+    });
+  };
+
+  $scope.getAllReserveAudit();  
 
   $scope.deleteReserveAudit=function(index) {
     FinancialService.deleteReserveAudit($scope.reserveAuditList[index]).then(function(reserveAudit) {
-      $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Reserve audit entry has been deleted.");
-      $scope.reserveAuditList.slice(index, 1);
-      $scope.$apply();
+      $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Reserve audit entry has been deleted.");      
+      $scope.getAllReserveAudit();
     }, function(error) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete reserve audit entry.");
     });
@@ -523,6 +617,11 @@ angular.module('starter.controllers')
   });  
 
   $scope.updateReserve=function() {
+    if($scope.input.reserveAmount==null || $scope.input.reserveAmount.length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter reserve amount.");
+      return;
+    }
+
     RegionService.updateReserve($scope.region, $scope.input).then(function(region) {
       FinancialService.updateReserve($scope.input).then(function(reserveAudit) {
         SettingsService.setAppSuccessMessage("Reserves has been recorded.");

@@ -163,6 +163,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })        
 
+    .state('tab.financial-picman', {
+      url: '/financial-picman',
+      cache: false,
+      views: {
+        'tab-financial': {
+          templateUrl: 'templates/picture-manager.html',
+          controller: 'PictureManagerCtrl'
+        }
+      }
+    })        
+
     .state('tab.regions', {
       url: '/regions',
       views: {

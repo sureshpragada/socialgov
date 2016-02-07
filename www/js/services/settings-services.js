@@ -1,6 +1,7 @@
 angular.module('settings.services', [])
 
 .factory('SettingsService', ['$http', 'CacheFactory', function($http, CacheFactory) {
+  var pageTransitionData=null;
   var appMessage=null;
   var expense=null;
   var settingsCache;
@@ -13,6 +14,14 @@ angular.module('settings.services', [])
   }
 
   return {
+    setPageTransitionData: function(pageTransitionData) {
+      this.pageTransitionData=pageTransitionData;
+    },
+    getPageTransitionData: function() {
+      var tempPageTransitionData=this.pageTransitionData;
+      this.pageTransitionData=null;
+      return tempPageTransitionData;
+    },
     getPreference: function(key) {
       var cachedValue=settingsCache.get(key);
       // console.log("Getting cache " + key + " " + cachedValue);

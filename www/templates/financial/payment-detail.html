@@ -14,14 +14,14 @@
       <div class="item">Source
         <span class="item-note">{{revenueRecord.get("revenueSource")}}</span>
       </div>      
-      <div class="card" ng-if="revenueRecord.get('note')">
-        <div class="item item-divider item-energized">Notes</div>        
-        <div class="item item-text-wrap">
-          <p ng-bind-html="revenueRecord.get('note') | nl2br">
-        </div>
-      </div>
     </div>      
-    <div class="padding">
+    <div class="card" ng-if="revenueRecord.get('note')">
+      <div class="item item-divider item-energized">Notes</div>        
+      <div class="item item-text-wrap">
+        <p ng-bind-html="revenueRecord.get('note') | nl2br">
+      </div>
+    </div>    
+    <div class="padding" ng-if="isAdmin">
       <button class="button button-calm button-block" ng-click="editRevenue()">
         Edit Revenue
       </button>

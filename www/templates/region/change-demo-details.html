@@ -1,4 +1,4 @@
-<ion-view view-title="Edit Demograph Details">
+<ion-view view-title="Edit Demograph">
   <ion-content>
    		<label class="item item-input" >
 				<span class="input-label">
@@ -8,7 +8,7 @@
 		</label>
 		<label class="item item-input" >
 				<span class="input-label">
-				      Population
+				      {{'Population' | translate}} 
 				</span>
 			<input type="text" ng-model="newDemoObj.population">
 		</label>
@@ -20,22 +20,18 @@
     </label>
     <label class="item item-input" >
         <span class="input-label">
-              Postal codes
+			{{'PostalCode' | translate}}
         </span>
       <input type="text" ng-model="newDemoObj.pinCodes" >
     </label>
-		<label class="item item-input" >
-				<span class="input-label">
-				      History
-				</span>	
-		</label>
+    	<div class="item item-divider">History</div>
 		<label class="item item-input" >
 			<textarea placeholder="Type in region history" rows="5" ng-model="newDemoObj.history"></textarea>
 		</label>
-		<div class="padding" >
+		<div class="padding-horizontal" >
         	<button class="button button-block button-balanced" ng-click="submit()">Submit</button>
      	</div>
-     	<div class="padding" >
+     	<div class="padding-horizontal" >
         	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
      	</div>
 	   </div>

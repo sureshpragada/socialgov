@@ -24,10 +24,13 @@
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
     <div class="card" ng-if="reserveAuditList.length>0">
-      <div class="item item-divider">Reserve History</div>
-      <ion-item ng-repeat="reserveAudit in reserveAuditList">
-        {{reserveAudit.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{reserveAudit.get("reserveAmount")  | number:2 | ourcurrency}}</span>
-      </ion-item>            
+      <div class="item item-divider item-energized">Reserve History</div>      
+      <ion-list can-swipe="true">
+        <ion-item ng-repeat="reserveAudit in reserveAuditList">
+          {{reserveAudit.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{reserveAudit.get("reserveAmount")  | number:2 | ourcurrency}}</span>
+          <ion-option-button class="button-info button-assertive" ng-click="deleteReserveAudit($index)">Delete</ion-option-button>  
+        </ion-item>            
+      </ion-list>     
     </div>        
 
   </ion-content>

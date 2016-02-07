@@ -11,6 +11,14 @@ angular.module('account.services', [])
     });
   }
 
+  // var homeListCache;
+  // if (!CacheFactory.get('accessRequestCache')) {
+  //   accessRequestCache = CacheFactory('accessRequestCache', {
+  //     maxAge: 1 * 60 * 60 * 1000, // 1 Hour
+  //     deleteOnExpire: 'none'
+  //   });
+  // }
+
   return {
     getRolesAllowedToChange: function() {
       return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      

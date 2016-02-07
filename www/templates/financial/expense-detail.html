@@ -19,16 +19,49 @@
         <p ng-bind-html="expenseRecord.get('reason') | nl2br">
       </div>
     </div>
-    <!-- <div class="item item-divider">Receipt</div>
-    <img class="full-image" ng-src="http://i.imgur.com/eZtsvgE.jpg"> -->        
-    <div class="padding" ng-if="isAdmin">
+
+    <div class="card" ng-if="expenseRecord.get('images').length>0">
+      <div class="item item-divider item-royal">Receipts</div>        
+      <div class="item">
+        <ion-slide-box>          
+          <ion-slide ng-repeat="image in expenseRecord.get('images')" ng-init="imageIndex = $index">
+            <img class="full-image" ng-src="{{image}}" ng-click="showExpenseReceipt(imageIndex)">        
+          </ion-slide>
+        </ion-slide-box>
+      </div>
+    </div>    
+
+    <div class="row" ng-if="isAdmin">    
+      <div class="col">
+        <button class="button button-balanced button-small button-block" ng-click="attachPicture()">
+          Attach Receipt
+        </button>          
+      </div>
+      <div class="col">
+      <button class="button button-calm button-small button-block" ng-click="editExpense()">
+        Edit
+      </button>      
+      </div>
+      <div class="col">
+      <button class="button button-small button-assertive button-block" ng-click="deleteExpense()">
+        Delete
+      </button>                  
+      </div>            
+
+
+    </div>
+
+<!--     <div class="padding" ng-if="isAdmin">
+      <button class="button button-balanced button-block" ng-click="attachPicture()">
+        Attach Receipt
+      </button>    
       <button class="button button-calm button-block" ng-click="editExpense()">
         Edit Expense
       </button>
       <button class="button button-block button-assertive" ng-click="deleteExpense()">
         Delete Expense
       </button>            
-    </div>
+    </div> -->
   </ion-content>
 </ion-view>
  

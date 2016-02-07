@@ -1,7 +1,7 @@
 angular.module('starter.controllers')
 
 .factory('PictureManagerService', ['$http', function($http) {
-  var state={fromPage: "tab.post", imageUrl: null, data: {}, fromPagePathParamValue: ""};
+  var state={fromPage: "tab.post", imageUrl: null, data: {}, fromPagePathParamValue: null};
   return {
     setState: function(incomingState) {
       state=incomingState;
@@ -22,7 +22,7 @@ angular.module('starter.controllers')
       state.data=data;
     },
     reset: function() {
-      state={fromPage: "tab.post", imageUrl: null, data: {}, fromPagePathParamValue: ""};
+      state={fromPage: "tab.post", imageUrl: null, data: {}, fromPagePathParamValue: null};
     }
   };
 }])
@@ -81,7 +81,7 @@ angular.module('starter.controllers')
           PictureManagerService.setImageUrl(response.data.data.link);
           console.log("Picture URL : " + response.data.data.link);
           $scope.file="";
-          $state.go(PictureManagerService.getState().fromPage, {dishId: PictureManagerService.getState().fromPagePathParamValue});
+          $state.go(PictureManagerService.getState().fromPage, PictureManagerService.getState().fromPagePathParamValue);
         },function(error) {
           console.log("Error uploading image file: " + JSON.stringify(error));          
           $ionicLoading.hide();
@@ -91,7 +91,7 @@ angular.module('starter.controllers')
   };
 
   $scope.cancel=function() {
-    $state.go(PictureManagerService.getState().fromPage, {dishId: PictureManagerService.getState().fromPagePathParamValue});
+    $state.go(PictureManagerService.getState().fromPage, PictureManagerService.getState().fromPagePathParamValue);
   };
 
 });

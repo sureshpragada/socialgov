@@ -66,6 +66,10 @@ input.textAlignLeft {
   justify-content: center;
 }
 
+.content-center {
+  text-align: center;
+}
+
 .custom-badge {
   background-color: #ffa500; 
   color: #FFFFFF; 

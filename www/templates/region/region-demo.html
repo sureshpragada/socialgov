@@ -4,7 +4,7 @@
     </ion-nav-buttons>
     <ion-content>
     	<ion-list>
-        <ion-item >
+        <ion-item ng-if="region.get('demography').est">
            Established <span class="item-note">{{region.get('demography').est}}</span>
         </ion-item>
         <ion-item ng-if="region.get('demography').area">
