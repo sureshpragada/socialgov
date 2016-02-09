@@ -8,22 +8,22 @@ angular.module('starter.controllers')
 
 
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
+  $scope.user=Parse.User.current();  
+  $scope.appMessage=SettingsService.getAppMessage();  
+
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
-    residency=Parse.User.current().get("residency");
+    residency=$scope.user.get("residency");
   }
-  
-  $scope.showServiceContacts=SHOW_SERVICE_CONTACTS;
+  $scope.regionSettings=RegionService.getRegionSettings(residency);          
   $scope.isAdmin=AccountService.canUpdateRegion();
 
-  $scope.region=null;
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information.");
     console.log("Error retrieving region " + JSON.stringify(error));
   });
-
 })
 
 .controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {  
@@ -715,31 +715,27 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ChangeDemoDetailsCtrl', function($scope, $state, $stateParams) {
-  $scope.newDemoObj={}; 
-  var residency=$stateParams.regionUniqueName;
-  var Region = Parse.Object.extend("Region");
-  var query = new Parse.Query(Region);
-  query.equalTo("uniqueName", residency);
-  query.find({
-    success: function(regions) {
-      $scope.$apply(function(){
-        $scope.region=regions[0];
-        $scope.newDemoObj=$scope.region.get('demography');
-      });
-    },
-    error: function(error) {
-      console.log("Error retrieving region " + JSON.stringify(error));
-    }
-  });
+.controller('ChangeDemoDetailsCtrl', function($scope, $state, $stateParams, RegionService, SettingsService) {
+  $scope.user=Parse.User.current();
+  $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));      
+  $scope.newDemoObj={};
+  RegionService.getRegion($scope.user.get("residency")).then(function(region) {
+    $scope.region=region;
+    $scope.newDemoObj=$scope.region.get('demography');
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get demography details");
+    console.log("Unable to get demography details to edit");
+  });    
 
   $scope.submit=function(){
     $scope.region.set("demography",$scope.newDemoObj);
-    $scope.region.save(null, {
-        success: function(region) {
+    $scope.region.save().then(function(region) {
           RegionService.updateRegion(region.get("uniqueName"), region);
-        }
-    });
+          SettingsService.setAppSuccessMessage("Demography details updated.");
+      }, function(error) {
+        console.log("Error saving demograph details");
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to save demography details");
+      });
     $state.go("tab.demo",{regionUniqueName:$scope.region.get('uniqueName')});
   };
 

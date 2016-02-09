@@ -2,29 +2,37 @@ angular.module('starter.controllers')
 
 .controller('FinancialCtrl', function($scope, $http, $ionicLoading, FinancialService, SettingsService, RegionService) {
   console.log("Financial controller");
+
+  $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=Parse.User.current();
-  $scope.currencySymbol="Rs";
+  $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
 
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
   });
+
   // Payment status : Retrieve from user object
-  FinancialService.getMyPaymentHistory($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(paymentList) {
-    if(paymentList!=null && paymentList.length>0) {
-      var lastPaymentDate=paymentList[0].get("revenueDate");
-      var currentDate=new Date();
-      if(currentDate.getFullYear()>lastPaymentDate.getFullYear() || (currentDate.getFullYear()==lastPaymentDate.getFullYear() && currentDate.getMonth()>lastPaymentDate.getMonth())) {
-        $scope.paymentStatus="Unpaid";  
+  if($scope.regionSettings.financialMgmt=="SELF") {
+    FinancialService.getMyPaymentHistory($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(paymentList) {
+      if(paymentList!=null && paymentList.length>0) {
+        var lastPaymentDate=paymentList[0].get("revenueDate");
+        var currentDate=new Date();
+        if(currentDate.getFullYear()>lastPaymentDate.getFullYear() || (currentDate.getFullYear()==lastPaymentDate.getFullYear() && currentDate.getMonth()>lastPaymentDate.getMonth())) {
+          $scope.paymentStatus="Unpaid";  
+        } else {
+          $scope.paymentStatus="Paid";  
+        }
+        $scope.$apply();
       } else {
-        $scope.paymentStatus="Paid";  
+        $scope.paymentStatus="Unpaid";
       }
-    } else {
-      $scope.paymentStatus="Unpaid";
-    }
-  }, function(error) {
+    }, function(error) {
+      $scope.paymentStatus="NA";
+      console.log("Unable to get payment history to calculate paid status " + JSON.stringify(error));
+    });
+  } else {
     $scope.paymentStatus="NA";
-    console.log("Unable to get payment history to calculate paid status " + JSON.stringify(error));
-  });
+  }
 
   // Dues calculation
   $scope.currentDues=null;  
@@ -47,7 +55,6 @@ angular.module('starter.controllers')
     if(currentReserve!=null) {
       $scope.reserve=currentReserve.reserveAmount;
     }
-    $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
   }, function(error) {
     console.log("Unable to get reserves details of this community.");
   });  

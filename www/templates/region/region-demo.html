@@ -3,11 +3,13 @@
       <a class="button" href="#/tab/changedemodetails/{{region.get('uniqueName')}}" ng-show="isAdmin">Edit</a>
     </ion-nav-buttons>
     <ion-content>
+      <my-app-message info="appMessage"></my-app-message>
+      <my-app-message info="controllerMessage"></my-app-message>    
     	<ion-list>
         <ion-item ng-if="region.get('demography').est">
            Established <span class="item-note">{{region.get('demography').est}}</span>
         </ion-item>
-        <ion-item ng-if="region.get('demography').area">
+        <ion-item ng-if="!regionSettings.hoa">
   			   Area <span class="item-note">{{region.get('demography').area}} Sq Km </span>
   			</ion-item>
   			<ion-item>
@@ -16,11 +18,7 @@
     	</ion-list> 
     	<ion-item>
 	        {{'PostalCode' | translate}}
-	        <span class="item-note">
-	          <span ng-repeat="pincode in region.get('demography').pinCodes track by $index">
-	            {{pincode}} {{$last ? '' : ', '}}
-	          </span>
-	        </span>
+	        <span class="item-note">{{region.get('demography').pinCodes}}</span>
       </ion-item>
       <ion-item class="item-divider">
         History:

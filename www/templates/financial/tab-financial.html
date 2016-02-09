@@ -1,7 +1,7 @@
 <ion-view view-title="Financial">
   <ion-content class="visible-cards">
-  <my-app-message info="appMessage"></my-app-message>
-  <my-app-message info="controllerMessage"></my-app-message>
+    <my-app-message info="appMessage"></my-app-message>
+    <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
       <div class="row">
         <div class="col" style="text-align: center;">
@@ -16,7 +16,7 @@
           <h3 class="positive" ng-if="paymentStatus=='NA'">{{paymentStatus}}</h3>
         </div>
       </div>
-      <ion-item class="item-icon-right" href="#/tab/payment-history" ng-if="user.get('homeNo')">
+      <ion-item class="item-icon-right" href="#/tab/payment-history" ng-if="regionSettings.financialMgmt=='SELF'">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         My Payment History
       </ion-item>            
