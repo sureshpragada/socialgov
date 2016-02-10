@@ -9,37 +9,37 @@
       <div class="item item-image">
         <img ng-src="{{region.get('thumbnail')}}">
       </div> 
-      <ion-item href="#/tab/offices/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
-        <i class="icon ion-ios-home royal"></i>            
-          {{'ExecContact' | translate}}
-        <span class="badge badge-balanced">{{region.get('execOffAddrList').length}}</span>
-        <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>
+      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+        <i class="icon ion-earth royal"></i>      
+          Demography
+          <i class="icon ion-chevron-right icon-accessory"></i>    
+      </ion-item>                  
+      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">
+          <i class="icon ion-ios-people royal"></i>
+          Neighbors 
+          <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>          
+      <ion-item class="item-icon-right" href="#/tab/invite-citizen"  ng-if="regionSettigns.neighborPrivacy && !isAdmin">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        {{'InvitePage' | translate}}        
+      </ion-item>                        
       <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
         <i class="icon ion-person-stalker royal"></i>
           {{'LegContact' | translate}}
         <span class="badge badge-balanced">{{region.get('legiRepList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">
-          <i class="icon ion-ios-people royal"></i>
-          View Neighbors 
-          <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>          
-      <ion-item class="item-icon-right" href="#/tab/invite-citizen"  ng-if="regionSettigns.neighborPrivacy && !isAdmin">
-        <i class="icon ion-chevron-right icon-accessory"></i>                           
-        {{'InvitePage' | translate}}        
-      </ion-item>                  
       <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.serviceContacts=='SELF'">
         <i class="icon ion-wrench royal"></i>
           Service Contacts
         <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>            
-      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
-        <i class="icon ion-earth royal"></i>      
-          Demography
-          <i class="icon ion-chevron-right icon-accessory"></i>    
-      </ion-item>            
+      </ion-item>                  
+      <ion-item href="#/tab/offices/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+        <i class="icon ion-ios-home royal"></i>            
+          {{'ExecContact' | translate}}
+        <span class="badge badge-balanced">{{region.get('execOffAddrList').length}}</span>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>      
   	</ion-list>
   </ion-content>
 </ion-view>

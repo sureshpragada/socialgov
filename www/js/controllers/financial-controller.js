@@ -12,6 +12,7 @@ angular.module('starter.controllers')
   });
 
   // Payment status : Retrieve from user object
+  $scope.paymentStatus="NA";
   if($scope.regionSettings.financialMgmt=="SELF") {
     FinancialService.getMyPaymentHistory($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(paymentList) {
       if(paymentList!=null && paymentList.length>0) {
@@ -27,11 +28,8 @@ angular.module('starter.controllers')
         $scope.paymentStatus="Unpaid";
       }
     }, function(error) {
-      $scope.paymentStatus="NA";
       console.log("Unable to get payment history to calculate paid status " + JSON.stringify(error));
     });
-  } else {
-    $scope.paymentStatus="NA";
   }
 
   // Dues calculation

@@ -10,6 +10,8 @@ ionic serve
 ionic serve --lab
 cordova prepare android 
 ionic run android
+cordova platform list
+cordova platform update android@4.1.1
 
 ionic resources --icon
 ionic resources --splash

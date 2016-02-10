@@ -1,26 +1,28 @@
 <ion-view title="Neighbors">
   <ion-nav-buttons side="secondary">
-	<!-- <a class="button button-light" ng-click="pickContact()">Invite Resident</a>      -->
-	<a class="button button-icon icon ion-person-add icon-assertive" href="#/tab/invite-citizen"></a>	
+<!-- 	<a class="button button-icon icon ion-person-add icon-assertive" href="#/tab/invite-citizen"></a>	 -->
+	<a class="button button-light button-outline" href="#/tab/invite-citizen">Invite</a>    	
   </ion-nav-buttons>
   <ion-content>
   <my-app-message info="appMessage"></my-app-message>  
   	<ion-list>
-	    <ion-item class="item-thumbnail-left" ng-repeat="neighbor in neighborList">
+	    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="neighbor in neighborList" href="#/tab/neighbor-detail/{{neighbor.id}}">
 	      <img ng-src="{{neighbor.get('images')[0]}}" ng-if="neighbor.get('images')">
 	      <img ng-src="img/avatar2.png" ng-if="!neighbor.get('images')">
-	      <h2>{{neighbor.get("firstName")}} {{neighbor.get("lastName")}}</h2>
+	      <h2>{{neighbor.get("firstName")}} {{neighbor.get("lastName")}}</h2>		
 	      <p>
 	      	Home # 
 	      	<span ng-if="neighbor.get('homeNo')">{{neighbor.get("homeNo")}}</span>
 	      	<span ng-if="!neighbor.get('homeNo')">NA</span>
 	      </p>      
 	      <p>
-	      	<i class="icon ion-iphone"></i>&nbsp;{{neighbor.get("phoneNum")}}
+<!-- 	      	<i class="icon ion-iphone"></i> -->
+	      	{{neighbor.get("phoneNum")}}
 	      </p>      
 	      <p ng-if="neighbor.get('status')=='P'">
 	      	<span class="custom-badge">Pending Activation</span>
 	      </p>
+			<i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>
     </ion-list>
   </ion-content>

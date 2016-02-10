@@ -327,6 +327,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })             
 
+    .state('tab.neighbor-detail', {
+      url: '/neighbor-detail/{userId}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-neighbor-detail.html',
+          controller: 'NeighborDetailCtrl'
+        }
+      }
+    })                 
+
     .state('tab.financial', {
       url: '/financial',
       cache: false,

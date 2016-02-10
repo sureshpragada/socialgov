@@ -744,6 +744,12 @@ angular.module('starter.controllers')
   };
 })
 
+.controller('NeighborDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
+  $scope.appMessage=SettingsService.getAppMessage();    
+  $scope.user=Parse.User.current();
+  $scope.isAdmin=true;
+})
+
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
