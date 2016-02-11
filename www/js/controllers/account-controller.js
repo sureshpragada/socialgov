@@ -378,7 +378,8 @@ angular.module('starter.controllers')
   $scope.inputUser={
     firstName: user.get("firstName"), 
     lastName: user.get("lastName"),
-    homeNumber: user.get("homeNo")
+    homeNumber: user.get("homeNo"),
+    bloodGroup: user.get("bloodGroup")
   };
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
 

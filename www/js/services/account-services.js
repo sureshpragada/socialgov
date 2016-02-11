@@ -189,6 +189,7 @@ angular.module('account.services', [])
       user.set("firstName", inputUser.firstName);
       user.set("lastName", inputUser.lastName);
       user.set("homeNo", inputUser.homeNumber);
+      user.set("bloodGroup", inputUser.bloodGroup!=null?inputUser.bloodGroup.toUpperCase():"");
       return user.save();
     },
     updateNeighborAccount: function(inputUser, neighbor) {

@@ -24,6 +24,11 @@
       <ion-item>
         {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
       </ion-item>      
+      <ion-item>
+        Blood Group
+        <span class="item-note assertive" ng-if="user.get('bloodGroup')">{{user.get("bloodGroup")}}</span>            
+        <span class="item-note assertive" ng-if="!user.get('bloodGroup')">NA</span>            
+      </ion-item>            
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
     <div class="card">

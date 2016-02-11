@@ -14,6 +14,10 @@
 				<span class="input-label">Home/Unit/Apt #</span>
 				<input type="text" name="homeNumber" ng-model="inputUser.homeNumber">
 			</label>							
+			<label class="item item-input" ng-if="regionSettings.supportHomeNumber">
+				<span class="input-label">Blood Group</span>
+				<input type="text" size="4" name="bloodGroup" ng-model="inputUser.bloodGroup">
+			</label>										
 			<div class="row">
 				<div class="col">
 					<a class="button button-block" href="#/tab/account">Cancel</a>	
