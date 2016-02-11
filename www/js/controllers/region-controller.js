@@ -745,9 +745,28 @@ angular.module('starter.controllers')
 })
 
 .controller('NeighborDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
+  console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
-  $scope.user=Parse.User.current();
-  $scope.isAdmin=true;
+  $scope.user=null;
+  AccountService.getUserById($stateParams.userId).then(function(neighbor) {
+    // console.log("Got the neighbor " + JSON.stringify(neighbor));
+    $scope.user=neighbor;
+    $scope.$apply();
+  }, function(error) {
+    console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
+  });
+  $scope.isAdmin=AccountService.canUpdateRegion();
+
+  $scope.getRoleNameFromRoleCode=function(role) {
+    return AccountService.getRoleNameFromRoleCode(role);
+  };
+
+  $scope.sendInvitationCode=function() {
+    console.log("Sent invitation code");
+    //NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));        
+  };
+
 })
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
@@ -755,10 +774,71 @@ angular.module('starter.controllers')
   AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
     $scope.$apply();
-    console.log($scope.neighborList.length);
+    // console.log($scope.neighborList.length);
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
   });
 
 })
+
+.controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
+  console.log("Admin Neighbor Account update controller");
+
+  $scope.inputUser={};
+  AccountService.getUserById($stateParams.userId).then(function(neighbor) {
+    $scope.user=neighbor;
+    $scope.inputUser.firstName=$scope.user.get("firstName");
+    $scope.inputUser.lastName=$scope.user.get("lastName");
+    $scope.inputUser.homeNo=$scope.user.get("homeNo");
+    $scope.inputUser.userId=$scope.user.id;
+    $scope.inputUser.phoneNum=$scope.user.get("phoneNum");
+  }, function(error) {
+    console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
+  });  
+  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
+
+  $scope.update=function() {
+    console.log("Update request " + JSON.stringify($scope.inputUser));
+
+    if($scope.inputUser.firstName==null || $scope.inputUser.firstName.trim().length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first name.");
+      return;
+    } 
+
+    if($scope.inputUser.lastName==null || $scope.inputUser.lastName.trim().length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter last name.");
+      return;
+    }     
+    
+    if ($scope.inputUser.phoneNum!=null) {
+      var formattedPhone = $scope.inputUser.phoneNum.replace(/[^0-9]/g, '');  
+
+      if(formattedPhone.length != 10) { 
+         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
+         return;
+      } else {
+        $scope.inputUser.phoneNum=formattedPhone;
+      }
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
+      return;
+    }
+
+    if($scope.regionSettings.supportHomeNumber==true) {
+      if($scope.inputUser.homeNo==null || $scope.inputUser.homeNo.length<=0) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
+        return;
+      }       
+    }    
+
+    AccountService.updateNeighborAccount($scope.inputUser, $scope.user).then(function(newUser) {
+      SettingsService.setAppSuccessMessage("Nighbor information update is successful.");
+      $state.go("tab.neighbor-detail", {userId: $scope.user.id});
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update neighbor information.");  
+    });
+  };
+})
+
 ;

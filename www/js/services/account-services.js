@@ -191,6 +191,33 @@ angular.module('account.services', [])
       user.set("homeNo", inputUser.homeNumber);
       return user.save();
     },
+    updateNeighborAccount: function(inputUser, neighbor) {
+      console.log("input user " + JSON.stringify(inputUser));
+      console.log("neighbor " + JSON.stringify(neighbor));
+
+      var promises=[];
+      if(inputUser.firstName!=neighbor.get("firstName")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'firstName', userObjectValue: inputUser.firstName }));              
+        console.log("Updating firstname");
+      }
+      if(inputUser.lastName!=neighbor.get("lastName")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'lastName', userObjectValue: inputUser.lastName }));              
+        console.log("Updating lastName");
+      }      
+      if(inputUser.homeNo!=neighbor.get("homeNo")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeNo', userObjectValue: inputUser.homeNo }));
+        console.log("Updating homeNo");
+      }
+
+      if(inputUser.phoneNum!=neighbor.get("phoneNum")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'phoneNum', userObjectValue: inputUser.phoneNum }));
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'username', userObjectValue: neighbor.get("countryCode")+inputUser.phoneNum }));        
+        console.log("Updating homeNo");
+      }
+
+      var deferred=$q.all(promises);
+      return deferred;
+    },
     getUserObjectByPhoneNumber: function(number){
       var User = Parse.Object.extend("User");
       var query = new Parse.Query(User);
@@ -222,6 +249,11 @@ angular.module('account.services', [])
       userQuery.ascending("homeNo");
       return userQuery.find();   
     },
+    getUserById: function(userId) {
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("objectId", userId);
+      return userQuery.first();   
+    },    
     getListOfHomesInCommunity: function(regionName) {
       var deferred = $q.defer();
       var userQuery = new Parse.Query(Parse.User);

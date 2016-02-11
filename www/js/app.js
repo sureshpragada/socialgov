@@ -338,6 +338,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })                 
 
+    .state('tab.admin-neighbor-update', {
+      url: '/admin-neighbor-update/{userId}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/admin-neighbor-update.html',
+          controller: 'AdminNeighborUpdateCtrl'
+        }
+      }
+    })                     
+
     .state('tab.financial', {
       url: '/financial',
       cache: false,

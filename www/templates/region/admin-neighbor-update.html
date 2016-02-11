@@ -1,0 +1,33 @@
+<ion-view view-title="Update Neighbor">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">		
+			<label class="item item-input">
+				<span class="input-label">First Name</span>
+				<input type="text" name="firstName"  ng-model="inputUser.firstName">
+			</label>
+			<label class="item item-input">
+				<span class="input-label">Last Name</span>
+				<input type="text" name="lastName" ng-model="inputUser.lastName">
+			</label>		
+			<label class="item item-input" ng-if="regionSettings.supportHomeNumber">
+				<span class="input-label">Home/Unit/Apt #</span>
+				<input type="text" name="homeNo" ng-model="inputUser.homeNo">
+			</label>			
+			<label class="item item-input">
+				<span class="input-label">Phone Number</span>
+				<input type="tel" name="phoneNum" ng-model="inputUser.phoneNum" maxlength="15">
+			</label>							
+			<div class="row">
+				<div class="col">
+					<a class="button button-block" href="#/tab/neighbor-detail/{{inputUser.userId}}">Cancel</a>	
+				</div>
+				<div class="col">
+					<a class="button button-block button-balanced" ng-click="update()">Update</a>	
+				</div>					
+			</div>
+		</div>
+	</ion-content>
+</ion-view>
+
+

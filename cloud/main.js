@@ -136,6 +136,41 @@ Parse.Cloud.define("modifyUser", function(request, response) {
   });
 });
 
+Parse.Cloud.define("modifyUserMultipleAttributes", function(request, response) {
+  if (!request.user) {
+    response.error("Must be signed in to call modifyUserMultipleAttributes Cloud Function.");
+    return;
+  } else {
+    // Perform any authroization whether this user is admin
+  }
+
+  Parse.Cloud.useMasterKey();
+
+  var query = new Parse.Query(Parse.User);
+  query.equalTo("objectId", request.params.targetUserId);
+  // Get the first user which matches the above constraints.
+  query.first({
+    success: function(anotherUser) {
+      for(var i=0;i<request.params.userObjectKeys.length;i++) {
+        anotherUser.set(request.params.userObjectKeys[i], request.params.userObjectValues[i]);  
+      }
+      
+      // Save the user.
+      anotherUser.save(null, {
+        success: function(anotherUser) {
+          response.success("modifyUserMultipleAttributes::Successfully updated user.");
+        },
+        error: function(anotherUser, error) {
+          response.error("modifyUserMultipleAttributes::Could not save changes to user.");
+        }
+      });
+    },
+    error: function(error) {
+      response.error("modifyUserMultipleAttributes::Could not find user.");
+    }
+  });
+});
+
 Parse.Cloud.define("sendSmsPlivo", function(request, response) {
   var auth_id = "MANJA3NWVJYTAYMTQ0YT";
   var auth_token = "MTI0NjhmZGU5ODQyZDIzZTU1NDJjZGRjNjBjYmNh";
