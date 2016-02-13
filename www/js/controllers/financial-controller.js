@@ -360,14 +360,14 @@ angular.module('starter.controllers')
     $scope.revenueRecord.set("note",$scope.editRevenueRecord.note);
     FinancialService.saveRevenue($scope.revenueRecord).then(function(success){
       SettingsService.setAppSuccessMessage("Revenue record has been updated.");
-      $state.go("tab.payment-detail",{revenueId:$stateParams.revenueId});
+      $state.go("tab.revenue-detail",{revenueId:$stateParams.revenueId});
     },function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to edit revenue record.");
     });
   };
 
   $scope.cancel=function() {
-    $state.go("tab.payment-detail", {revenueId: $stateParams.revenueId});
+    $state.go("tab.revenue-detail", {revenueId: $stateParams.revenueId});
   };
 })
 

@@ -61,6 +61,13 @@ angular.module('account.services', [])
         return false;
       }
     },
+    canOtherUserUpdateRegion: function(user){
+      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
+        return true;
+      }else{
+        return false;
+      }
+    },    
     canUpdateRegion: function(){
       var user=Parse.User.current();
       if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
@@ -168,6 +175,7 @@ angular.module('account.services', [])
       newUser.set("role", "CTZEN");
       newUser.set("notifySetting", true);
       newUser.set("deviceReg", "N");
+      newUser.set("homeOwner", inputUser.homeOwner==true?true:false);
       newUser.set("homeNo", inputUser.homeNumber);
       return newUser;
     },
@@ -209,6 +217,10 @@ angular.module('account.services', [])
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeNo', userObjectValue: inputUser.homeNo }));
         console.log("Updating homeNo");
       }
+      if(inputUser.homeOwner!=neighbor.get("homeOwner")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeOwner', userObjectValue: inputUser.homeOwner }));
+        console.log("Updating homeOwner");
+      }
 
       if(inputUser.phoneNum!=neighbor.get("phoneNum")) {
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'phoneNum', userObjectValue: inputUser.phoneNum }));
@@ -247,7 +259,7 @@ angular.module('account.services', [])
     getNeighborList: function(regionName) {
       var userQuery = new Parse.Query(Parse.User);
       userQuery.equalTo("residency", regionName);
-      userQuery.ascending("homeNo");
+      userQuery.descending("homeNo");
       return userQuery.find();   
     },
     getUserById: function(userId) {

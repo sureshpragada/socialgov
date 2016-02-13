@@ -744,19 +744,20 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
+.controller('NeighborDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, NotificationService) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
     $scope.user=neighbor;
+    $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
     $scope.$apply();
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
   });
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.canUpdateRegion();  
 
   $scope.getRoleNameFromRoleCode=function(role) {
     return AccountService.getRoleNameFromRoleCode(role);
@@ -764,7 +765,8 @@ angular.module('starter.controllers')
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
-    //NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));        
+    NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"));              
+    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Sent invitation code to neighbor");
   };
 
 })
@@ -792,6 +794,8 @@ angular.module('starter.controllers')
     $scope.inputUser.homeNo=$scope.user.get("homeNo");
     $scope.inputUser.userId=$scope.user.id;
     $scope.inputUser.phoneNum=$scope.user.get("phoneNum");
+    $scope.inputUser.homeOwner=$scope.user.get("homeOwner");
+    $scope.$apply();
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");

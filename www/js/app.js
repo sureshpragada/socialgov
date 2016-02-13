@@ -415,6 +415,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.revenue-detail', {
+      url: '/revenue-detail/{revenueId}',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/revenue-detail.html',
+          controller: 'PaymentDetailCtrl'        
+        }
+      }
+    })    
+
     .state('tab.edit-payment-detail', {
       url: '/edit-payment-detail/{revenueId}',
       cache: false,

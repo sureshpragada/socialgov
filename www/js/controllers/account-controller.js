@@ -511,7 +511,10 @@ angular.module('starter.controllers')
 
 .controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Invite citizen controller");
-  $scope.user={status:"P"};
+  $scope.user={
+    status:"P", 
+    homeOwner: true
+  };
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));
 
   $scope.invite=function() {

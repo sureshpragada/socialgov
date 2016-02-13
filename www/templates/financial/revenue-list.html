@@ -9,7 +9,7 @@
     <div class="card" ng-if="!controllerMessage && homeOwnerPaymentRevenueList.length>0">
       <ion-list>
         <ion-item class="item-divider item-energized">Home Owner Payments</ion-item>
-        <ion-item class="item-icon-right" ng-repeat="revenue in homeOwnerPaymentRevenueList" href="#/tab/payment-detail/{{revenue.id}}">
+        <ion-item class="item-icon-right" ng-repeat="revenue in homeOwnerPaymentRevenueList" href="#/tab/revenue-detail/{{revenue.id}}">
           {{revenue.get("homeNo")}} 
           <span class="item-note">{{revenue.get("revenueAmount") | number:2 | ourcurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
@@ -30,7 +30,7 @@
     <div class="card"  ng-if="!controllerMessage && otherRevenueList.length>0">
       <ion-list>
         <ion-item class="item-divider item-energized">Other Revenue</ion-item>        
-        <ion-item class="item-icon-right" ng-repeat="revenue in otherRevenueList" href="#/tab/payment-detail/{{revenue.id}}">
+        <ion-item class="item-icon-right" ng-repeat="revenue in otherRevenueList" href="#/tab/revenue-detail/{{revenue.id}}">
           {{revenue.get("revenueSource")}} 
           <span class="item-note">{{revenue.get("revenueAmount") | number:2 | ourcurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
