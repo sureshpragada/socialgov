@@ -122,6 +122,10 @@ angular.module('starter.controllers')
 
 .controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   
+  $scope.regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);    
+  if($scope.regionSettings.legislativeMgmt == "SELF"){
+    $state.go("tab.ourblocklegis",{regionUniqueName:$stateParams.regionUniqueName});
+  }
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
@@ -157,6 +161,12 @@ angular.module('starter.controllers')
   }
 
 })
+
+.controller('OurBlockLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
+
+
+})
+
 
 .controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   
@@ -744,7 +754,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
+.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
@@ -762,10 +772,27 @@ angular.module('starter.controllers')
     return AccountService.getRoleNameFromRoleCode(role);
   };
 
+  $scope.appointOnBoard=function() {
+  
+  };
+
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
     //NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));        
   };
+
+  $scope.blockUser=function() {
+    $cordovaDialogs.confirm('Do you want to block this user?', 'Block User', ['Block','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+         AccountService.flagUserAbusive($stateParams.userId); 
+         $state.go("tab.neighbors");
+      } else {
+        console.log("Canceled blocking of user");
+      }
+    });
+  };
+
 
 })
 
@@ -773,6 +800,7 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
+    console.log(JSON.stringify($scope.neighborList));
     $scope.$apply();
     // console.log($scope.neighborList.length);
   }, function(error) {

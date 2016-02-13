@@ -294,6 +294,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.ourblocklegis', {
+      url: '/ourblocklegis/{regionUniqueName}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-ourblock-legislature.html',
+          controller: 'OurBlockLegisDetailCtrl'
+        }
+      }
+    })
+
     .state('tab.addlegis', {
       url: '/addlegis/{regionUniqueName}',
       cache: false,      

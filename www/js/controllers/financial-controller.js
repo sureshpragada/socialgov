@@ -10,7 +10,7 @@ angular.module('starter.controllers')
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
   });
-
+  console.log(JSON.stringify($scope.regionSettings));
   // Payment status : Retrieve from user object
   $scope.paymentStatus="NA";
   if($scope.regionSettings.financialMgmt=="SELF") {
@@ -116,7 +116,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $ionicModal, $state, SettingsService, AccountService, FinancialService, PictureManagerService) {
+.controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $ionicModal, $cordovaDialogs, $state, SettingsService, AccountService, FinancialService, PictureManagerService) {
   console.log("Expense detail controller " + $stateParams.expenseId);
   $scope.isAdmin=AccountService.canUpdateRegion();
   console.log($scope.isAdmin);
@@ -146,11 +146,22 @@ angular.module('starter.controllers')
   });
 
   $scope.deleteExpense = function(){
-    FinancialService.deleteExpenseRecord($scope.expenseRecord).then(function(deletedExpenseRecord){
-      SettingsService.setAppSuccessMessage("Successfully delted the expense record.");
-      $state.go("tab.expense-list", {focusMonth: deletedExpenseRecord.get("expenseDate").getTime()});
-    },function(error){
-      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete.");
+    
+    if(ionic.Platform.isWebView()) {
+      $cordovaDialogs.beep(1);
+    }
+    $cordovaDialogs.confirm('Do you want to remove this expense?', 'Remove Expense', ['Remove','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+         FinancialService.deleteExpenseRecord($scope.expenseRecord).then(function(deletedExpenseRecord){
+            SettingsService.setAppSuccessMessage("Successfully delted the expense record.");
+            $state.go("tab.expense-list", {focusMonth: deletedExpenseRecord.get("expenseDate").getTime()});
+         },function(error){
+            $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete.");
+         }); 
+      } else {
+        console.log("Canceled removal of expense");
+      }
     });
   };
 
@@ -275,7 +286,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, AccountService) {  
+.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, $cordovaDialogs, SettingsService, FinancialService, AccountService) {  
   console.log("Payment detail controller " + $stateParams.revenueId);
   $scope.isAdmin=AccountService.canUpdateRegion();
 
@@ -292,11 +303,22 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteRevenue = function(){
-    FinancialService.deleteRevenueRecord($scope.revenueRecord).then(function(success){
-      SettingsService.setAppSuccessMessage("Successfully deleted the revenue record.");
-      $state.go("tab.revenue-list", {focusMonth: $scope.revenueRecord.get("revenueDate").getTime()});
-    },function(error){
-      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete the record");
+    
+    if(ionic.Platform.isWebView()) {
+      $cordovaDialogs.beep(1);
+    }
+    $cordovaDialogs.confirm('Do you want to remove this payment?', 'Remove Payment', ['Remove','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+         FinancialService.deleteRevenueRecord($scope.revenueRecord).then(function(success){
+            SettingsService.setAppSuccessMessage("Successfully deleted the revenue record.");
+            $state.go("tab.revenue-list", {focusMonth: $scope.revenueRecord.get("revenueDate").getTime()});
+         },function(error){
+            $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete the record");
+         }); 
+      } else {
+        console.log("Canceled removal of revenue");
+      }
     });
   };
 })
