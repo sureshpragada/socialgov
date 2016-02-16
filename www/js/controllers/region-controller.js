@@ -124,7 +124,7 @@ angular.module('starter.controllers')
   
   $scope.regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);    
   if($scope.regionSettings.legislativeMgmt == "SELF"){
-    $state.go("tab.ourblocklegis",{regionUniqueName:$stateParams.regionUniqueName});
+    $state.go("tab.selflegis",{regionUniqueName:$stateParams.regionUniqueName});
   }
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
@@ -162,11 +162,17 @@ angular.module('starter.controllers')
 
 })
 
-.controller('OurBlockLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
+.controller('SelfLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
 
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();
+  AccountService.getSelfLegisContacts($stateParams.regionUniqueName).then(function(legisList){
+    $scope.legisList = legisList;
+    console.log(JSON.stringify($scope.legisList));
+  },function(error){
+    console.log("Unable to get legislative contacts");
+  });
 
 })
-
 
 .controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   

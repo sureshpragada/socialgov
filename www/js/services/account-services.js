@@ -310,6 +310,14 @@ angular.module('account.services', [])
         deferred.reject(error);
       });    
       return deferred.promise;      
+    },
+    getSelfLegisContacts:function(residency) {
+      console.log(residency);
+      var User = Parse.Object.extend("User");
+      var query = new Parse.Query(User);
+      query.equalTo("residency",residency);
+      query.equalTo("role","LEGI");
+      return query.find();
     }
   };
 }]);

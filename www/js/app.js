@@ -294,13 +294,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
-    .state('tab.ourblocklegis', {
-      url: '/ourblocklegis/{regionUniqueName}',
+    .state('tab.selflegis', {
+      url: '/selflegis/{regionUniqueName}',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-ourblock-legislature.html',
-          controller: 'OurBlockLegisDetailCtrl'
+          templateUrl: 'templates/region/region-self-legislature.html',
+          controller: 'SelfLegisDetailCtrl'
         }
       }
     })
