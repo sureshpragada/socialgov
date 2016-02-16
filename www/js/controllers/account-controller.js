@@ -260,6 +260,7 @@ angular.module('starter.controllers')
 
 .controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService) {
   $scope.user = AccountService.getUser();
+  $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
   $scope.privs={
     isSuperAdmin: AccountService.isSuperAdmin(), 
@@ -408,12 +409,13 @@ angular.module('starter.controllers')
 })
 
 .controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaDialogs, SettingsService, NotificationService, $http) {
+  console.log("Invitation login controller " + new Date().getTime());
   $scope.inputForm={invitationCode: null, terms: true};
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.validateInvitationCode=function() {
     console.log("Validating invitation code");
     if($scope.inputForm.invitationCode!=null && $scope.inputForm.invitationCode.length>0) {
-      AccountService.validateInvitationCode($scope.inputForm.invitationCode).then(function(user) {
+      AccountService.validateInvitationCode($scope.inputForm.invitationCode.trim()).then(function(user) {
         NotificationService.registerDevice();
         $state.go("tab.dash");
       }, function(error) {
@@ -424,9 +426,9 @@ angular.module('starter.controllers')
     }
   };
 
-  $scope.requestInvitationCode=function() {
-    console.log("Validating invitation code");
-    $state.go("request-invitation");
+  $scope.recoverInvitationCode=function() {
+    SettingsService.setAppInfoMessage("Invitation code recovered will be SMS to your phone number.")
+    $state.go("invite-recover");
   };  
 
   $scope.showTerms=function() {    
@@ -436,6 +438,37 @@ angular.module('starter.controllers')
       }).error(function() {
           $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to read license content");
       });    
+  };
+
+})
+
+.controller('InvitationRecoverCtrl', function($scope, $state, RegionService, AccountService, SettingsService, $cordovaContacts, NotificationService, LogService) {
+  $scope.user={};
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.recoverInvitationCode=function(){
+    console.log(JSON.stringify($scope.user));    
+    if($scope.user.firstName==null || $scope.user.firstName.length==0 || $scope.user.lastName==null || $scope.user.lastName.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name."); 
+      return;
+    }    
+    if($scope.user.phoneNum==null || $scope.user.phoneNum.length!=10) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
+      return;
+    }
+
+    AccountService.recoverInvitationCode($scope.user).then(function(userList) {
+      if(userList!=null && userList.length==1) {
+        NotificationService.sendInvitationCode(userList[0].id, userList[0].get("username"));
+        SettingsService.setAppSuccessMessage("Invitation code has been SMS to your mobile.");
+        $state.go("invite-login");
+      } else {
+        LogService.log({type:"ERROR", message: "Unable to find unique entry for invitation code recovery  " + $scope.user.phoneNum}); 
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your invitation code.");        
+        $scope.$apply();
+      }
+    }, function(error) { 
+       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your invitation code.");
+    });
   };
 
 })
@@ -533,7 +566,9 @@ angular.module('starter.controllers')
       if($scope.user.homeNumber==null || $scope.user.homeNumber.length<=0) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
         return;
-      }       
+      } else {
+        $scope.user.homeNumber=$scope.user.homeNumber.toUpperCase();
+      }
     }    
     
     if ($scope.user.phoneNum!=null) {

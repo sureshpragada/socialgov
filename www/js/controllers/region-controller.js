@@ -771,21 +771,25 @@ angular.module('starter.controllers')
 
 })
 
-.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
+.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
+  $ionicLoading.show({
+    template: "<ion-spinner></ion-spinner> Listing your neighbors..."
+  });        
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
     $scope.$apply();
+    $ionicLoading.hide();
     // console.log($scope.neighborList.length);
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
+    $ionicLoading.hide();
   });
 
 })
 
 .controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Admin Neighbor Account update controller");
-
   $scope.inputUser={};
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     $scope.user=neighbor;

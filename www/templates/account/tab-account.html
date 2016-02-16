@@ -12,8 +12,11 @@
         <p ng-if="user.get('homeNo')">Home # {{user.get("homeNo")}}</p>
       </div>
       <ion-item>
+        {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
+      </ion-item>            
+<!--       <ion-item>
         Residency<span class="item-note">{{regionDisplayName}}</span>                  
-      </ion-item>                        
+      </ion-item>                         -->
       <ion-item ng-if="!isCitizen">
          {{'Role' | translate}}
           <span class="item-note">{{getRoleNameFromRoleCode(user.get("role"))}}</span>                  
@@ -22,12 +25,9 @@
         Honorable Title<span class="item-note">{{user.get("title")}}</span>                        
       </ion-item>                       
       <ion-item>
-        {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
-      </ion-item>      
-      <ion-item>
         Blood Group
-        <span class="item-note balanced" style="font-weight: bold;" ng-if="user.get('bloodGroup')">{{user.get("bloodGroup")}}</span>  
-        <span class="item-note assertive" ng-if="!user.get('bloodGroup')">NA</span>            
+        <span class="item-note custom-badge" ng-if="user.get('bloodGroup')">{{user.get("bloodGroup")}}</span>  
+        <span class="item-note custom-badge" ng-if="!user.get('bloodGroup')">NA</span>            
       </ion-item>            
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
@@ -43,11 +43,11 @@
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Upload Profile Picture
       </ion-item>                  
-      <ion-item class="item-icon-right" href="#/tab/adminaccess" ng-if="!isPendingRequest && !privs.isSuperAdmin">
+      <ion-item class="item-icon-right" href="#/tab/adminaccess" ng-if="!isPendingRequest && !privs.isSuperAdmin && !regionSettings.hoa">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Request Role Change
       </ion-item>            
-      <ion-item class="item-icon-right" href="#/tab/adminAccessList" ng-if="privs.isSuperAdmin">
+      <ion-item class="item-icon-right" href="#/tab/adminAccessList" ng-if="privs.isSuperAdmin && !regionSettings.hoa">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Review Role Changes
       </ion-item>      

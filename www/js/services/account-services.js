@@ -256,6 +256,11 @@ angular.module('account.services', [])
         }
       });
     },
+    recoverInvitationCode: function(user) {
+      var query = new Parse.Query(Parse.User);
+      query.equalTo("phoneNum",user.phoneNum);
+      return query.find();  
+    },
     getNeighborList: function(regionName) {
       var userQuery = new Parse.Query(Parse.User);
       userQuery.equalTo("residency", regionName);
@@ -302,7 +307,7 @@ angular.module('account.services', [])
       userQuery.equalTo("objectId", invitationCode);
       userQuery.first(function(user) {
         if(user!=null) {
-          if(user.get("status")=="P" || self.isLogoutAllowed(user)) {
+          // if(user.get("status")=="P" || self.isLogoutAllowed(user)) {
             Parse.User.logIn(user.getUsername(), "custom", {
               success: function(authoritativeUser) {
                 deferred.resolve(authoritativeUser);
@@ -312,9 +317,9 @@ angular.module('account.services', [])
                 deferred.reject(error);
               }
             });            
-          } else {
-            deferred.reject(new Parse.Error(5001, "Invitation code has already been used."));  
-          }
+          // } else {
+          //   deferred.reject(new Parse.Error(5001, "Invitation code has already been used."));  
+          // }
         } else {
           deferred.reject(new Parse.Error(5001, "Unable to find invitation code."));  
         }

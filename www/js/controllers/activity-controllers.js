@@ -13,7 +13,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.commentStatusList=[];
   $scope.user=Parse.User.current();
   $ionicLoading.show({
-    template: "<p class='item-icon-left'> Finding activity in "+ $scope.user.get("residency").capitalizeFirstLetter() + "<ion-spinner/></p>"
+    template: "<p class='item-icon-left'> Finding activity in community<ion-spinner/></p>"
   });
   console.log("Activity controller");
 

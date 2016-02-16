@@ -683,6 +683,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false
     })
 
+    .state('invite-recover', {
+      url: '/invite-recover',
+      templateUrl: 'templates/account/invite-recover.html',
+      controller: 'InvitationRecoverCtrl',
+      cache: false
+    })    
+
     .state('request-invitation', {
       url: '/request-invitation',
       templateUrl: 'templates/account/region-lookup.html',
