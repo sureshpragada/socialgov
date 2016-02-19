@@ -122,6 +122,10 @@ angular.module('starter.controllers')
 
 .controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   
+  $scope.regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);    
+  if($scope.regionSettings.legislativeMgmt == "SELF"){
+    $state.go("tab.selflegis",{regionUniqueName:$stateParams.regionUniqueName});
+  }
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
@@ -155,6 +159,18 @@ angular.module('starter.controllers')
   $scope.editLegis=function(regionIndex, legislatureIndex) {
     $state.go("tab.editlegis",{regionUniqueName: $scope.regions[regionIndex].get('uniqueName'), legisIndex: legislatureIndex});    
   }
+
+})
+
+.controller('SelfLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
+
+  $scope.canUpdateRegion=AccountService.canUpdateRegion();
+  AccountService.getSelfLegisContacts($stateParams.regionUniqueName).then(function(legisList){
+    $scope.legisList = legisList;
+    console.log(JSON.stringify($scope.legisList));
+  },function(error){
+    console.log("Unable to get legislative contacts");
+  });
 
 })
 
@@ -744,7 +760,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, NotificationService) {
+.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
@@ -763,11 +779,28 @@ angular.module('starter.controllers')
     return AccountService.getRoleNameFromRoleCode(role);
   };
 
+  $scope.appointOnBoard=function() {
+  
+  };
+
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
     NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"));              
     $scope.controllerMessage=SettingsService.getControllerInfoMessage("Sent invitation code to neighbor");
   };
+
+  $scope.blockUser=function() {
+    $cordovaDialogs.confirm('Do you want to block this user?', 'Block User', ['Block','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+         AccountService.flagUserAbusive($stateParams.userId); 
+         $state.go("tab.neighbors");
+      } else {
+        console.log("Canceled blocking of user");
+      }
+    });
+  };
+
 
 })
 

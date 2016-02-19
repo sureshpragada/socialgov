@@ -294,6 +294,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.selflegis', {
+      url: '/selflegis/{regionUniqueName}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-self-legislature.html',
+          controller: 'SelfLegisDetailCtrl'
+        }
+      }
+    })
+
     .state('tab.addlegis', {
       url: '/addlegis/{regionUniqueName}',
       cache: false,      
