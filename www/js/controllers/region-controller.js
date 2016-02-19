@@ -776,11 +776,9 @@ angular.module('starter.controllers')
     template: "<ion-spinner></ion-spinner> Listing your neighbors..."
   });        
   $scope.appMessage=SettingsService.getAppMessage();    
-  AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
+  AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
-    $scope.$apply();
     $ionicLoading.hide();
-    // console.log($scope.neighborList.length);
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
     $ionicLoading.hide();

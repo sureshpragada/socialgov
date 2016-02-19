@@ -11,52 +11,43 @@ angular.module('starter.controllers')
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
   });
+  FinancialService.getFinancialSnapshot($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(results){
+    // Calculate payment status
+    //  TODO :: if($scope.regionSettings.financialMgmt=="SELF") {
+    var paymentList=results[0];
+    $scope.paymentStatus="NA";    
+    if(paymentList!=null && paymentList.length>0) {
+      if(paymentList[0].get("status")=="COMPLETED") {
+        $scope.paymentStatus="Paid";  
+      } else if(paymentList[0].get("status")=="PENDING") {
+        $scope.paymentStatus="Unpaid";  
+      } 
+    }
 
-  // Payment status : Retrieve from user object
-  $scope.paymentStatus="NA";
-  if($scope.regionSettings.financialMgmt=="SELF") {
-    FinancialService.getMyPaymentHistory($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(paymentList) {
-      if(paymentList!=null && paymentList.length>0) {
-        if(paymentList[0].get("status")=="COMPLETED") {
-          $scope.paymentStatus="Paid";  
-        } else if(paymentList[0].get("status")=="PENDING") {
-          $scope.paymentStatus="Unpaid";  
-        } 
-      }
-      $scope.$apply();      
-    }, function(error) {
-      console.log("Unable to get payment history to calculate paid status " + JSON.stringify(error));
-    });
-  }
-
-  // Dues calculation
-  $scope.currentDues=null;  
-  FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {    
+    // Calculate Dues
+    var duesList=results[1];
     if(duesList!=null) {
       $scope.currentDues=FinancialService.getCurrentDues(duesList);
       if($scope.currentDues==null) {
         $scope.currentDues=FinancialService.getUpcomingDues(duesList);
       }
-      $scope.$apply();
     } else {
       $scope.ideaMessage=SettingsService.getControllerIdeaMessage("Get started your finances by setting up your community maintenance dues.");
     }
-  }, function(error) {
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community.");
-  });  
 
-  // Reserve Calculation
-  $scope.reserve="NA";
-  RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
+    // Calculate reserves
+    $scope.reserve="NA";
+    var region=results[2];
     var currentReserve=region.get("reserve");
     if(currentReserve!=null) {
       $scope.reserve=currentReserve.reserveAmount;
-    }
-  }, function(error) {
-    console.log("Unable to get reserves details of this community.");
-  });  
+    }    
 
-  $ionicLoading.hide();
+    $ionicLoading.hide();
+  },function(error){
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get financial overview of your community.");
+    $ionicLoading.hide();
+  });
 
 })
 

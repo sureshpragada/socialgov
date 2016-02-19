@@ -11,15 +11,41 @@ angular.module('account.services', [])
     });
   }
 
-  // var homeListCache;
-  // if (!CacheFactory.get('accessRequestCache')) {
-  //   accessRequestCache = CacheFactory('accessRequestCache', {
-  //     maxAge: 1 * 60 * 60 * 1000, // 1 Hour
-  //     deleteOnExpire: 'none'
-  //   });
-  // }
+  var residentCache;
+  if (!CacheFactory.get('residentCache')) {
+    residentCache = CacheFactory('residentCache', {
+      maxAge: 1 * 60 * 60 * 1000, // 1 Hour
+      deleteOnExpire: 'none'
+      //,storageMode: 'localStorage'
+    });
+  }
 
   return {
+    getResidentsInCommunity: function(regionUniqueName) {
+      var deferred = $q.defer();
+      var cachedObjectInfo=residentCache.info(regionUniqueName);
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        deferred.resolve(residentCache.get(regionUniqueName));  
+        console.log("Returning from cache");
+      } else {
+        var userQuery = new Parse.Query(Parse.User);
+        userQuery.equalTo("residency", regionUniqueName);
+        userQuery.descending("homeNo");
+        userQuery.ascending("createdAt");        
+        userQuery.find(function(residents) {
+            residentCache.remove(regionUniqueName);
+            residentCache.put(regionUniqueName, residents);          
+            deferred.resolve(residents);
+          }, function(error) {
+            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              deferred.resolve(residentCache.get(regionUniqueName));  
+            } else {
+              deferred.reject(error);
+            }
+          }); 
+      }
+      return deferred.promise;
+    },        
     getRolesAllowedToChange: function() {
       return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
     },    
@@ -163,6 +189,7 @@ angular.module('account.services', [])
       });      
     },
     addContact: function(inputUser) {
+      residentCache.remove(Parse.User.current().get("residency"));
       var newUser=new Parse.User();
       var currentUser=Parse.User.current();
       var userName=currentUser.get("countryCode")+""+inputUser.phoneNum;
@@ -201,6 +228,7 @@ angular.module('account.services', [])
       return user.save();
     },
     updateNeighborAccount: function(inputUser, neighbor) {
+      residentCache.remove(Parse.User.current().get("residency"));
       console.log("input user " + JSON.stringify(inputUser));
       console.log("neighbor " + JSON.stringify(neighbor));
 
@@ -261,18 +289,20 @@ angular.module('account.services', [])
       query.equalTo("phoneNum",user.phoneNum);
       return query.find();  
     },
-    getNeighborList: function(regionName) {
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo("residency", regionName);
-      userQuery.descending("homeNo");
-      return userQuery.find();   
-    },
     getResidentsOfHome: function(regionName, homeNo) {
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo("residency", regionName);
-      userQuery.equalTo("homeNo", homeNo);
-      userQuery.ascending("createdAt");
-      return userQuery.find();   
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(regionName).then(function(neighborList) {
+        var residentList=[];
+        for(var i=0;i<neighborList.length;i++) {
+          if(neighborList[i].get("homeNo")==homeNo) {
+            residentList.push(neighborList[i]);
+          }
+        }
+        deferred.resolve(residentList);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;  
     },
     getUserById: function(userId) {
       var userQuery = new Parse.Query(Parse.User);
@@ -280,11 +310,8 @@ angular.module('account.services', [])
       return userQuery.first();   
     },    
     getListOfHomesInCommunity: function(regionName) {
-      var deferred = $q.defer();
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo("residency", regionName);
-      userQuery.ascending("homeNo");
-      userQuery.find().then(function(neighborList) {
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(regionName).then(function(neighborList) {
         var homeList=[];
         var runningHomeNo="";
         for(var i=0;i<neighborList.length;i++) {

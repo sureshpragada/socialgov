@@ -44,6 +44,14 @@ angular.module('financial.services', [])
       }
       return deferred.promise;
     },    
+    getFinancialSnapshot: function(residency, homeNo) {
+      var deferred=$q.all([
+        this.getMyPaymentHistory(residency, homeNo),
+        this.getAllDues(residency),
+        RegionService.getRegion(residency)
+      ]);
+      return deferred;
+    },
     setupDues: function(inputDues) {
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
