@@ -23,10 +23,15 @@
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         {{'InvitePage' | translate}}        
       </ion-item>                        
-      <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+      <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt!='SELF'">
         <i class="icon ion-person-stalker royal"></i>
           {{'LegContact' | translate}}
         <span class="badge badge-balanced">{{region.get('legiRepList').length}}</span>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>      
+      <ion-item href="#/tab/selflegis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt=='SELF'">
+        <i class="icon ion-person-stalker royal"></i>
+          {{'LegContact' | translate}}      
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
       <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.serviceContacts=='SELF'">

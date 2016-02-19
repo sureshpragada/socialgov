@@ -171,6 +171,7 @@ angular.module('account.services', [])
       });      
     },
     updateRoleAndTitle: function(userId, role, title) {
+      residentCache.remove(Parse.User.current().get("residency"));
       Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
         success: function(status1) {
           console.log("Successfully updated user role " + JSON.stringify(status1));
@@ -378,9 +379,8 @@ angular.module('account.services', [])
       });
     },
     getSelfLegisContacts:function(residency) {
-      console.log(residency);
-      var User = Parse.Object.extend("User");
-      var query = new Parse.Query(User);
+      // TODO :: Read this from cache
+      var query = new Parse.Query(Parse.User);
       query.equalTo("residency",residency);
       query.equalTo("role","LEGI");
       return query.find();

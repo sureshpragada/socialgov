@@ -129,27 +129,10 @@ angular.module('starter.controllers')
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
-  $scope.deleteLegis=function(regionIndex, legisIndex){
+  $scope.deleteLegis=function(legisIndex){
     $cordovaDialogs.confirm('Do you want to delete this legislative contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
-        $scope.legislatives=$scope.regions[regionIndex].get('legiRepList');
-        $scope.legislatives.splice(legisIndex,1);
-        for(var i=0; i <$scope.legislatives.length;i++){
-          delete $scope.legislatives[i].$$hashKey;
-        }
-
-        $scope.regions[regionIndex].save(null, {
-          success: function(region) {
-            RegionService.updateRegion(region.get("uniqueName"), region);
-            $scope.$apply(function(){
-              console.log("delete is success");
-            });
-          },
-          error: function(region, error) {
-            console.log("Error in deleting the legislative " + error.message);
-            $scope.deleteErrorMessage="Unable to process your delete request.";
-          }
-        });
+        // TODO :: Update this neighbor title to null and role CTZEN
       } else {
         console.log("Canceled removal of legislative delete");
       }
@@ -760,7 +743,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService) {
+.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
@@ -780,8 +763,40 @@ angular.module('starter.controllers')
   };
 
   $scope.appointOnBoard=function() {
-  
+    var hideSheet = $ionicActionSheet.show({
+       buttons: [
+         { text: 'President' },
+         { text: 'Vice President' },
+         { text: 'Secretary' },
+         { text: 'Treasurer' },
+         { text: 'Board Member' }
+       ],
+       cancelText: 'Cancel',
+       cancel: function() {
+          console.log("Action has been cancelled");
+        },
+       buttonClicked: function(index) {
+          if(index==0) { // Edit post
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "President");
+          } else if(index==1) { // Delete post
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Vice President");
+          } else if(index==2) { // Report spam
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Secretary");
+          } else if(index==3) { // Report spam
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Treasurer");
+          } else if(index==4) { // Report spam
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Board Member");
+          } 
+          $state.go("tab.neighbors")
+          return true;
+       }
+     });
+
+    $timeout(function() {
+         hideSheet();
+       }, 5000);
   };
+
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");

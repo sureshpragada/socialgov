@@ -44,15 +44,18 @@
     </div>    
 
     <div class="padding" ng-if="isAdmin && user">
-      <button class="button button-balanced button-block" ng-click="appointOnBoard()">
+      <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="user.get('role')!='LEGI'">
         Appoint on Board
       </button>
+<!--       <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="user.get('role')!='LEGI'">
+        Remove on Board
+      </button>       -->
       <button class="button button-balanced button-block" ng-click="sendInvitationCode()">
         Re-Send Invitation Code
       </button>      
-      <button class="button button-block button-assertive" ng-click="blockUser()">
+<!--       <button class="button button-block button-assertive" ng-click="blockUser()">
         Block User
-      </button>      
+      </button>       -->
     </div>
   </ion-content>
 </ion-view>
