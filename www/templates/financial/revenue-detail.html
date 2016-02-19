@@ -1,23 +1,23 @@
-<ion-view view-title="Payment Detail">
+<ion-view view-title="Revenue Detail">
   <ion-content class="visible-cards">
   <my-app-message info="appMessage"></my-app-message>
   <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
       <div class="item">Revenue ID<span class="item-note">{{revenueRecord.id}}</span></div>
+      <div class="item">Source
+        <span class="item-note">{{revenueRecord.get("revenueSource")}}</span>
+      </div>   
+      <div class="item">Status
+        <span class="item-note balanced" ng-if="revenueRecord.get('status')=='COMPLETED'">Paid</span>
+        <span class="item-note assertive" ng-if="revenueRecord.get('status')=='PENDING'">Unpaid</span>
+      </div>                                           
       <div class="item">Revenue Date
         <span class="item-note">{{revenueRecord.get("revenueDate") | date:'mediumDate'}}</span>
       </div>
       <div class="item">Revenue Amount
         <span class="item-note">{{revenueRecord.get("revenueAmount") | number:2 | ourcurrency}}</span>
-      </div>      
-      <div class="item">Status
-        <span class="item-note balanced" ng-if="revenueRecord.get('status')=='COMPLETED'">Paid</span>
-        <span class="item-note assertive" ng-if="revenueRecord.get('status')=='PENDING'">Unpaid</span>
-      </div>                    
+      </div>   
       <!-- <div class="item">Category<span class="item-note">{{revenueRecord.id}}</span></div> -->
-      <div class="item">Source
-        <span class="item-note">{{revenueRecord.get("revenueSource")}}</span>
-      </div>    
     </div>      
     <div class="card" ng-if="revenueRecord.get('note')">
       <div class="item item-divider item-energized">Notes</div>        
@@ -25,6 +25,14 @@
         <p ng-bind-html="revenueRecord.get('note') | nl2br">
       </div>
     </div>    
+    <div class="padding" ng-if="isAdmin">
+      <button class="button button-calm button-block" ng-click="editRevenue()">
+        Edit Revenue
+      </button>
+      <button class="button button-block button-assertive" ng-click="deleteRevenue()">
+        Delete Revenue
+      </button>      
+    </div>
   </ion-content>
 </ion-view>
  

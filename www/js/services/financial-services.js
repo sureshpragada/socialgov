@@ -1,6 +1,6 @@
 angular.module('financial.services', [])
 
-.factory('FinancialService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, $q) {
+.factory('FinancialService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', 'AccountService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, AccountService, $q) {
 
 // Mar 2016 4000.00
 // Sep 2015 3000.00
@@ -11,7 +11,47 @@ angular.module('financial.services', [])
 // Jan 23 2016 > Sep 2015 & first records - Current
 // Jan 23 2016 > [Date] - History
 
+  var balanceSheetCache;
+  if (!CacheFactory.get('balanceSheetCache')) {
+    balanceSheetCache = CacheFactory('balanceSheetCache', {
+      maxAge: 1 * 60 * 60 * 1000, // 1 Day
+      deleteOnExpire: 'none'
+    });
+  }
+
   return {
+    getBalanceSheets: function(regionUniqueName) {
+      var deferred = $q.defer();
+      var cachedObjectInfo=balanceSheetCache.info(regionUniqueName);
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        deferred.resolve(balanceSheetCache.get(regionUniqueName));  
+      } else {
+        var BalanceSheet = Parse.Object.extend("BalanceSheet");
+        var query = new Parse.Query(BalanceSheet);
+        query.equalTo("residency",regionUniqueName);
+        query.descending("createdAt");
+        query.find(function(balanceSheets) {
+            balanceSheetCache.remove(regionUniqueName);
+            balanceSheetCache.put(regionUniqueName, balanceSheets);          
+            deferred.resolve(balanceSheets);
+          }, function(error) {
+            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              deferred.resolve(balanceSheetCache.get(regionUniqueName));  
+            } else {
+              deferred.reject(error);
+            }
+          }); 
+      }
+      return deferred.promise;
+    },    
+    getFinancialSnapshot: function(residency, homeNo) {
+      var deferred=$q.all([
+        this.getMyPaymentHistory(residency, homeNo),
+        this.getAllDues(residency),
+        RegionService.getRegion(residency)
+      ]);
+      return deferred;
+    },
     setupDues: function(inputDues) {
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
@@ -102,10 +142,13 @@ angular.module('financial.services', [])
       expense.set("expenseDate",input.expenseDate);
       expense.set("reason",input.reason);
       expense.set("expenseCategory",input.category.value);
-      console.log(JSON.stringify(expense));
+      expense.set("balanceSheet",input.balanceSheet);
       return expense.save();
     },
     addRevenue: function(input) {
+      return this.populateRevenueObjectFromInput(input).save();
+    },
+    populateRevenueObjectFromInput: function(input) {
       var Revenue = Parse.Object.extend("Revenue");
       var revenue = new Revenue();
       revenue.set("residency",Parse.User.current().get("residency"));
@@ -115,10 +158,11 @@ angular.module('financial.services', [])
       revenue.set("note",input.note);
       revenue.set("revenueSource",input.revenueSource);
       revenue.set("revenueCategory",input.category?"MAINT_DUES":"OTHER");
-      revenue.set("homeNo",input.homeNo);            
-      console.log(JSON.stringify(revenue));
-      return revenue.save();
-    },
+      revenue.set("homeNo",input.homeNo);  
+      revenue.set("balanceSheet",input.balanceSheet);                
+      revenue.set("status", input.status);
+      return revenue;
+    },    
     getMyPaymentHistory: function(regionName, homeNo) {
       var Revenue = Parse.Object.extend("Revenue");
       var query = new Parse.Query(Revenue);
@@ -186,26 +230,24 @@ angular.module('financial.services', [])
       });
       return deferred.promise;
     },
-    getMonthlyRevenues: function(regionName, date) {
+    getBalanceSheetRevenues: function(regionName, balanceSheetObject) {
       var Revenue = Parse.Object.extend("Revenue");
       var revenueQuery = new Parse.Query(Revenue);
       revenueQuery.equalTo("residency",regionName);
-      revenueQuery.greaterThan("revenueDate", date.firstDayOfMonth());
-      revenueQuery.lessThan("revenueDate", date.lastDayOfMonth());
+      revenueQuery.equalTo("balanceSheet", balanceSheetObject)
       return revenueQuery.find();
     },
-    getMonthlyExpenses: function(regionName, date) {
+    getBalanceSheetExpenses: function(regionName, balanceSheetObject) {
       var Expense = Parse.Object.extend("Expense");
       var expenseQuery = new Parse.Query(Expense);
       expenseQuery.equalTo("residency",regionName);
-      expenseQuery.greaterThan("expenseDate", date.firstDayOfMonth());
-      expenseQuery.lessThan("expenseDate", date.lastDayOfMonth());      
+      expenseQuery.equalTo("balanceSheet", balanceSheetObject)
       return expenseQuery.find();
     },
-    getMonthlyBalanceSheet: function(regionName, date) {
+    getMonthlyBalanceSheet: function(regionName, balanceSheetObject) {
       var deferred=$q.all([
-        this.getMonthlyRevenues(regionName, date),
-        this.getMonthlyExpenses(regionName, date)
+        this.getBalanceSheetRevenues(regionName, balanceSheetObject),
+        this.getBalanceSheetExpenses(regionName, balanceSheetObject)
       ]);
       return deferred;
     },
@@ -228,6 +270,108 @@ angular.module('financial.services', [])
         }
       }
       return categoryList[0];
-    }    
+    },
+    openBalanceSheet: function(inputBalanceSheet) {
+      balanceSheetCache.remove(inputBalanceSheet.residency);
+      var BalanceSheet = Parse.Object.extend("BalanceSheet");
+      var balanceSheet=new BalanceSheet();
+      balanceSheet.set("startDate", inputBalanceSheet.startDate);
+      balanceSheet.set("status", "OPEN");
+      balanceSheet.set("residency", inputBalanceSheet.residency);
+      balanceSheet.set("openedBy", inputBalanceSheet.openedBy);
+      return balanceSheet.save();
+    },
+    closeBalanceSheet: function(balanceSheetObjectId, inputBalanceSheet) {
+      balanceSheetCache.remove(inputBalanceSheet.residency);      
+      var BalanceSheet = Parse.Object.extend("BalanceSheet");
+      var balanceSheet=new BalanceSheet();
+      balanceSheet.set("objectId", balanceSheetObjectId);      
+      balanceSheet.set("endDate", inputBalanceSheet.endDate);
+      balanceSheet.set("status", "CLOSED");
+      balanceSheet.set("closedBy", inputBalanceSheet.closedBy);
+      balanceSheet.set("carryForwardBalance", inputBalanceSheet.carryForwardBalance);
+      balanceSheet.set("generateHomeOwnerPayments", inputBalanceSheet.generateHomeOwnerPayments);            
+      return balanceSheet.save();
+    },
+    addCarryForwardEntryToBalanceSheet: function(inputBalanceSheet, carryForwardAmount) {
+      var revenueInputData={
+        residency: inputBalanceSheet.get("residency"),
+        createdBy: inputBalanceSheet.get("openedBy"),
+        revenueAmount: carryForwardAmount,
+        revenueDate: inputBalanceSheet.get("startDate"),
+        note: "Carry forwarded amount from previous balance sheet.",
+        category: false,
+        revenueSource: "Carry forwarded amount",
+        balanceSheet: inputBalanceSheet,
+        status: "COMPLETED"
+      };
+      return this.addRevenue(revenueInputData);
+    },
+    generateHomeOwnerPayments: function(balanceSheet, due) {
+      var self=this;
+      var deferred = $q.defer();
+      AccountService.getListOfHomesInCommunity(balanceSheet.get("residency")).then(function(homesList) {
+        if(homesList!=null && homesList.length>0) {
+          var revenueObjects=[];
+          for(var i=0;i<homesList.length;i++) {
+            var revenueInputData={
+              residency: balanceSheet.get("residency"),
+              createdBy: balanceSheet.get("openedBy"),
+              revenueAmount: due,
+              revenueDate: balanceSheet.get("startDate"),
+              note: "System generated payment ",
+              category: true,
+              revenueSource: "Home # " + homesList[i].value,
+              balanceSheet: balanceSheet,
+              status: "PENDING",
+              homeNo: homesList[i].value
+            };
+            console.log("Creating payments for home no " + homesList[i].value);
+            revenueObjects.push(self.populateRevenueObjectFromInput(revenueInputData));
+          }
+          Parse.Object.saveAll(revenueObjects).then(function(revenueObjects) {
+            NotificationService.pushNotification(balanceSheet.get("residency"), "Your next maintenance payment is scheduled.");  
+            deferred.resolve(revenueObjects);    
+          }, function(error) {
+            deferred.reject("Unable to generate maintenance dues.");    
+          });
+          
+        } else {
+          deferred.resolve([]);    
+        }         
+      }, function(error) {
+        deferred.reject("Unable to get available home number");
+      });      
+      return deferred.promise;
+    },
+    getBalanceSheetByObjectId: function(balanceSheetObjectId){
+      var BalanceSheet = Parse.Object.extend("BalanceSheet");
+      var query = new Parse.Query(BalanceSheet);
+      query.equalTo("objectId", balanceSheetObjectId);
+      return query.first();
+    },
+    getOpenBalanceSheetFromAvailableBalanceSheets: function(availableBalanceSheets){
+      var openBalanceSheets=[];
+      for(var i=0;i<availableBalanceSheets.length;i++) {
+        if(availableBalanceSheets[i].get("status")=="OPEN") {
+          openBalanceSheets.push(availableBalanceSheets[i]);
+        }
+      }
+      return openBalanceSheets;
+    },
+    getBalanceSheetFromAvaialableBalanceSheets: function(balanceSheetId, availableBalanceSheets){
+      for(var i=0;i<availableBalanceSheets.length;i++) {
+        if(availableBalanceSheets[i].id==balanceSheetId) {
+          return availableBalanceSheets[i];
+        }
+      }
+      return null;
+    },
+    createBalanceSheetEntityWithObjectId: function(balanceSheetObjectId){
+      var BalanceSheet = Parse.Object.extend("BalanceSheet");
+      var balanceSheet=new BalanceSheet();      
+      balanceSheet.set("objectId", balanceSheetObjectId);
+      return balanceSheet;
+    }        
   };
 }]);

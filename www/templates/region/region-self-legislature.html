@@ -1,28 +1,21 @@
 <ion-view title="Legislature">
   <ion-content>
-    <ion-list ng-repeat="legis in legisList track by $index" ng-init="legisIndex = $index" can-swipe="canUpdateRegion">
-	    <div class="item item-divider item-icon-right" ng-if="legisList.length">
-	    	{{legis.get("residency")}}	    	
-	    </div>
-	    <ion-item class="item-thumbnail-left">
+<!-- TODO :: Uncomment when delete works    <ion-list can-swipe="canUpdateRegion"> -->
+    <ion-list>    
+	    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="legis in legisList track by $index" ng-init="legisIndex = $index" href="#/tab/neighbor-detail/{{legis.id}}">
 	      <img ng-src="{{legis.get('image')}}" ng-if="legis.get('image')">
 	      <img ng-src="img/blank_avatar.png" ng-if="!legis.get('avatar')">
-	      <h2>{{legis.get("firstName")}}</h2>
-	      <!-- <p>{{legis.title}}</p> -->
+	      <h2>{{legis.get("firstName")}} {{legis.get("lastName")}}</h2>
+	      <p>{{legis.get('title')}}</p>
 		    <p ng-if="legis.get('phoneNum')">
-			    <i class="icon ion-iphone"></i>
+<!-- 			    <i class="icon ion-iphone"></i> -->
 			    <span>
 			    	{{legis.get('phoneNum')}} {{$last ? '' : ', '}}
 			    </span>
 		    </p>	      
-		    <!-- Pass index x, index y  instead of legi.title -->
-		    <ion-option-button class="button-info button-assertive" ng-click="deleteLegis(regionIndex, legisIndex)">Delete</ion-option-button>
+		    <i class="icon ion-chevron-right icon-accessory"></i>
+<!-- 		    <ion-option-button class="button-info button-assertive" ng-click="deleteLegis(legisIndex)">Delete</ion-option-button> -->
 	    </ion-item>
     </ion-list>
-	<div class="card" ng-if="!legisList.length">
-	  <div class="item item-text-wrap warn"> 
-	    Legislative contacts have not found in any of your regions.
-	  </div>
-	</div>    
   </ion-content>
 </ion-view>

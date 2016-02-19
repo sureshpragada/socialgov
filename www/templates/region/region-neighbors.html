@@ -1,7 +1,7 @@
 <ion-view title="Neighbors">
   <ion-nav-buttons side="secondary">
 <!-- 	<a class="button button-icon icon ion-person-add icon-assertive" href="#/tab/invite-citizen"></a>	 -->
-	<a class="button button-light button-outline" href="#/tab/invite-citizen">Invite</a>    	
+	<a class="button button-light button-outline" style="border-color: #fff; color: #fff;" href="#/tab/invite-citizen">&nbsp;&nbsp;Invite&nbsp;&nbsp;</a>    	
   </ion-nav-buttons>
   <ion-content>
   <my-app-message info="appMessage"></my-app-message>  
@@ -18,13 +18,10 @@
 	      <p>
 <!-- 	      	<i class="icon ion-iphone"></i> -->
 	      	{{neighbor.get("phoneNum")}}
+	      </p>      	      	      	      
+	      <p ng-if="neighbor.get('bloodGroup')">
+	      	<span class="custom-badge">{{neighbor.get("bloodGroup")}}</span>
 	      </p>      
-	      <p ng-if="neighbor.get('status')=='P'">
-	      	<span class="custom-badge">Pending Activation</span>
-	      </p>
-<!-- 	      <p ng-if="neighbor.get('bloodGroup')">
-	      	Blood Group # {{neighbor.get("bloodGroup")}}
-	      </p>       -->
 			<i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>
     </ion-list>

@@ -14,7 +14,7 @@
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
         <p ng-if="user.get('homeNo')">Home # {{user.get("homeNo")}}</p>
       </div>
-      <ion-item ng-if="user.get('role')">
+      <ion-item ng-if="isNeighborAdmin">
          {{'Role' | translate}}
           <span class="item-note">{{getRoleNameFromRoleCode(user.get("role"))}}</span>                  
       </ion-item>                        
@@ -25,20 +25,37 @@
         {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
       </ion-item>      
       <ion-item>
-        Blood Group<span class="item-note">{{user.get("bloodGroup")}}</span>            
+        Blood Group
+        <span class="item-note custom-badge" ng-if="user.get('bloodGroup')">{{user.get("bloodGroup")}}</span>
+        <span class="item-note custom-badge" ng-if="!user.get('bloodGroup')">NA</span>            
       </ion-item>                  
+      <ion-item>
+        Resident
+        <span class="item-note" ng-if="user.get('homeOwner')">Owner</span>            
+        <span class="item-note" ng-if="!user.get('homeOwner')">Tenant</span>            
+<!--         <i class="icon ion-checkmark-circled balanced" ng-if="user.get('homeOwner')"></i>     
+        <i class="icon ion-android-cancel assertive" ng-if="!user.get('homeOwner')"></i> -->
+      </ion-item>            
+       <ion-item>
+          Invitation Status 
+          <span class="item-note" ng-if="user.get('status')=='P'">Pending</span>
+          <span class="item-note" ng-if="user.get('status')!='P'">Accepted</span>
+        </ion-item>      
     </div>    
 
-    <div class="padding" ng-if="isAdmin">
-      <button class="button button-balanced button-block" ng-click="appointOnBoard()">
+    <div class="padding" ng-if="isAdmin && user">
+      <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="user.get('role')!='LEGI'">
         Appoint on Board
       </button>
+<!--       <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="user.get('role')!='LEGI'">
+        Remove on Board
+      </button>       -->
       <button class="button button-balanced button-block" ng-click="sendInvitationCode()">
-        Send Invitation Code
+        Re-Send Invitation Code
       </button>      
-      <button class="button button-block button-assertive" ng-click="blockUser()">
+<!--       <button class="button button-block button-assertive" ng-click="blockUser()">
         Block User
-      </button>      
+      </button>       -->
     </div>
   </ion-content>
 </ion-view>

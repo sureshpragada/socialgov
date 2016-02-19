@@ -174,7 +174,7 @@ angular.module('region.services', [])
       if(region!=null) {
         return region.get("settings");
       } 
-      return {};
+      return REGION_SETTINGS;
     }
   };
 }])

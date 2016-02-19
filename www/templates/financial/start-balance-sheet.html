@@ -1,0 +1,25 @@
+<ion-view view-title="Start Balance Sheet">
+	<ion-content>			
+		<my-app-message info="appMessage"></my-app-message>
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">	
+			<label class="item item-input">
+				<span class="input-label">Effective Month</span>
+				<input type="month" name="startDate"  ng-model="input.startDate">
+			</label>						
+			<ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="input.generateHomeOwnerPayments">
+				Do you want to generate maintenance dues for all home owners? 
+			</ion-checkbox>	
+			<label class="item item-input" ng-if="input.generateHomeOwnerPayments">
+				<span class="input-label">Dues</span>
+				<input type="number" step="any" name="maintenanceDues" ng-model="input.maintDues">
+			</label>																
+			<div class="padding">
+				<a class="button button-block button-balanced" ng-click="startBalanceSheet()">Start Balance Sheet</a>	
+				<a class="button button-block button-assertive" ng-click="cancel()">Cancel</a>				
+			</div>
+		</div>
+	</ion-content>
+</ion-view>
+
+

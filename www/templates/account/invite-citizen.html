@@ -2,7 +2,7 @@
 	<ion-nav-buttons side="secondary">
 <!-- 		<a class="button button-icon icon ion-person-add icon-assertive" ng-click="pickContact()"></a> -->
 <!-- 		<a class="button button-icon icon ion-ios-personadd icon-assertive" ng-click="pickContact()"></a> -->
-		<a class="button button-light button-outline" ng-click="pickContact()">Contacts</a>    
+		<a class="button button-light button-outline"  style="border-color: #fff; color: #fff;" ng-click="pickContact()">Contacts</a>    
 	</ion-nav-buttons>
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
@@ -18,7 +18,10 @@
 			<label class="item item-input" ng-if="regionSettings.supportHomeNumber">
 				<span class="input-label">Home/Unit/Apt #</span>
 				<input type="text" name="homeNumber" ng-model="user.homeNumber">
-			</label>						
+			</label>					
+	        <ion-toggle class="toggle-balanced" ng-model="user.homeOwner">
+	          Home Owner
+	        </ion-toggle>          				
 			<label class="item item-input">
 				<span class="input-label">Phone Number</span>
 				<input type="tel" name="phoneNum" ng-model="user.phoneNum" maxlength="15">

@@ -1,0 +1,29 @@
+<ion-view view-title="Recover Invitation Code">
+	<ion-content>
+		<my-app-message info="appMessage"></my-app-message>		
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div>
+			<label class="item item-input">
+			    <span class="input-label">
+			      First name
+			    </span>
+			    <input type="text" name="firstName"  ng-model="user.firstName">
+			  </label>
+			<label class="item item-input">
+			    <span class="input-label">
+			      Last name
+			    </span>
+			    <input type="text" name="lastName" ng-model="user.lastName">
+			</label>
+			 <label class="item item-input">
+			    <span class="input-label">
+			      Phone number
+			    </span>
+			    <input type="tel" name="phoneNum" ng-model="user.phoneNum" maxlength="10">
+			  </label>			
+		</div>
+		<div class="padding">
+			<button class="button button-block button-calm" ng-click="recoverInvitationCode()">Recover Invitation Code</button>
+		</div>
+	</ion-content>
+</ion-view>

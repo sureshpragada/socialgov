@@ -11,15 +11,41 @@ angular.module('account.services', [])
     });
   }
 
-  // var homeListCache;
-  // if (!CacheFactory.get('accessRequestCache')) {
-  //   accessRequestCache = CacheFactory('accessRequestCache', {
-  //     maxAge: 1 * 60 * 60 * 1000, // 1 Hour
-  //     deleteOnExpire: 'none'
-  //   });
-  // }
+  var residentCache;
+  if (!CacheFactory.get('residentCache')) {
+    residentCache = CacheFactory('residentCache', {
+      maxAge: 1 * 60 * 60 * 1000, // 1 Hour
+      deleteOnExpire: 'none'
+      //,storageMode: 'localStorage'
+    });
+  }
 
   return {
+    getResidentsInCommunity: function(regionUniqueName) {
+      var deferred = $q.defer();
+      var cachedObjectInfo=residentCache.info(regionUniqueName);
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        deferred.resolve(residentCache.get(regionUniqueName));  
+        console.log("Returning from cache");
+      } else {
+        var userQuery = new Parse.Query(Parse.User);
+        userQuery.equalTo("residency", regionUniqueName);
+        userQuery.descending("homeNo");
+        userQuery.ascending("createdAt");        
+        userQuery.find(function(residents) {
+            residentCache.remove(regionUniqueName);
+            residentCache.put(regionUniqueName, residents);          
+            deferred.resolve(residents);
+          }, function(error) {
+            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              deferred.resolve(residentCache.get(regionUniqueName));  
+            } else {
+              deferred.reject(error);
+            }
+          }); 
+      }
+      return deferred.promise;
+    },        
     getRolesAllowedToChange: function() {
       return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
     },    
@@ -61,6 +87,13 @@ angular.module('account.services', [])
         return false;
       }
     },
+    canOtherUserUpdateRegion: function(user){
+      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
+        return true;
+      }else{
+        return false;
+      }
+    },    
     canUpdateRegion: function(){
       var user=Parse.User.current();
       if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
@@ -138,6 +171,7 @@ angular.module('account.services', [])
       });      
     },
     updateRoleAndTitle: function(userId, role, title) {
+      residentCache.remove(Parse.User.current().get("residency"));
       Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
         success: function(status1) {
           console.log("Successfully updated user role " + JSON.stringify(status1));
@@ -156,6 +190,7 @@ angular.module('account.services', [])
       });      
     },
     addContact: function(inputUser) {
+      residentCache.remove(Parse.User.current().get("residency"));
       var newUser=new Parse.User();
       var currentUser=Parse.User.current();
       var userName=currentUser.get("countryCode")+""+inputUser.phoneNum;
@@ -168,6 +203,7 @@ angular.module('account.services', [])
       newUser.set("role", "CTZEN");
       newUser.set("notifySetting", true);
       newUser.set("deviceReg", "N");
+      newUser.set("homeOwner", inputUser.homeOwner==true?true:false);
       newUser.set("homeNo", inputUser.homeNumber);
       return newUser;
     },
@@ -193,6 +229,7 @@ angular.module('account.services', [])
       return user.save();
     },
     updateNeighborAccount: function(inputUser, neighbor) {
+      residentCache.remove(Parse.User.current().get("residency"));
       console.log("input user " + JSON.stringify(inputUser));
       console.log("neighbor " + JSON.stringify(neighbor));
 
@@ -208,6 +245,10 @@ angular.module('account.services', [])
       if(inputUser.homeNo!=neighbor.get("homeNo")) {
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeNo', userObjectValue: inputUser.homeNo }));
         console.log("Updating homeNo");
+      }
+      if(inputUser.homeOwner!=neighbor.get("homeOwner")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeOwner', userObjectValue: inputUser.homeOwner }));
+        console.log("Updating homeOwner");
       }
 
       if(inputUser.phoneNum!=neighbor.get("phoneNum")) {
@@ -244,11 +285,25 @@ angular.module('account.services', [])
         }
       });
     },
-    getNeighborList: function(regionName) {
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo("residency", regionName);
-      userQuery.ascending("homeNo");
-      return userQuery.find();   
+    recoverInvitationCode: function(user) {
+      var query = new Parse.Query(Parse.User);
+      query.equalTo("phoneNum",user.phoneNum);
+      return query.find();  
+    },
+    getResidentsOfHome: function(regionName, homeNo) {
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(regionName).then(function(neighborList) {
+        var residentList=[];
+        for(var i=0;i<neighborList.length;i++) {
+          if(neighborList[i].get("homeNo")==homeNo) {
+            residentList.push(neighborList[i]);
+          }
+        }
+        deferred.resolve(residentList);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;  
     },
     getUserById: function(userId) {
       var userQuery = new Parse.Query(Parse.User);
@@ -256,11 +311,8 @@ angular.module('account.services', [])
       return userQuery.first();   
     },    
     getListOfHomesInCommunity: function(regionName) {
-      var deferred = $q.defer();
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo("residency", regionName);
-      userQuery.ascending("homeNo");
-      userQuery.find().then(function(neighborList) {
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(regionName).then(function(neighborList) {
         var homeList=[];
         var runningHomeNo="";
         for(var i=0;i<neighborList.length;i++) {
@@ -290,7 +342,7 @@ angular.module('account.services', [])
       userQuery.equalTo("objectId", invitationCode);
       userQuery.first(function(user) {
         if(user!=null) {
-          if(user.get("status")=="P" || self.isLogoutAllowed(user)) {
+          // if(user.get("status")=="P" || self.isLogoutAllowed(user)) {
             Parse.User.logIn(user.getUsername(), "custom", {
               success: function(authoritativeUser) {
                 deferred.resolve(authoritativeUser);
@@ -300,9 +352,9 @@ angular.module('account.services', [])
                 deferred.reject(error);
               }
             });            
-          } else {
-            deferred.reject(new Parse.Error(5001, "Invitation code has already been used."));  
-          }
+          // } else {
+          //   deferred.reject(new Parse.Error(5001, "Invitation code has already been used."));  
+          // }
         } else {
           deferred.reject(new Parse.Error(5001, "Unable to find invitation code."));  
         }
@@ -311,10 +363,24 @@ angular.module('account.services', [])
       });    
       return deferred.promise;      
     },
+    sendNotificationToHomeOwner: function(homeNo, message) {
+      this.getResidentsOfHome(Parse.User.current().get("residency"), homeNo).then(function(residents) {
+        var residentIdList=[];
+        if(residents!=null && residents.length>0) {
+          for(var i=0;i<residents.length;i++) {
+            residentIdList.push(residents[i].id);
+          }
+        }
+        if(residentIdList.length>0) {
+          NotificationService.pushNotificationToUserList(residentIdList, message);  
+        }
+      }, function(error) {
+        LogService.log({type:"ERROR", message: "Failed to send payment notifications " + JSON.stringify(error) + " residency : " + residency + " homeNo : " + homeNo}); 
+      });
+    },
     getSelfLegisContacts:function(residency) {
-      console.log(residency);
-      var User = Parse.Object.extend("User");
-      var query = new Parse.Query(User);
+      // TODO :: Read this from cache
+      var query = new Parse.Query(Parse.User);
       query.equalTo("residency",residency);
       query.equalTo("role","LEGI");
       return query.find();

@@ -31,3 +31,10 @@ Date.prototype.firstDayOfMonth=function() {
 Date.prototype.lastDayOfMonth=function() {
 	return new Date(this.getFullYear(), this.getMonth() + 1, 0);
 };
+
+Date.prototype.addDays = function(days)
+{
+    var dat = new Date(this.valueOf());
+    dat.setDate(dat.getDate() + days);
+    return dat;
+};

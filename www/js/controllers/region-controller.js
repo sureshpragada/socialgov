@@ -129,27 +129,10 @@ angular.module('starter.controllers')
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
-  $scope.deleteLegis=function(regionIndex, legisIndex){
+  $scope.deleteLegis=function(legisIndex){
     $cordovaDialogs.confirm('Do you want to delete this legislative contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
-        $scope.legislatives=$scope.regions[regionIndex].get('legiRepList');
-        $scope.legislatives.splice(legisIndex,1);
-        for(var i=0; i <$scope.legislatives.length;i++){
-          delete $scope.legislatives[i].$$hashKey;
-        }
-
-        $scope.regions[regionIndex].save(null, {
-          success: function(region) {
-            RegionService.updateRegion(region.get("uniqueName"), region);
-            $scope.$apply(function(){
-              console.log("delete is success");
-            });
-          },
-          error: function(region, error) {
-            console.log("Error in deleting the legislative " + error.message);
-            $scope.deleteErrorMessage="Unable to process your delete request.";
-          }
-        });
+        // TODO :: Update this neighbor title to null and role CTZEN
       } else {
         console.log("Canceled removal of legislative delete");
       }
@@ -760,31 +743,65 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService) {
+.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
     $scope.user=neighbor;
+    $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
     $scope.$apply();
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
   });
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.canUpdateRegion();  
 
   $scope.getRoleNameFromRoleCode=function(role) {
     return AccountService.getRoleNameFromRoleCode(role);
   };
 
   $scope.appointOnBoard=function() {
-  
+    var hideSheet = $ionicActionSheet.show({
+       buttons: [
+         { text: 'President' },
+         { text: 'Vice President' },
+         { text: 'Secretary' },
+         { text: 'Treasurer' },
+         { text: 'Board Member' }
+       ],
+       cancelText: 'Cancel',
+       cancel: function() {
+          console.log("Action has been cancelled");
+        },
+       buttonClicked: function(index) {
+          if(index==0) { // Edit post
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "President");
+          } else if(index==1) { // Delete post
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Vice President");
+          } else if(index==2) { // Report spam
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Secretary");
+          } else if(index==3) { // Report spam
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Treasurer");
+          } else if(index==4) { // Report spam
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Board Member");
+          } 
+          $state.go("tab.neighbors")
+          return true;
+       }
+     });
+
+    $timeout(function() {
+         hideSheet();
+       }, 5000);
   };
+
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
-    //NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));        
+    NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"));              
+    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Sent invitation code to neighbor");
   };
 
   $scope.blockUser=function() {
@@ -802,22 +819,23 @@ angular.module('starter.controllers')
 
 })
 
-.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService) {
+.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
+  $ionicLoading.show({
+    template: "<ion-spinner></ion-spinner> Listing your neighbors..."
+  });        
   $scope.appMessage=SettingsService.getAppMessage();    
-  AccountService.getNeighborList(Parse.User.current().get("residency")).then(function(neighborList) {
+  AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
-    console.log(JSON.stringify($scope.neighborList));
-    $scope.$apply();
-    // console.log($scope.neighborList.length);
+    $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
+    $ionicLoading.hide();
   });
 
 })
 
 .controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Admin Neighbor Account update controller");
-
   $scope.inputUser={};
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     $scope.user=neighbor;
@@ -826,6 +844,8 @@ angular.module('starter.controllers')
     $scope.inputUser.homeNo=$scope.user.get("homeNo");
     $scope.inputUser.userId=$scope.user.id;
     $scope.inputUser.phoneNum=$scope.user.get("phoneNum");
+    $scope.inputUser.homeOwner=$scope.user.get("homeOwner");
+    $scope.$apply();
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");

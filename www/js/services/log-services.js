@@ -6,7 +6,12 @@ angular.module('log.services', ['ionic'])
       console.log(JSON.stringify(logObject));
       var AuditLog = Parse.Object.extend("AuditLog");
       var auditLog = new AuditLog();
-      logObject.username=Parse.User.current().get("username");
+      if(Parse.User.current()!=null) {
+        logObject.username=Parse.User.current().get("username");
+      } else {
+        logObject.username="unauthenticated";
+      }
+      
       auditLog.save(logObject, {
         success: function(logObject) {
           console.log("Successfully sent audit log")

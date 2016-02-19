@@ -46,6 +46,9 @@ angular.module('settings.services', [])
     setAppErrorMessage: function(notifyMessage) {
       this.setAppMessage(notifyMessage, "ERROR");
     },
+    setAppIdeaMessage: function(notifyMessage) {
+      this.setAppMessage(notifyMessage, "IDEA");
+    },    
     getAppMessage: function() {
       var tempAppMessage=this.appMessage;
       this.appMessage=null;
@@ -63,6 +66,12 @@ angular.module('settings.services', [])
         type: "SUCCESS"
       };
     },    
+    getControllerIdeaMessage: function(successMessage) {
+      return {
+        message: successMessage, 
+        type: "IDEA"
+      };
+    },        
     getControllerInfoMessage: function(infoMessage) {
       return {
         message: infoMessage, 

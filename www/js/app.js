@@ -405,7 +405,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })    
     
     .state('tab.revenue-list', {
-      url: '/revenue-list/{focusMonth}',
+      url: '/revenue-list/{balanceSheetId}',
       cache: false,
       views: {
         "tab-financial": {
@@ -426,6 +426,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.revenue-detail', {
+      url: '/revenue-detail/{revenueId}',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/revenue-detail.html',
+          controller: 'PaymentDetailCtrl'        
+        }
+      }
+    })    
+
     .state('tab.edit-payment-detail', {
       url: '/edit-payment-detail/{revenueId}',
       cache: false,
@@ -438,7 +449,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })        
 
     .state('tab.expense-list', {
-      url: '/expense-list/{focusMonth}',
+      url: '/expense-list/{balanceSheetId}',
       cache: false,
       views: {
         "tab-financial": {
@@ -492,8 +503,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })                    
 
+    .state('tab.balance-sheet-list', {
+      url: '/balance-sheet-list',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/balance-sheet-list.html',
+          controller: 'BalanceSheetListCtrl'        
+        }
+      }
+    })                    
+
     .state('tab.balance-sheet', {
-      url: '/balance-sheet/{focusMonth}',
+      url: '/balance-sheet/{balanceSheetId}',
       cache: false,
       views: {
         "tab-financial": {
@@ -502,6 +524,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })                    
+
+    .state('tab.start-balance-sheet', {
+      url: '/start-balance-sheet',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/start-balance-sheet.html',
+          controller: 'StartBalanceSheetCtrl'        
+        }
+      }
+    })                    
+
+    // .state('tab.close-balance-sheet', {
+    //   url: '/close-balance-sheet/{balanceSheetId}',
+    //   cache: false,
+    //   views: {
+    //     "tab-financial": {
+    //       templateUrl: 'templates/financial/close-balance-sheet.html',
+    //       controller: 'CloseBalanceSheetCtrl'        
+    //     }
+    //   }
+    // })                    
 
     .state('tab.manage-dues', {
       url: '/manage-dues/{duesId}',
@@ -515,7 +559,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })                        
 
     .state('tab.manage-revenue', {
-      url: '/manage-revenue/{focusMonth}',
+      url: '/manage-revenue/{balanceSheetId}',
       cache: false,
       views: {
         "tab-financial": {
@@ -526,7 +570,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })                        
 
     .state('tab.manage-expense', {
-      url: '/manage-expense/{focusMonth}',
+      url: '/manage-expense/{balanceSheetId}',
       cache: false,
       views: {
         "tab-financial": {
@@ -682,6 +726,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       controller: 'InvitationLoginCtrl',
       cache: false
     })
+
+    .state('invite-recover', {
+      url: '/invite-recover',
+      templateUrl: 'templates/account/invite-recover.html',
+      controller: 'InvitationRecoverCtrl',
+      cache: false
+    })    
 
     .state('request-invitation', {
       url: '/request-invitation',

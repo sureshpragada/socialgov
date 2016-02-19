@@ -5,11 +5,11 @@
     <div class="card">
       <div class="item">Expense ID<span class="item-note">{{expenseRecord.id}}</span></div>
       <div class="item">Expense Date<span class="item-note">{{expenseRecord.get("expenseDate") | date:'mediumDate'}}</span></div>
-      <div class="item">Expense Amount<span class="item-note">{{expenseRecord.get("expenseAmount") | number:2 | ourcurrency}}</span></div>
-      <div class="item"  ng-if="expense.get('expenseCategory')=='Other'">
+      <div class="item">Expense Amount<span class="item-note">{{expenseRecord.get("expenseAmount") | number:2 | ourcurrency}}</span></div> 
+      <div class="item"  ng-if="expenseRecord.get('expenseCategory')=='Other'">
         Paid To<span class="item-note">{{expenseRecord.get("paidTo")}}</span>
       </div>
-      <div class="item"  ng-if="expense.get('expenseCategory')!='Other'">
+      <div class="item"  ng-if="expenseRecord.get('expenseCategory')!='Other'">
         Paid For<span class="item-note">{{expenseRecord.get("expenseCategory")}}</span>
       </div>
     </div>  
