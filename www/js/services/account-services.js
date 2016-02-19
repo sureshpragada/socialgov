@@ -267,6 +267,13 @@ angular.module('account.services', [])
       userQuery.descending("homeNo");
       return userQuery.find();   
     },
+    getResidentsOfHome: function(regionName, homeNo) {
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("residency", regionName);
+      userQuery.equalTo("homeNo", homeNo);
+      userQuery.ascending("createdAt");
+      return userQuery.find();   
+    },
     getUserById: function(userId) {
       var userQuery = new Parse.Query(Parse.User);
       userQuery.equalTo("objectId", userId);
@@ -327,6 +334,21 @@ angular.module('account.services', [])
         deferred.reject(error);
       });    
       return deferred.promise;      
+    },
+    sendNotificationToHomeOwner: function(homeNo, message) {
+      this.getResidentsOfHome(Parse.User.current().get("residency"), homeNo).then(function(residents) {
+        var residentIdList=[];
+        if(residents!=null && residents.length>0) {
+          for(var i=0;i<residents.length;i++) {
+            residentIdList.push(residents[i].id);
+          }
+        }
+        if(residentIdList.length>0) {
+          NotificationService.pushNotificationToUserList(residentIdList, message);  
+        }
+      }, function(error) {
+        LogService.log({type:"ERROR", message: "Failed to send payment notifications " + JSON.stringify(error) + " residency : " + residency + " homeNo : " + homeNo}); 
+      });
     }
   };
 }]);

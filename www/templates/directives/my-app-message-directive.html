@@ -3,6 +3,7 @@
     <i class="icon ion-checkmark-circled balanced" ng-if="appMessage.type=='SUCCESS'"></i>
     <i class="icon ion-alert-circled assertive" ng-if="appMessage.type=='ERROR'"></i>
     <i class="icon ion-information-circled royal" ng-if="appMessage.type=='INFO'"></i>
+    <i class="icon ion-android-bulb calm" ng-if="appMessage.type=='IDEA'"></i>    
     <div ng-bind-html="appMessage.message | nl2br">
   </ion-item>          
 </div>

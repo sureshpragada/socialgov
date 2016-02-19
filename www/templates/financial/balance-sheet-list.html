@@ -1,0 +1,26 @@
+<ion-view title="Balance Sheets">
+  <ion-nav-buttons side="secondary">
+	<a class="button button-light button-small button-outline"  ng-if="isAdmin && openBalanceSheetList.length<2" style="border-color: #fff; color: #fff;" href="#/tab/start-balance-sheet">&nbsp;&nbsp;New Sheet&nbsp;&nbsp;</a>    	
+  </ion-nav-buttons>
+  <ion-content class="visible-cards">
+  	<my-app-message info="appMessage"></my-app-message>  
+  	<my-app-message info="controllerMessage"></my-app-message>  
+  	<div class="card">
+  	<ion-list>
+	    <ion-item class="item-icon-left item-icon-right" ng-repeat="sheet in balanceSheetList" href="#/tab/balance-sheet/{{sheet.id}}">
+          <i class="icon ion-ios-unlocked balanced" ng-if="sheet.get('status')=='OPEN'"></i>
+          <i class="icon ion-ios-locked assertive" ng-if="sheet.get('status')=='CLOSED'"></i>          
+	      <!-- <h2>{{sheet.get("startDate") | date:'mediumDate'}} - {{sheet.get("endDate") | date:'mediumDate'}}</h2>		 -->
+	      <h2>{{sheet.get("startDate") | date:'MMMM yyyy'}}</h2>			       
+	      <p ng-if="sheet.get('status')=='OPEN'">
+	      	Running Balance Sheet
+	      </p>      
+	      <p ng-if="sheet.get('status')=='CLOSED'">
+	      	Closed Balance Sheet
+	      </p>      	      
+			<i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
+	    </ion-item>
+    </ion-list>
+    </div>
+  </ion-content>
+</ion-view>

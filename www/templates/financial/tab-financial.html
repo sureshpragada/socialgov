@@ -2,12 +2,16 @@
   <ion-content class="visible-cards">
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
+    <my-app-message info="ideaMessage" ng-if="isAdmin && !controllerMessage"></my-app-message>
     <div class="card">
       <div class="row">
         <div class="col" style="text-align: center;">
           <h4>Dues</h4>
           <h3 class="positive" ng-if="currentDues">{{currentDues.get("maintDues")  | number:2 | ourcurrency}}</h3>
-          <h3 class="positive" ng-if="!currentDues">NA</h3>
+          <h3 class="positive" ng-if="!currentDues && !isAdmin">NA</h3>          
+          <h3 class="positive" ng-if="!currentDues && isAdmin && !controllerMessage">
+            <a class="button button-small button-block button-royal" href="#/tab/manage-dues/SETUP">Setup Dues</a>
+          </h3>
         </div>
         <div class="col" style="text-align: center;">
           <h4>Status</h4>
@@ -28,7 +32,7 @@
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
     <div class="card">
       <div class="item item-divider">Community</div>
-      <ion-item class="item-icon-right" href="#/tab/balance-sheet/0" ng-if="regionSettings.financialMgmt=='SELF'">
+      <ion-item class="item-icon-right" href="#/tab/balance-sheet-list" ng-if="regionSettings.financialMgmt=='SELF'">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Balance Sheet
       </ion-item>                  

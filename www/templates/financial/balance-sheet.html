@@ -2,18 +2,21 @@
   <ion-content class="visible-cards">
   <my-app-message info="appMessage"></my-app-message>
   <my-app-message info="controllerMessage"></my-app-message>
-
-    <div class="card">
+    <div class="card" ng-if="balanceSheet">
       <ion-list>
-        <div class="item item-divider">
-          {{focusMonth | date:'MMM yyyy'}}
-        </div>            
-        <ion-item class="item-icon-right" href="#/tab/revenue-list/{{focusMonth.getTime()}}">
+        <div class="item item-icon-left">
+          <i class="icon ion-clipboard balanced" ng-if="balanceSheet.get('status')=='OPEN'"></i>
+          <i class="icon ion-clipboard assertive" ng-if="balanceSheet.get('status')=='CLOSED'"></i>
+          <h2>{{balanceSheet.get("startDate") | date:'MMMM yyyy'}}</h2>
+          <p ng-if="balanceSheet.get('status')=='OPEN'">Running Balance Sheet</p>
+          <p ng-if="balanceSheet.get('status')=='CLOSED'">Closed Balance Sheet</p>          
+        </div>      
+        <ion-item class="item-icon-right" href="#/tab/revenue-list/{{balanceSheet.id}}">
           Revenue
           <span class="item-note">{{revenueTotal | number:2 | ourcurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
         </ion-item>
-        <ion-item class="item-icon-right" href="#/tab/expense-list/{{focusMonth.getTime()}}">
+        <ion-item class="item-icon-right" href="#/tab/expense-list/{{balanceSheet.id}}">
           Expenses
           <span class="item-note">{{expenseTotal | number:2 | ourcurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
@@ -25,18 +28,30 @@
         <ion-item ng-if="revenueTotal<expenseTotal">
           Defecit
           <span class="item-note assertive">{{expenseTotal-revenueTotal | number:2 | ourcurrency}}</span>
-        </ion-item>                        
+        </ion-item>                
+        <ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="closeBalanceSheetInput.carryForwardBalance" ng-if="openBalanceSheets.length==2 && closeBalanceSheetInput.closeInitiated && isAdmin && balanceSheet.get('status')=='OPEN'">
+          Do you want to carry forward <span style="font-weight: bold;">{{revenueTotal-expenseTotal | number:2 |  ourcurrency}}</span> as revenue item? 
+        </ion-checkbox>                    
+        <ion-item class="item-icon-left item-text-wrap" ng-if="openBalanceSheets.length!=2 && isAdmin && balanceSheet.get('status')=='OPEN'">
+          <i class="icon ion-android-bulb calm"></i>    
+          Start next balance sheet to carry forward any balances when you close this balance sheet.        
+        </ion-item>                                         
       </ion-list>
-    </div>
-    
-    <div class="card" ng-if="availableBalanceSheets">
-      <ion-list>
-        <ion-item class="item-icon-right" ng-repeat="availableBalanceSheet in availableBalanceSheets" href="#/tab/balance-sheet/{{availableBalanceSheet}}">
-          {{availableBalanceSheet | date:'MMM yyyy'}}<i class="icon ion-chevron-right icon-accessory"></i>
-        </ion-item>
-      </ion-list>
-    </div>
-
+      <div class="padding" ng-if="isAdmin && balanceSheet.get('status')=='OPEN'  && !closeBalanceSheetInput.closeInitiated">
+        <a class="button button-block button-assertive" ng-click="initiateCloseBalanceSheet(true)">Close Balance Sheet</a>        
+      </div>
+      <div class="row" ng-if="closeBalanceSheetInput.closeInitiated">
+        <div class="col">
+          <a class="button button-block button-outline button-small" ng-click="initiateCloseBalanceSheet(false)">Ignore</a>
+        </div>
+        <div class="col" ng-if="openBalanceSheets.length==1">
+          <a class="button button-block button-balanced button-small" href="#/tab/start-balance-sheet">Start Sheet</a>
+        </div>
+        <div class="col">
+          <a class="button button-block button-assertive button-small" ng-click="closeBalanceSheet()">Confirm</a>
+        </div>                    
+      </div>                
+    </div>    
   </ion-content>
 </ion-view>
  
