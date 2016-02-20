@@ -8,10 +8,10 @@
         <div class="col" style="text-align: center;">
           <h4>Dues</h4>
           <h3 class="positive" ng-if="currentDues">{{currentDues.get("maintDues")  | number:2 | ourcurrency}}</h3>
-          <h3 class="positive" ng-if="!currentDues && !isAdmin">NA</h3>          
-          <h3 class="positive" ng-if="!currentDues && isAdmin && !controllerMessage">
-            <a class="button button-small button-block button-royal" href="#/tab/manage-dues/SETUP">Setup Dues</a>
-          </h3>
+          <h3 class="positive" ng-if="!currentDues">NA</h3>          
+<!--           <h3 class="positive" ng-if="!currentDues && isAdmin && !controllerMessage">
+            <a class="button button-small button-block button-royal" href="#/tab/dues-list">Setup Dues</a>
+          </h3> -->
         </div>
         <div class="col" style="text-align: center;">
           <h4>Status</h4>
@@ -51,7 +51,8 @@
       <ion-item class="item-icon-right" href="#/tab/dues-list">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Maintenance Dues
-        <span class="item-note">{{currentDues.get('maintDues')  | number:2 | ourcurrency}}</span>
+        <span class="item-note" ng-if="currentDues">{{currentDues.get('maintDues')  | number:2 | ourcurrency}}</span>
+        <span class="item-note assertive" ng-if="!currentDues">Setup</span>
       </ion-item>      
 
 <!--       <ion-item class="item-icon-right" href="#/tab/expense-list">

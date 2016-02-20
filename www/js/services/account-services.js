@@ -379,11 +379,19 @@ angular.module('account.services', [])
       });
     },
     getSelfLegisContacts:function(residency) {
-      // TODO :: Read this from cache
-      var query = new Parse.Query(Parse.User);
-      query.equalTo("residency",residency);
-      query.equalTo("role","LEGI");
-      return query.find();
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(residency).then(function(neighborList) {
+        var residentList=[];
+        for(var i=0;i<neighborList.length;i++) {
+          if(neighborList[i].get("role")=="LEGI") {
+            residentList.push(neighborList[i]);
+          }
+        }
+        deferred.resolve(residentList);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;  
     }
   };
 }]);

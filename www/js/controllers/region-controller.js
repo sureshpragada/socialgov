@@ -26,7 +26,7 @@ angular.module('starter.controllers')
   });
 })
 
-.controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {  
+.controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
   $scope.regions=RegionService.getRegionListFromCache();  
 
   $scope.personalServiceContacts=null;
@@ -43,11 +43,13 @@ angular.module('starter.controllers')
           $scope.personalServiceContacts=personalServiceContacts;
         } else {
           console.log("No service contacts have been found.");
+          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service contact recommendations are not made by your neighbors yet.");
         }
       });
     },
     error: function(serviceContact, error) {
       console.log("Error retrieving service contacts " + error.message);
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community service contact recommendations.");
     }
   });          
 
@@ -168,7 +170,6 @@ angular.module('starter.controllers')
         $scope.ideaMessage=SettingsService.getControllerIdeaMessage("Looking to appoint a resident on the board? Controls are available in neighbor details section.");
       }      
     }
-    // console.log(JSON.stringify($scope.legisList));
   },function(error){
     console.log("Unable to get legislative contacts " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve legislative contacts.");

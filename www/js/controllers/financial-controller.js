@@ -744,11 +744,12 @@ angular.module('starter.controllers')
     console.log("current reserve : " + JSON.stringify($scope.currentReserve));
   }, function(error) {
     console.log("Unable to get reserves details of this community.");
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get current reserves of your community.");
   });  
 
   $scope.getAllReserveAudit=function() {
     FinancialService.getAllReserveAudit(Parse.User.current().get("residency")).then(function(reserveAuditList) {
-      console.log("Reserve Audit list : " + JSON.stringify(reserveAuditList));
+      // console.log("Reserve Audit list : " + JSON.stringify(reserveAuditList));
       $scope.reserveAuditList=reserveAuditList;
       $scope.$apply();
     }, function(error) {
@@ -768,21 +769,22 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('ManageReservesCtrl', function($scope, $http, $stateParams, $state, SettingsService, RegionService, FinancialService) {
+.controller('ManageReservesCtrl', function($scope, $http, $stateParams, $state, SettingsService, RegionService, FinancialService, LogService) {
   console.log("Manage Reserves controller");
   $scope.input={
     createdBy: Parse.User.current(),
-    residency: Parse.User.current().get("residency")
+    residency: Parse.User.current().get("residency"),
+    effectiveMonth: new Date()
   };
   RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
     $scope.region=region;
     if($scope.region.get("reserve")!=null) {
       $scope.input.reserveAmount=$scope.region.get("reserve").reserveAmount;
     }
-    $scope.input.effectiveMonth=new Date();
-    // $scope.$apply();
-  }, function(error) {
-    console.log("Unable to get reserve amount to prepopulate");
+  }, function(error) {  
+    LogService.log({type:"ERROR", message: "Unable to get region for reserve update " + JSON.stringify(error)});   
+    SettingsService.setAppErrorMessage("Unable to get community current reserves to take further updates. Please try again later.");
+    $state.go("tab.reserves-detail");    
   });  
 
   $scope.updateReserve=function() {
@@ -791,9 +793,9 @@ angular.module('starter.controllers')
       return;
     }
 
-    RegionService.updateReserve($scope.region, $scope.input).then(function(region) {
+    RegionService.updateReserve($scope.region, $scope.input).then(function(region) {      
       FinancialService.updateReserve($scope.input).then(function(reserveAudit) {
-        SettingsService.setAppSuccessMessage("Reserves has been recorded.");
+        SettingsService.setAppSuccessMessage("Reserve has been recorded.");
         $state.go("tab.reserves-detail");
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add reserve audit.");
