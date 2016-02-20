@@ -787,7 +787,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     InvitePage: 'Invite Resident',
     Currency: '$',
     LegContact: 'Board Members',
-    ExecContact: 'Management Offices',
+    ExecContact: 'Address Book',
     Messages: {
       PostActivityAskWarn: 'Answers provided here are personal views and do not reflect views of the association board.',
       PostActivityIssueWarn: 'Report community level problems here. Reach out to management company for any home specific issues.'      

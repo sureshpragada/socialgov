@@ -5,6 +5,7 @@
   </ion-nav-buttons>
   <ion-content>
   <my-app-message info="appMessage"></my-app-message>  
+  <my-app-message info="controllerMessage"></my-app-message>  
   	<ion-list>
 	    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="neighbor in neighborList" ng-if="neighbor.get('status')!='S'" href="#/tab/neighbor-detail/{{neighbor.id}}">
 	      <img ng-src="{{neighbor.get('images')[0]}}" ng-if="neighbor.get('images')">

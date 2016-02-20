@@ -11,7 +11,8 @@
         <ion-item class="item-divider item-royal">Maintenance Dues</ion-item>
         <ion-item class="item-icon-left item-icon-right" ng-repeat="revenue in homeOwnerPaymentList"  ng-click="goTo($index)">
           <i class="icon ion-ios-checkmark-outline balanced" ng-if="revenue.get('status')=='COMPLETED'"></i>
-          <i class="icon ion-alert-circled assertive" ng-if="revenue.get('status')=='PENDING'"></i>                  
+<!--           <i class="icon ion-alert-circled assertive" ng-if="revenue.get('status')=='PENDING'"></i>                   -->
+          <i class="icon ion-ios-information-outline assertive" ng-if="revenue.get('status')=='PENDING'"></i>                    
           Home # {{revenue.get("homeNo")}}           
           <span class="item-note">{{revenue.get("revenueAmount") | number:2 | ourcurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>

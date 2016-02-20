@@ -65,7 +65,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           });
 
         } else {
-          $scope.activityError=SettingsService.getControllerInfoMessage("No activity found in your region.");
+          $scope.activityError=SettingsService.getControllerIdeaMessage("Have a development idea or a question for your community? Collbarate with your neighbors by posting your activity here.");
           $ionicLoading.hide();          
         }
     }, 
