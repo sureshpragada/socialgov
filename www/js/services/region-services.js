@@ -19,9 +19,6 @@ angular.module('region.services', [])
         deferred.resolve(regionCache.get(regionUniqueName));  
       } else {
         console.log("No hit, attempting to retrieve from parse " + regionUniqueName + " Info : " + JSON.stringify(cachedObjectInfo));
-        if(ionic.Platform.isAndroid()) {
-          LogService.log({type:"INFO", message: "No hit, attempting to retrieve from parse " + regionUniqueName + " Info : " + JSON.stringify(cachedObjectInfo)});   
-        }
         var Region = Parse.Object.extend("Region");
         var query = new Parse.Query(Region);
         query.equalTo("uniqueName", regionUniqueName);

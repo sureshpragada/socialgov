@@ -45,7 +45,7 @@ angular.module('starter.controllers')
 
     $ionicLoading.hide();
   },function(error){
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get financial overview of your community.");
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get financial snapshot of your community.");
     $ionicLoading.hide();
   });
 
@@ -566,11 +566,13 @@ angular.module('starter.controllers')
   });
   FinancialService.getBalanceSheets(Parse.User.current().get("residency")).then(function(availableBalanceSheets) {
     $scope.balanceSheetList=availableBalanceSheets;            
-    $scope.openBalanceSheetList=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets($scope.balanceSheetList);
-    if($scope.openBalanceSheetList.length==0) {
-      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start tracking your revenue and expenses by opening balance sheet.");
-    } else if($scope.openBalanceSheetList.length==2) {
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Only two balance sheets are allowed to be open at any time.");      
+    if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>0) {
+      $scope.openBalanceSheetList=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets($scope.balanceSheetList);
+      if($scope.openBalanceSheetList.length==0) {
+        $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start tracking your revenue and expenses by opening balance sheet.");
+      } else if($scope.openBalanceSheetList.length==2) {
+        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Only two balance sheets are allowed to be open at any time.");      
+      }
     }
     $ionicLoading.hide();
   }, function(error) {

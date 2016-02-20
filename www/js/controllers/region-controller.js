@@ -122,17 +122,30 @@ angular.module('starter.controllers')
 
 .controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
   
-  $scope.regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);    
-  if($scope.regionSettings.legislativeMgmt == "SELF"){
-    $state.go("tab.selflegis",{regionUniqueName:$stateParams.regionUniqueName});
-  }
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
-  $scope.deleteLegis=function(legisIndex){
+  $scope.deleteLegis=function(regionIndex, legisIndex){
     $cordovaDialogs.confirm('Do you want to delete this legislative contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
-        // TODO :: Update this neighbor title to null and role CTZEN
+        $scope.legislatives=$scope.regions[regionIndex].get('legiRepList');
+        $scope.legislatives.splice(legisIndex,1);
+        for(var i=0; i <$scope.legislatives.length;i++){
+          delete $scope.legislatives[i].$$hashKey;
+        }
+
+        $scope.regions[regionIndex].save(null, {
+          success: function(region) {
+            RegionService.updateRegion(region.get("uniqueName"), region);
+            $scope.$apply(function(){
+              console.log("delete is success");
+            });
+          },
+          error: function(region, error) {
+            console.log("Error in deleting the legislative " + error.message);
+            $scope.deleteErrorMessage="Unable to process your delete request.";
+          }
+        });
       } else {
         console.log("Canceled removal of legislative delete");
       }
@@ -145,14 +158,20 @@ angular.module('starter.controllers')
 
 })
 
-.controller('SelfLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
-
+.controller('SelfLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   AccountService.getSelfLegisContacts($stateParams.regionUniqueName).then(function(legisList){
     $scope.legisList = legisList;
-    console.log(JSON.stringify($scope.legisList));
+    if($scope.legisList==null || $scope.legisList.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Legislative board is not established in your community.");
+      if($scope.canUpdateRegion==true) {
+        $scope.ideaMessage=SettingsService.getControllerIdeaMessage("Looking to appoint a resident on the board? Controls are available in neighbor details section.");
+      }      
+    }
+    // console.log(JSON.stringify($scope.legisList));
   },function(error){
-    console.log("Unable to get legislative contacts");
+    console.log("Unable to get legislative contacts " + JSON.stringify(error));
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve legislative contacts.");
   });
 
 })
@@ -762,6 +781,12 @@ angular.module('starter.controllers')
     return AccountService.getRoleNameFromRoleCode(role);
   };
 
+  $scope.removeOnBoard=function() {
+    AccountService.updateRoleAndTitle($scope.user.id, "CTZEN", null);
+    SettingsService.setAppSuccessMessage("Resident has been removed from board.");
+    $state.go("tab.neighbors");    
+  };
+
   $scope.appointOnBoard=function() {
     var hideSheet = $ionicActionSheet.show({
        buttons: [
@@ -787,7 +812,8 @@ angular.module('starter.controllers')
           } else if(index==4) { // Report spam
             AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Board Member");
           } 
-          $state.go("tab.neighbors")
+          SettingsService.setAppSuccessMessage("Resident has been appointed on board.");
+          $state.go("tab.neighbors");
           return true;
        }
      });
@@ -816,7 +842,6 @@ angular.module('starter.controllers')
     });
   };
 
-
 })
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
@@ -826,6 +851,9 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
+    if($scope.neighborList!=null && $scope.neighborList.length<2) {
+      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
+    }
     $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");

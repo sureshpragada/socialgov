@@ -34,7 +34,7 @@
         </ion-checkbox>                    
         <ion-item class="item-icon-left item-text-wrap" ng-if="openBalanceSheets.length!=2 && isAdmin && balanceSheet.get('status')=='OPEN'">
           <i class="icon ion-android-bulb calm"></i>    
-          Start next balance sheet to carry forward any balances when you close this balance sheet.        
+          Start next balance sheet to carry forward any balances when you close this balance sheet. 
         </ion-item>                                         
       </ion-list>
       <div class="padding" ng-if="isAdmin && balanceSheet.get('status')=='OPEN'  && !closeBalanceSheetInput.closeInitiated">

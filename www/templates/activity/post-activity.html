@@ -5,12 +5,12 @@
 		<div class="list">
 			<label class="item item-input item-select">
 			    <div class="input-label">
-			      Activity Type
+			      Activity
 			    </div>
 			    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities" ng-change="handleActivitySelection()">
 			    </select>
 			  </label>
-			<label class="item item-input item-select">
+			<label class="item item-input item-select" ng-hide="allowedRegions.length==1">
 			    <div class="input-label">
 			      Region
 			    </div>
