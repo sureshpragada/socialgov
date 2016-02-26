@@ -852,6 +852,7 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
+    // TODO :: Filter blocked users from the list
     if($scope.neighborList!=null && $scope.neighborList.length<2) {
       $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
     }
@@ -912,7 +913,9 @@ angular.module('starter.controllers')
       if($scope.inputUser.homeNo==null || $scope.inputUser.homeNo.length<=0) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
         return;
-      }       
+      } else {
+        $scope.inputUser.homeNo=$scope.inputUser.homeNo.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+      }
     }    
 
     AccountService.updateNeighborAccount($scope.inputUser, $scope.user).then(function(newUser) {
@@ -924,4 +927,46 @@ angular.module('starter.controllers')
   };
 })
 
+.controller('RegionSettingsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
+  $scope.user=Parse.User.current();  
+  $scope.appMessage=SettingsService.getAppMessage();  
+  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.settingsChanged=false;  
+
+  var regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);          
+  console.log("Region settings : " + JSON.stringify(regionSettings));
+  $scope.inputSettings={
+    reserveVisibility: regionSettings.reserveVisibility=="OPEN"?true:false,
+    activityModeration: regionSettings.activityModeration
+  };
+
+  $scope.saveSettings=function() {
+    RegionService.getRegion($scope.user.get("residency")).then(function(region) {
+      var currentRegionSettings=region.get("settings");
+      console.log("Current region settings : " + JSON.stringify(currentRegionSettings));
+
+      currentRegionSettings.activityModeration=$scope.inputSettings.activityModeration;
+      currentRegionSettings.reserveVisibility=$scope.inputSettings.reserveVisibility==true?"OPEN":"CLOSED";
+      region.set("settings", currentRegionSettings);
+
+      region.save().then(function(updatedRegion){
+        console.log("Update region settings : " + JSON.stringify(updatedRegion.get("settings")));
+        RegionService.updateRegion($scope.user.get("residency"), updatedRegion);
+        SettingsService.setAppSuccessMessage("Settings have been saved.");
+        $state.go("tab.region", {regionUniqueName: "native"});      
+      }, function(error){
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to save settings.");
+        console.log("Error updating region " + JSON.stringify(error));
+      });
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to find region to save settings.");
+      console.log("Error retrieving region " + JSON.stringify(error));
+    });    
+  };
+
+  $scope.notifySettingChanged=function() {
+    $scope.settingsChanged=true;
+  };
+
+})
 ;

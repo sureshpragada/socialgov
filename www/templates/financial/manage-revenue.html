@@ -1,4 +1,4 @@
-<ion-view view-title="Manage Revenue">
+<ion-view view-title="Add Revenue">
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
@@ -28,15 +28,12 @@
 			  <label class="item item-input">
 			    <textarea placeholder="Notes..." rows="5" ng-model="input.note"></textarea>
 			  </label>			
-			<div class="row">
-				<div class="col">
-					<!-- <a class="button button-block button-assertive" href="#/tab/revenue-list">Cancel</a>	 -->
-					<a class="button button-block button-assertive" ng-click="cancel()">Cancel</a>	
-				</div>
-				<div class="col">
-					<a class="button button-block button-calm" ng-click="addRevenue()">Add Revenue</a>	
-				</div>					
-			</div>
+			  <div class="padding">
+					<a class="button button-block button-balanced" ng-click="addRevenue()" ng-if="editRevenueRecord">Accept Payment</a>	
+					<a class="button button-block button-balanced" ng-click="addRevenue()" ng-if="!editRevenueRecord">Add Revenue</a>			
+					<a class="button button-block button-calm" ng-click="editPayment()" ng-if="editRevenueRecord">Adjust Amount</a>				  
+					<a class="button button-block button-assertive" ng-click="deletePayment()" ng-if="editRevenueRecord">Delete Payment</a>	
+			  </div>
 		</div>
 	</ion-content>
 </ion-view>

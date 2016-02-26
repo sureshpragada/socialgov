@@ -52,7 +52,7 @@
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Maintenance Dues
         <span class="item-note" ng-if="currentDues">{{currentDues.get('maintDues')  | number:2 | ourcurrency}}</span>
-        <span class="item-note assertive" ng-if="!currentDues">Setup</span>
+        <span class="item-note assertive" ng-if="!currentDues && isAdmin">Setup</span>
       </ion-item>      
 
 <!--       <ion-item class="item-icon-right" href="#/tab/expense-list">
@@ -63,7 +63,7 @@
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Revenue 
       </ion-item>             -->
-      <ion-item class="item-icon-right" href="#/tab/reserves-detail">
+      <ion-item class="item-icon-right" href="#/tab/reserves-detail" ng-if="regionSettings.reserveVisibility=='OPEN' || isAdmin">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Reserve Fund
         <span class="item-note">{{reserve | number:2 | ourcurrency}}</span>

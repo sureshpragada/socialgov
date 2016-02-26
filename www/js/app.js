@@ -228,6 +228,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.region-settings', {
+      url: '/region-settings/{regionUniqueName}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-settings.html',
+          controller: 'RegionSettingsCtrl'
+        }
+      }
+    })
+
     .state('tab.offices', {
       url: '/offices/{regionUniqueName}',
       cache: false,      

@@ -7,7 +7,7 @@
   <my-app-message info="appMessage"></my-app-message>  
   <my-app-message info="controllerMessage"></my-app-message>  
   	<ion-list>
-	    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="neighbor in neighborList" ng-if="neighbor.get('status')!='S'" href="#/tab/neighbor-detail/{{neighbor.id}}">
+	    <ion-item class="item-thumbnail-left item-icon-right" collection-repeat="neighbor in neighborList" href="#/tab/neighbor-detail/{{neighbor.id}}">
 	      <img ng-src="{{neighbor.get('images')[0]}}" ng-if="neighbor.get('images')">
 	      <img ng-src="img/avatar2.png" ng-if="!neighbor.get('images')">
 	      <h2>{{neighbor.get("firstName")}} {{neighbor.get("lastName")}}</h2>		

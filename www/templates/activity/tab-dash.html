@@ -1,5 +1,5 @@
 <ion-view view-title="Activity">
-  <ion-nav-buttons side="primary">
+  <ion-nav-buttons side="secondary">
     <a class="button button-icon icon ion-compose" href="#/tab/post" ng-if="user.get('status')!='S'"></a>
   </ion-nav-buttons>
   <ion-content class="visible-cards">
@@ -9,9 +9,9 @@
       <div class="item item-avatar item-icon-right">
         <img ng-src="{{activity.get('user').get('images')[0]}}" ng-if="activity.get('user').get('images')">
         <img src="img/avatar2.png" ng-if="!activity.get('user').get('images')">      
-        <a ng-click="openAdminActionSheet(activity.id, activityIndex, activity.get('status'))" ng-if="user.get('role')=='SUADM'"><i class="icon ion-navicon royal"></i></a>      
-        <a ng-click="openUserActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id==user.id && user.get('role')!='SUADM'"><i class="icon ion-navicon royal"></i></a>
-        <a ng-click="openActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id!=user.id && user.get('role')!='SUADM'"><i class="icon ion-navicon royal"></i></a>
+        <a ng-click="openAdminActionSheet(activity.id, activityIndex, activity.get('status'))" ng-if="isAdmin"><i class="icon ion-android-more-vertical royal"></i></a>      
+        <a ng-click="openUserActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id==user.id && !isAdmin"><i class="icon ion-android-more-vertical royal"></i></a>
+        <a ng-click="openActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id!=user.id && !isAdmin"><i class="icon ion-android-more-vertical royal"></i></a>
         <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
         <p ng-show="activity.get('activityType')=='NOTF'">{{activity.get("user").get("title")}}</p>
         <p ng-if="activity.get('user').get('homeNo')">Home # {{activity.get("user").get("homeNo")}}</p>
@@ -25,8 +25,11 @@
         </p>
         <p>{{activity.createdAt | date:'mediumDate'}}&nbsp;{{activity.createdAt | date:'shortTime'}}</p>        
         <p ng-if="activity.get('status')=='S'" >
-          <span class="assertive">* Content marked as spam</span>
+          <span class="assertive">* Activity marked as spam</span>
         </p>
+        <p ng-if="activity.get('status')=='P'" >
+          <span class="assertive">* Activity is visible to only board members.</span>
+        </p>        
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">
         <a class="tab-item" ng-click="respond(activity.id, 'support')">

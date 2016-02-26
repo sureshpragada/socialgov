@@ -1,25 +1,25 @@
 <ion-view view-title="Recover Invitation Code">
-	<ion-content>
+	<ion-content class="visible-cards">
 		<my-app-message info="appMessage"></my-app-message>		
 		<my-app-message info="controllerMessage"></my-app-message>
-		<div>
-			<label class="item item-input">
+		<div class="card">
+			<label class="item item-input item-stacked-label">
 			    <span class="input-label">
 			      First name
 			    </span>
-			    <input type="text" name="firstName"  ng-model="user.firstName">
+			    <input type="text" name="firstName"  ng-model="user.firstName" class="textAlignLeft">
 			  </label>
-			<label class="item item-input">
+			<label class="item item-input item-stacked-label">
 			    <span class="input-label">
 			      Last name
 			    </span>
-			    <input type="text" name="lastName" ng-model="user.lastName">
+			    <input type="text" name="lastName" ng-model="user.lastName" class="textAlignLeft">
 			</label>
-			 <label class="item item-input">
+			 <label class="item item-input item-stacked-label">
 			    <span class="input-label">
 			      Phone number
 			    </span>
-			    <input type="tel" name="phoneNum" ng-model="user.phoneNum" maxlength="10">
+			    <input type="tel" name="phoneNum" ng-model="user.phoneNum" maxlength="10" class="textAlignLeft">
 			  </label>			
 		</div>
 		<div class="padding">

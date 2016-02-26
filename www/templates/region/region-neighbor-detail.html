@@ -43,6 +43,13 @@
         </ion-item>      
     </div>    
 
+    <div class="card"  ng-if="isAdmin && user.get('status')=='P'">
+      <ion-item class="item-divider">Invitation Message</ion-item>
+      <ion-item class="item-text-wrap">
+        You have been invited to OurBlock. Use invitation code, <span style="font-weight: bold;">{{user.id}}</span> to login to the service. Download app at http://tinyurl.com/jb9tfnr        
+      </ion-item>                       
+    </div>    
+
     <div class="padding" ng-if="isAdmin && user">
       <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="user.get('role')!='LEGI'">
         Appoint on Board
@@ -50,9 +57,9 @@
       <button class="button button-assertive button-block" ng-click="removeOnBoard()" ng-if="user.get('role')=='LEGI'">
         Remove on Board
       </button>      
-      <button class="button button-royal button-block" ng-click="sendInvitationCode()">
+<!--       <button class="button button-royal button-block" ng-click="sendInvitationCode()">
         Re-Send Invitation Code
-      </button>      
+      </button>       -->
 <!--       <button class="button button-block button-assertive" ng-click="blockUser()">
         Block User
       </button>       -->

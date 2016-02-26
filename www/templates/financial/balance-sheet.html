@@ -1,7 +1,7 @@
 <ion-view view-title="Balance Sheet">
   <ion-content class="visible-cards">
   <my-app-message info="appMessage"></my-app-message>
-  <my-app-message info="controllerMessage"></my-app-message>
+  <my-app-message info="controllerMessage"></my-app-message>  
     <div class="card" ng-if="balanceSheet">
       <ion-list>
         <div class="item item-icon-left">
@@ -30,11 +30,14 @@
           <span class="item-note assertive">{{expenseTotal-revenueTotal | number:2 | ourcurrency}}</span>
         </ion-item>                
         <ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="closeBalanceSheetInput.carryForwardBalance" ng-if="openBalanceSheets.length==2 && closeBalanceSheetInput.closeInitiated && isAdmin && balanceSheet.get('status')=='OPEN'">
-          Do you want to carry forward <span style="font-weight: bold;">{{revenueTotal-expenseTotal | number:2 |  ourcurrency}}</span> as revenue item? 
+          Carry forward balance sheet balance of <span style="font-weight: bold;">{{revenueTotal-expenseTotal | number:2 |  ourcurrency}}</span> as revenue to next balance sheet 
         </ion-checkbox>                    
+        <ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="closeBalanceSheetInput.carryForwardHomeOwnerUnpaidBalance" ng-if="openBalanceSheets.length==2 && closeBalanceSheetInput.closeInitiated && isAdmin && balanceSheet.get('status')=='OPEN' && homeOwnerUnpaidPaymentList.length>0">
+          Carry forward <span style="font-weight: bold;">{{homeOwnerUnpaidPaymentList.length}}</span> unpaid home owner balances to next balance sheet 
+        </ion-checkbox>                            
         <ion-item class="item-icon-left item-text-wrap" ng-if="openBalanceSheets.length!=2 && isAdmin && balanceSheet.get('status')=='OPEN'">
           <i class="icon ion-android-bulb calm"></i>    
-          Start next balance sheet to carry forward any balances when you close this balance sheet. 
+          Start next balance sheet to carry forward any unpaid payments and balances when you close this balance sheet. 
         </ion-item>                                         
       </ion-list>
       <div class="padding" ng-if="isAdmin && balanceSheet.get('status')=='OPEN'  && !closeBalanceSheetInput.closeInitiated">
@@ -42,13 +45,13 @@
       </div>
       <div class="row" ng-if="closeBalanceSheetInput.closeInitiated">
         <div class="col">
-          <a class="button button-block button-outline button-small" ng-click="initiateCloseBalanceSheet(false)">Ignore</a>
+          <a class="button button-block button-small button-assertive" ng-click="initiateCloseBalanceSheet(false)">Ignore</a>
         </div>
         <div class="col" ng-if="openBalanceSheets.length==1">
           <a class="button button-block button-balanced button-small" href="#/tab/start-balance-sheet">Start Sheet</a>
         </div>
         <div class="col">
-          <a class="button button-block button-assertive button-small" ng-click="closeBalanceSheet()">Confirm</a>
+          <a class="button button-block button-calm button-small" ng-click="closeBalanceSheet()">Confirm</a>
         </div>                    
       </div>                
     </div>    

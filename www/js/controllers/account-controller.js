@@ -267,6 +267,7 @@ angular.module('starter.controllers')
     isCitizen: AccountService.isCitizen(),
     isLogoutAllowed: AccountService.isLogoutAllowed($scope.user)
   };
+  $scope.appVersion=APP_VERSION;
 
   $scope.appMessage=SettingsService.getAppMessage();  
 
@@ -391,7 +392,9 @@ angular.module('starter.controllers')
       if($scope.inputUser.homeNumber==null || $scope.inputUser.homeNumber.length<=0) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
         return;
-      }       
+      } else {
+        $scope.inputUser.homeNumber=$scope.inputUser.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+      }
     }    
 
     if($scope.inputUser.firstName==null || $scope.inputUser.lastName==null) {
@@ -412,6 +415,7 @@ angular.module('starter.controllers')
   console.log("Invitation login controller " + new Date().getTime());
   $scope.inputForm={invitationCode: null, terms: true};
   $scope.appMessage=SettingsService.getAppMessage();  
+  
   $scope.validateInvitationCode=function() {
     console.log("Validating invitation code");
     if($scope.inputForm.invitationCode!=null && $scope.inputForm.invitationCode.length>0) {
@@ -427,7 +431,7 @@ angular.module('starter.controllers')
   };
 
   $scope.recoverInvitationCode=function() {
-    SettingsService.setAppInfoMessage("Invitation code recovered will be SMS to your phone number.")
+    SettingsService.setAppInfoMessage("Invitation code will be SMS to your phone number.")
     $state.go("invite-recover");
   };  
 
@@ -551,7 +555,6 @@ angular.module('starter.controllers')
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));
 
   $scope.invite=function() {
-    console.log("invited " + JSON.stringify($scope.user));
     if($scope.user.firstName==null || $scope.user.firstName.trim().length<=0) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first name.");
       return;
@@ -567,24 +570,30 @@ angular.module('starter.controllers')
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
         return;
       } else {
-        $scope.user.homeNumber=$scope.user.homeNumber.toUpperCase();
+        // replace(/\s+/g, '')  -- Remove only spaces leaving - or anything   
+        $scope.user.homeNumber=$scope.user.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
       }
     }    
     
     if ($scope.user.phoneNum!=null) {
       var formattedPhone = $scope.user.phoneNum.replace(/[^0-9]/g, '');  
 
-      if(formattedPhone.length != 10) { 
-         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
-         return;
-      } else {
+      if(formattedPhone.length>=10 && formattedPhone.length<=12) { 
+        if(formattedPhone.length>10) {
+          formattedPhone=formattedPhone.substr(formattedPhone.length-10, 10);
+        } 
         $scope.user.phoneNum=formattedPhone;
+      } else {
+         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
+         return;        
       }
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
       return;
     }
       
+    console.log("Invited " + JSON.stringify($scope.user));
+
     // Create user
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation

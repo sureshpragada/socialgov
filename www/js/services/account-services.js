@@ -30,8 +30,7 @@ angular.module('account.services', [])
       } else {
         var userQuery = new Parse.Query(Parse.User);
         userQuery.equalTo("residency", regionUniqueName);
-        userQuery.descending("homeNo");
-        userQuery.ascending("createdAt");        
+        userQuery.ascending("homeNo");
         userQuery.find(function(residents) {
             residentCache.remove(regionUniqueName);
             residentCache.put(regionUniqueName, residents);          
@@ -96,8 +95,16 @@ angular.module('account.services', [])
     },    
     canUpdateRegion: function(){
       var user=Parse.User.current();
-      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
-        return true;
+      if(user!=null){
+        if(user.get("status")=="S") {
+          return false;
+        } else {
+          if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT" || user.get("role")=="LEGI") {
+            return true;
+          } else {
+          return false;
+          }
+        }
       }else{
         return false;
       }
@@ -345,9 +352,9 @@ angular.module('account.services', [])
           // if(user.get("status")=="P" || self.isLogoutAllowed(user)) {
             Parse.User.logIn(user.getUsername(), "custom", {
               success: function(authoritativeUser) {
-                deferred.resolve(authoritativeUser);
                 authoritativeUser.set("status", "A");
-                authoritativeUser.save();
+                authoritativeUser.save();                
+                deferred.resolve(authoritativeUser);
               }, error: function(error) {
                 deferred.reject(error);
               }
