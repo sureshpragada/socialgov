@@ -428,12 +428,18 @@ angular.module('account.services', [])
     setCommunityAddress:function(info){
       this.communityAddress=info;
     },
+    getCommunityAddress:function(){
+      return this.communityAddress;
+    },    
     setCommunityInfo:function(info){
       this.communityInfo=info;
     },
     setYourInfo:function(info){
       this.yourInfo=info;
     },
+    getYourInfo:function(){
+      return this.yourInfo;
+    },    
     createNewCommunity:function(){
       var Region = Parse.Object.extend("Region");
       var region = new Region();
@@ -450,18 +456,9 @@ angular.module('account.services', [])
       region.set("name",this.communityAddress.name);
       region.set("parentRegion",[]);
       region.set("serviceContectList",[]);
-      region.set("settings",{
-        "financialMgmt":"SELF",
-        "neighborPrivacy":false,
-        "supportHomeNumber":true,
-        "currencySymbol":"Rs",
-        "areaCode":"91",
-        "serviceContacts":"SELF",
-        "hoa":false,
-        "legislativeMgmt":"SELF"
-      });
+      region.set("settings",REGION_SETTINGS);
       region.set("type",REG_TOP_REGION_TYPES[0]);
-      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+communityAddress.city);
+      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+this.communityAddress.city);
       return region.save();
     },
     createNewCommunityAdmin:function(){
@@ -472,8 +469,6 @@ angular.module('account.services', [])
       user.set("firstName",this.yourInfo.firstName);
       user.set("lastName",this.yourInfo.lastName);
       user.set("homeNo",this.yourInfo.homeNo);
-      user.set("notifySetting",true);
-      user.set("phoneNum",true);
       user.set("notifySetting",true);
       user.set("phoneNum",this.yourInfo.phoneNum);
       user.set("residency",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+this.communityAddress.city);

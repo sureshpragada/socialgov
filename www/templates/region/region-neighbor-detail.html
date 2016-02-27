@@ -43,6 +43,7 @@
         </ion-item>      
     </div>    
 
+    <my-app-message info="copyStatusMessage"></my-app-message>
     <div class="card"  ng-if="isAdmin && user.get('status')=='P'">
       <ion-item class="item-divider">Invitation Message</ion-item>
       <ion-item class="item-text-wrap" on-hold="copyInvitationMessage()">

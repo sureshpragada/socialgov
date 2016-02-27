@@ -325,7 +325,7 @@ angular.module('starter.controllers')
   $scope.logout=function() {    
     Parse.User.logOut();
     $scope.user=null;
-    $state.go("ourblock-start");      
+    $state.go("home");      
   };
 
   $scope.notifySettingChanged=function(settingName, settingValue) {
@@ -608,6 +608,7 @@ angular.module('starter.controllers')
     }
     else{
       AccountService.setCommunityInfo($scope.communityInfo);
+      SettingsService.setAppInfoMessage("You will be setup with adminstrator privileges to build the community.");      
       $state.go("your-info");
     }
   };
@@ -618,36 +619,36 @@ angular.module('starter.controllers')
   
 })
 
-.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
-  
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService) {
+  $scope.appMessage=SettingsService.getAppMessage();
   $scope.user={};
   $scope.submit=function() {
     if($scope.user.firstName==null || $scope.user.lastName==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter firstname and lastname."); 
       return;
-    }
-    else if($scope.user.homeNo==null){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home no."); 
+    } else if($scope.user.homeNo==null){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home number."); 
      return; 
-    }
-    else if($scope.user.phoneNum==null || ($scope.user.phoneNum!=null && $scope.user.phoneNum.length!=10)){
+    } else if($scope.user.phoneNum==null || ($scope.user.phoneNum!=null && $scope.user.phoneNum.length!=10)){
      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid phone number."); 
      return; 
     }
     else{
       AccountService.setYourInfo($scope.user);
-      AccountService.createNewCommunity().then(function(data){
-        console.log("Successfully added community.");
-        console.log(JSON.stringify(data));
+      AccountService.createNewCommunity().then(function(regionData){
+        AccountService.createNewCommunityAdmin().then(function(userData){
+          RegionService.initializeRegionCache(regionData);
+          NotificationService.registerDevice();
+          SettingsService.setAppSuccessMessage("Community setup has been success.");
+          $state.go("tab.region");
+        },function(error){
+          regionData.destroy();
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
+          LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
+        });
       },function(error){
-        console.log("Error creating community.");
-      });
-      AccountService.createNewCommunityAdmin().then(function(data){
-        console.log(JSON.stringify(data));
-        console.log("Successfully added user.");
-        $state.go("tab.region");
-      },function(error){
-        console.log("Error creating user.");
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
+        LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
       });
     }
   };

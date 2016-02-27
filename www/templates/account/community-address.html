@@ -6,14 +6,14 @@
 				<span class="input-label">Community Name</span>
 				<input type="text" name="communityName" class="textAlignLeft" ng-model="communityAddress.name">
 			</label>
-			<div class="item item-divider">Address Line1</div>
-			<label class="item item-input" >
-			    <textarea placeholder="Address Line1..." rows="5" ng-model="communityAddress.addressLine1"></textarea>
-			</label>						
-			<div class="item item-divider">Address Line2</div>			
-			<label class="item item-input">
-			    <textarea placeholder="Address Line2..." rows="5" ng-model="communityAddress.addressLine2"></textarea>
-			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Address Line 1</span>
+				<input type="text" name="addressLine1" class="textAlignLeft" ng-model="communityAddress.addressLine1">
+			</label>			
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Address Line 2</span>
+				<input type="text" name="addressLine2" class="textAlignLeft" ng-model="communityAddress.addressLine2">
+			</label>			
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">City</span>
 				<input type="text" name="city" class="textAlignLeft" ng-model="communityAddress.city">
@@ -26,12 +26,10 @@
 				<span class="input-label">Pincode</span>
 				<input type="text" name="pinCode" class="textAlignLeft" ng-model="communityAddress.pinCode">
 			</label>
-			<div>
+			<div class="padding">
 		    	<button class="button button-block button-balanced" ng-click="next()">Next</button>
+		    	<button class="button button-block button-outline" ng-click="cancel()">Never mind</button>
 			</div>
-			<div>
-		    	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
-			</div>	
 		</div>
 	</ion-content>
 </ion-view>

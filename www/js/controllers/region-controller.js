@@ -763,7 +763,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard) {
+.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
@@ -827,9 +827,14 @@ angular.module('starter.controllers')
   $scope.copyInvitationMessage=function() {
     var invitationMessage="You have been invited to OurBlock. Use invitation code, " + $scope.user.id + " to login to the service. Download app at http://tinyurl.com/jb9tfnr";    
     $cordovaClipboard.copy(invitationMessage).then(function () {
-      console.log("Message copy successful");
+      console.log("Invitation message is copied " + new Date());
+      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Invitation message has been copied to clipboard.");
+      $interval(function(){
+        // $scope.copyStatusMessage=null;
+        console.log("Message being erased " + new Date());
+      }, 5, 1);
     }, function () {
-      console.log("Message copy failed");
+      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Unable to copy invitation message to clipboard.");
     });
   };
 
