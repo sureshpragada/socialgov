@@ -45,8 +45,8 @@
 
     <div class="card"  ng-if="isAdmin && user.get('status')=='P'">
       <ion-item class="item-divider">Invitation Message</ion-item>
-      <ion-item class="item-text-wrap">
-        You have been invited to OurBlock. Use invitation code, <span style="font-weight: bold;">{{user.id}}</span> to login to the service. Download app at http://tinyurl.com/jb9tfnr        
+      <ion-item class="item-text-wrap" on-hold="copyInvitationMessage()">
+        You have been invited to OurBlock. Use invitation code, <span style="font-weight: bold;">{{user.id}}</span> to login to the service. Download app at http://tinyurl.com/jb9tfnr              
       </ion-item>                       
     </div>    
 

@@ -289,7 +289,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $cordovaDialogs.confirm('Do you want to enable this post to everyone in community?', 'Activation Confirmation', ['Yes, Enable','Cancel'])
     .then(function(buttonIndex) {      
       if(buttonIndex==1) {
-        $scope.activities[index]=ActivityService.enableActivityToPublic($scope.activities[index]);
+        ActivityService.enableActivityToPublic($scope.activities[index]);
+        NotificationService.pushNotification($scope.activities[index].get("regionUniqueName"), $scope.activities[index].get("notifyMessage"));              
       } else {
         console.log("Canceled enabling activity to enire community");
       }
@@ -563,19 +564,19 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         var activity = new Activity();
         activity.save($scope.post, {
           success: function(activity) {
-            // Send the push notification
-            NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);
-            $ionicLoading.hide();          
             // Push the new activity to the top of activity chart, probably through Activity service
             if($scope.regionSettings.activityModeration==true) {
+              // Send notification only board members
+              AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
             } else {
+              // Send the push notification to everyone in community
+              NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted.");            
             }            
-            $scope.$apply(function(){
-              PictureManagerService.reset();
-              $state.go("tab.dash");  
-            });
+            $ionicLoading.hide();                      
+            PictureManagerService.reset();
+            $state.go("tab.dash");  
           },
           error: function(activity, error) {
             console.log("Error in posting message " + error.message);

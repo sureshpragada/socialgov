@@ -167,6 +167,28 @@ angular.module('account.services', [])
         }
       });    
     },
+    sendNotificationToBoard: function(message) {
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.containedIn("role", ["SUADM", "JNLST", "SOACT", "LEGI"]);
+      userQuery.equalTo("residency", Parse.User.current().get("residency"));
+      // userQuery.descending("role");
+      userQuery.find({
+        success: function(authoritativeUsers) {
+          if(authoritativeUsers!=null & authoritativeUsers.length>0){
+            var userList=[];
+            for(var i=0;i<authoritativeUsers.length;i++){
+              userList.push(authoritativeUsers[i].id);              
+            }
+            // console.log("User list to notify : " + JSON.stringify(userList));
+            NotificationService.pushNotificationToUserList(userList, message);    
+          } else {
+            LogService.log({type:"ERROR", message: "No admin found to report spam"}); 
+          }          
+        }, error: function(err) {
+          LogService.log({type:"ERROR", message: "Error while finding admins " + JSON.stringify(err) + " Message : " + message}); 
+        }
+      });    
+    },    
     flagUserAbusive: function(userId) {
       Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'status', userObjectValue: 'S' }, {
         success: function(status) {

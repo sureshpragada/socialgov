@@ -763,13 +763,13 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout) {
+.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
-    $scope.user=neighbor;
+    $scope.user=neighbor;        
     $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
     $scope.$apply();
   }, function(error) {
@@ -824,6 +824,14 @@ angular.module('starter.controllers')
        }, 5000);
   };
 
+  $scope.copyInvitationMessage=function() {
+    var invitationMessage="You have been invited to OurBlock. Use invitation code, " + $scope.user.id + " to login to the service. Download app at http://tinyurl.com/jb9tfnr";    
+    $cordovaClipboard.copy(invitationMessage).then(function () {
+      console.log("Message copy successful");
+    }, function () {
+      console.log("Message copy failed");
+    });
+  };
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");

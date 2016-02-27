@@ -3,7 +3,7 @@
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
 	        <ion-toggle class="toggle-assertive" ng-model="input.category">
-	          Home Owner Payment
+	          Maintenance Payment
 	        </ion-toggle>          
 			<label class="item item-input item-select" ng-if="input.category && availableHomes">
 			    <div class="input-label">Home Number</div>
@@ -33,6 +33,7 @@
 					<a class="button button-block button-balanced" ng-click="addRevenue()" ng-if="!editRevenueRecord">Add Revenue</a>			
 					<a class="button button-block button-calm" ng-click="editPayment()" ng-if="editRevenueRecord">Adjust Amount</a>				  
 					<a class="button button-block button-assertive" ng-click="deletePayment()" ng-if="editRevenueRecord">Delete Payment</a>	
+					<a class="button button-block button-assertive button-outline" ng-click="deletePayment()">Never mind</
 			  </div>
 		</div>
 	</ion-content>
