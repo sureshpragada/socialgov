@@ -92,7 +92,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         var user=Parse.User.current();
         if(user==null || !user.authenticated()) {
           console.log("User is not authenticated");
-          $state.go("invite-login");
+          $state.go("home");
         }
       }
     })
@@ -724,6 +724,34 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       url: '/invite-login',
       templateUrl: 'templates/account/invite-login.html',
       controller: 'InvitationLoginCtrl',
+      cache: false
+    })
+
+    .state('home', {
+      url: '/home',
+      templateUrl: 'templates/account/home.html',
+      controller: 'HomeCtrl',
+      cache: false
+    })
+
+    .state('community-address', {
+      url: '/community-address',
+      templateUrl: 'templates/account/community-address.html',
+      controller: 'CommunityAddressCtrl',
+      cache: false
+    })
+
+    .state('community-info', {
+      url: '/community-info',
+      templateUrl: 'templates/account/community-info.html',
+      controller: 'CommunityInfoCtrl',
+      cache: false
+    })
+
+    .state('your-info', {
+      url: '/your-info',
+      templateUrl: 'templates/account/your-info.html',
+      controller: 'YourInfoCtrl',
       cache: false
     })
 
