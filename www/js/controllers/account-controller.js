@@ -325,7 +325,7 @@ angular.module('starter.controllers')
   $scope.logout=function() {    
     Parse.User.logOut();
     $scope.user=null;
-    $state.go("invite-login");      
+    $state.go("ourblock-start");      
   };
 
   $scope.notifySettingChanged=function(settingName, settingValue) {
@@ -545,6 +545,117 @@ angular.module('starter.controllers')
 
 })
 
+
+.controller('HomeCtrl', function($scope, $stateParams, $state, AccountService) {
+  
+  $scope.setUpCommunity=function() {
+    $state.go("community-address");
+  };
+
+  $scope.haveInvitationCode=function() {
+    $state.go("invite-login");
+  };
+})
+
+.controller('CommunityAddressCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
+  
+  $scope.communityAddress={};
+  $scope.next=function() {
+    if($scope.communityAddress.name == null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
+      return; 
+    }
+    else if($scope.communityAddress.addressLine1==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter address."); 
+      return; 
+    }
+    else if($scope.communityAddress.city==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your city."); 
+      return;  
+    }
+    else if($scope.communityAddress.state==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your state."); 
+      return;  
+    }
+    else if($scope.communityAddress.pinCode==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your pincode."); 
+      return;  
+    }
+    else{
+      AccountService.setCommunityAddress($scope.communityAddress);
+      $state.go("community-info");
+
+    }
+  };
+
+  $scope.cancel=function() {
+    $state.go("home");
+  };
+  
+})
+
+.controller('CommunityInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
+  
+  $scope.communityInfo={};
+  $scope.next=function() {
+    if($scope.communityInfo.year==null || ($scope.communityInfo.year!=null && $scope.communityInfo.year.length!=4) ){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid establishment year."); 
+      return;  
+    }
+    else if($scope.communityInfo.noOfUnits==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter no of units."); 
+      return; 
+    }
+    else{
+      AccountService.setCommunityInfo($scope.communityInfo);
+      $state.go("your-info");
+    }
+  };
+
+  $scope.cancel=function() {
+    $state.go("community-address");
+  };
+  
+})
+
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
+  
+  $scope.user={};
+  $scope.submit=function() {
+    if($scope.user.firstName==null || $scope.user.lastName==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter firstname and lastname."); 
+      return;
+    }
+    else if($scope.user.homeNo==null){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home no."); 
+     return; 
+    }
+    else if($scope.user.phoneNum==null || ($scope.user.phoneNum!=null && $scope.user.phoneNum.length!=10)){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid phone number."); 
+     return; 
+    }
+    else{
+      AccountService.setYourInfo($scope.user);
+      AccountService.createNewCommunity().then(function(data){
+        console.log("Successfully added community.");
+        console.log(JSON.stringify(data));
+      },function(error){
+        console.log("Error creating community.");
+      });
+      AccountService.createNewCommunityAdmin().then(function(data){
+        console.log(JSON.stringify(data));
+        console.log("Successfully added user.");
+        $state.go("tab.region");
+      },function(error){
+        console.log("Error creating user.");
+      });
+    }
+  };
+
+  $scope.cancel=function() {
+    $state.go("community-info");
+  };
+})
 
 .controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Invite citizen controller");

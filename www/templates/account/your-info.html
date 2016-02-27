@@ -1,0 +1,31 @@
+<ion-view view-title="Personal Details">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">		
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">First Name</span>
+				<input type="text" name="firstName" class="textAlignLeft" ng-model="user.firstName">
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Last Name</span>
+				<input type="text" name="lastName" class="textAlignLeft" ng-model="user.lastName">
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Home No</span>
+				<input type="text" name="homeNo" class="textAlignLeft" ng-model="user.homeNo">
+			</label>									
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Phone Number</span>
+				<input type="tel" name="phoneNum" class="textAlignLeft" ng-model="user.phoneNum">
+			</label>
+			<div>
+		    	<button class="button button-block button-balanced" ng-click="submit()">submit</button>
+			</div>
+			<div>
+		    	<button class="button button-block button-assertive" ng-click="cancel()">cancel</button>
+			</div>	
+		</div>
+	</ion-content>
+</ion-view>
+
+

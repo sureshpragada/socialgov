@@ -4,6 +4,9 @@ angular.module('account.services', [])
   var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
   var userLastRefreshTimeStamp=null; //new Date().getTime();
   var accessRequestCache;
+  var communityAddress={};
+  var communityInfo={};
+  var yourInfo={};
   if (!CacheFactory.get('accessRequestCache')) {
     accessRequestCache = CacheFactory('accessRequestCache', {
       maxAge: 1 * 60 * 60 * 1000, // 1 Hour
@@ -421,6 +424,70 @@ angular.module('account.services', [])
         deferred.reject(error);
       });
       return deferred.promise;  
+    },
+    setCommunityAddress:function(info){
+      this.communityAddress=info;
+    },
+    setCommunityInfo:function(info){
+      this.communityInfo=info;
+    },
+    setYourInfo:function(info){
+      this.yourInfo=info;
+    },
+    createNewCommunity:function(){
+      var Region = Parse.Object.extend("Region");
+      var region = new Region();
+      var demography = {"units":this.communityInfo.noOfUnits, "est":this.communityInfo.year}
+      var address = {"addressLine1":this.communityAddress.addressLine1, 
+        "addressLine2":this.communityAddress.addressLine2,
+        "city":this.communityAddress.city,
+        "state":this.communityAddress.state,
+        "pincode":this.communityAddress.pinCode
+      }
+      region.set("demography",demography);
+      region.set("execOffAddrList",[]);
+      region.set("legiRepList",[]);
+      region.set("name",this.communityAddress.name);
+      region.set("parentRegion",[]);
+      region.set("serviceContectList",[]);
+      region.set("settings",{
+        "financialMgmt":"SELF",
+        "neighborPrivacy":false,
+        "supportHomeNumber":true,
+        "currencySymbol":"Rs",
+        "areaCode":"91",
+        "serviceContacts":"SELF",
+        "hoa":false,
+        "legislativeMgmt":"SELF"
+      });
+      region.set("type",REG_TOP_REGION_TYPES[0]);
+      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+communityAddress.city);
+      return region.save();
+    },
+    createNewCommunityAdmin:function(){
+      var user=new Parse.User();
+      user.set("username","91"+this.yourInfo.phoneNum);
+      user.set("password","custom");
+      user.set("countryCode","91");
+      user.set("firstName",this.yourInfo.firstName);
+      user.set("lastName",this.yourInfo.lastName);
+      user.set("homeNo",this.yourInfo.homeNo);
+      user.set("notifySetting",true);
+      user.set("phoneNum",true);
+      user.set("notifySetting",true);
+      user.set("phoneNum",this.yourInfo.phoneNum);
+      user.set("residency",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+this.communityAddress.city);
+      user.set("role","SUADM");
+      user.set("status","A");
+      return user.signUp();
+    },
+    convertToLowerAndAppendUndScore:function(inputString){
+      var resultString="";
+      var splitInput=inputString.toLowerCase().split(" ");
+      for(var i=0; i < splitInput.length; i++){
+        resultString+=splitInput[i]+"_";
+      }
+      return resultString;
     }
   };
 }]);
