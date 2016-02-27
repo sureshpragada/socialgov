@@ -1,0 +1,39 @@
+<ion-view view-title="Community Address">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">		
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Community Name</span>
+				<input type="text" name="communityName" class="textAlignLeft" ng-model="communityAddress.name">
+			</label>
+			<div class="item item-divider">Address Line1</div>
+			<label class="item item-input" >
+			    <textarea placeholder="Address Line1..." rows="5" ng-model="communityAddress.addressLine1"></textarea>
+			</label>						
+			<div class="item item-divider">Address Line2</div>			
+			<label class="item item-input">
+			    <textarea placeholder="Address Line2..." rows="5" ng-model="communityAddress.addressLine2"></textarea>
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">City</span>
+				<input type="text" name="city" class="textAlignLeft" ng-model="communityAddress.city">
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">State</span>
+				<input type="text" name="state" class="textAlignLeft" ng-model="communityAddress.state">
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Pincode</span>
+				<input type="text" name="pinCode" class="textAlignLeft" ng-model="communityAddress.pinCode">
+			</label>
+			<div>
+		    	<button class="button button-block button-balanced" ng-click="next()">Next</button>
+			</div>
+			<div>
+		    	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+			</div>	
+		</div>
+	</ion-content>
+</ion-view>
+
+
