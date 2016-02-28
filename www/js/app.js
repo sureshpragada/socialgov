@@ -371,6 +371,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })                     
 
+    .state('tab.upload-neighbors', {
+      url: '/upload-neighbors',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/upload-neighbors.html',
+          controller: 'UploadNeighborsCtrl'
+        }
+      }
+    })                 
+
     .state('tab.financial', {
       url: '/financial',
       cache: false,
@@ -749,21 +760,21 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       url: '/community-address',
       templateUrl: 'templates/account/community-address.html',
       controller: 'CommunityAddressCtrl',
-      cache: false
+      cache: true
     })
 
     .state('community-info', {
       url: '/community-info',
       templateUrl: 'templates/account/community-info.html',
       controller: 'CommunityInfoCtrl',
-      cache: false
+      cache: true
     })
 
     .state('your-info', {
       url: '/your-info',
       templateUrl: 'templates/account/your-info.html',
       controller: 'YourInfoCtrl',
-      cache: false
+      cache: true
     })
 
     .state('invite-recover', {

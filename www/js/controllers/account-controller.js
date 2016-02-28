@@ -401,7 +401,7 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
     } else {
       AccountService.updateAccount($scope.inputUser).then(function(newUser) {
-        SettingsService.setAppSuccessMessage("Account update is successfull.");
+        SettingsService.setAppSuccessMessage("Account update is successful.");
         $state.go("tab.account");
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update your account.");  

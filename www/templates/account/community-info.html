@@ -4,11 +4,11 @@
 		<div class="list">		
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">Total units in community</span>
-				<input type="text" name="noOfUnits" class="textAlignLeft"  ng-model="communityInfo.noOfUnits">
+				<input type="number" name="noOfUnits" class="textAlignLeft"  ng-model="communityInfo.noOfUnits">
 			</label>		
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">Established Year</span>
-				<input type="text" name="year" class="textAlignLeft"  ng-model="communityInfo.year">
+				<input type="number" name="year" class="textAlignLeft"  ng-model="communityInfo.year">
 			</label>
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">Builder name</span>
@@ -16,7 +16,7 @@
 			</label>			
 			<div class="padding">
 		    	<button class="button button-block button-balanced" ng-click="next()">Next</button>
-		    	<button class="button button-block button-royal" ng-click="cancel()">Previous</button>		    	
+<!-- 		    	<button class="button button-block button-royal" ng-click="cancel()">Previous</button>		    	 -->
 			</div>
 		</div>
 	</ion-content>

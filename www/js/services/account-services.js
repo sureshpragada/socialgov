@@ -3,10 +3,11 @@ angular.module('account.services', [])
 .factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, $q) {
   var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
   var userLastRefreshTimeStamp=null; //new Date().getTime();
-  var accessRequestCache;
   var communityAddress={};
   var communityInfo={};
   var yourInfo={};
+
+  var accessRequestCache;  
   if (!CacheFactory.get('accessRequestCache')) {
     accessRequestCache = CacheFactory('accessRequestCache', {
       maxAge: 1 * 60 * 60 * 1000, // 1 Hour
@@ -48,6 +49,9 @@ angular.module('account.services', [])
       }
       return deferred.promise;
     },        
+    refreshResidentCache: function(regionName) {
+      residentCache.remove(regionName);
+    },
     getRolesAllowedToChange: function() {
       return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
     },    

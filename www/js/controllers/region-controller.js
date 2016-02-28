@@ -10,6 +10,7 @@ angular.module('starter.controllers')
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  
+  $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
 
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
@@ -827,12 +828,10 @@ angular.module('starter.controllers')
   $scope.copyInvitationMessage=function() {
     var invitationMessage="You have been invited to OurBlock. Use invitation code, " + $scope.user.id + " to login to the service. Download app at http://tinyurl.com/jb9tfnr";    
     $cordovaClipboard.copy(invitationMessage).then(function () {
-      console.log("Invitation message is copied " + new Date());
       $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Invitation message has been copied to clipboard.");
       $interval(function(){
-        // $scope.copyStatusMessage=null;
-        console.log("Message being erased " + new Date());
-      }, 5, 1);
+        $scope.copyStatusMessage=null;
+      }, 5000, 1);
     }, function () {
       $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Unable to copy invitation message to clipboard.");
     });
@@ -841,7 +840,7 @@ angular.module('starter.controllers')
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
     NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"));              
-    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Sent invitation code to neighbor");
+    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");
   };
 
   $scope.blockUser=function() {
@@ -982,4 +981,62 @@ angular.module('starter.controllers')
   };
 
 })
+
+.controller('UploadNeighborsCtrl', function($scope, $stateParams, $q, AccountService, RegionService, $state, SettingsService, LogService) {
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.input={
+    neighborData: null
+  };
+
+  $scope.submit=function(){
+    if($scope.input.regionName==null || $scope.input.regionName.length<1){      
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter region unique name.");
+      return;
+    }
+
+    if($scope.input.neighborData!=null && $scope.input.neighborData.length>0){      
+      var neighborLines = $scope.input.neighborData.split('\n');
+      var userPromises=[];
+      for(var i=0; i < neighborLines.length; i++){
+        var neighborLine = neighborLines[i].split(',');
+        console.log(JSON.stringify(neighborLine));
+
+        var newUser=new Parse.User();
+        newUser.set("username", "91"+neighborLine[3]);
+        newUser.set("password", "custom");
+        newUser.set("residency", $scope.input.regionName);
+        newUser.set("firstName", neighborLine[1].length>0?neighborLine[1]:neighborLine[0]);
+        newUser.set("lastName", neighborLine[2].length>0?neighborLine[2]:neighborLine[0]);
+        newUser.set("phoneNum", neighborLine[3]);
+        newUser.set("countryCode", "91");
+        newUser.set("role", "CTZEN");
+        newUser.set("notifySetting", true);
+        newUser.set("deviceReg", "N");
+        newUser.set("homeOwner", true);
+        newUser.set("homeNo", neighborLine[0]);
+        newUser.set("status", "P");
+        userPromises.push(newUser.save());
+      }
+      $q.all(userPromises).then(function(results){
+        SettingsService.setAppSuccessMessage("Upload of neighbor data is successful.");
+        AccountService.refreshResidentCache($scope.input.regionName);
+        $state.go("tab.region", {regionUniqueName: "native"});          
+      },function(error){
+        // console.log("Error creating users " + JSON.stringify(error));
+        SettingsService.setAppInfoMessage("Upload of neighbor data is partially failed. Please check neighbors and then adjust the data. " + JSON.stringify(error));
+        AccountService.refreshResidentCache($scope.input.regionName);
+        $state.go("tab.region", {regionUniqueName: "native"});                    
+      });
+    }
+    else{
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter neighbor information in comma separated format");
+    }
+  };
+
+  $scope.cancel=function(){
+    $state.go("tab.region",{regionUniqueName: "native"});          
+  };
+
+})
+
 ;
