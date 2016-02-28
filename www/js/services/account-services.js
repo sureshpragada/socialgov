@@ -3,10 +3,11 @@ angular.module('account.services', [])
 .factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, $q) {
   var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
   var userLastRefreshTimeStamp=null; //new Date().getTime();
-  var accessRequestCache;
   var communityAddress={};
   var communityInfo={};
   var yourInfo={};
+
+  var accessRequestCache;  
   if (!CacheFactory.get('accessRequestCache')) {
     accessRequestCache = CacheFactory('accessRequestCache', {
       maxAge: 1 * 60 * 60 * 1000, // 1 Hour
@@ -33,14 +34,15 @@ angular.module('account.services', [])
       } else {
         var userQuery = new Parse.Query(Parse.User);
         userQuery.equalTo("residency", regionUniqueName);
-        userQuery.descending("homeNo");
-        userQuery.ascending("createdAt");        
+        userQuery.ascending("homeNo");
         userQuery.find(function(residents) {
             residentCache.remove(regionUniqueName);
             residentCache.put(regionUniqueName, residents);          
+            console.log("Caching resident count " + residents!=null?residents.length:-1);
             deferred.resolve(residents);
           }, function(error) {
             if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              console.log("Returning cached residents");
               deferred.resolve(residentCache.get(regionUniqueName));  
             } else {
               deferred.reject(error);
@@ -49,6 +51,9 @@ angular.module('account.services', [])
       }
       return deferred.promise;
     },        
+    refreshResidentCache: function(regionName) {
+      residentCache.remove(regionName);
+    },
     getRolesAllowedToChange: function() {
       return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
     },    
@@ -99,8 +104,16 @@ angular.module('account.services', [])
     },    
     canUpdateRegion: function(){
       var user=Parse.User.current();
-      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
-        return true;
+      if(user!=null){
+        if(user.get("status")=="S") {
+          return false;
+        } else {
+          if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT" || user.get("role")=="LEGI") {
+            return true;
+          } else {
+          return false;
+          }
+        }
       }else{
         return false;
       }
@@ -163,6 +176,28 @@ angular.module('account.services', [])
         }
       });    
     },
+    sendNotificationToBoard: function(message) {
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.containedIn("role", ["SUADM", "JNLST", "SOACT", "LEGI"]);
+      userQuery.equalTo("residency", Parse.User.current().get("residency"));
+      // userQuery.descending("role");
+      userQuery.find({
+        success: function(authoritativeUsers) {
+          if(authoritativeUsers!=null & authoritativeUsers.length>0){
+            var userList=[];
+            for(var i=0;i<authoritativeUsers.length;i++){
+              userList.push(authoritativeUsers[i].id);              
+            }
+            // console.log("User list to notify : " + JSON.stringify(userList));
+            NotificationService.pushNotificationToUserList(userList, message);    
+          } else {
+            LogService.log({type:"ERROR", message: "No admin found to report spam"}); 
+          }          
+        }, error: function(err) {
+          LogService.log({type:"ERROR", message: "Error while finding admins " + JSON.stringify(err) + " Message : " + message}); 
+        }
+      });    
+    },    
     flagUserAbusive: function(userId) {
       Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'status', userObjectValue: 'S' }, {
         success: function(status) {
@@ -348,9 +383,9 @@ angular.module('account.services', [])
           // if(user.get("status")=="P" || self.isLogoutAllowed(user)) {
             Parse.User.logIn(user.getUsername(), "custom", {
               success: function(authoritativeUser) {
-                deferred.resolve(authoritativeUser);
                 authoritativeUser.set("status", "A");
-                authoritativeUser.save();
+                authoritativeUser.save();                
+                deferred.resolve(authoritativeUser);
               }, error: function(error) {
                 deferred.reject(error);
               }
@@ -382,21 +417,37 @@ angular.module('account.services', [])
       });
     },
     getSelfLegisContacts:function(residency) {
-      // TODO :: Read this from cache
-      var query = new Parse.Query(Parse.User);
-      query.equalTo("residency",residency);
-      query.equalTo("role","LEGI");
-      return query.find();
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(residency).then(function(neighborList) {
+        var residentList=[];
+        if(neighborList!=null) {
+          for(var i=0;i<neighborList.length;i++) {
+            if(neighborList[i].get("role")=="LEGI") {
+              residentList.push(neighborList[i]);
+            }
+          }
+        }
+        deferred.resolve(residentList);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;  
     },
     setCommunityAddress:function(info){
       this.communityAddress=info;
     },
+    getCommunityAddress:function(){
+      return this.communityAddress;
+    },    
     setCommunityInfo:function(info){
       this.communityInfo=info;
     },
     setYourInfo:function(info){
       this.yourInfo=info;
     },
+    getYourInfo:function(){
+      return this.yourInfo;
+    },    
     createNewCommunity:function(){
       var Region = Parse.Object.extend("Region");
       var region = new Region();
@@ -413,18 +464,9 @@ angular.module('account.services', [])
       region.set("name",this.communityAddress.name);
       region.set("parentRegion",[]);
       region.set("serviceContectList",[]);
-      region.set("settings",{
-        "financialMgmt":"SELF",
-        "neighborPrivacy":false,
-        "supportHomeNumber":true,
-        "currencySymbol":"Rs",
-        "areaCode":"91",
-        "serviceContacts":"SELF",
-        "hoa":false,
-        "legislativeMgmt":"SELF"
-      });
+      region.set("settings",REGION_SETTINGS);
       region.set("type",REG_TOP_REGION_TYPES[0]);
-      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+communityAddress.city);
+      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+this.communityAddress.city);
       return region.save();
     },
     createNewCommunityAdmin:function(){
@@ -435,8 +477,6 @@ angular.module('account.services', [])
       user.set("firstName",this.yourInfo.firstName);
       user.set("lastName",this.yourInfo.lastName);
       user.set("homeNo",this.yourInfo.homeNo);
-      user.set("notifySetting",true);
-      user.set("phoneNum",true);
       user.set("notifySetting",true);
       user.set("phoneNum",this.yourInfo.phoneNum);
       user.set("residency",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+this.communityAddress.city);
