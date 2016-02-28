@@ -565,27 +565,24 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
       return; 
     }
-    else if($scope.communityAddress.addressLine1==null){
+    if($scope.communityAddress.addressLine1==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter address."); 
       return; 
     }
-    else if($scope.communityAddress.city==null){
+    if($scope.communityAddress.city==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your city."); 
       return;  
     }
-    else if($scope.communityAddress.state==null){
+    if($scope.communityAddress.state==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your state."); 
       return;  
     }
-    else if($scope.communityAddress.pinCode==null){
+    if($scope.communityAddress.pinCode==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your pincode."); 
       return;  
     }
-    else{
-      AccountService.setCommunityAddress($scope.communityAddress);
-      $state.go("community-info");
-
-    }
+    AccountService.setCommunityAddress($scope.communityAddress);
+    $state.go("community-info");
   };
 
   $scope.cancel=function() {
@@ -597,20 +594,25 @@ angular.module('starter.controllers')
 .controller('CommunityInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
   
   $scope.communityInfo={};
+
   $scope.next=function() {
-    if($scope.communityInfo.year==null || ($scope.communityInfo.year!=null && $scope.communityInfo.year.length!=4) ){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid establishment year."); 
-      return;  
-    }
-    else if($scope.communityInfo.noOfUnits==null){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter no of units."); 
+    console.log(JSON.stringify($scope.communityInfo));
+    if($scope.communityInfo.noOfUnits==null || $scope.communityInfo.noOfUnits.length<1){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter number of homes in your community."); 
+      console.log("Checking no of units");
       return; 
     }
-    else{
-      AccountService.setCommunityInfo($scope.communityInfo);
-      SettingsService.setAppInfoMessage("You will be setup with adminstrator privileges to build the community.");      
-      $state.go("your-info");
+
+    if($scope.communityInfo.year==null || $scope.communityInfo.year<1500) {      // Since HTML defines this field as number, we cant do length
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid establishment year."); 
+      console.log("Checking year " + JSON.stringify($scope.communityInfo.year));
+      return;  
     }
+    
+    AccountService.setCommunityInfo($scope.communityInfo);
+    SettingsService.setAppInfoMessage("You will be setup with adminstrator privileges to build the community.");      
+    $state.go("your-info");
+
   };
 
   $scope.cancel=function() {
@@ -619,7 +621,7 @@ angular.module('starter.controllers')
   
 })
 
-.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService) {
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.user={};
   $scope.submit=function() {
@@ -634,20 +636,27 @@ angular.module('starter.controllers')
      return; 
     }
     else{
+      $ionicLoading.show({
+        template: "<p class='item-icon-left'>Registering up your community...<ion-spinner/></p>"
+      });
       AccountService.setYourInfo($scope.user);
       AccountService.createNewCommunity().then(function(regionData){
         AccountService.createNewCommunityAdmin().then(function(userData){
-          RegionService.initializeRegionCache(regionData);
+          RegionService.initializeRegionCache(regionData);          
           NotificationService.registerDevice();
-          SettingsService.setAppSuccessMessage("Community setup has been success.");
+          ActivityService.postWelcomeActivity(regionData, userData);          
+          SettingsService.setAppSuccessMessage("Community has been registered.");
+          $ionicLoading.hide();
           $state.go("tab.region");
         },function(error){
           regionData.destroy();
           $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
+          $ionicLoading.hide();
           LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
         });
       },function(error){
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
+        $ionicLoading.hide();
         LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
       });
     }

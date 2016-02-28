@@ -6,7 +6,7 @@
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
     <ion-list ng-if="!controllerMessage">
-      <div class="item item-image">
+      <div class="item item-image" ng-if="region.get('thumbnail')">
         <img ng-src="{{region.get('thumbnail')}}">
       </div> 
       <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">

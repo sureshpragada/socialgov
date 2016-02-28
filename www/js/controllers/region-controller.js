@@ -44,13 +44,13 @@ angular.module('starter.controllers')
           $scope.personalServiceContacts=personalServiceContacts;
         } else {
           console.log("No service contacts have been found.");
-          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service contact recommendations are not made by your neighbors yet.");
+          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service recommendations are not made by your neighbors.");
         }
       });
     },
     error: function(serviceContact, error) {
       console.log("Error retrieving service contacts " + error.message);
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community service contact recommendations.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community service recommendations.");
     }
   });          
 

@@ -4,6 +4,7 @@
   </ion-nav-buttons>
   <ion-content class="visible-cards">
     <my-app-message info="appMessage"></my-app-message>
+    <my-app-message info="tipMessage"></my-app-message>    
     <my-app-message info="activityError"></my-app-message>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError" ng-init="activityIndex = $index">
       <div class="item item-avatar item-icon-right">

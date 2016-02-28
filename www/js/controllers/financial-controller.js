@@ -650,14 +650,17 @@ angular.module('starter.controllers')
   });
   FinancialService.getBalanceSheets(Parse.User.current().get("residency")).then(function(availableBalanceSheets) {
     $scope.balanceSheetList=availableBalanceSheets;            
-    if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>0) {
+    if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>=0) {
       $scope.openBalanceSheetList=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets($scope.balanceSheetList);
       if($scope.openBalanceSheetList.length==0) {
-        $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start tracking your revenue and expenses by opening balance sheet.");
+        $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Track your revenue and expenses by starting a new balance sheet.");
       } else if($scope.openBalanceSheetList.length==2 && $scope.isAdmin) {
         $scope.controllerMessage=SettingsService.getControllerInfoMessage("Two balance sheets are allowed to be open at any time.");      
       }
-    }
+    } 
+    // else if($scope.balanceSheetList!=null && $scope.balanceSheetList.length==0) {
+    //     $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start tracking your revenue and expenses by opening balance sheet.");
+    // }
     $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to load balance sheets");

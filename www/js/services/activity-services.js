@@ -30,6 +30,24 @@ angular.module('activity.services', [])
       userActivityQuery.equalTo("user", Parse.User.current());
       return userActivityQuery.find();
     },
+    postActivity: function(post) {
+      var Activity = Parse.Object.extend("Activity");
+      var activity = new Activity();
+      return activity.save(post);
+    },
+    postWelcomeActivity: function(region, postingUser) {
+      var post={
+          activityType: "NOTF",
+          regionUniqueName: region.get("uniqueName"),   
+          support: 0,
+          oppose: 0,
+          debate: 0,
+          status: "A",
+          user: postingUser,
+          notifyMessage: "Welcome to " + region.get("name") + " community!\n\nWe are using OurBlock app in our community to collaborate and manage resident and financial information.\n\nWe will collaborate with each other by sharing ideas, community problems and notifications to brainstorm them to come up with the best solutions."
+        };
+      return this.postActivity(post);
+    },
     getAllowedActivities: function(role) {
       var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1], ACTIVITY_LIST[2]];
       if(role!=null && role!="CTZEN") {

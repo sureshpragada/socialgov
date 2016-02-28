@@ -38,9 +38,11 @@ angular.module('account.services', [])
         userQuery.find(function(residents) {
             residentCache.remove(regionUniqueName);
             residentCache.put(regionUniqueName, residents);          
+            console.log("Caching resident count " + residents!=null?residents.length:-1);
             deferred.resolve(residents);
           }, function(error) {
             if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              console.log("Returning cached residents");
               deferred.resolve(residentCache.get(regionUniqueName));  
             } else {
               deferred.reject(error);
@@ -418,9 +420,11 @@ angular.module('account.services', [])
       var deferred = $q.defer();      
       this.getResidentsInCommunity(residency).then(function(neighborList) {
         var residentList=[];
-        for(var i=0;i<neighborList.length;i++) {
-          if(neighborList[i].get("role")=="LEGI") {
-            residentList.push(neighborList[i]);
+        if(neighborList!=null) {
+          for(var i=0;i<neighborList.length;i++) {
+            if(neighborList[i].get("role")=="LEGI") {
+              residentList.push(neighborList[i]);
+            }
           }
         }
         deferred.resolve(residentList);

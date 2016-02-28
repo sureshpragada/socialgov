@@ -35,8 +35,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         $scope.debateList.push(null);
         $scope.commentStatusList.push(false);
       }
-    } else {
-      $scope.activityError=SettingsService.getControllerIdeaMessage("Have a development idea or a question for your community? Collbarate with your neighbors by posting your ideas and questions.");
+    } 
+    if($scope.activities==null || $scope.activities.length<=1) {
+      $scope.tipMessage=SettingsService.getControllerIdeaMessage("Have a development idea, problem or a question to your community? Let's collaborate by posting your thoughts.");
     }
     $ionicLoading.hide();          
   }, function(error){
