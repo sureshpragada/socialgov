@@ -6,8 +6,8 @@
 <!-- TODO :: Uncomment when delete works    <ion-list can-swipe="canUpdateRegion"> -->
     <ion-list>    
 	    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="legis in legisList track by $index" ng-init="legisIndex = $index" href="#/tab/neighbor-detail/{{legis.id}}">
-	      <img ng-src="{{legis.get('image')}}" ng-if="legis.get('image')">
-	      <img ng-src="img/blank_avatar.png" ng-if="!legis.get('avatar')">
+	      <img ng-src="{{legis.get('images')[0]}}" ng-if="legis.get('images')">
+	      <img ng-src="img/avatar2.png" ng-if="!legis.get('images')">
 	      <h2>{{legis.get("firstName")}} {{legis.get("lastName")}}</h2>
 	      <p>{{legis.get('title')}}</p>
 		    <p ng-if="legis.get('phoneNum')">

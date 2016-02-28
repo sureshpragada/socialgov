@@ -10,6 +10,7 @@ angular.module('starter.controllers')
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  
+  $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
 
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
@@ -26,7 +27,7 @@ angular.module('starter.controllers')
   });
 })
 
-.controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {  
+.controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
   $scope.regions=RegionService.getRegionListFromCache();  
 
   $scope.personalServiceContacts=null;
@@ -43,11 +44,13 @@ angular.module('starter.controllers')
           $scope.personalServiceContacts=personalServiceContacts;
         } else {
           console.log("No service contacts have been found.");
+          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service recommendations are not made by your neighbors.");
         }
       });
     },
     error: function(serviceContact, error) {
       console.log("Error retrieving service contacts " + error.message);
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community service recommendations.");
     }
   });          
 
@@ -168,7 +171,6 @@ angular.module('starter.controllers')
         $scope.ideaMessage=SettingsService.getControllerIdeaMessage("Looking to appoint a resident on the board? Controls are available in neighbor details section.");
       }      
     }
-    // console.log(JSON.stringify($scope.legisList));
   },function(error){
     console.log("Unable to get legislative contacts " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve legislative contacts.");
@@ -762,13 +764,13 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout) {
+.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard) {
   console.log("Neighbor details controller " + $stateParams.userId);
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
-    $scope.user=neighbor;
+    $scope.user=neighbor;        
     $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
     $scope.$apply();
   }, function(error) {
@@ -823,11 +825,22 @@ angular.module('starter.controllers')
        }, 5000);
   };
 
+  $scope.copyInvitationMessage=function() {
+    var invitationMessage="You have been invited to OurBlock. Use invitation code, " + $scope.user.id + " to login to the service. Download app at http://tinyurl.com/jb9tfnr";    
+    $cordovaClipboard.copy(invitationMessage).then(function () {
+      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Invitation message has been copied to clipboard.");
+      $interval(function(){
+        $scope.copyStatusMessage=null;
+      }, 5000, 1);
+    }, function () {
+      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Unable to copy invitation message to clipboard.");
+    });
+  };
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
     NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"));              
-    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Sent invitation code to neighbor");
+    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");
   };
 
   $scope.blockUser=function() {
@@ -851,6 +864,7 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
     $scope.neighborList=neighborList;
+    // TODO :: Filter blocked users from the list
     if($scope.neighborList!=null && $scope.neighborList.length<2) {
       $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
     }
@@ -911,7 +925,9 @@ angular.module('starter.controllers')
       if($scope.inputUser.homeNo==null || $scope.inputUser.homeNo.length<=0) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
         return;
-      }       
+      } else {
+        $scope.inputUser.homeNo=$scope.inputUser.homeNo.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+      }
     }    
 
     AccountService.updateNeighborAccount($scope.inputUser, $scope.user).then(function(newUser) {
@@ -921,6 +937,106 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update neighbor information.");  
     });
   };
+})
+
+.controller('RegionSettingsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
+  $scope.user=Parse.User.current();  
+  $scope.appMessage=SettingsService.getAppMessage();  
+  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.settingsChanged=false;  
+
+  var regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);          
+  console.log("Region settings : " + JSON.stringify(regionSettings));
+  $scope.inputSettings={
+    reserveVisibility: regionSettings.reserveVisibility=="OPEN"?true:false,
+    activityModeration: regionSettings.activityModeration
+  };
+
+  $scope.saveSettings=function() {
+    RegionService.getRegion($scope.user.get("residency")).then(function(region) {
+      var currentRegionSettings=region.get("settings");
+      console.log("Current region settings : " + JSON.stringify(currentRegionSettings));
+
+      currentRegionSettings.activityModeration=$scope.inputSettings.activityModeration;
+      currentRegionSettings.reserveVisibility=$scope.inputSettings.reserveVisibility==true?"OPEN":"CLOSED";
+      region.set("settings", currentRegionSettings);
+
+      region.save().then(function(updatedRegion){
+        console.log("Update region settings : " + JSON.stringify(updatedRegion.get("settings")));
+        RegionService.updateRegion($scope.user.get("residency"), updatedRegion);
+        SettingsService.setAppSuccessMessage("Settings have been saved.");
+        $state.go("tab.region", {regionUniqueName: "native"});      
+      }, function(error){
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to save settings.");
+        console.log("Error updating region " + JSON.stringify(error));
+      });
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to find region to save settings.");
+      console.log("Error retrieving region " + JSON.stringify(error));
+    });    
+  };
+
+  $scope.notifySettingChanged=function() {
+    $scope.settingsChanged=true;
+  };
+
+})
+
+.controller('UploadNeighborsCtrl', function($scope, $stateParams, $q, AccountService, RegionService, $state, SettingsService, LogService) {
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.input={
+    neighborData: null
+  };
+
+  $scope.submit=function(){
+    if($scope.input.regionName==null || $scope.input.regionName.length<1){      
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter region unique name.");
+      return;
+    }
+
+    if($scope.input.neighborData!=null && $scope.input.neighborData.length>0){      
+      var neighborLines = $scope.input.neighborData.split('\n');
+      var userPromises=[];
+      for(var i=0; i < neighborLines.length; i++){
+        var neighborLine = neighborLines[i].split(',');
+        console.log(JSON.stringify(neighborLine));
+
+        var newUser=new Parse.User();
+        newUser.set("username", "91"+neighborLine[3]);
+        newUser.set("password", "custom");
+        newUser.set("residency", $scope.input.regionName);
+        newUser.set("firstName", neighborLine[1].length>0?neighborLine[1]:neighborLine[0]);
+        newUser.set("lastName", neighborLine[2].length>0?neighborLine[2]:neighborLine[0]);
+        newUser.set("phoneNum", neighborLine[3]);
+        newUser.set("countryCode", "91");
+        newUser.set("role", "CTZEN");
+        newUser.set("notifySetting", true);
+        newUser.set("deviceReg", "N");
+        newUser.set("homeOwner", true);
+        newUser.set("homeNo", neighborLine[0]);
+        newUser.set("status", "P");
+        userPromises.push(newUser.save());
+      }
+      $q.all(userPromises).then(function(results){
+        SettingsService.setAppSuccessMessage("Upload of neighbor data is successful.");
+        AccountService.refreshResidentCache($scope.input.regionName);
+        $state.go("tab.region", {regionUniqueName: "native"});          
+      },function(error){
+        // console.log("Error creating users " + JSON.stringify(error));
+        SettingsService.setAppInfoMessage("Upload of neighbor data is partially failed. Please check neighbors and then adjust the data. " + JSON.stringify(error));
+        AccountService.refreshResidentCache($scope.input.regionName);
+        $state.go("tab.region", {regionUniqueName: "native"});                    
+      });
+    }
+    else{
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter neighbor information in comma separated format");
+    }
+  };
+
+  $scope.cancel=function(){
+    $state.go("tab.region",{regionUniqueName: "native"});          
+  };
+
 })
 
 ;

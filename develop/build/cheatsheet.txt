@@ -9,6 +9,7 @@ ionic emulate android --livereload
 ionic serve
 ionic serve --lab
 cordova prepare android 
+
 ionic run android
 cordova platform list
 cordova platform update android@4.1.1
@@ -25,6 +26,7 @@ cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-vibrat
 cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
 cordova plugin add cordova-plugin-camera
 cordova plugin add cordova-plugin-contacts
+cordova plugin add https://github.com/VersoSolutions/CordovaClipboard.git
 
 
 TODO >> Background service (https://github.com/Red-Folder/bgs-core/wiki/Using-the-MyService-Sample, http://stackoverflow.com/questions/25038694/how-do-i-get-parse-com-push-notifications-working-in-a-cordova-phonegap-android/25038695#25038695, https://github.com/driftyco/ng-cordova/issues/963)

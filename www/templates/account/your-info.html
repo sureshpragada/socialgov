@@ -1,5 +1,6 @@
 <ion-view view-title="Personal Details">
 	<ion-content>			
+		<my-app-message info="appMessage"></my-app-message>
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
 			<label class="item item-input item-stacked-label">
@@ -18,11 +19,9 @@
 				<span class="input-label">Phone Number</span>
 				<input type="tel" name="phoneNum" class="textAlignLeft" ng-model="user.phoneNum">
 			</label>
-			<div>
-		    	<button class="button button-block button-balanced" ng-click="submit()">submit</button>
-			</div>
-			<div>
-		    	<button class="button button-block button-assertive" ng-click="cancel()">cancel</button>
+			<div class="padding">
+		    	<button class="button button-block button-balanced" ng-click="submit()">Register Community</button>
+<!-- 		    	<button class="button button-block button-balanced button-outline" ng-click="cancel()">Never mind</button> -->
 			</div>	
 		</div>
 	</ion-content>

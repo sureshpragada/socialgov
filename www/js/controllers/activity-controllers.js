@@ -12,70 +12,40 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.argumentMessageList=[];
   $scope.commentStatusList=[];
   $scope.user=Parse.User.current();
+  $scope.isAdmin=AccountService.canUpdateRegion();
   $ionicLoading.show({
-    template: "<p class='item-icon-left'> Finding activity in community<ion-spinner/></p>"
+    template: "<p class='item-icon-left'>Finding activity in community<ion-spinner/></p>"
   });
   console.log("Activity controller");
 
   $scope.appMessage=SettingsService.getAppMessage();
 
-  var Activity=Parse.Object.extend("Activity");
-  var query=new Parse.Query(Activity);
-  var regionList=RegionService.getRegionHierarchy();
-  console.log("Region list to get activity : " + JSON.stringify(regionList));
-  query.containedIn("regionUniqueName", regionList);
-  if(AccountService.canUpdateRegion()) {
-    query.containedIn("status", ["A","S"]);
-  } else {
-    query.equalTo("status", "A");  
-  }
-  query.include("user");
-  query.descending("createdAt");
-  query.find({
-    success: function(activityList) {
-
-        if(activityList!=null && activityList.length>0) {
-          $scope.activities=activityList;  
-          $scope.notifyUserUnreadActivityCount();
-
-          var UserActivity = Parse.Object.extend("UserActivity");
-          var userActivityQuery=new Parse.Query(UserActivity);
-          userActivityQuery.equalTo("user", $scope.user);
-          userActivityQuery.find({
-            success: function(userActivityList) {
-              $scope.$apply(function(){ 
-                if(userActivityList!=null) {
-                  $scope.userActivityList=userActivityList;
-                  for(var k=0;k<activityList.length;k++) {
-                    $scope.argumentMessageList.push("");
-                    $scope.debateList.push(null);
-                    $scope.commentStatusList.push(false);
-                  }
-                } else {
-                  $scope.userActivityList=[];
-                }
-              });
-              $ionicLoading.hide();              
-            },
-            error: function(error) {
-              console.log("Unable to get activities : " + error.message);
-              $scope.activityError=SettingsService.getControllerInfoMessage("Unable to get activities.");            
-              $ionicLoading.hide();
-            }
-          });
-
-        } else {
-          $scope.activityError=SettingsService.getControllerIdeaMessage("Have a development idea or a question for your community? Collbarate with your neighbors by posting your activity here.");
-          $ionicLoading.hide();          
-        }
-    }, 
-    error: function(error) {
-      $scope.$apply(function(){
-        console.log("Unable to get activities : " + error.message);
-        $scope.activityError=SettingsService.getControllerInfoMessage("Unable to get activities.");            
-        $ionicLoading.hide();
-      });
+  ActivityService.getActivityDataForDashboard().then(function(activityDashboardData){
+    $scope.activities=activityDashboardData[0];
+    for(var j=0;j<$scope.activities.length;j++) {
+      if($scope.activities[j].get("status")=="P" && !$scope.isAdmin && $scope.activities[j].get("user").id!=$scope.user.id) {
+        $scope.activities.splice(j, 1);
+      }
     }
+    if($scope.activities!=null && $scope.activities.length>0) {
+      $scope.notifyUserUnreadActivityCount();
+      $scope.userActivityList=activityDashboardData[1];
+      for(var k=0;k<$scope.activities.length;k++) {
+        $scope.argumentMessageList.push("");
+        $scope.debateList.push(null);
+        $scope.commentStatusList.push(false);
+      }
+    } 
+    if($scope.activities==null || $scope.activities.length<=1) {
+      $scope.tipMessage=SettingsService.getControllerIdeaMessage("Have a development idea, problem or a question to your community? Let's collaborate by posting your thoughts.");
+    }
+    $ionicLoading.hide();          
+  }, function(error){
+    $scope.$apply(function(){
+      LogService.log({type:"ERROR", message: "Unable to get community activities " + JSON.stringify(error) + " residency : " + $scope.user.get("residency")}); 
+      $scope.activityError=SettingsService.getControllerErrorMessage("Unable to get your community activities.");            
+      $ionicLoading.hide();
+    });
   });
 
   $scope.notifyUserUnreadActivityCount=function() {
@@ -316,6 +286,18 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     });    
   };  
 
+  $scope.enableActivityToPublic=function(activityId, index) {
+    $cordovaDialogs.confirm('Do you want to enable this post to everyone in community?', 'Activation Confirmation', ['Yes, Enable','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        ActivityService.enableActivityToPublic($scope.activities[index]);
+        NotificationService.pushNotification($scope.activities[index].get("regionUniqueName"), $scope.activities[index].get("notifyMessage"));              
+      } else {
+        console.log("Canceled enabling activity to enire community");
+      }
+    });    
+  };
+
   $scope.reportDebateSpam=function(debateId, activityIndex, debateIndex) {
     $cordovaDialogs.confirm('Is this response really spam?', 'Spam confirmation', ['Yes, it is spam','Cancel'])
     .then(function(buttonIndex) {      
@@ -384,6 +366,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         buttonsArray.push({ text: 'Report Spam' });
       }
       buttonsArray.push({ text: 'Block User' });
+      if($scope.actionSheetActivityStatus=="P") {
+        buttonsArray.push({ text: 'Show to community' });
+      }                  
     var hideSheet = $ionicActionSheet.show({
        buttons: buttonsArray,
        cancelText: 'Cancel',
@@ -403,6 +388,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             }
           } else if(index==3) { // Flag user abusive
             $scope.flagUserAbusive($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
+          } else if(index==4) { // Make this post public
+            $scope.enableActivityToPublic($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
           } 
           return true;
        }
@@ -534,6 +521,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.postErrorMessage=null;
   $scope.allowImageUpload=ionic.Platform.isWebView();
   $scope.pictureUploaded=stateData.imageUrl;
+  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));
 
   displayActivityWarnMessage();
   $scope.submitPost=function() {
@@ -562,7 +550,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         $scope.post.support=0;
         $scope.post.oppose=0;
         $scope.post.debate=0;
-        $scope.post.status="A";
+        if($scope.regionSettings.activityModeration==true) {
+          $scope.post.status="P";
+        } else {
+          $scope.post.status="A";  
+        }        
         $scope.post.user=Parse.User.current();
         if(PictureManagerService.getState().imageUrl!=null) {
           $scope.post.images=[PictureManagerService.getState().imageUrl];  
@@ -573,15 +565,19 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         var activity = new Activity();
         activity.save($scope.post, {
           success: function(activity) {
-            // Send the push notification
-            NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);
-            $ionicLoading.hide();          
             // Push the new activity to the top of activity chart, probably through Activity service
-            SettingsService.setAppSuccessMessage("Activity has been posted.");            
-            $scope.$apply(function(){
-              PictureManagerService.reset();
-              $state.go("tab.dash");  
-            });
+            if($scope.regionSettings.activityModeration==true) {
+              // Send notification only board members
+              AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
+              SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
+            } else {
+              // Send the push notification to everyone in community
+              NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
+              SettingsService.setAppSuccessMessage("Activity has been posted.");            
+            }            
+            $ionicLoading.hide();                      
+            PictureManagerService.reset();
+            $state.go("tab.dash");  
           },
           error: function(activity, error) {
             console.log("Error in posting message " + error.message);

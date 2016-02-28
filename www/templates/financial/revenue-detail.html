@@ -25,7 +25,7 @@
         <p ng-bind-html="revenueRecord.get('note') | nl2br">
       </div>
     </div>    
-    <div class="padding" ng-if="isAdmin">
+    <div class="padding" ng-if="isAdmin && revenueRecord.get('balanceSheet').get('status')=='OPEN'">
       <button class="button button-calm button-block" ng-click="editRevenue()">
         Edit Revenue
       </button>

@@ -6,14 +6,9 @@
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
     <ion-list ng-if="!controllerMessage">
-      <div class="item item-image">
+      <div class="item item-image" ng-if="region.get('thumbnail')">
         <img ng-src="{{region.get('thumbnail')}}">
       </div> 
-      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
-        <i class="icon ion-ios-world-outline royal"></i>      
-          Demography
-          <i class="icon ion-chevron-right icon-accessory"></i>    
-      </ion-item>                  
       <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">
           <i class="icon ion-ios-people-outline royal"></i>
           Neighbors 
@@ -27,7 +22,6 @@
       <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt!='SELF'">
         <i class="icon ion-ios-person-outline royal"></i>
           {{'LegContact' | translate}}
-        <span class="badge badge-balanced">{{region.get('legiRepList').length}}</span>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>      
       <ion-item href="#/tab/selflegis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt=='SELF'">
@@ -45,6 +39,21 @@
           {{'ExecContact' | translate}}
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>      
+<!--       <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+        <i class="icon ion-ios-world-outline royal"></i>      
+          Demography
+          <i class="icon ion-chevron-right icon-accessory"></i>    
+      </ion-item>       -->
+      <ion-item href="#/tab/region-settings/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="isAdmin">
+        <i class="icon ion-ios-gear-outline royal"></i>      
+          Settings
+          <i class="icon ion-chevron-right icon-accessory"></i>    
+      </ion-item>                                    
+      <ion-item href="#/tab/upload-neighbors" class="item-icon-left item-icon-right" ng-if="canLogout">
+        <i class="icon ion-ios-upload-outline royal"></i>      
+          Upload Neighbors
+          <i class="icon ion-chevron-right icon-accessory"></i>    
+      </ion-item>                                          
   	</ion-list>
   </ion-content>
 </ion-view>

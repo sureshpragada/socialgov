@@ -1,7 +1,53 @@
 angular.module('activity.services', [])
 
-.factory('ActivityService', ['$http', 'AccountService', 'NotificationService', 'LogService', 'paragraph', function($http, AccountService, NotificationService, LogService, paragraph) {
+.factory('ActivityService', ['$http', '$q', 'AccountService', 'NotificationService', 'LogService', 'paragraph', 'RegionService', function($http, $q, AccountService, NotificationService, LogService, paragraph, RegionService) {
   return {
+    getActivityDataForDashboard: function() {
+      var deferred=$q.all([
+        this.getActivityList(),
+        this.getUserActivityList()
+      ]);
+      return deferred;
+    },
+    getActivityList: function() {
+      var regionList=RegionService.getRegionHierarchy();      
+      console.log("Region list to get activity : " + JSON.stringify(regionList));
+      var Activity=Parse.Object.extend("Activity");
+      var query=new Parse.Query(Activity);
+      query.containedIn("regionUniqueName", regionList);
+      if(AccountService.canUpdateRegion()) {
+        query.containedIn("status", ["P", "A", "S"]);
+      } else {
+        query.containedIn("status", ["P", "A"]);
+      }
+      query.include("user");
+      query.descending("createdAt");
+      return query.find();
+    },
+    getUserActivityList: function() {
+      var UserActivity = Parse.Object.extend("UserActivity");
+      var userActivityQuery=new Parse.Query(UserActivity);
+      userActivityQuery.equalTo("user", Parse.User.current());
+      return userActivityQuery.find();
+    },
+    postActivity: function(post) {
+      var Activity = Parse.Object.extend("Activity");
+      var activity = new Activity();
+      return activity.save(post);
+    },
+    postWelcomeActivity: function(region, postingUser) {
+      var post={
+          activityType: "NOTF",
+          regionUniqueName: region.get("uniqueName"),   
+          support: 0,
+          oppose: 0,
+          debate: 0,
+          status: "A",
+          user: postingUser,
+          notifyMessage: "Welcome to " + region.get("name") + " community!\n\nWe are using OurBlock app in our community to collaborate and manage resident and financial information.\n\nWe will collaborate with each other by sharing ideas, community problems and notifications to brainstorm them to come up with the best solutions."
+        };
+      return this.postActivity(post);
+    },
     getAllowedActivities: function(role) {
       var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1], ACTIVITY_LIST[2]];
       if(role!=null && role!="CTZEN") {
@@ -71,6 +117,12 @@ angular.module('activity.services', [])
       activity.save();      
       return activity;
     },    
+    enableActivityToPublic: function(activity) {
+      console.log("Enable activity to public " + activity.id);
+      activity.set("status", "A");      
+      activity.save();      
+      return activity;
+    },        
     reportDebateSpam: function(debate) {
       console.log("Updating status field of debate " + debate.id);
       var spamReportedUsers=debate.get("spamRep");

@@ -92,22 +92,28 @@ angular.module('starter.controllers')
     template: "<p class='item-icon-left'>Loading expenses list...<ion-spinner/></p>"
   });  
   $scope.appMessage=SettingsService.getAppMessage();  
-  $scope.focusBalanceSheet=FinancialService.createBalanceSheetEntityWithObjectId($stateParams.balanceSheetId);  
   $scope.isAdmin=AccountService.canUpdateRegion();
 
-  FinancialService.getBalanceSheetExpenses(Parse.User.current().get("residency"), $scope.focusBalanceSheet).then(function(expenseList){
-    if(expenseList==null || expenseList.length<=0) {
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Expenses have not found in your community.");
-    } else {
-      $scope.expenseList = expenseList;
-    }
-    // console.log("Expense list : " + JSON.stringify($scope.expenseList));
-    $scope.$apply();
-    $ionicLoading.hide();
-  },function(error){
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve your community expenses list.");
-    $ionicLoading.hide();
-  });
+  FinancialService.getBalanceSheetByObjectId($stateParams.balanceSheetId).then(function(balanceSheet){
+    $scope.focusBalanceSheet=balanceSheet;
+
+    FinancialService.getBalanceSheetExpenses(Parse.User.current().get("residency"), $scope.focusBalanceSheet).then(function(expenseList){
+      if(expenseList==null || expenseList.length<=0) {
+        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Expenses are not found in your community.");
+      } else {
+        $scope.expenseList = expenseList;
+      }
+      // console.log("Expense list : " + JSON.stringify($scope.expenseList));
+      $scope.$apply();
+      $ionicLoading.hide();
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve your community expenses list.");
+      $ionicLoading.hide();
+    });    
+  }, function(error){
+    $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to find balance sheet.");
+    $ionicLoading.hide();    
+  });  
 
 })
 
@@ -186,7 +192,7 @@ angular.module('starter.controllers')
   })  
 
   $scope.showExpenseReceipt = function(index) {
-    $scope.removeExpenseReceipt=true;
+    $scope.removeExpenseReceipt=$scope.expenseRecord.get("balanceSheet").get("status")=="OPEN"?true:false;
     $scope.viewingExpenseReceiptIndex=index;
     if($scope.expenseRecord.get("images")!=null && $scope.expenseRecord.get("images").length>0) {
       $scope.imageUrl=$scope.expenseRecord.get("images")[index];
@@ -410,46 +416,61 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, AccountService) {
+.controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, AccountService, $ionicLoading) {
   console.log("Revenue List controller " + $stateParams.balanceSheetId);
-  $scope.appMessage=SettingsService.getAppMessage();  
-  $scope.focusBalanceSheet=FinancialService.createBalanceSheetEntityWithObjectId($stateParams.balanceSheetId);  
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading expenses list...<ion-spinner/></p>"
+  });    
+  $scope.appMessage=SettingsService.getAppMessage();    
   $scope.isAdmin=AccountService.canUpdateRegion();
 
-  $scope.homeOwnerPaymentList=[];
-  $scope.otherRevenueList=[];
+  FinancialService.getBalanceSheetByObjectId($stateParams.balanceSheetId).then(function(balanceSheet){
+    $scope.focusBalanceSheet=balanceSheet;
+    $scope.homeOwnerPaymentList=[];
+    $scope.otherRevenueList=[];
 
-  FinancialService.getBalanceSheetRevenues(Parse.User.current().get("residency"), $scope.focusBalanceSheet).then(function(revenueList){
-    if(revenueList==null || revenueList.length<=0) {
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Revenue entries have not found in your community.");
-    } else {
-      for(var i=0;i<revenueList.length;i++) {
-        if(revenueList[i].get("revenueCategory")=="MAINT_DUES") {
-          $scope.homeOwnerPaymentList.push(revenueList[i]);
-        } else {
-          $scope.otherRevenueList.push(revenueList[i]);
+    FinancialService.getBalanceSheetRevenues(Parse.User.current().get("residency"), $scope.focusBalanceSheet).then(function(revenueList){
+      if(revenueList==null || revenueList.length<=0) {
+        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Revenue entries are not found in your community.");
+      } else {
+        for(var i=0;i<revenueList.length;i++) {
+          if(revenueList[i].get("revenueCategory")=="MAINT_DUES") {
+            $scope.homeOwnerPaymentList.push(revenueList[i]);
+          } else {
+            $scope.otherRevenueList.push(revenueList[i]);
+          }
         }
       }
-    }
-    $scope.$apply();
-  },function(error){
-    $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to retrieve revenue records.");
-  });
+      $scope.$apply();
+      $ionicLoading.hide();
+    },function(error){
+      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to retrieve revenue records.");
+      $ionicLoading.hide();
+    });    
+  }, function(error){
+    $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to find balance sheet.");
+    $ionicLoading.hide();    
+  });  
 
   $scope.goTo=function(index) {
-    if($scope.homeOwnerPaymentList[index].get("status")=="PENDING") {
-      SettingsService.setPageTransitionData({
-        homeNo: $scope.homeOwnerPaymentList[index].get("homeNo"), 
-        revenueId: $scope.homeOwnerPaymentList[index].id
-      });
-      $state.go("tab.manage-revenue", {balanceSheetId: $scope.focusBalanceSheet.id});      
-    } else if($scope.homeOwnerPaymentList[index].get("status")=="COMPLETED") {
+    if($scope.focusBalanceSheet.get("status")=="OPEN") {
+      if($scope.homeOwnerPaymentList[index].get("status")=="PENDING") {
+        SettingsService.setPageTransitionData({
+          homeNo: $scope.homeOwnerPaymentList[index].get("homeNo"), 
+          revenueId: $scope.homeOwnerPaymentList[index].id
+        });
+        $state.go("tab.manage-revenue", {balanceSheetId: $scope.focusBalanceSheet.id});      
+      } else if($scope.homeOwnerPaymentList[index].get("status")=="COMPLETED") {
+        $state.go("tab.revenue-detail", {revenueId: $scope.homeOwnerPaymentList[index].id});      
+      }
+    } else {
       $state.go("tab.revenue-detail", {revenueId: $scope.homeOwnerPaymentList[index].id});      
     }
   }
+
 })
 
-.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService) {
+.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService, $cordovaDialogs) {
   console.log("Manage Revenue controller " + $stateParams.balanceSheetId);
   $scope.focusBalanceSheet=FinancialService.createBalanceSheetEntityWithObjectId($stateParams.balanceSheetId);  
   $scope.input={
@@ -523,31 +544,94 @@ angular.module('starter.controllers')
       }
     }
     
-    if($scope.input.category==true && $scope.pageTransitionData!=null) {
-      $scope.editRevenueRecord.set("revenueAmount",$scope.input.revenueAmount);
-      $scope.editRevenueRecord.set("revenueDate",$scope.input.revenueDate);
-      $scope.editRevenueRecord.set("note",$scope.input.note);
-      $scope.editRevenueRecord.set("status","COMPLETED");
-      FinancialService.saveRevenue($scope.editRevenueRecord).then(function(success){
-        SettingsService.setAppSuccessMessage("Revenue has been recorded.");
-        AccountService.sendNotificationToHomeOwner($scope.input.homeNo, "Your maintenance payment has been recorded.");
-        $state.go("tab.revenue-list", {balanceSheetId: $scope.editRevenueRecord.get("balanceSheet").id});        
-      },function(error){
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to edit revenue record.");
-      });
+    // Home owner payment
+    if($scope.input.category==true) {
+      // Initiated via pending payment
+      if($scope.editRevenueRecord!=null) {
+        $scope.addHomeOwnerPayment();
+      } else {
+        // Initiated via add revenue, check whether pending payment exists for this home, if yes, associate this payment to the pending
+        FinancialService.getMyPaymentHistory(Parse.User.current().get("residency"), $scope.input.homeNo).then(function(paymentList){
+          for(var i=0;i<paymentList.length;i++) {
+            if(paymentList[i].get("status")=="PENDING" && $scope.focusBalanceSheet.id==paymentList[i].get("balanceSheet").id) {
+              // Found pending payment to apply
+              $scope.editRevenueRecord=paymentList[i];
+              break;  
+            }
+          }
+          if($scope.editRevenueRecord!=null) {
+            $scope.addHomeOwnerPayment();
+          } else {
+            $scope.addNonHomeOwnerPayment();
+          }
+        }, function(error){
+          $scope.addNonHomeOwnerPayment();
+        });
+      }
     } else {
-      FinancialService.addRevenue($scope.input).then(function(newRevenue){
-        console.log(JSON.stringify(newRevenue));
-        SettingsService.setAppSuccessMessage("Revenue has been recorded.");
-        if($scope.input.category==true) {
-          AccountService.sendNotificationToHomeOwner($scope.input.homeNo, "Your maintenance payment has been recorded.");  
-        }        
-        $state.go("tab.revenue-list", {balanceSheetId: newRevenue.get("balanceSheet").id});        
-      },function(error){
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add revenue record.");
-      });
+      $scope.addNonHomeOwnerPayment();
     }
+  };
 
+  $scope.addHomeOwnerPayment=function() {
+    $scope.editRevenueRecord.set("revenueAmount",$scope.input.revenueAmount);
+    $scope.editRevenueRecord.set("revenueDate",$scope.input.revenueDate);
+    $scope.editRevenueRecord.set("note",$scope.input.note);
+    $scope.editRevenueRecord.set("status","COMPLETED");
+    FinancialService.saveRevenue($scope.editRevenueRecord).then(function(success){
+      SettingsService.setAppSuccessMessage("Revenue has been recorded.");
+      AccountService.sendNotificationToHomeOwner($scope.input.homeNo, "Your maintenance payment has been recorded.");
+      $state.go("tab.revenue-list", {balanceSheetId: $scope.editRevenueRecord.get("balanceSheet").id});        
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to edit revenue record.");
+    });
+  };
+
+  $scope.addNonHomeOwnerPayment=function() {
+    FinancialService.addRevenue($scope.input).then(function(newRevenue){
+      console.log(JSON.stringify(newRevenue));
+      SettingsService.setAppSuccessMessage("Revenue has been recorded.");
+      $state.go("tab.revenue-list", {balanceSheetId: newRevenue.get("balanceSheet").id});        
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add revenue record.");
+    });      
+  };
+
+  // $scope.changeHomeNumber=function() {
+  //   // ng-change="handleActivitySelection()"
+  // };
+
+  $scope.editPayment=function() {
+    $scope.editRevenueRecord.set("revenueAmount",$scope.input.revenueAmount);
+    $scope.editRevenueRecord.set("revenueDate",$scope.input.revenueDate);
+    $scope.editRevenueRecord.set("note",$scope.input.note);
+    FinancialService.saveRevenue($scope.editRevenueRecord).then(function(success){
+      SettingsService.setAppSuccessMessage("Payment record has been updated.");
+      AccountService.sendNotificationToHomeOwner($scope.input.homeNo, "Your maintenance payment has been updated.");
+      $state.go("tab.revenue-list", {balanceSheetId: $scope.editRevenueRecord.get("balanceSheet").id});        
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to edit revenue record.");
+    });
+  };
+
+  $scope.deletePayment=function() {
+    if(ionic.Platform.isWebView()) {
+      $cordovaDialogs.beep(1);
+    }
+    $cordovaDialogs.confirm('Do you want to delete this pending payment?', 'Delete Payment', ['Yes','Never mind'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        var balanceSheetId=$scope.editRevenueRecord.get("balanceSheet").id;
+         FinancialService.deleteRevenueRecord($scope.editRevenueRecord).then(function(success){
+            SettingsService.setAppSuccessMessage("Successfully deleted the revenue record.");
+            $state.go("tab.revenue-list", {balanceSheetId: balanceSheetId});
+         },function(error){
+            $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to delete the record");
+         }); 
+      } else {
+        console.log("Canceled delete of payment");
+      }
+    });
   };
 
   $scope.cancel=function() {
@@ -566,14 +650,17 @@ angular.module('starter.controllers')
   });
   FinancialService.getBalanceSheets(Parse.User.current().get("residency")).then(function(availableBalanceSheets) {
     $scope.balanceSheetList=availableBalanceSheets;            
-    if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>0) {
+    if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>=0) {
       $scope.openBalanceSheetList=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets($scope.balanceSheetList);
       if($scope.openBalanceSheetList.length==0) {
-        $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start tracking your revenue and expenses by opening balance sheet.");
-      } else if($scope.openBalanceSheetList.length==2) {
-        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Only two balance sheets are allowed to be open at any time.");      
+        $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Track your revenue and expenses by starting a new balance sheet.");
+      } else if($scope.openBalanceSheetList.length==2 && $scope.isAdmin) {
+        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Two balance sheets are allowed to be open at any time.");      
       }
-    }
+    } 
+    // else if($scope.balanceSheetList!=null && $scope.balanceSheetList.length==0) {
+    //     $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start tracking your revenue and expenses by opening balance sheet.");
+    // }
     $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to load balance sheets");
@@ -582,7 +669,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('BalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, LogService) {
+.controller('BalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, LogService, $q) {
   console.log("Balance sheet controller " + $stateParams.balanceSheetId);
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.canUpdateRegion();  
@@ -591,6 +678,7 @@ angular.module('starter.controllers')
   $scope.closeBalanceSheetInput={
     closeInitiated: false,
     carryForwardBalance: false,
+    carryForwardHomeOwnerUnpaidBalance: false,
     endDate: new Date(),
     closedBy: $scope.user,
     residency: $scope.user.get("residency")    
@@ -603,17 +691,26 @@ angular.module('starter.controllers')
     $scope.openBalanceSheets=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets(availableBalanceSheets);
     if($scope.openBalanceSheets.length==2) {
       $scope.closeBalanceSheetInput.carryForwardBalance=true;
+      $scope.closeBalanceSheetInput.carryForwardHomeOwnerUnpaidBalance=true;
     }
     $scope.balanceSheet=FinancialService.getBalanceSheetFromAvaialableBalanceSheets($stateParams.balanceSheetId, availableBalanceSheets);
+    if($scope.balanceSheet.get("status")=="CLOSED") {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Closed balance sheets do not allow any edits to revenue and expense entries.");
+    }
 
     FinancialService.getMonthlyBalanceSheet(Parse.User.current().get("residency"), $scope.balanceSheet).then(function(balanceSheetEntries) {
 
       var revenueList=balanceSheetEntries[0];
+      $scope.homeOwnerUnpaidPaymentList=[];
       $scope.revenueTotal=0;
       for(var i=0;i<revenueList.length;i++) {
         if((revenueList[i].get("revenueCategory")=="MAINT_DUES" && revenueList[i].get("status")=="COMPLETED")
-          || revenueList[i].get("revenueCategory")=="OTHER")
-        $scope.revenueTotal+=revenueList[i].get("revenueAmount");
+          || revenueList[i].get("revenueCategory")=="OTHER") {
+          $scope.revenueTotal+=revenueList[i].get("revenueAmount");
+        }
+        if(revenueList[i].get("revenueCategory")=="MAINT_DUES" && revenueList[i].get("status")=="PENDING") {
+          $scope.homeOwnerUnpaidPaymentList.push(revenueList[i]);
+        }
       }
 
       var expenseList=balanceSheetEntries[1];
@@ -641,24 +738,36 @@ angular.module('starter.controllers')
       template: "<p class='item-icon-left'>Closing balance sheet...<ion-spinner/></p>"
     });
     FinancialService.closeBalanceSheet($scope.balanceSheet.id, $scope.closeBalanceSheetInput).then(function(closedBalanceSheet){      
+      var promiseArray=[];
+      var forwardingBalanceSheet=$scope.getOtherBalanceSheet();      
+
       if($scope.closeBalanceSheetInput.carryForwardBalance==true) {
-        var forwardingBalanceSheet=$scope.getOtherBalanceSheet();
-        FinancialService.addCarryForwardEntryToBalanceSheet(forwardingBalanceSheet, $scope.revenueTotal-$scope.expenseTotal).then(function(carryForwardedRevenue) {
-          SettingsService.setAppSuccessMessage("Balance sheet has been closed and balance has been forwarded.");
-          $ionicLoading.hide();    
-          $state.go("tab.balance-sheet-list");
-        }, function(error) {
-          SettingsService.setAppInfoMessage("Balance sheet is closed and unable to carry forward balance. Please add revenue entry manually.");
-          $ionicLoading.hide();    
-          $state.go("tab.balance-sheet-list");
+        promiseArray.push(FinancialService.carryForwardFinalBalanceAmountToNextBalanceSheet(forwardingBalanceSheet, $scope.revenueTotal-$scope.expenseTotal));        
+      } 
+
+      if($scope.closeBalanceSheetInput.carryForwardHomeOwnerUnpaidBalance==true && $scope.homeOwnerUnpaidPaymentList.length>0) {
+        promiseArray.push(FinancialService.carryForwardUnpaidPaymentsToNextBalanceSheet(forwardingBalanceSheet, $scope.homeOwnerUnpaidPaymentList));        
+      } 
+
+      if(promiseArray.length>0) {
+        $q.all(promiseArray).then(function(results){
+          $scope.gotoBalanceSheetWithMessage("Balance sheet has been closed and balance has been forwarded.");          
+        },function(error){
+          $scope.gotoBalanceSheetWithMessage("Balance sheet is closed and unable to carry forward balance. Please update revenue entries manually.");
         });
       } else {
-        $ionicLoading.hide();    
+        $scope.gotoBalanceSheetWithMessage("Balance sheet has been closed and balance has been forwarded.");
       }
     }, function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to close balance sheet");
       $ionicLoading.hide();    
     });    
+  };
+
+  $scope.gotoBalanceSheetWithMessage=function(message) {
+    SettingsService.setAppInfoMessage(message);
+    $ionicLoading.hide();    
+    $state.go("tab.balance-sheet-list");        
   };
 
   $scope.getOtherBalanceSheet=function() {
@@ -710,9 +819,7 @@ angular.module('starter.controllers')
     FinancialService.openBalanceSheet($scope.input).then(function(newBalanceSheet) {
       if($scope.input.generateHomeOwnerPayments==true) {
         FinancialService.generateHomeOwnerPayments(newBalanceSheet, $scope.input.maintDues).then(function(newRevenueEntries){
-          SettingsService.setAppSuccessMessage("New balance sheet has been created.");
-          $ionicLoading.hide();    
-          $state.go("tab.balance-sheet-list");
+          $scope.gotoBalanceSheetOnSuccess("New balance sheet has been created.");
         }, function(error) {
           SettingsService.setAppInfoMessage("Home owner payment generation is failed in new balance sheet. System will attempt to create them offline.");
           LogService.log({type:"ERROR", message: "Failed to create home owner payments " + JSON.stringify(error) + " residency : " + newBalanceSheet.get("residency") + " Balance sheet ID : " + newBalanceSheet.id}); 
@@ -720,7 +827,7 @@ angular.module('starter.controllers')
           $state.go("tab.balance-sheet-list");
         });
       } else {
-        $ionicLoading.hide();    
+        $scope.gotoBalanceSheetOnSuccess("New balance sheet has been created.");
       }
     }, function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to open new balance sheet");
@@ -730,6 +837,12 @@ angular.module('starter.controllers')
 
   $scope.cancel=function() {
     $ionicHistory.goBack(-1);
+  };
+
+  $scope.gotoBalanceSheetOnSuccess=function(message) {
+    SettingsService.setAppSuccessMessage(message);
+    $ionicLoading.hide();    
+    $state.go("tab.balance-sheet-list");
   };
 
 })
@@ -744,11 +857,12 @@ angular.module('starter.controllers')
     console.log("current reserve : " + JSON.stringify($scope.currentReserve));
   }, function(error) {
     console.log("Unable to get reserves details of this community.");
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get current reserves of your community.");
   });  
 
   $scope.getAllReserveAudit=function() {
     FinancialService.getAllReserveAudit(Parse.User.current().get("residency")).then(function(reserveAuditList) {
-      console.log("Reserve Audit list : " + JSON.stringify(reserveAuditList));
+      // console.log("Reserve Audit list : " + JSON.stringify(reserveAuditList));
       $scope.reserveAuditList=reserveAuditList;
       $scope.$apply();
     }, function(error) {
@@ -768,21 +882,22 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('ManageReservesCtrl', function($scope, $http, $stateParams, $state, SettingsService, RegionService, FinancialService) {
+.controller('ManageReservesCtrl', function($scope, $http, $stateParams, $state, SettingsService, RegionService, FinancialService, LogService) {
   console.log("Manage Reserves controller");
   $scope.input={
     createdBy: Parse.User.current(),
-    residency: Parse.User.current().get("residency")
+    residency: Parse.User.current().get("residency"),
+    effectiveMonth: new Date()
   };
   RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
     $scope.region=region;
     if($scope.region.get("reserve")!=null) {
       $scope.input.reserveAmount=$scope.region.get("reserve").reserveAmount;
     }
-    $scope.input.effectiveMonth=new Date();
-    // $scope.$apply();
-  }, function(error) {
-    console.log("Unable to get reserve amount to prepopulate");
+  }, function(error) {  
+    LogService.log({type:"ERROR", message: "Unable to get region for reserve update " + JSON.stringify(error)});   
+    SettingsService.setAppErrorMessage("Unable to get community current reserves to take further updates. Please try again later.");
+    $state.go("tab.reserves-detail");    
   });  
 
   $scope.updateReserve=function() {
@@ -791,9 +906,9 @@ angular.module('starter.controllers')
       return;
     }
 
-    RegionService.updateReserve($scope.region, $scope.input).then(function(region) {
+    RegionService.updateReserve($scope.region, $scope.input).then(function(region) {      
       FinancialService.updateReserve($scope.input).then(function(reserveAudit) {
-        SettingsService.setAppSuccessMessage("Reserves has been recorded.");
+        SettingsService.setAppSuccessMessage("Reserve has been recorded.");
         $state.go("tab.reserves-detail");
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add reserve audit.");

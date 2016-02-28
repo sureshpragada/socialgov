@@ -1,0 +1,18 @@
+<ion-view view-title="Settings">
+  <ion-nav-buttons side="secondary">
+    <a class="button button-light button-outline"  ng-if="settingsChanged" style="border-color: #fff; color: #fff;" ng-click="saveSettings()">save</a>      
+  </ion-nav-buttons>
+  <ion-content class="visible-cards">
+    <my-app-message info="controllerMessage"></my-app-message>
+    <div class="card">
+      <ion-toggle ng-model="inputSettings.activityModeration" ng-change="notifySettingChanged()">
+          Activity Moderation
+          <p>Enable board to review the posts</p>
+      </ion-toggle>          
+      <ion-toggle ng-model="inputSettings.reserveVisibility" ng-change="notifySettingChanged()">
+          Show reserves to everyone
+      </ion-toggle>                
+    </div>        
+  </ion-content>
+</ion-view>
+ 

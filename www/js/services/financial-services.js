@@ -190,12 +190,14 @@ angular.module('financial.services', [])
       var Expense = Parse.Object.extend("Expense");
       var query = new Parse.Query(Expense);
       query.equalTo("objectId",id);
+      query.include("balanceSheet");
       return query.find();
     },
     getRevenueRecord: function(id){
       var Revenue = Parse.Object.extend("Revenue");
       var query = new Parse.Query(Revenue);
       query.equalTo("objectId",id);
+      query.include("balanceSheet")
       return query.find();
     },
     deleteExpenseRecord: function(expenseRecord){
@@ -293,7 +295,7 @@ angular.module('financial.services', [])
       balanceSheet.set("generateHomeOwnerPayments", inputBalanceSheet.generateHomeOwnerPayments);            
       return balanceSheet.save();
     },
-    addCarryForwardEntryToBalanceSheet: function(inputBalanceSheet, carryForwardAmount) {
+    carryForwardFinalBalanceAmountToNextBalanceSheet: function(inputBalanceSheet, carryForwardAmount) {
       var revenueInputData={
         residency: inputBalanceSheet.get("residency"),
         createdBy: inputBalanceSheet.get("openedBy"),
@@ -306,6 +308,58 @@ angular.module('financial.services', [])
         status: "COMPLETED"
       };
       return this.addRevenue(revenueInputData);
+    },
+    carryForwardUnpaidPaymentsToNextBalanceSheet: function(inputBalanceSheet, unpaidPaymentList) {
+      console.log("Total unpaid payments  : " + unpaidPaymentList.length);
+      var self=this;
+      var deferred = $q.defer();
+      self.getBalanceSheetRevenues(inputBalanceSheet.get("residency"), inputBalanceSheet).then(function(revenueList){
+        console.log("Total revenues in new balance sheet : " + revenueList.length);
+        var revenuesToBeUpdatedList=[];
+        for(var i=0;i<unpaidPaymentList.length;i++) {
+          var revenueEntryExistsInNewBalanceSheet=false;
+          for(var j=0;j<revenueList.length;j++) {
+              if(revenueList[j].get("revenueCategory")=="MAINT_DUES" && revenueList[j].get("homeNo")==unpaidPaymentList[i].get("homeNo")) {
+                console.log("Found payment needs to be updated : " + revenueList[j].get("homeNo"));
+                revenueList[j].set("revenueAmount", (parseInt(revenueList[j].get("revenueAmount"))+parseInt(unpaidPaymentList[i].get("revenueAmount"))));
+                revenueList[j].set("previousBalance", unpaidPaymentList[i].get("revenueAmount"));
+                revenuesToBeUpdatedList.push(revenueList[j]);
+                revenueEntryExistsInNewBalanceSheet=true;
+                break;
+              }
+          }
+          // Create new object here
+          if(revenueEntryExistsInNewBalanceSheet==false) {
+            var revenueInputData={
+              residency: inputBalanceSheet.get("residency"),
+              createdBy: inputBalanceSheet.get("openedBy"),
+              revenueAmount: unpaidPaymentList[i].get("revenueAmount"),
+              revenueDate: inputBalanceSheet.get("startDate"),
+              note: "Carry forwarded amount from previous balance sheet.",
+              category: true,
+              homeNo: unpaidPaymentList[i].get("homeNo"),
+              revenueSource: "Home # " + unpaidPaymentList[i].get("homeNo"),
+              balanceSheet: inputBalanceSheet,
+              status: "PENDING"
+            };
+            revenuesToBeUpdatedList.push(self.populateRevenueObjectFromInput(revenueInputData));
+            console.log("Found payment needs to be added : " + unpaidPaymentList[i].get("homeNo"));
+          }
+        }
+        if(revenuesToBeUpdatedList.length>0) {
+          console.log("Saving payments : " + revenuesToBeUpdatedList.length);
+          Parse.Object.saveAll(revenuesToBeUpdatedList).then(function(addedOrUpdatedList){
+            deferred.resolve(addedOrUpdatedList);    
+          },function(error){
+            deferred.reject("Unable to save entries to next balance sheet revenues");
+          });
+        } else {
+          deferred.resolve("Did not find any payments to be transferred to next balance sheet");    
+        }
+      },function(error){
+        deferred.reject("Unable to get next balance sheet revenues");
+      });
+      return deferred.promise;            
     },
     generateHomeOwnerPayments: function(balanceSheet, due) {
       var self=this;
@@ -345,10 +399,26 @@ angular.module('financial.services', [])
       return deferred.promise;
     },
     getBalanceSheetByObjectId: function(balanceSheetObjectId){
-      var BalanceSheet = Parse.Object.extend("BalanceSheet");
-      var query = new Parse.Query(BalanceSheet);
-      query.equalTo("objectId", balanceSheetObjectId);
-      return query.first();
+      var self=this;
+      var deferred = $q.defer();      
+      this.getBalanceSheets(Parse.User.current().get("residency")).then(function(balanceSheets){
+        var balanceSheet=self.getBalanceSheetFromAvaialableBalanceSheets(balanceSheetObjectId, balanceSheets);
+        if(balanceSheet!=null) {
+          deferred.resolve(balanceSheet); 
+        } else {
+          var BalanceSheet = Parse.Object.extend("BalanceSheet");
+          var query = new Parse.Query(BalanceSheet);
+          query.equalTo("objectId", balanceSheetObjectId);
+          return query.first().then(function(balanceSheet) {
+            deferred.resolve(balanceSheet); 
+          },function(error){
+            deferred.reject(error);        
+          });    
+        }
+      }, function(error){
+        deferred.reject(error);    
+      });
+      return deferred.promise;
     },
     getOpenBalanceSheetFromAvailableBalanceSheets: function(availableBalanceSheets){
       var openBalanceSheets=[];

@@ -31,7 +31,7 @@
       </div>
     </div>    
 
-    <div class="row" ng-if="isAdmin">    
+    <div class="row" ng-if="isAdmin && expenseRecord.get('balanceSheet').get('status')=='OPEN'">    
       <div class="col">
         <button class="button button-balanced button-small button-block" ng-click="attachPicture()">
           Attach Receipt

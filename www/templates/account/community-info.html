@@ -3,23 +3,21 @@
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">Establishment Year</span>
-				<input type="text" name="year" class="textAlignLeft"  ng-model="communityInfo.year">
+				<span class="input-label">Number of Homes</span>
+				<input type="number" name="noOfUnits" class="textAlignLeft"  ng-model="communityInfo.noOfUnits">
+			</label>		
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Established Year</span>
+				<input type="number" name="year" class="textAlignLeft"  ng-model="communityInfo.year">
 			</label>
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">No of units in your community</span>
-				<input type="text" name="noOfUnits" class="textAlignLeft"  ng-model="communityInfo.noOfUnits">
-			</label>
-			<label class="item item-input item-stacked-label">
-				<span class="input-label">Community builder name</span>
+				<span class="input-label">Builder Name</span>
 				<input type="text" name="builderName" class="textAlignLeft"  ng-model="communityInfo.builderName">
 			</label>			
-			<div>
+			<div class="padding">
 		    	<button class="button button-block button-balanced" ng-click="next()">Next</button>
+<!-- 		    	<button class="button button-block button-royal" ng-click="cancel()">Previous</button>		    	 -->
 			</div>
-			<div>
-		    	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
-			</div>	
 		</div>
 	</ion-content>
 </ion-view>

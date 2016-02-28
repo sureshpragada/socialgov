@@ -267,6 +267,7 @@ angular.module('starter.controllers')
     isCitizen: AccountService.isCitizen(),
     isLogoutAllowed: AccountService.isLogoutAllowed($scope.user)
   };
+  $scope.appVersion=APP_VERSION;
 
   $scope.appMessage=SettingsService.getAppMessage();  
 
@@ -324,7 +325,7 @@ angular.module('starter.controllers')
   $scope.logout=function() {    
     Parse.User.logOut();
     $scope.user=null;
-    $state.go("ourblock-start");      
+    $state.go("home");      
   };
 
   $scope.notifySettingChanged=function(settingName, settingValue) {
@@ -391,14 +392,16 @@ angular.module('starter.controllers')
       if($scope.inputUser.homeNumber==null || $scope.inputUser.homeNumber.length<=0) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
         return;
-      }       
+      } else {
+        $scope.inputUser.homeNumber=$scope.inputUser.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+      }
     }    
 
     if($scope.inputUser.firstName==null || $scope.inputUser.lastName==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
     } else {
       AccountService.updateAccount($scope.inputUser).then(function(newUser) {
-        SettingsService.setAppSuccessMessage("Account update is successfull.");
+        SettingsService.setAppSuccessMessage("Account update is successful.");
         $state.go("tab.account");
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update your account.");  
@@ -412,6 +415,7 @@ angular.module('starter.controllers')
   console.log("Invitation login controller " + new Date().getTime());
   $scope.inputForm={invitationCode: null, terms: true};
   $scope.appMessage=SettingsService.getAppMessage();  
+  
   $scope.validateInvitationCode=function() {
     console.log("Validating invitation code");
     if($scope.inputForm.invitationCode!=null && $scope.inputForm.invitationCode.length>0) {
@@ -427,7 +431,7 @@ angular.module('starter.controllers')
   };
 
   $scope.recoverInvitationCode=function() {
-    SettingsService.setAppInfoMessage("Invitation code recovered will be SMS to your phone number.")
+    SettingsService.setAppInfoMessage("Invitation code will be SMS to your phone number.")
     $state.go("invite-recover");
   };  
 
@@ -561,27 +565,24 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
       return; 
     }
-    else if($scope.communityAddress.addressLine1==null){
+    if($scope.communityAddress.addressLine1==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter address."); 
       return; 
     }
-    else if($scope.communityAddress.city==null){
+    if($scope.communityAddress.city==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your city."); 
       return;  
     }
-    else if($scope.communityAddress.state==null){
+    if($scope.communityAddress.state==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your state."); 
       return;  
     }
-    else if($scope.communityAddress.pinCode==null){
+    if($scope.communityAddress.pinCode==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your pincode."); 
       return;  
     }
-    else{
-      AccountService.setCommunityAddress($scope.communityAddress);
-      $state.go("community-info");
-
-    }
+    AccountService.setCommunityAddress($scope.communityAddress);
+    $state.go("community-info");
   };
 
   $scope.cancel=function() {
@@ -593,19 +594,25 @@ angular.module('starter.controllers')
 .controller('CommunityInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
   
   $scope.communityInfo={};
+
   $scope.next=function() {
-    if($scope.communityInfo.year==null || ($scope.communityInfo.year!=null && $scope.communityInfo.year.length!=4) ){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid establishment year."); 
-      return;  
-    }
-    else if($scope.communityInfo.noOfUnits==null){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter no of units."); 
+    console.log(JSON.stringify($scope.communityInfo));
+    if($scope.communityInfo.noOfUnits==null || $scope.communityInfo.noOfUnits.length<1){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter number of homes in your community."); 
+      console.log("Checking no of units");
       return; 
     }
-    else{
-      AccountService.setCommunityInfo($scope.communityInfo);
-      $state.go("your-info");
+
+    if($scope.communityInfo.year==null || $scope.communityInfo.year<1500) {      // Since HTML defines this field as number, we cant do length
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid establishment year."); 
+      console.log("Checking year " + JSON.stringify($scope.communityInfo.year));
+      return;  
     }
+    
+    AccountService.setCommunityInfo($scope.communityInfo);
+    SettingsService.setAppInfoMessage("You will be setup with adminstrator privileges to build the community.");      
+    $state.go("your-info");
+
   };
 
   $scope.cancel=function() {
@@ -614,36 +621,43 @@ angular.module('starter.controllers')
   
 })
 
-.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
-  
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
+  $scope.appMessage=SettingsService.getAppMessage();
   $scope.user={};
   $scope.submit=function() {
     if($scope.user.firstName==null || $scope.user.lastName==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter firstname and lastname."); 
       return;
-    }
-    else if($scope.user.homeNo==null){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home no."); 
+    } else if($scope.user.homeNo==null){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home number."); 
      return; 
-    }
-    else if($scope.user.phoneNum==null || ($scope.user.phoneNum!=null && $scope.user.phoneNum.length!=10)){
+    } else if($scope.user.phoneNum==null || ($scope.user.phoneNum!=null && $scope.user.phoneNum.length!=10)){
      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid phone number."); 
      return; 
     }
     else{
-      AccountService.setYourInfo($scope.user);
-      AccountService.createNewCommunity().then(function(data){
-        console.log("Successfully added community.");
-        console.log(JSON.stringify(data));
-      },function(error){
-        console.log("Error creating community.");
+      $ionicLoading.show({
+        template: "<p class='item-icon-left'>Registering up your community...<ion-spinner/></p>"
       });
-      AccountService.createNewCommunityAdmin().then(function(data){
-        console.log(JSON.stringify(data));
-        console.log("Successfully added user.");
-        $state.go("tab.region");
+      AccountService.setYourInfo($scope.user);
+      AccountService.createNewCommunity().then(function(regionData){
+        AccountService.createNewCommunityAdmin().then(function(userData){
+          RegionService.initializeRegionCache(regionData);          
+          NotificationService.registerDevice();
+          ActivityService.postWelcomeActivity(regionData, userData);          
+          SettingsService.setAppSuccessMessage("Community has been registered.");
+          $ionicLoading.hide();
+          $state.go("tab.region");
+        },function(error){
+          regionData.destroy();
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
+          $ionicLoading.hide();
+          LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
+        });
       },function(error){
-        console.log("Error creating user.");
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
+        $ionicLoading.hide();
+        LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
       });
     }
   };
@@ -662,7 +676,6 @@ angular.module('starter.controllers')
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));
 
   $scope.invite=function() {
-    console.log("invited " + JSON.stringify($scope.user));
     if($scope.user.firstName==null || $scope.user.firstName.trim().length<=0) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first name.");
       return;
@@ -678,24 +691,30 @@ angular.module('starter.controllers')
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
         return;
       } else {
-        $scope.user.homeNumber=$scope.user.homeNumber.toUpperCase();
+        // replace(/\s+/g, '')  -- Remove only spaces leaving - or anything   
+        $scope.user.homeNumber=$scope.user.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
       }
     }    
     
     if ($scope.user.phoneNum!=null) {
       var formattedPhone = $scope.user.phoneNum.replace(/[^0-9]/g, '');  
 
-      if(formattedPhone.length != 10) { 
-         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
-         return;
-      } else {
+      if(formattedPhone.length>=10 && formattedPhone.length<=12) { 
+        if(formattedPhone.length>10) {
+          formattedPhone=formattedPhone.substr(formattedPhone.length-10, 10);
+        } 
         $scope.user.phoneNum=formattedPhone;
+      } else {
+         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
+         return;        
       }
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
       return;
     }
       
+    console.log("Invited " + JSON.stringify($scope.user));
+
     // Create user
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation

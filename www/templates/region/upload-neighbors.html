@@ -1,0 +1,20 @@
+<ion-view title="Upload Neighbors">
+	<ion-content>
+	    <my-app-message info="appMessage"></my-app-message>
+	    <my-app-message info="controllerMessage"></my-app-message>	
+		<ion-list>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Region Name</span>
+				<input type="text" name="regionName"  class="textAlignLeft" ng-model="input.regionName">
+			</label>		
+			<ion-item class="item-divider">Neighbor Data</ion-item>
+			<label class="item item-input">
+				<textarea placeholder="Enter neighbor data in CSV format.  Ex: 101,suresh,pragada,1231231212" rows="15" ng-model="input.neighborData"></textarea>
+		    </label>
+		</ion-list>
+		<div class="padding" >
+        	<button class="button button-block button-balanced" ng-click="submit()">Upload Neighbors</button>
+        	<button class="button button-block button-outline" ng-click="cancel()">Cancel</button>
+    	</div>
+	</ion-content>
+</ion-view>

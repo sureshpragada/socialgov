@@ -1,4 +1,7 @@
 <ion-view title="Expenses">
+  <ion-nav-buttons side="secondary">
+    <a class="button button-icon icon ion-ios-plus-outline" href="#/tab/manage-expense/{{focusBalanceSheet.id}}" ng-if="isAdmin && focusBalanceSheet.get('status')=='OPEN'"></a>
+  </ion-nav-buttons>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
@@ -14,7 +17,7 @@
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>
-      <div class="padding" ng-if="isAdmin">
+      <div class="padding" ng-if="isAdmin && focusBalanceSheet.get('status')=='OPEN'">
         <a class="button button-balanced button-block" href="#/tab/manage-expense/{{focusBalanceSheet.id}}">
           Add Expense
         </a>
