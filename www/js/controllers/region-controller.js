@@ -861,7 +861,7 @@ angular.module('starter.controllers')
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
   $ionicLoading.show({
-    template: "<ion-spinner></ion-spinner> Listing your neighbors..."
+    template: "<p class='item-icon-left'>Listing your neighbors...<ion-spinner/></p>"
   });        
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
