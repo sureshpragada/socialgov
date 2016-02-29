@@ -456,7 +456,7 @@ angular.module('starter.controllers')
   });  
 
   $scope.goTo=function(index) {
-    if($scope.focusBalanceSheet.get("status")=="OPEN") {
+    if($scope.focusBalanceSheet.get("status")=="OPEN" && $scope.isAdmin) {
       if($scope.homeOwnerPaymentList[index].get("status")=="PENDING") {
         SettingsService.setPageTransitionData({
           homeNo: $scope.homeOwnerPaymentList[index].get("homeNo"), 
@@ -815,12 +815,14 @@ angular.module('starter.controllers')
 
   // Dues calculation
   FinancialService.getAllDues($scope.user.get("residency")).then(function(duesList) {    
-    if(duesList!=null) {
+    if(duesList!=null && duesList.length>0) {
       var dues=FinancialService.getCurrentDues(duesList);
       if(dues==null) {
         dues=FinancialService.getUpcomingDues(duesList);
       }
-      $scope.input.maintDues=dues.get("maintDues");
+      if(dues!=null) {
+        $scope.input.maintDues=dues.get("maintDues");
+      }
     } else {
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("Maintenance dues need to be setup to generate monthly home owner payments.");  
     } 
