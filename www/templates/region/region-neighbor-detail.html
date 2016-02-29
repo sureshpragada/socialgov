@@ -10,7 +10,7 @@
       <div class="item item-avatar item-icon-right">
         <img ng-src="{{user.get('images')[0]}}" ng-if="user.get('images')">
         <img src="img/avatar2.png" ng-if="!user.get('images')">
-        <a href="#/tab/admin-neighbor-update/{{user.id}}"><i class="icon ion-compose royal"></i></a>     
+        <a href="#/tab/admin-neighbor-update/{{user.id}}" ng-if="isAdmin && user.id!=operatingUser.id"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
         <p ng-if="user.get('homeNo')">Home # {{user.get("homeNo")}}</p>
       </div>

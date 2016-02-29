@@ -17,10 +17,13 @@ angular.module('starter.controllers')
     var paymentList=results[0];
     $scope.paymentStatus="NA";    
     if(paymentList!=null && paymentList.length>0) {
+      $scope.noOfPaymentsInHistory=paymentList.length;
       if(paymentList[0].get("status")=="COMPLETED") {
-        $scope.paymentStatus="Paid";  
+        $scope.paymentStatus="Paid";          
+        $scope.paymentAmount=paymentList[0].get("revenueAmount");
       } else if(paymentList[0].get("status")=="PENDING") {
         $scope.paymentStatus="Unpaid";  
+        $scope.paymentAmount=paymentList[0].get("revenueAmount");
       } 
     }
 
@@ -687,15 +690,23 @@ angular.module('starter.controllers')
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading balance sheet...<ion-spinner/></p>"
   });
-  FinancialService.getBalanceSheets($scope.user.get("residency")).then(function(availableBalanceSheets) {
+  FinancialService.getBalanceSheets($scope.user.get("residency")).then(function(availableBalanceSheets) {    
+    $scope.balanceSheet=FinancialService.getBalanceSheetFromAvaialableBalanceSheets($stateParams.balanceSheetId, availableBalanceSheets);
+    $scope.isCloseAllowed=true;    
+    if($scope.balanceSheet.get("status")=="CLOSED") {
+      $scope.isCloseAllowed=false;    
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Closed balance sheets do not allow any edits to revenue and expense entries.");
+    }
+
     $scope.openBalanceSheets=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets(availableBalanceSheets);
     if($scope.openBalanceSheets.length==2) {
       $scope.closeBalanceSheetInput.carryForwardBalance=true;
       $scope.closeBalanceSheetInput.carryForwardHomeOwnerUnpaidBalance=true;
-    }
-    $scope.balanceSheet=FinancialService.getBalanceSheetFromAvaialableBalanceSheets($stateParams.balanceSheetId, availableBalanceSheets);
-    if($scope.balanceSheet.get("status")=="CLOSED") {
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Closed balance sheets do not allow any edits to revenue and expense entries.");
+      // Allow only previous sheet to be closed
+      if($scope.balanceSheet.get("startDate").getTime()>$scope.getOtherBalanceSheet().get("startDate").getTime()) {
+        $scope.isCloseAllowed=false;   
+        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Balance sheet will be allowed to close upon closing of older balance sheet.");                        
+      } 
     }
 
     FinancialService.getMonthlyBalanceSheet(Parse.User.current().get("residency"), $scope.balanceSheet).then(function(balanceSheetEntries) {
@@ -784,15 +795,26 @@ angular.module('starter.controllers')
 .controller('StartBalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, $ionicHistory, LogService) {
   console.log("Start Balance sheet controller ");
   $scope.user=Parse.User.current();
+  $scope.balanceSheets=[];
   $scope.input={
     generateHomeOwnerPayments: true,
-    startDate: new Date().firstDayOfMonth(),
+    startDate: new Date().firstDayOfMonth(), // TODO :: Populate next month here
     openedBy: $scope.user,
     residency: $scope.user.get("residency")
   };
 
+  // Start date calculation
+  FinancialService.getBalanceSheets($scope.user.get("residency")).then(function(balanceSheets){
+    if(balanceSheets!=null && balanceSheets.length>0) {
+      $scope.balanceSheets=balanceSheets;
+      $scope.input.startDate=$scope.balanceSheets[0].get("startDate").addMonths(1);      
+    }
+  },function(error){
+    console.log("Unable to get balance sheets to calculate start date of balance sheet.");
+  });
+
   // Dues calculation
-  FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {    
+  FinancialService.getAllDues($scope.user.get("residency")).then(function(duesList) {    
     if(duesList!=null) {
       var dues=FinancialService.getCurrentDues(duesList);
       if(dues==null) {
@@ -813,18 +835,30 @@ angular.module('starter.controllers')
       return;
     }
 
+    if(FinancialService.isBalanceSheetExistsInThisMonth($scope.balanceSheets, $scope.input.startDate)) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Balance sheet exists for this month. Please open balance sheet for upcoming month.");
+      return;      
+    }
+
+    if($scope.balanceSheets.length>0 && $scope.input.startDate.getTime()<$scope.balanceSheets[0].get("startDate").getTime()) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Balance sheet can be opened only for upcoming months.");
+      return;      
+    } 
+
     $ionicLoading.show({
       template: "<p class='item-icon-left'>Creating balance sheet...<ion-spinner/></p>"
     });
+    $scope.input.startDate=$scope.input.startDate.endOfTheDay();
     FinancialService.openBalanceSheet($scope.input).then(function(newBalanceSheet) {
       if($scope.input.generateHomeOwnerPayments==true) {
         FinancialService.generateHomeOwnerPayments(newBalanceSheet, $scope.input.maintDues).then(function(newRevenueEntries){
-          $scope.gotoBalanceSheetOnSuccess("New balance sheet has been created.");
+          $scope.gotoBalanceSheetOnSuccess("New balance sheet has been opened.");
         }, function(error) {
           SettingsService.setAppInfoMessage("Home owner payment generation is failed in new balance sheet. System will attempt to create them offline.");
           LogService.log({type:"ERROR", message: "Failed to create home owner payments " + JSON.stringify(error) + " residency : " + newBalanceSheet.get("residency") + " Balance sheet ID : " + newBalanceSheet.id}); 
           $ionicLoading.hide();    
-          $state.go("tab.balance-sheet-list");
+          // $state.go("tab.balance-sheet-list");
+          $ionicHistory.goBack(-1);
         });
       } else {
         $scope.gotoBalanceSheetOnSuccess("New balance sheet has been created.");
@@ -842,7 +876,8 @@ angular.module('starter.controllers')
   $scope.gotoBalanceSheetOnSuccess=function(message) {
     SettingsService.setAppSuccessMessage(message);
     $ionicLoading.hide();    
-    $state.go("tab.balance-sheet-list");
+    // $state.go("tab.balance-sheet-list");
+    $ionicHistory.goBack(-1);    
   };
 
 })

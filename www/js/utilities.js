@@ -28,6 +28,10 @@ Date.prototype.firstDayOfMonth=function() {
 	return new Date(this.getFullYear(), this.getMonth(), 1);
 };
 
+Date.prototype.endOfTheDay=function() {
+    return new Date(this.getFullYear(), this.getMonth(), this.getDate(), 23, 0, 0, 0);
+};
+
 Date.prototype.lastDayOfMonth=function() {
 	return new Date(this.getFullYear(), this.getMonth() + 1, 0);
 };
@@ -36,5 +40,12 @@ Date.prototype.addDays = function(days)
 {
     var dat = new Date(this.valueOf());
     dat.setDate(dat.getDate() + days);
+    return dat;
+};
+
+Date.prototype.addMonths = function(months)
+{
+    var dat = new Date(this.valueOf());
+    dat.setMonth(dat.getMonth() + months);
     return dat;
 };

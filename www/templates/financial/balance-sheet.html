@@ -40,7 +40,7 @@
           Start next balance sheet to carry forward any unpaid payments and balances when you close this balance sheet. 
         </ion-item>                                         
       </ion-list>
-      <div class="padding" ng-if="isAdmin && balanceSheet.get('status')=='OPEN'  && !closeBalanceSheetInput.closeInitiated">
+      <div class="padding" ng-if="isAdmin && isCloseAllowed && !closeBalanceSheetInput.closeInitiated">
         <a class="button button-block button-assertive" ng-click="initiateCloseBalanceSheet(true)">Close Balance Sheet</a>        
       </div>
       <div class="row" ng-if="closeBalanceSheetInput.closeInitiated">

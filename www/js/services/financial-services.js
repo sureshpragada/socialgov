@@ -237,6 +237,7 @@ angular.module('financial.services', [])
       var revenueQuery = new Parse.Query(Revenue);
       revenueQuery.equalTo("residency",regionName);
       revenueQuery.equalTo("balanceSheet", balanceSheetObject)
+      revenueQuery.ascending("homeNo");
       return revenueQuery.find();
     },
     getBalanceSheetExpenses: function(regionName, balanceSheetObject) {
@@ -244,6 +245,7 @@ angular.module('financial.services', [])
       var expenseQuery = new Parse.Query(Expense);
       expenseQuery.equalTo("residency",regionName);
       expenseQuery.equalTo("balanceSheet", balanceSheetObject)
+      expenseQuery.ascending("homeNo");
       return expenseQuery.find();
     },
     getMonthlyBalanceSheet: function(regionName, balanceSheetObject) {
@@ -281,6 +283,7 @@ angular.module('financial.services', [])
       balanceSheet.set("status", "OPEN");
       balanceSheet.set("residency", inputBalanceSheet.residency);
       balanceSheet.set("openedBy", inputBalanceSheet.openedBy);
+      balanceSheet.set("generateHomeOwnerPayments", inputBalanceSheet.generateHomeOwnerPayments);                  
       return balanceSheet.save();
     },
     closeBalanceSheet: function(balanceSheetObjectId, inputBalanceSheet) {
@@ -292,8 +295,17 @@ angular.module('financial.services', [])
       balanceSheet.set("status", "CLOSED");
       balanceSheet.set("closedBy", inputBalanceSheet.closedBy);
       balanceSheet.set("carryForwardBalance", inputBalanceSheet.carryForwardBalance);
-      balanceSheet.set("generateHomeOwnerPayments", inputBalanceSheet.generateHomeOwnerPayments);            
+      balanceSheet.set("carryForwardHomeOwnerUnpaidBalance", inputBalanceSheet.carryForwardHomeOwnerUnpaidBalance);      
       return balanceSheet.save();
+    },
+    isBalanceSheetExistsInThisMonth: function(balanceSheets, startDate) {
+      for(var i=0;i<balanceSheets.length;i++) {
+        var balanceSheetDate=balanceSheets[i].get("startDate");
+        if(balanceSheetDate.getFullYear()==startDate.getFullYear() && balanceSheetDate.getMonth()==startDate.getMonth()) {
+          return true;
+        }
+      }
+      return false;
     },
     carryForwardFinalBalanceAmountToNextBalanceSheet: function(inputBalanceSheet, carryForwardAmount) {
       var revenueInputData={

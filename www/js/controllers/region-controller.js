@@ -766,10 +766,12 @@ angular.module('starter.controllers')
 
 .controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard) {
   console.log("Neighbor details controller " + $stateParams.userId);
+  $scope.operatingUser=Parse.User.current();
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
+
     $scope.user=neighbor;        
     $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
     $scope.$apply();
