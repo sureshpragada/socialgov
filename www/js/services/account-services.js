@@ -468,7 +468,7 @@ angular.module('account.services', [])
       region.set("settings",REGION_SETTINGS);
       region.set("type",INITIAL_REGION_TYPE);
       var currentDate=new Date();
-      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+currentDate.getMonth()+"_"+currentDate.getDate()+"_"+this.communityAddress.city.toLowerCase());
+      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+currentDate.getMonth()+"_"+currentDate.getDate()+"_"+currentDate.getMilliseconds()+"_"+this.communityAddress.city.toLowerCase());
       return region.save();
     },
     createNewCommunityAdmin:function(region){

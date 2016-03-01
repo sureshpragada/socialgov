@@ -11,16 +11,16 @@ angular.module('starter.controllers')
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
+  $scope.isAdmin=AccountService.canUpdateRegion();
 
   var residency=$stateParams.regionUniqueName;
   if(residency=="native") {
     residency=$scope.user.get("residency");
   }
-  $scope.regionSettings=RegionService.getRegionSettings(residency);          
-  $scope.isAdmin=AccountService.canUpdateRegion();
 
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
+    $scope.regionSettings=RegionService.getRegionSettings(residency);              
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information.");
     console.log("Error retrieving region " + JSON.stringify(error));

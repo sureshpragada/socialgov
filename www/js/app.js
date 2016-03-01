@@ -798,7 +798,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false
     });
 
-    $urlRouterProvider.otherwise('/tab/dash');
+    $urlRouterProvider.otherwise('/tab/region/native');
 
 })
 
