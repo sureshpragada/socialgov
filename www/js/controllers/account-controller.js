@@ -258,7 +258,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard) {
   $scope.user = AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
@@ -289,8 +289,6 @@ angular.module('starter.controllers')
   } else {
     console.log("Image URL is null");
   }
-
-
 
   $scope.isPendingRequest=false;
   AccountService.getAccessRequest().then(function(accessrequest){
@@ -339,6 +337,17 @@ angular.module('starter.controllers')
       }
     });
   };
+
+  $scope.copyInvitationCode=function() {
+    $cordovaClipboard.copy($scope.user.id).then(function () {
+      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Invitation code has been copied to clipboard.");
+      $interval(function(){
+        $scope.copyStatusMessage=null;
+      }, 5000, 1);
+    }, function () {
+      $scope.copyStatusMessage=SettingsService.getControllerErrorMessage("Unable to copy invitation code to clipboard.");
+    });
+  };  
 
   $ionicModal.fromTemplateUrl('templates/picture-modal.html', {
     scope: $scope,
@@ -462,7 +471,7 @@ angular.module('starter.controllers')
 
     AccountService.recoverInvitationCode($scope.user).then(function(userList) {
       if(userList!=null && userList.length==1) {
-        NotificationService.sendInvitationCode(userList[0].id, userList[0].get("username"));
+        NotificationService.sendInvitationCode(userList[0].id, userList[0].get("username"), "");
         SettingsService.setAppSuccessMessage("Invitation code has been SMS to your mobile.");
         $state.go("invite-login");
       } else {
@@ -722,7 +731,11 @@ angular.module('starter.controllers')
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation
       if($scope.regionSettings.sendInvitationCode==true) {
-        NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));        
+        RegionService.getRegion(Parse.User.current().get("residency")).then(function(region){
+          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), region.get("name"));
+        }, function(error){
+          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), "");        
+        });        
       } else {
         console.log("Region does not support sending invitation code");
       }

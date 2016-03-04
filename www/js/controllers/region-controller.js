@@ -7,24 +7,44 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
+.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService, PictureManagerService, $ionicLoading) {
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading community...<ion-spinner/></p>"
+  });  
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
   $scope.isAdmin=AccountService.canUpdateRegion();
 
   var residency=$stateParams.regionUniqueName;
-  if(residency=="native") {
+  if(residency==null || residency.trim().length==0 || residency=="native") {
     residency=$scope.user.get("residency");
   }
 
+  $scope.posterImages=[];
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
     $scope.regionSettings=RegionService.getRegionSettings(residency);              
+    $scope.updateCoverPhotoIfAvailable($scope.region);
+    $scope.posterImages=$scope.region.get("posterImages");
+    $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information.");
     console.log("Error retrieving region " + JSON.stringify(error));
-  });
+    $ionicLoading.hide();
+  });  
+
+  $scope.updateCoverPhoto=function() {
+    RegionService.gotoCoverPhoto();
+  };
+
+  $scope.updateCoverPhotoIfAvailable=function(region) {
+    if(PictureManagerService.getState().imageUrl!=null) {
+      RegionService.updateCoverPhoto(region, PictureManagerService.getState().imageUrl);
+      PictureManagerService.reset();
+    } 
+  };
+
 })
 
 .controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
@@ -835,13 +855,13 @@ angular.module('starter.controllers')
         $scope.copyStatusMessage=null;
       }, 5000, 1);
     }, function () {
-      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Unable to copy invitation message to clipboard.");
+      $scope.copyStatusMessage=SettingsService.getControllerErrorMessage("Unable to copy invitation message to clipboard.");
     });
   };
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
-    NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"));              
+    NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"), "");              
     $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");
   };
 
@@ -980,6 +1000,10 @@ angular.module('starter.controllers')
 
   $scope.notifySettingChanged=function() {
     $scope.settingsChanged=true;
+  };
+
+  $scope.updateCoverPhoto=function() {
+    RegionService.gotoCoverPhoto();
   };
 
 })

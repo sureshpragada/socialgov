@@ -465,6 +465,7 @@ angular.module('account.services', [])
       region.set("parentRegion",[]);
       region.set("serviceContactList",[]);
       region.set("financials",[]);
+      region.set("posterImages",[]);
       region.set("settings",REGION_SETTINGS);
       region.set("type",INITIAL_REGION_TYPE);
       var currentDate=new Date();

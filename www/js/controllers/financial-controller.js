@@ -672,7 +672,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('BalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, LogService, $q) {
+.controller('BalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, LogService, $q, $cordovaDialogs) {
   console.log("Balance sheet controller " + $stateParams.balanceSheetId);
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.canUpdateRegion();  
@@ -680,6 +680,7 @@ angular.module('starter.controllers')
 
   $scope.closeBalanceSheetInput={
     closeInitiated: false,
+    deleteInitiated: false,
     carryForwardBalance: false,
     carryForwardHomeOwnerUnpaidBalance: false,
     endDate: new Date(),
@@ -711,23 +712,23 @@ angular.module('starter.controllers')
 
     FinancialService.getMonthlyBalanceSheet(Parse.User.current().get("residency"), $scope.balanceSheet).then(function(balanceSheetEntries) {
 
-      var revenueList=balanceSheetEntries[0];
+      $scope.revenueList=balanceSheetEntries[0];
       $scope.homeOwnerUnpaidPaymentList=[];
       $scope.revenueTotal=0;
-      for(var i=0;i<revenueList.length;i++) {
-        if((revenueList[i].get("revenueCategory")=="MAINT_DUES" && revenueList[i].get("status")=="COMPLETED")
-          || revenueList[i].get("revenueCategory")=="OTHER") {
-          $scope.revenueTotal+=revenueList[i].get("revenueAmount");
+      for(var i=0;i<$scope.revenueList.length;i++) {
+        if(($scope.revenueList[i].get("revenueCategory")=="MAINT_DUES" && $scope.revenueList[i].get("status")=="COMPLETED")
+          || $scope.revenueList[i].get("revenueCategory")=="OTHER") {
+          $scope.revenueTotal+=$scope.revenueList[i].get("revenueAmount");
         }
-        if(revenueList[i].get("revenueCategory")=="MAINT_DUES" && revenueList[i].get("status")=="PENDING") {
-          $scope.homeOwnerUnpaidPaymentList.push(revenueList[i]);
+        if($scope.revenueList[i].get("revenueCategory")=="MAINT_DUES" && $scope.revenueList[i].get("status")=="PENDING") {
+          $scope.homeOwnerUnpaidPaymentList.push($scope.revenueList[i]);
         }
       }
 
-      var expenseList=balanceSheetEntries[1];
+      $scope.expenseList=balanceSheetEntries[1];
       $scope.expenseTotal=0;
-      for(var i=0;i<expenseList.length;i++) {
-        $scope.expenseTotal+=expenseList[i].get("expenseAmount");
+      for(var i=0;i<$scope.expenseList.length;i++) {
+        $scope.expenseTotal+=$scope.expenseList[i].get("expenseAmount");
       }
 
       $ionicLoading.hide();
@@ -742,6 +743,9 @@ angular.module('starter.controllers')
 
   $scope.initiateCloseBalanceSheet=function(action) {
     $scope.closeBalanceSheetInput.closeInitiated=action;
+    if(action==true) {
+      $scope.closeBalanceSheetInput.deleteInitiated=false;
+    }    
   };
 
   $scope.closeBalanceSheet=function() {
@@ -788,6 +792,30 @@ angular.module('starter.controllers')
       }
     }
     return null;
+  };
+
+  $scope.initiateDeleteBalanceSheet=function(action) {
+    $scope.closeBalanceSheetInput.deleteInitiated=action;
+    if(action==true) {
+      $scope.closeBalanceSheetInput.closeInitiated=false;
+    }
+  };
+
+  $scope.deleteBalanceSheet=function() {
+    $ionicLoading.show({
+      template: "<p class='item-icon-left'>Deleting balance sheet...<ion-spinner/></p>"
+    });    
+    $q.all([
+      $scope.balanceSheet.destroy(),
+      Parse.Object.destroyAll($scope.revenueList),
+      Parse.Object.destroyAll($scope.expenseList)
+      ]).then(function(results){
+      FinancialService.refreshBalanceSheetCache();
+      $scope.gotoBalanceSheetWithMessage("Balance sheet has been deleted.");          
+    },function(error){
+      FinancialService.refreshBalanceSheetCache();
+      $scope.gotoBalanceSheetWithMessage("Partial failures with deleting the balance sheet and it will be cleaned up offline.");
+    });
   };
 
 })

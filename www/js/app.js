@@ -174,6 +174,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })        
 
+    .state('tab.community-picman', {
+      url: '/community-picman',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/picture-manager.html',
+          controller: 'PictureManagerCtrl'
+        }
+      }
+    })        
+
     .state('tab.regions', {
       url: '/regions',
       views: {

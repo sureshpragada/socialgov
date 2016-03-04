@@ -14,7 +14,7 @@ angular.module('financial.services', [])
   var balanceSheetCache;
   if (!CacheFactory.get('balanceSheetCache')) {
     balanceSheetCache = CacheFactory('balanceSheetCache', {
-      maxAge: 1 * 60 * 60 * 1000, // 1 Day
+      maxAge: 5 * 60 * 1000, // 1 Day
       deleteOnExpire: 'none'
     });
   }
@@ -24,6 +24,7 @@ angular.module('financial.services', [])
       var deferred = $q.defer();
       var cachedObjectInfo=balanceSheetCache.info(regionUniqueName);
       if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        console.log("Found in cache");
         deferred.resolve(balanceSheetCache.get(regionUniqueName));  
       } else {
         var BalanceSheet = Parse.Object.extend("BalanceSheet");
@@ -33,9 +34,11 @@ angular.module('financial.services', [])
         query.find(function(balanceSheets) {
             balanceSheetCache.remove(regionUniqueName);
             balanceSheetCache.put(regionUniqueName, balanceSheets);          
+            console.log("Queried from in cache");
             deferred.resolve(balanceSheets);
           }, function(error) {
             if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              console.log("Failed to get it to cache");
               deferred.resolve(balanceSheetCache.get(regionUniqueName));  
             } else {
               deferred.reject(error);
@@ -44,6 +47,10 @@ angular.module('financial.services', [])
       }
       return deferred.promise;
     },    
+    refreshBalanceSheetCache: function(regionUniqueName) {
+      console.log("removed from cache");
+      balanceSheetCache.removeAll();
+    },
     getFinancialSnapshot: function(residency, homeNo) {
       var deferred=$q.all([
         this.getMyPaymentHistory(residency, homeNo),
@@ -297,7 +304,7 @@ angular.module('financial.services', [])
       balanceSheet.set("carryForwardBalance", inputBalanceSheet.carryForwardBalance);
       balanceSheet.set("carryForwardHomeOwnerUnpaidBalance", inputBalanceSheet.carryForwardHomeOwnerUnpaidBalance);      
       return balanceSheet.save();
-    },
+    },    
     isBalanceSheetExistsInThisMonth: function(balanceSheets, startDate) {
       for(var i=0;i<balanceSheets.length;i++) {
         var balanceSheetDate=balanceSheets[i].get("startDate");

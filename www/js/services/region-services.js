@@ -1,6 +1,6 @@
 angular.module('region.services', [])
 
-.factory('RegionService', ['CacheFactory', 'LogService', 'SettingsService', '$q', function(CacheFactory, LogService, SettingsService, $q) {
+.factory('RegionService', ['CacheFactory', 'LogService', 'SettingsService', '$q', '$state', 'PictureManagerService', function(CacheFactory, LogService, SettingsService, $q, $state, PictureManagerService) {
   var regionHeirarchy=null;
   var regionCache;
   if (!CacheFactory.get('regionCache')) {
@@ -151,6 +151,23 @@ angular.module('region.services', [])
     updateRegion: function(regionName, region) {
       regionCache.remove(regionName);
       regionCache.put(regionName, region);                
+    },
+    gotoCoverPhoto: function() {
+      PictureManagerService.reset();
+      PictureManagerService.setFromPage("tab.region");
+      PictureManagerService.setFromPagePathParamValue({regionUniqueName: "native"});
+      $state.go("tab.community-picman");
+    },
+    updateCoverPhoto: function(region, photoUrl) {
+      var images=region.get("posterImages");
+      if(images!=null && images.length>0) {
+        images.unshift(photoUrl);
+      } else {
+        images=[photoUrl];
+      }
+      region.set("posterImages", images);
+      region.save();
+      this.updateRegion(region.get("uniqueName"), region);
     },
     updateReserve: function(region, reserveInput) {
       var currentReserve=region.get("reserve");
