@@ -172,6 +172,12 @@ angular.module('region.services', [])
         return region.get("settings");
       } 
       return REGION_SETTINGS;
+    },
+    getContactFromNewCommunity: function(regionUniqueName) {
+      var Region = Parse.Object.extend("Region");
+      var query = new Parse.Query(Region);
+      query.equalTo("uniqueName", regionUniqueName);
+      return query.find();
     }
   };
 }])

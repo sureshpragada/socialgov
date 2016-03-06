@@ -272,6 +272,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.addcontacttooffice', {
+      url: '/addcontacttooffice/{regionUniqueName}/{officeIndex}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/add-contact-to-office.html',
+          controller: 'AddContactToOfficeCtrl'
+        }
+      }
+    })
+
     .state('tab.service', {
       url: '/service/{regionUniqueName}',
       cache: false,      

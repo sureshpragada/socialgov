@@ -452,18 +452,24 @@ angular.module('account.services', [])
       var Region = Parse.Object.extend("Region");
       var region = new Region();
       var demography = {"units":this.communityInfo.noOfUnits, "est":this.communityInfo.year}
-      var address = {"addressLine1":this.communityAddress.addressLine1, 
+      var address = [];
+      var communityAddress = {"name":this.communityAddress.name, "addressLine1":this.communityAddress.addressLine1, 
         "addressLine2":this.communityAddress.addressLine2,
         "city":this.communityAddress.city,
         "state":this.communityAddress.state,
-        "pincode":this.communityAddress.pinCode
+        "pincode":this.communityAddress.pinCode,
+        type:"DEFAULT"
       }
+      var builderAddress = {"name":this.communityInfo.builderName, type:"DEFAULT"};
+      address.push(communityAddress);
+      address.push(builderAddress);
       region.set("demography",demography);
-      region.set("execOffAddrList",[]);
+      region.set("type","CONST");
+      region.set("execOffAddrList",address);
       region.set("legiRepList",[]);
       region.set("name",this.communityAddress.name);
       region.set("parentRegion",[]);
-      region.set("serviceContectList",[]);
+      region.set("serviceContactList",[]);
       region.set("settings",REGION_SETTINGS);
       region.set("type",REG_TOP_REGION_TYPES[0]);
       region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+this.communityAddress.city);

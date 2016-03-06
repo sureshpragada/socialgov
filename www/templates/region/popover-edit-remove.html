@@ -4,7 +4,10 @@
       <a class="item" ng-click="editThis()">
         Edit
       </a>
-      <a class="item" ng-click="removeThis()">
+      <a class="item" ng-click="addContact()">
+        Add Contact
+      </a>
+      <a class="item" ng-click="removeThis()" ng-if="canDeleteOffice">
         Delete
       </a>
     </div>

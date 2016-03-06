@@ -1,0 +1,29 @@
+<ion-view title="Add Contact to Executive Offices">
+	<ion-content>
+		<my-app-message info="controllerMessage"></my-app-message>
+		<ion-list>
+   		<label class="item item-input item-stacked-label" >
+				<span class="input-label">
+				      Name 
+				</span>
+			<input type="text" class="textAlignLeft" name="name"  ng-model="contact.name">
+		</label>
+		<label class="item item-input item-stacked-label" >
+				<span class="input-label">
+				      Title
+				</span>
+			<input type="text" class="textAlignLeft" name="title"  ng-model="contact.title">
+		</label>
+    <label class="item item-input item-stacked-label">
+        <span class="input-label">
+          Phone Number
+         </span>
+         <input type="text" class="textAlignLeft" name="contactPhoneList" ng-model="contact.phoneNum" >
+    </label>
+  </ion-list>
+    <div class="padding" >
+        <button class="button button-block button-balanced" ng-click="submit()">Submit</button>
+        <button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+    </div>   
+ </ion-content>
+</ion-view>
