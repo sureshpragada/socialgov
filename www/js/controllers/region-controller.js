@@ -318,7 +318,7 @@ angular.module('starter.controllers')
       $scope.region.save(null, {
           success: function(region) {
             RegionService.updateRegion(region.get("uniqueName"), region);
-            SettingsService.setAppSuccessMessage("Contacts has been added.");
+            SettingsService.setAppSuccessMessage("Contact has been added.");
             $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
           },
           error: function(region, error) {
