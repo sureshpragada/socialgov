@@ -183,29 +183,28 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
-  console.log(JSON.stringify($scope.regions));
   $scope.deleteOffice=function(regionIndex, officeIndex){
-    $scope.offices=$scope.regions[regionIndex].get("execOffAddrList");
-    $scope.offices.splice(officeIndex,1);
-    for(var i=0; i < $scope.offices.length;i++) { 
-      delete $scope.offices[i].$$hashKey;
-      if($scope.offices[i].execAdmin!=null) {
-        for(var j=0; j < $scope.offices[i].execAdmin.length; j++){
-          delete $scope.offices[i].execAdmin[j].$$hashKey;
+    var offices=$scope.regions[regionIndex].get("execOffAddrList");
+    offices.splice(officeIndex,1);
+    for(var i=0; i < offices.length;i++) { 
+      delete offices[i].$$hashKey;
+      if(offices[i].contacts!=null) {
+        for(var j=0; j < offices[i].contacts.length; j++){
+          delete offices[i].contacts[j].$$hashKey;
         }
       }
     }
-
     $scope.regions[regionIndex].save(null, {
       success: function(region) {
         RegionService.updateRegion(region.get("uniqueName"), region);        
         $scope.$apply(function(){ // To refresh the view with the delete
+          SettingsService.setAppSuccessMessage("Office has been deleted.");
           console.log("delete is success");
         });
       },
       error: function(region, error) {
         console.log("Error in deleting the office " + error.message);
-        $scope.deleteErrorMessage="Unable to process your delete request.";
+        $scope.controllerMessage="Unable to process your delete request.";
       }
     });
 
@@ -298,7 +297,7 @@ angular.module('starter.controllers')
       $scope.region.save(null, {
           success: function(region) {
             RegionService.updateRegion(region.get("uniqueName"), region);
-            SettingsService.setAppSuccessMessage("Contacts has been added.");
+            SettingsService.setAppSuccessMessage("Contact has been added.");
             $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
           },
           error: function(region, error) {
@@ -391,11 +390,9 @@ angular.module('starter.controllers')
 
   // $scope.newExecObj={};
   // $scope.newOfficeObj={};
-  var officeIndex=$stateParams.officeIndex;
-
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
-    $scope.newOfficeObj=$scope.region.get('execOffAddrList')[officeIndex];
+    $scope.newOfficeObj=$scope.region.get('execOffAddrList')[$stateParams.officeIndex];
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information."); 
     console.log("Error retrieving region " + JSON.stringify(error));
@@ -405,12 +402,14 @@ angular.module('starter.controllers')
     // for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
     //   delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
     // }
-    for(var i=0; i <$scope.region.get('execOffAddrList').length;i++){
-      var execOffAddr=$scope.region.get('execOffAddrList')[i];
-      delete execOffAddr.$$hashKey;
-      // for(var j=0;j<execOffAddr.execAdmin.length;j++) {
-      //   delete execOffAddr.execAdmin[j].$$hashKey;
-      // }
+    var officesList=$scope.region.get('execOffAddrList');
+    for(var i=0; i <officesList.length;i++){
+      delete officesList[i].$$hashKey;
+      if(officesList[i].contacts!=undefined){
+        for(var j=0;j<officesList[i].contacts.length;j++) {
+          delete officesList[i].contacts[j].$$hashKey;
+        }
+      }
     }
 
     // if(typeof($scope.newOfficeObj.phoneNumberList)=="string"){
@@ -431,12 +430,11 @@ angular.module('starter.controllers')
     //       }
     //     }
     // }
-    console.log(JSON.stringify($scope.region));
     $scope.region.save(null, {
         success: function(region) {
           console.log("edit is success " + JSON.stringify(region));          
           RegionService.updateRegion(region.get("uniqueName"), region);          
-          SettingsService.setAppMessage("Office has been updated.");
+          SettingsService.setAppSuccessMessage("Office has been updated.");
           $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});          
         }
     });
