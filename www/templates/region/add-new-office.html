@@ -1,41 +1,44 @@
 <ion-view title="Add Executive Offices &amp; Contacts">
 	<ion-content>
-		<div class="padding card assertive" ng-if="officeErrorMessage">
-			{{officeErrorMessage}}
-		</div>
+		<my-app-message info="controllerMessage"></my-app-message>
 		<ion-list>
-   		<label class="item item-input" >
+   		<label class="item item-input item-stacked-label" >
 				<span class="input-label">
 				      Office Name 
 				</span>
-			<input type="text" name="offName"  ng-model="newOfficeObj.officeName">
+			<input type="text" class="textAlignLeft" name="offName"  ng-model="newOfficeObj.name">
 		</label>
-		<label class="item item-input" >
+		<label class="item item-input item-stacked-label" >
 				<span class="input-label">
 				      Address Line 1
 				</span>
-			<input type="text" name="addr1"  ng-model="newOfficeObj.addressLine1">
+			<input type="text" class="textAlignLeft" name="addr1"  ng-model="newOfficeObj.addressLine1">
 		</label>
-		<label class="item item-input" >
+		<label class="item item-input item-stacked-label">
 				<span class="input-label">
 				      Address Line 2
 				</span>
-			<input type="text" name="addr2"  ng-model="newOfficeObj.addressLine2">
+			<input type="text" class="textAlignLeft" name="addr2"  ng-model="newOfficeObj.addressLine2">
 		</label>
-    <label class="item item-input" >
+    <label class="item item-input item-stacked-label" >
         <span class="input-label"> 
-        	Landmark
+        	City
         </span>
-      <input type="text" name="landmark"  ng-model="newOfficeObj.landmark">
+      <input type="text" class="textAlignLeft" name="city"  ng-model="newOfficeObj.city">
     </label>
-    <label class="item item-input" >
+    <label class="item item-input item-stacked-label">
         <span class="input-label">
-              Phone numbers
+          State
         </span>
-      <input type="text" name="phoneNums"  ng-model="phoneNums.officeNum" >
-
+      <input type="text" class="textAlignLeft" name="state"  ng-model="newOfficeObj.state" >
     </label>
-  	<label class="item item-input">
+    <label class="item item-input item-stacked-label">
+        <span class="input-label">
+          Pincode
+        </span>
+      <input type="text" class="textAlignLeft" name="pincode"  ng-model="newOfficeObj.pincode" >
+    </label>
+  	<!-- <label class="item item-input">
         <span class="input-label">
             Exec Admin Title
         </span>
@@ -52,12 +55,10 @@
                 Exec Admin Phone 
          </span>
          <input type="text" name="adminPhoneList" ng-model="phoneNums.execNum" >
-    </label>
+    </label> -->
   </ion-list>
     <div class="padding" >
         <button class="button button-block button-balanced" ng-click="submit()">Submit</button>
-     </div>
-     <div class="padding" >
         <button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
     </div>   
  </ion-content>
