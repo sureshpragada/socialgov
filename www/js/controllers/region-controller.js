@@ -198,11 +198,12 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
+.controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, SettingsService, $state, $ionicPopover, $cordovaDialogs) {
   
-  $scope.regions=RegionService.getRegionListFromCache();  
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
-
+  console.log(JSON.stringify($scope.regions));
   $scope.deleteOffice=function(regionIndex, officeIndex){
     $scope.offices=$scope.regions[regionIndex].get("execOffAddrList");
     $scope.offices.splice(officeIndex,1);
@@ -232,6 +233,7 @@ angular.module('starter.controllers')
 
   $scope.openOfficePopover=function($event, regionIndex, officeIndex) {
     console.log("On popover : " + regionIndex + " " + officeIndex);
+    $scope.canDeleteOffice=$scope.regions[regionIndex].get("execOffAddrList")[officeIndex].type=="DEFAULT"?false:true;
     $scope.officeIndex=officeIndex;
     $scope.regionIndex=regionIndex;
     $scope.popover.show($event);
@@ -248,6 +250,11 @@ angular.module('starter.controllers')
     $state.go("tab.editoffices",{regionUniqueName: $scope.regions[$scope.regionIndex].get('uniqueName'), officeIndex: $scope.officeIndex});    
   };
 
+  $scope.addContact=function(){
+    $scope.popover.hide();
+    $state.go("tab.addcontacttooffice",{regionUniqueName: $scope.regions[$scope.regionIndex].get('uniqueName'), officeIndex: $scope.officeIndex});    
+  }
+
   $scope.removeThis=function() {
     $scope.popover.hide();
     $cordovaDialogs.confirm('Do you want to delete this office?', 'Delete Office', ['Delete','Cancel']).then(function(buttonIndex) { 
@@ -261,112 +268,202 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService) {
+.controller('AddContactToOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
 
+  console.log("Entered int AddContactToOfficeCtrl");
+
+  $scope.contact={"name":"","title":"","phoneNum":""};
+  var office=null,officeContacts=null;
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
+    office=$scope.region.get('execOffAddrList')[$stateParams.officeIndex];
+    officeContacts=office.contacts;
+    if(officeContacts==undefined){
+      officeContacts=[];
+    }
   }, function(error) {
-    $scope.officeErrorMessage="Unable to retrieve region information.";
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information."); 
     console.log("Error retrieving region " + JSON.stringify(error));
   });  
 
-  $scope.officeErrorMessage=null;
-  $scope.phoneNums={officeNum:"",execNum:""};
-  $scope.newExecAdminObj={title:"",name:"",phoneNumberList:[]};
-  $scope.newOfficeObj={officeName:"", addressLine1:"", addressLine2:"",landmark:"", phoneNumberList:[], execAdmin:[]};
   $scope.submit=function(){
-    if($scope.newOfficeObj.officeName!="" && $scope.newOfficeObj.addressLine1!="" && $scope.newExecAdminObj.title!="" && $scope.newExecAdminObj.name!=""){
-        if($scope.phoneNums.execNum!=""){
-          var num=$scope.phoneNums.execNum.split(",");
-          for(var i=0;i < num.length;i++)
-            $scope.newExecAdminObj.phoneNumberList.push(num[i]);
+
+    if($scope.contact.name==""){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter contact name.");
+      return;
+    }
+    else if($scope.contact.title==""){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter contact title.");
+      return; 
+    }
+    else if($scope.contact.phoneNum=="" || $scope.contact.phoneNum.length!=10){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Phone number length should be 10 characters.");
+      return; 
+    }
+    else {
+      $scope.contact.name=$scope.contact.name.capitalizeFirstLetter();
+      $scope.contact.title=$scope.contact.title.capitalizeFirstLetter();
+      for(var i=0;i<$scope.region.get('execOffAddrList').length;i++){
+        delete $scope.region.get('execOffAddrList')[i].$$hashKey;
+        if($scope.region.get('execOffAddrList')[i].contacts!=undefined){
+          for(var j=0;j<$scope.region.get('execOffAddrList')[i].contacts.length;j++){
+            delete $scope.region.get('execOffAddrList')[i].contacts[j].$$hashKey;
+          }
         }
-        console.log(JSON.stringify($scope.phoneNums));
-        if($scope.phoneNums.officeNum!=""){
-          var num=$scope.phoneNums.officeNum.split(",");
-          for(var i=0;i < num.length;i++)
-            $scope.newOfficeObj.phoneNumberList.push(num[i]); 
-        }
-        $scope.newOfficeObj.execAdmin.push($scope.newExecAdminObj);
+      }
+      delete office.$$hashKey;
+      officeContacts.push($scope.contact);
+      office["contacts"]=officeContacts;
+      console.log(JSON.stringify($scope.region));
+      $scope.region.save(null, {
+          success: function(region) {
+            RegionService.updateRegion(region.get("uniqueName"), region);
+            SettingsService.setAppSuccessMessage("Contacts has been added.");
+            $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
+          },
+          error: function(region, error) {
+            console.log("Error in saving the office details " + error.message);
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add contact."); 
+          }
+      });
+    }
+  };
+  $scope.cancel=function(){
+    $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
+  };
+})
+
+
+.controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
+
+  RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
+    $scope.region=data;
+    // execOffAddr=$scope.region.get("execOffAddrList");
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Unable to retrieve region information."); 
+    console.log("Error retrieving region " + JSON.stringify(error));
+  });  
+
+  // $scope.phoneNums={officeNum:"",execNum:""};
+  // $scope.newExecAdminObj={title:"",name:"",phoneNumberList:[]};
+  $scope.newOfficeObj={name:"", addressLine1:"", addressLine2:"", city:"", state:"", pincode:"",type:"CUSTOM"};
+  $scope.submit=function(){
+    if($scope.newOfficeObj.name==""){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter office name."); 
+      return;
+    }
+    else if($scope.newOfficeObj.addressLine1==""){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter address line1."); 
+      return;
+    }
+    else if($scope.newOfficeObj.city==""){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter city."); 
+      return;
+    }
+    else if($scope.newOfficeObj.state==""){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter state."); 
+      return;
+    }
+    else if($scope.newOfficeObj.pincode==""){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter pincode."); 
+      return;
+    }
+    else{
+        // if($scope.phoneNums.execNum!=""){
+        //   var num=$scope.phoneNums.execNum.split(",");
+        //   for(var i=0;i < num.length;i++)
+        //     $scope.newExecAdminObj.phoneNumberList.push(num[i]);
+        // }
+        // console.log(JSON.stringify($scope.phoneNums));
+        // if($scope.phoneNums.officeNum!=""){
+        //   var num=$scope.phoneNums.officeNum.split(",");
+        //   for(var i=0;i < num.length;i++)
+        //     $scope.newOfficeObj.phoneNumberList.push(num[i]); 
+        // }
+        // $scope.newOfficeObj.execAdmin.push($scope.newExecAdminObj);
+        // execOffAddr.push($scope.newOfficeObj);
+        $scope.newOfficeObj.name=$scope.newOfficeObj.name.capitalizeFirstLetter();
+        $scope.newOfficeObj.addressLine1=$scope.newOfficeObj.addressLine1.capitalizeFirstLetter();
+        $scope.newOfficeObj.addressLine2=$scope.newOfficeObj.addressLine2.capitalizeFirstLetter();
+        $scope.newOfficeObj.city=$scope.newOfficeObj.city.capitalizeFirstLetter();
+        $scope.newOfficeObj.state=$scope.newOfficeObj.state.capitalizeFirstLetter();
         $scope.region.add("execOffAddrList",$scope.newOfficeObj);
         $scope.region.save(null, {
           success: function(region) {
             RegionService.updateRegion(region.get("uniqueName"), region);
-            $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});
+            SettingsService.setAppSuccessMessage("New executive has been added.");
+            $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
           },
           error: function(region, error) {
             console.log("Error in saving the office details " + error.message);
-            $scope.officeErrorMessage="Unable to submit your add request.";
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to submit your add request."); 
           }
         });
-    }
-    else {
-      $scope.officeErrorMessage="Provide office name, office address, admin name and title.";
     }
   };
 
   $scope.cancel=function(){
-    $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});
+    $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
   };
 })
 
-.controller('EditOfficeDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, $state) {
+.controller('EditOfficeDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, SettingsService, $state) {
 
-  $scope.newExecObj={};
-  $scope.newOfficeObj={};
-  var regionUniqueName=$stateParams.regionUniqueName;
+  // $scope.newExecObj={};
+  // $scope.newOfficeObj={};
   var officeIndex=$stateParams.officeIndex;
 
-  RegionService.getRegion(regionUniqueName).then(function(data) {
+  RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
     $scope.newOfficeObj=$scope.region.get('execOffAddrList')[officeIndex];
   }, function(error) {
-    $scope.regionErrorMessage="Unable to retrieve region information.";
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information."); 
     console.log("Error retrieving region " + JSON.stringify(error));
   });
 
   $scope.submit=function(){
-    for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
-      delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
-    }
+    // for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
+    //   delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
+    // }
     for(var i=0; i <$scope.region.get('execOffAddrList').length;i++){
       var execOffAddr=$scope.region.get('execOffAddrList')[i];
       delete execOffAddr.$$hashKey;
-      for(var j=0;j<execOffAddr.execAdmin.length;j++) {
-        delete execOffAddr.execAdmin[j].$$hashKey;
-      }
+      // for(var j=0;j<execOffAddr.execAdmin.length;j++) {
+      //   delete execOffAddr.execAdmin[j].$$hashKey;
+      // }
     }
 
-    if(typeof($scope.newOfficeObj.phoneNumberList)=="string"){
-      $scope.officeNum=$scope.newOfficeObj.phoneNumberList;
-      $scope.newOfficeObj.phoneNumberList=[];
-      var numbers=$scope.officeNum.split(",");
-      for(var i=0; i < numbers.length;i++){
-        $scope.newOfficeObj.phoneNumberList.push(numbers[i]);
-      }
-    }
-    for(var i=0;i<$scope.newOfficeObj.execAdmin.length;i++){
-        if(typeof($scope.newOfficeObj.execAdmin[i].phoneNumberList)=="string"){
-          $scope.execNum=$scope.newOfficeObj.execAdmin[i].phoneNumberList;
-          $scope.newOfficeObj.execAdmin[i].phoneNumberList=[];      
-          var numbers=$scope.execNum.split(",");
-          for(var j=0;j < numbers.length;j++){
-            $scope.newOfficeObj.execAdmin[i].phoneNumberList.push(numbers[j]);
-          }
-        }
-    }
-
+    // if(typeof($scope.newOfficeObj.phoneNumberList)=="string"){
+    //   $scope.officeNum=$scope.newOfficeObj.phoneNumberList;
+    //   $scope.newOfficeObj.phoneNumberList=[];
+    //   var numbers=$scope.officeNum.split(",");
+    //   for(var i=0; i < numbers.length;i++){
+    //     $scope.newOfficeObj.phoneNumberList.push(numbers[i]);
+    //   }
+    // }
+    // for(var i=0;i<$scope.newOfficeObj.execAdmin.length;i++){
+    //     if(typeof($scope.newOfficeObj.execAdmin[i].phoneNumberList)=="string"){
+    //       $scope.execNum=$scope.newOfficeObj.execAdmin[i].phoneNumberList;
+    //       $scope.newOfficeObj.execAdmin[i].phoneNumberList=[];      
+    //       var numbers=$scope.execNum.split(",");
+    //       for(var j=0;j < numbers.length;j++){
+    //         $scope.newOfficeObj.execAdmin[i].phoneNumberList.push(numbers[j]);
+    //       }
+    //     }
+    // }
+    console.log(JSON.stringify($scope.region));
     $scope.region.save(null, {
         success: function(region) {
           console.log("edit is success " + JSON.stringify(region));          
           RegionService.updateRegion(region.get("uniqueName"), region);          
-          $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});          
+          SettingsService.setAppMessage("Office has been updated.");
+          $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});          
         }
     });
   };
 
   $scope.cancel=function(){
-    $state.go("tab.offices",{regionUniqueName: AccountService.getUser().get('residency')});
+    $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
   };
 
 })

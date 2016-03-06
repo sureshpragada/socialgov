@@ -1,11 +1,12 @@
 <ion-view title="Edit Executive Offices">
 	<ion-content>
+    <my-app-message info="controllerMessage"></my-app-message>
 	  <ion-list>
    		<label class="item item-input" >
 				<span class="input-label">
 				      Office Name 
 				</span>
-			<input type="text" name="offName"  ng-model="newOfficeObj.officeName">
+			<input type="text" name="offName"  ng-model="newOfficeObj.name">
 		</label>
 		<label class="item item-input" >
 				<span class="input-label">
@@ -21,18 +22,25 @@
 		</label>
     <label class="item item-input" >
         <span class="input-label">
-              Landmark
+              City
         </span>
-      <input type="text" name="landmark"  ng-model="newOfficeObj.landmark">
+      <input type="text" name="city"  ng-model="newOfficeObj.city">
     </label>
     <label class="item item-input" >
         <span class="input-label">
-              Phone Numbers
+              State
         </span>
-      <input type="text" name="phoneNums"  ng-model="newOfficeObj.phoneNumberList" >
+      <input type="text" name="state"  ng-model="newOfficeObj.state" >
 
     </label>
-    <div ng-repeat="admin in newOfficeObj.execAdmin">
+    <label class="item item-input" >
+        <span class="input-label">
+              Pincode
+        </span>
+      <input type="text" name="pinCode"  ng-model="newOfficeObj.pincode" >
+
+    </label>
+<!--     <div ng-repeat="admin in newOfficeObj.execAdmin">
   	   <label class="item item-input">
           <span class="input-label">
                 Exec Admin Title
@@ -51,7 +59,7 @@
          </span>
          <input type="text" name="adminPhoneList" ng-model="admin.phoneNumberList" >
       </label>
-  	</div>
+ -->  	</div>
   </ion-list>
   <div class="padding" >
         <button class="button button-block button-balanced" ng-click="submit()">Submit</button>

@@ -5,17 +5,20 @@
       </a>
     </ion-nav-buttons>
   <ion-content class="visible-cards">
+  	<my-app-message info="appMessage"></my-app-message>
   	<div ng-repeat="region in regions track by $index" ng-init="regionIndex = $index">
 	    <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')" ng-init="officeIndex = $index">
 		  <div class="item item-icon-right">
 	        <a ng-click="openOfficePopover($event, regionIndex, officeIndex)" ng-if="canUpdateRegion"><i class="icon ion-navicon royal"></i></a>
-		    {{execOffAddr.officeName}}
+		    {{execOffAddr.name}}
 		  </div>
 		  <div class="item item-text-wrap">
 		    <div>
 		    	<div ng-if="execOffAddr.addressLine1">{{execOffAddr.addressLine1}}</div>
 		    	<div ng-if="execOffAddr.addressLine2">{{execOffAddr.addressLine2}}</div>
-		    	<div ng-if="execOffAddr.landmark">{{execOffAddr.landmark}}</div>
+		    	<div ng-if="execOffAddr.city">{{execOffAddr.city}}</div>
+		    	<div ng-if="execOffAddr.state">{{execOffAddr.state}}</div>
+		    	<div ng-if="execOffAddr.pincode">{{execOffAddr.pincode}}</div>
 		    </div>
 		    <p ng-if="execOffAddr.phoneNumberList">
 			    <i class="icon ion-iphone"></i>
@@ -23,21 +26,23 @@
 			    	{{phNo}} {{$last ? '' : ', '}}
 			    </span>
 		    </p>
-		    <p ng-if="execOffAddr.email">
+		    <!-- <p ng-if="execOffAddr.email">
 		    	{{execOffAddr.email}}
-		    </p>		    
-		      <div ng-repeat="admin in execOffAddr.execAdmin" class="nameContact">
-		        <h2>{{admin.title}}</h2>
+		    </p> -->		    
+		      <div ng-repeat="contact in execOffAddr.contacts" class="nameContact">
+		        <h2>{{contact.title}}</h2>
 		        <p>
-					{{admin.name}}&nbsp;
-			        <i class="icon ion-iphone" ng-show="admin.phoneNumberList"></i>
-				    <span ng-repeat="adminPhNo in admin.phoneNumberList">
-				    	{{adminPhNo}} {{$last ? '' : ', '}}
+					{{contact.name}}
+				</p>
+				<p>
+			        <i class="icon ion-iphone"></i>
+				    <span>
+				    	{{contact.phoneNum}}
 				    </span>	        	        
 				</p>
-		        <p ng-if="admin.email">
+		        <!-- <p ng-if="admin.email">
 					{{admin.email}}
-				</p>				
+				</p> -->				
 		      </div>	    	
 		  </div>
 		</div>
