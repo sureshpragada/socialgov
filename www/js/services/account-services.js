@@ -51,8 +51,8 @@ angular.module('account.services', [])
       }
       return deferred.promise;
     },        
-    refreshResidentCache: function(regionName) {
-      residentCache.remove(regionName);
+    refreshResidentCache: function() {
+      residentCache.removeAll();
     },
     getRolesAllowedToChange: function() {
       return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
@@ -209,7 +209,7 @@ angular.module('account.services', [])
       });      
     },
     updateRoleAndTitle: function(userId, role, title) {
-      residentCache.remove(Parse.User.current().get("residency"));
+      this.refreshResidentCache();
       Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
         success: function(status1) {
           console.log("Successfully updated user role " + JSON.stringify(status1));
@@ -228,7 +228,7 @@ angular.module('account.services', [])
       });      
     },
     addContact: function(inputUser) {
-      residentCache.remove(Parse.User.current().get("residency"));
+      this.refreshResidentCache();
       var newUser=new Parse.User();
       var currentUser=Parse.User.current();
       var userName=currentUser.get("countryCode")+""+inputUser.phoneNum;
@@ -259,6 +259,7 @@ angular.module('account.services', [])
       return newUser.save();        
     },
     updateAccount: function(inputUser) {
+      this.refreshResidentCache();
       var user=Parse.User.current();
       user.set("firstName", inputUser.firstName);
       user.set("lastName", inputUser.lastName);
@@ -267,7 +268,7 @@ angular.module('account.services', [])
       return user.save();
     },
     updateNeighborAccount: function(inputUser, neighbor) {
-      residentCache.remove(Parse.User.current().get("residency"));
+      this.refreshResidentCache();    
       console.log("input user " + JSON.stringify(inputUser));
       console.log("neighbor " + JSON.stringify(neighbor));
 

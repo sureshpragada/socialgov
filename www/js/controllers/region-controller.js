@@ -898,6 +898,25 @@ angular.module('starter.controllers')
 
 })
 
+.controller('RegionHomesCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Listing your homes...<ion-spinner/></p>"
+  });        
+  $scope.appMessage=SettingsService.getAppMessage();    
+  AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
+    $scope.neighborList=neighborList;
+    // TODO :: Filter blocked users from the list
+    if($scope.neighborList!=null && $scope.neighborList.length<2) {
+      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
+    }
+    $ionicLoading.hide();
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
+    $ionicLoading.hide();
+  });
+
+})
+
 .controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Admin Neighbor Account update controller");
   $scope.inputUser={};
@@ -1045,12 +1064,12 @@ angular.module('starter.controllers')
       }
       $q.all(userPromises).then(function(results){
         SettingsService.setAppSuccessMessage("Upload of neighbor data is successful.");
-        AccountService.refreshResidentCache($scope.input.regionName);
+        AccountService.refreshResidentCache();
         $state.go("tab.region", {regionUniqueName: "native"});          
       },function(error){
         // console.log("Error creating users " + JSON.stringify(error));
         SettingsService.setAppInfoMessage("Upload of neighbor data is partially failed. Please check neighbors and then adjust the data. " + JSON.stringify(error));
-        AccountService.refreshResidentCache($scope.input.regionName);
+        AccountService.refreshResidentCache();
         $state.go("tab.region", {regionUniqueName: "native"});                    
       });
     }

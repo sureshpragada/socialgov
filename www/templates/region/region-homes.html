@@ -1,0 +1,18 @@
+<ion-view title="Homes">
+  <ion-nav-buttons side="secondary">
+	<a class="button button-light button-outline" style="border-color: #fff; color: #fff;" href="#/tab/invite-citizen">&nbsp;&nbsp;New Home&nbsp;&nbsp;</a>    	
+  </ion-nav-buttons>
+  <ion-content>
+  <my-app-message info="appMessage"></my-app-message>  
+  <my-app-message info="controllerMessage"></my-app-message>  
+  	<ion-list>
+	    <ion-item class="item-icon-right" collection-repeat="home in homeList" href="#/tab/unit-detail/{{home.id}}">
+	      <h2>Unit # {{home.id}} </h2>		
+	      <p>
+	      	<span>{{home.noOfNeighbors}}</span>
+	      </p>      
+		  <i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
+	    </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

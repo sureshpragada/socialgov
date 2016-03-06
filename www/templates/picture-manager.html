@@ -1,23 +1,29 @@
 <ion-view view-title="Picture Manager">
   <ion-content>
-    <div ng-show="managePictureError" class="card">
-      <div class="item item-text-wrap">
-        {{managePictureError}}
-      </div>
-    </div>
-    <div class="list card">
+    <div>
       <div class="item item-image">
         <img ng-show="file !== undefined" ng-src="{{file}}">
         <img ng-show="file === undefined" ng-src="img/picture_template.png">
       </div> 
     </div>
-      <div class="button-bar padding">
-        <button class="button button-balanced icon-left ion-image" ng-click="selectFromGallery()">Gallery</button>
-        <button class="button button-balanced icon-left ion-ios-camera" ng-click="takePicture()">Camera</button>
-        <button class="button button-royal icon-left ion-upload" ng-click="uploadPicture()">Upload</button>        
-      </div>    
-      <div class="padding">
-        <button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+    <div class="row"  ng-if="pictureSelected">
+      <div class="col">
+        <button class="button button-positive icon-left ion-ios-reverse-camera-outline button-block" ng-click="chooseAnotherPicture()">Retake Picture</button>
+      </div>            
+      <div class="col">
+        <button class="button button-balanced icon-left ion-upload button-block" ng-click="uploadPicture()">Use Picture</button>
       </div>
+    </div>        
+    <div class="row"  ng-if="!pictureSelected">
+      <div class="col">
+        <button class="button button-balanced icon-left ion-image button-block" ng-click="selectFromGallery()">Gallery</button>  
+      </div>
+      <div class="col">
+        <button class="button button-calm icon-left ion-ios-camera button-block" ng-click="takePicture()">Camera</button>
+      </div>        
+    </div>    
+<!--     <div class="row">
+      <button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+    </div> -->
   </ion-content>
 </ion-view>

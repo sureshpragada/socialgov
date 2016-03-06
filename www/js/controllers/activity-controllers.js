@@ -41,11 +41,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     }
     $ionicLoading.hide();          
   }, function(error){
-    $scope.$apply(function(){
-      LogService.log({type:"ERROR", message: "Unable to get community activities " + JSON.stringify(error) + " residency : " + $scope.user.get("residency")}); 
-      $scope.activityError=SettingsService.getControllerErrorMessage("Unable to get your community activities.");            
-      $ionicLoading.hide();
-    });
+    LogService.log({type:"ERROR", message: "Unable to get community activities " + JSON.stringify(error) + " residency : " + $scope.user.get("residency")}); 
+    $scope.activityError=SettingsService.getControllerErrorMessage("Unable to get your community activities.");            
+    $ionicLoading.hide();
   });
 
   $scope.notifyUserUnreadActivityCount=function() {

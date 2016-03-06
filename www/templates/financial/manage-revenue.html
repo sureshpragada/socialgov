@@ -5,6 +5,9 @@
 	        <ion-toggle class="toggle-assertive" ng-model="input.category">
 	          Maintenance Payment
 	        </ion-toggle>          
+	        <ion-toggle class="toggle-balanced" ng-model="input.areDuesPaid" ng-if="input.category">
+	          Payment Received
+	        </ion-toggle>          	        
 			<label class="item item-input item-select" ng-if="input.category && availableHomes">
 			    <div class="input-label">Home Number</div>
 			    <select ng-model="input.home" ng-options="availableHome.label for availableHome in availableHomes"></select>
@@ -29,11 +32,13 @@
 			    <textarea placeholder="Notes..." rows="5" ng-model="input.note"></textarea>
 			  </label>			
 			  <div class="padding">
-					<a class="button button-block button-balanced" ng-click="addRevenue()" ng-if="editRevenueRecord">Accept Payment</a>	
 					<a class="button button-block button-balanced" ng-click="addRevenue()" ng-if="!editRevenueRecord">Add Revenue</a>			
-					<a class="button button-block button-calm" ng-click="editPayment()" ng-if="editRevenueRecord">Adjust Amount</a>				  
-					<a class="button button-block button-assertive" ng-click="deletePayment()" ng-if="editRevenueRecord">Delete Payment</a>	
-					<a class="button button-block button-assertive button-outline" ng-click="cancel()">Never mind</a>
+					<a class="button button-block button-calm" ng-click="editPayment()" ng-if="editRevenueRecord">Update Revenue</a>				  			  
+<!-- 					<a class="button button-block button-balanced" ng-click="addRevenue()" ng-if="editRevenueRecord">Accept Payment</a>	
+					<a class="button button-block button-balanced" ng-click="addRevenue()" ng-if="!editRevenueRecord">Add Revenue</a>			
+					<a class="button button-block button-calm" ng-click="editPayment()" ng-if="editRevenueRecord">Update Revenue</a>				   -->
+					<a class="button button-block button-assertive" ng-click="deletePayment()" ng-if="editRevenueRecord">Delete Revenue</a>	
+					<a class="button button-block button-outline" ng-click="cancel()">Never mind</a>
 			  </div>
 		</div>
 	</ion-content>

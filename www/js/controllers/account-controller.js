@@ -286,6 +286,7 @@ angular.module('starter.controllers')
     console.log("Images have been saved");
     PictureManagerService.reset();
     console.log("Picture service is reset");
+    $scope.user=Parse.User.current();
   } else {
     console.log("Image URL is null");
   }
