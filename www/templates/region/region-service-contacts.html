@@ -2,7 +2,7 @@
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>  
- 	<div class="item item-divider">
+ 	<div class="item item-divider" ng-if="personalServiceContacts">
 		Community Recommendations
 	</div>
     <ion-list ng-if="personalServiceContacts">

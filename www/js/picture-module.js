@@ -28,6 +28,8 @@ angular.module('starter.controllers')
 }])
 
 .controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService, $ionicLoading, $cordovaDialogs) {
+  $scope.pictureSelected=false;  
+  
   $scope.takePicture=function() {
     manageupload(Camera.PictureSourceType.CAMERA);
   };
@@ -50,10 +52,15 @@ angular.module('starter.controllers')
       };
       $cordovaCamera.getPicture(options).then(function(imageData) {
            $scope.file= "data:image/jpeg;base64," +imageData;
+           $scope.pictureSelected=true;
       }, function(error) {
           console.log("Error getting picture " + JSON.stringify(error));
       });  
   }
+
+  $scope.chooseAnotherPicture=function() {
+    $scope.pictureSelected=false;
+  };
 
   $scope.uploadPicture=function() {
     var file = $scope.file;    

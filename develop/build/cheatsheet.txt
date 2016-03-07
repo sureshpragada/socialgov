@@ -9,7 +9,6 @@ ionic emulate android --livereload
 ionic serve
 ionic serve --lab
 cordova prepare android 
-
 ionic run android
 cordova platform list
 cordova platform update android@4.1.1
@@ -78,3 +77,9 @@ Optimize the APK with zipalign :
 Utility website : 
 ==================
 Generate feature graphics :  http://www.norio.be/android-feature-graphic-generator/
+https://placehold.it/
+https://www.back4app.com/pricing/
+https://xtremepush.com/
+https://aws.amazon.com/blogs/aws/resources-for-migrating-parse-applications-to-aws/
+CloudKit or Cloudmine
+http://julienrenaux.fr/2016/01/29/complete-parse-server-migration-guide/

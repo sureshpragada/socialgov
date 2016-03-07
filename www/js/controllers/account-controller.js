@@ -258,7 +258,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard) {
   $scope.user = AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
@@ -286,11 +286,10 @@ angular.module('starter.controllers')
     console.log("Images have been saved");
     PictureManagerService.reset();
     console.log("Picture service is reset");
+    $scope.user=Parse.User.current();
   } else {
     console.log("Image URL is null");
   }
-
-
 
   $scope.isPendingRequest=false;
   AccountService.getAccessRequest().then(function(accessrequest){
@@ -339,6 +338,17 @@ angular.module('starter.controllers')
       }
     });
   };
+
+  $scope.copyInvitationCode=function() {
+    $cordovaClipboard.copy($scope.user.id).then(function () {
+      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Invitation code has been copied to clipboard.");
+      $interval(function(){
+        $scope.copyStatusMessage=null;
+      }, 5000, 1);
+    }, function () {
+      $scope.copyStatusMessage=SettingsService.getControllerErrorMessage("Unable to copy invitation code to clipboard.");
+    });
+  };  
 
   $ionicModal.fromTemplateUrl('templates/picture-modal.html', {
     scope: $scope,
@@ -462,7 +472,7 @@ angular.module('starter.controllers')
 
     AccountService.recoverInvitationCode($scope.user).then(function(userList) {
       if(userList!=null && userList.length==1) {
-        NotificationService.sendInvitationCode(userList[0].id, userList[0].get("username"));
+        NotificationService.sendInvitationCode(userList[0].id, userList[0].get("username"), "");
         SettingsService.setAppSuccessMessage("Invitation code has been SMS to your mobile.");
         $state.go("invite-login");
       } else {
@@ -569,7 +579,7 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter address."); 
       return; 
     }
-    if($scope.communityAddress.city==null){
+    if($scope.communityAddress.city==null || $scope.communityAddress.city.trim().length<1){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your city."); 
       return;  
     }
@@ -599,20 +609,17 @@ angular.module('starter.controllers')
     console.log(JSON.stringify($scope.communityInfo));
     if($scope.communityInfo.noOfUnits==null || $scope.communityInfo.noOfUnits.length<1){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter number of homes in your community."); 
-      console.log("Checking no of units");
       return; 
     }
 
     if($scope.communityInfo.year==null || $scope.communityInfo.year<1500) {      // Since HTML defines this field as number, we cant do length
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid establishment year."); 
-      console.log("Checking year " + JSON.stringify($scope.communityInfo.year));
       return;  
     }
     
     AccountService.setCommunityInfo($scope.communityInfo);
     SettingsService.setAppInfoMessage("You will be setup with adminstrator privileges to build the community.");      
     $state.go("your-info");
-
   };
 
   $scope.cancel=function() {
@@ -623,43 +630,49 @@ angular.module('starter.controllers')
 
 .controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
   $scope.appMessage=SettingsService.getAppMessage();
-  $scope.user={};
+  $scope.user={
+    homeOwner: true
+  };
   $scope.submit=function() {
     if($scope.user.firstName==null || $scope.user.lastName==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter firstname and lastname."); 
       return;
-    } else if($scope.user.homeNo==null){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home number."); 
-     return; 
-    } else if($scope.user.phoneNum==null || ($scope.user.phoneNum!=null && $scope.user.phoneNum.length!=10)){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid phone number."); 
+    } 
+
+    if($scope.user.homeNo==null || $scope.user.homeNo.trim().length==0){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home/unit/apt number."); 
      return; 
     }
-    else{
-      $ionicLoading.show({
-        template: "<p class='item-icon-left'>Registering up your community...<ion-spinner/></p>"
-      });
-      AccountService.setYourInfo($scope.user);
-      AccountService.createNewCommunity().then(function(regionData){
-        AccountService.createNewCommunityAdmin().then(function(userData){
-          RegionService.initializeRegionCache(regionData);          
-          NotificationService.registerDevice();
-          ActivityService.postWelcomeActivity(regionData, userData);          
-          SettingsService.setAppSuccessMessage("Community has been registered.");
-          $ionicLoading.hide();
-          $state.go("tab.region");
-        },function(error){
-          regionData.destroy();
-          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
-          $ionicLoading.hide();
-          LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
-        });
-      },function(error){
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
+
+    if($scope.user.phoneNum==null || $scope.user.phoneNum.trim().length!=10){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid 10 digit phone number."); 
+     return; 
+    }
+
+    $ionicLoading.show({
+      template: "<p class='item-icon-left'>Registering your community...<ion-spinner/></p>"
+    });
+    AccountService.setYourInfo($scope.user);
+    AccountService.createNewCommunity().then(function(regionData){
+      AccountService.createNewCommunityAdmin(regionData).then(function(userData){
+        RegionService.initializeRegionCache(regionData);          
+        NotificationService.registerDevice();
+        ActivityService.postWelcomeActivity(regionData, userData);          
+        SettingsService.setAppSuccessMessage("Community has been registered.");
         $ionicLoading.hide();
-        LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
+        $state.go("tab.region");
+      },function(error){
+        regionData.destroy();
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
+        $ionicLoading.hide();
+        LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
       });
-    }
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
+      $ionicLoading.hide();
+      LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
+    });
+  
   };
 
   $scope.cancel=function() {
@@ -719,7 +732,11 @@ angular.module('starter.controllers')
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation
       if($scope.regionSettings.sendInvitationCode==true) {
-        NotificationService.sendInvitationCode(newUser.id, newUser.get("username"));        
+        RegionService.getRegion(Parse.User.current().get("residency")).then(function(region){
+          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), region.get("name"));
+        }, function(error){
+          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), "");        
+        });        
       } else {
         console.log("Region does not support sending invitation code");
       }

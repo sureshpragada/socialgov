@@ -7,24 +7,44 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
+.controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService, PictureManagerService, $ionicLoading) {
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading community...<ion-spinner/></p>"
+  });  
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
-
-  var residency=$stateParams.regionUniqueName;
-  if(residency=="native") {
-    residency=$scope.user.get("residency");
-  }
-  $scope.regionSettings=RegionService.getRegionSettings(residency);          
   $scope.isAdmin=AccountService.canUpdateRegion();
 
+  var residency=$stateParams.regionUniqueName;
+  if(residency==null || residency.trim().length==0 || residency=="native") {
+    residency=$scope.user.get("residency");
+  }
+
+  $scope.posterImages=[];
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
+    $scope.regionSettings=RegionService.getRegionSettings(residency);              
+    $scope.updateCoverPhotoIfAvailable($scope.region);
+    $scope.posterImages=$scope.region.get("posterImages");
+    $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information.");
     console.log("Error retrieving region " + JSON.stringify(error));
-  });
+    $ionicLoading.hide();
+  });  
+
+  $scope.updateCoverPhoto=function() {
+    RegionService.gotoCoverPhoto();
+  };
+
+  $scope.updateCoverPhotoIfAvailable=function(region) {
+    if(PictureManagerService.getState().imageUrl!=null) {
+      RegionService.updateCoverPhoto(region, PictureManagerService.getState().imageUrl);
+      PictureManagerService.reset();
+    } 
+  };
+
 })
 
 .controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
@@ -861,10 +881,12 @@ angular.module('starter.controllers')
 
 .controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard) {
   console.log("Neighbor details controller " + $stateParams.userId);
+  $scope.operatingUser=Parse.User.current();
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
+
     $scope.user=neighbor;        
     $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
     $scope.$apply();
@@ -928,13 +950,13 @@ angular.module('starter.controllers')
         $scope.copyStatusMessage=null;
       }, 5000, 1);
     }, function () {
-      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Unable to copy invitation message to clipboard.");
+      $scope.copyStatusMessage=SettingsService.getControllerErrorMessage("Unable to copy invitation message to clipboard.");
     });
   };
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
-    NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"));              
+    NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"), "");              
     $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");
   };
 
@@ -954,7 +976,26 @@ angular.module('starter.controllers')
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
   $ionicLoading.show({
-    template: "<ion-spinner></ion-spinner> Listing your neighbors..."
+    template: "<p class='item-icon-left'>Listing your neighbors...<ion-spinner/></p>"
+  });        
+  $scope.appMessage=SettingsService.getAppMessage();    
+  AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
+    $scope.neighborList=neighborList;
+    // TODO :: Filter blocked users from the list
+    if($scope.neighborList!=null && $scope.neighborList.length<2) {
+      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
+    }
+    $ionicLoading.hide();
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
+    $ionicLoading.hide();
+  });
+
+})
+
+.controller('RegionHomesCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Listing your homes...<ion-spinner/></p>"
   });        
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
@@ -1075,6 +1116,10 @@ angular.module('starter.controllers')
     $scope.settingsChanged=true;
   };
 
+  $scope.updateCoverPhoto=function() {
+    RegionService.gotoCoverPhoto();
+  };
+
 })
 
 .controller('UploadNeighborsCtrl', function($scope, $stateParams, $q, AccountService, RegionService, $state, SettingsService, LogService) {
@@ -1114,12 +1159,12 @@ angular.module('starter.controllers')
       }
       $q.all(userPromises).then(function(results){
         SettingsService.setAppSuccessMessage("Upload of neighbor data is successful.");
-        AccountService.refreshResidentCache($scope.input.regionName);
+        AccountService.refreshResidentCache();
         $state.go("tab.region", {regionUniqueName: "native"});          
       },function(error){
         // console.log("Error creating users " + JSON.stringify(error));
         SettingsService.setAppInfoMessage("Upload of neighbor data is partially failed. Please check neighbors and then adjust the data. " + JSON.stringify(error));
-        AccountService.refreshResidentCache($scope.input.regionName);
+        AccountService.refreshResidentCache();
         $state.go("tab.region", {regionUniqueName: "native"});                    
       });
     }

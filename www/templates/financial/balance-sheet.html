@@ -38,9 +38,9 @@
         <ion-item class="item-icon-left item-text-wrap" ng-if="openBalanceSheets.length!=2 && isAdmin && balanceSheet.get('status')=='OPEN'">
           <i class="icon ion-android-bulb calm"></i>    
           Start next balance sheet to carry forward any unpaid payments and balances when you close this balance sheet. 
-        </ion-item>                                         
+        </ion-item>                                                 
       </ion-list>
-      <div class="padding" ng-if="isAdmin && balanceSheet.get('status')=='OPEN'  && !closeBalanceSheetInput.closeInitiated">
+      <div class="padding-horizontal" ng-if="isAdmin && isCloseAllowed && !closeBalanceSheetInput.closeInitiated">
         <a class="button button-block button-assertive" ng-click="initiateCloseBalanceSheet(true)">Close Balance Sheet</a>        
       </div>
       <div class="row" ng-if="closeBalanceSheetInput.closeInitiated">
@@ -51,8 +51,23 @@
           <a class="button button-block button-balanced button-small" href="#/tab/start-balance-sheet">Start Sheet</a>
         </div>
         <div class="col">
-          <a class="button button-block button-calm button-small" ng-click="closeBalanceSheet()">Confirm</a>
+          <a class="button button-block button-calm button-small" ng-click="closeBalanceSheet()">Close Sheet</a>
         </div>                    
+      </div>      
+      <div class="item item-icon-left item-text-wrap" ng-if="closeBalanceSheetInput.deleteInitiated">
+        <i class="icon ion-alert-circled assertive"></i>
+        All payments and expenses entered in this sheet will be deleted and this action cannot be reversible.
+      </div>                
+      <div class="row" ng-if="closeBalanceSheetInput.deleteInitiated">
+        <div class="col">
+          <a class="button button-block button-small button-assertive" ng-click="initiateDeleteBalanceSheet(false)">Ignore</a>
+        </div>
+        <div class="col">
+          <a class="button button-block button-calm button-small" ng-click="deleteBalanceSheet()">Delete Sheet</a>
+        </div>                    
+      </div>            
+      <div class="padding-horizontal" ng-if="isAdmin && !closeBalanceSheetInput.deleteInitiated">
+        <a class="button button-block button-outline" ng-click="initiateDeleteBalanceSheet(true)">Delete Balance Sheet</a>        
       </div>                
     </div>    
   </ion-content>

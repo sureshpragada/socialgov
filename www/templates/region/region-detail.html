@@ -6,14 +6,31 @@
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
     <ion-list ng-if="!controllerMessage">
-      <div class="item item-image" ng-if="region.get('thumbnail')">
-        <img ng-src="{{region.get('thumbnail')}}">
-      </div> 
+      <div class="item item-image" ng-if="posterImages.length==0">
+        <img ng-src="img/picture_template.png">
+      </div>     
+      <div ng-if="posterImages.length>0">
+        <ion-slide-box>          
+          <ion-slide ng-repeat="image in posterImages" ng-init="imageIndex = $index">
+            <img class="full-image" ng-src="{{image}}">        
+          </ion-slide>
+        </ion-slide-box>
+      </div>    
+      <ion-item ng-click="updateCoverPhoto()" class="item-icon-left item-icon-right" ng-if="posterImages.length==0 && isAdmin">
+          <i class="icon ion-ios-camera-outline royal"></i>
+          Add Cover Photo 
+          <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>                
       <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">
           <i class="icon ion-ios-people-outline royal"></i>
           Neighbors 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>          
+<!--       <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">
+          <i class="icon ion-ios-home-outline royal"></i>
+          Residences
+          <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>                 -->
       <ion-item class="item-icon-right" href="#/tab/invite-citizen"  ng-if="regionSettigns.neighborPrivacy && !isAdmin">
         <i class="icon ion-ios-people-outline royal"></i>
         {{'InvitePage' | translate}}        
@@ -46,7 +63,7 @@
       </ion-item>       -->
       <ion-item href="#/tab/region-settings/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="isAdmin">
         <i class="icon ion-ios-gear-outline royal"></i>      
-          Settings
+          Community Settings
           <i class="icon ion-chevron-right icon-accessory"></i>    
       </ion-item>                                    
       <ion-item href="#/tab/upload-neighbors" class="item-icon-left item-icon-right" ng-if="canLogout">

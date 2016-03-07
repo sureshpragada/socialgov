@@ -12,13 +12,16 @@
 				<input type="text" name="lastName" class="textAlignLeft" ng-model="user.lastName">
 			</label>
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">Home No</span>
+				<span class="input-label">Mobile Number</span>
+				<input type="tel" name="phoneNum" class="textAlignLeft" ng-model="user.phoneNum">
+			</label>			
+	        <ion-toggle class="toggle-balanced" ng-model="user.homeOwner">
+	          Are you home owner?
+	        </ion-toggle>          													
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Home/Unit/Apt #</span>
 				<input type="text" name="homeNo" class="textAlignLeft" ng-model="user.homeNo">
 			</label>									
-			<label class="item item-input item-stacked-label">
-				<span class="input-label">Phone Number</span>
-				<input type="tel" name="phoneNum" class="textAlignLeft" ng-model="user.phoneNum">
-			</label>
 			<div class="padding">
 		    	<button class="button button-block button-balanced" ng-click="submit()">Register Community</button>
 <!-- 		    	<button class="button button-block button-balanced button-outline" ng-click="cancel()">Never mind</button> -->

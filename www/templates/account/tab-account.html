@@ -27,7 +27,8 @@
       <ion-item>
         Blood Group
         <span class="item-note custom-badge" ng-if="user.get('bloodGroup')">{{user.get("bloodGroup")}}</span>  
-        <span class="item-note custom-badge" ng-if="!user.get('bloodGroup')">NA</span>            
+        <!-- <span class="item-note custom-badge" ng-if="!user.get('bloodGroup')">NA</span>             -->
+        <span class="item-note assertive" ng-if="!user.get('bloodGroup')">Not Provided</span>
       </ion-item>            
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
@@ -51,6 +52,9 @@
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Review Role Changes
       </ion-item>      
+      <ion-item on-hold="copyInvitationCode()">
+        Invitation Code<span class="item-note calm">{{user.id}}</span>                        
+      </ion-item>                                   
       <ion-item>
         App Version<span class="item-note">{{appVersion}}</span>                        
       </ion-item>                             

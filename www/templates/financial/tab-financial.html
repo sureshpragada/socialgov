@@ -6,9 +6,9 @@
     <div class="card">
       <div class="row">
         <div class="col" style="text-align: center;">
-          <h4>Dues</h4>
-          <h3 class="positive" ng-if="currentDues">{{currentDues.get("maintDues")  | number:2 | ourcurrency}}</h3>
-          <h3 class="positive" ng-if="!currentDues">NA</h3>          
+          <h4>Payment</h4>
+          <h3 class="positive" ng-if="paymentAmount">{{paymentAmount  | number:2 | ourcurrency}}</h3>
+          <h3 class="positive" ng-if="!paymentAmount">NA</h3>          
 <!--           <h3 class="positive" ng-if="!currentDues && isAdmin && !controllerMessage">
             <a class="button button-small button-block button-royal" href="#/tab/dues-list">Setup Dues</a>
           </h3> -->
@@ -23,10 +23,11 @@
       <ion-item class="item-icon-right" href="#/tab/payment-history" ng-if="regionSettings.financialMgmt=='SELF'">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         My Payment History
+        <span class="badge badge-balanced">{{noOfPaymentsInHistory}}</span>
       </ion-item>            
       <ion-item class="item-icon-right" href="#/tab/how-to-make-payment">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
-        How to pay dues?
+        How to make payment?
       </ion-item>                  
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
@@ -34,11 +35,11 @@
       <div class="item item-divider">Community</div>
       <ion-item class="item-icon-right" href="#/tab/balance-sheet-list" ng-if="regionSettings.financialMgmt=='SELF'">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
-        Balance Sheet
+        Balance Sheets
       </ion-item>                  
       <ion-item class="item-icon-right" href="#/tab/finview" ng-if="regionSettings.financialMgmt=='VOLUNTEER'">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
-        Balance Sheet
+        Balance Sheets
       </ion-item>                  
 
 <!--       <ion-item href="#/tab/finview/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
@@ -50,7 +51,7 @@
 
       <ion-item class="item-icon-right" href="#/tab/dues-list">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
-        Maintenance Dues
+        Maintenance Payment
         <span class="item-note" ng-if="currentDues">{{currentDues.get('maintDues')  | number:2 | ourcurrency}}</span>
         <span class="item-note assertive" ng-if="!currentDues && isAdmin">Setup</span>
       </ion-item>      

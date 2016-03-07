@@ -1,0 +1,9 @@
+<div class="modal padding">
+	<h4 class="royal">{{focusBalanceSheet.get("startDate") | date:'MMMM yyyy'}} Expense Chart</h4>
+	<div style="width: 100%; padding: 10px;">
+		<canvas id="expChart" width="300" height="300" style="display: block; margin-left: auto; margin-right: auto;"></canvas>
+	</div>
+  <div>
+  	<a class="button button-block button-outline" ng-click="closeModal($event)">Close Expense Chart</a>
+  </div>
+</div>

@@ -19,4 +19,17 @@ angular.module('starter.filters', [])
     	}
     }
 })
+.filter('currencyIndianFormat', function() {
+    return function(input) {
+      if(input) {
+        return input.toLocaleString('en-IN', {
+            maximumFractionDigits: 2,
+            style: 'currency',
+            currency: 'INR'
+        });
+      } else {
+        return input;
+      }
+    }
+})
 ;

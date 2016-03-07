@@ -1,10 +1,10 @@
-<ion-view view-title="Manage Dues">
+<ion-view view-title="Manage Payment">
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
-			<label class="item item-input">
-				<span class="input-label">Maintenance Dues</span>
-				<input type="number" step="any" name="maintenanceDues" ng-model="input.maintDues">
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Maintenance Payment</span>
+				<input type="number" step="any" name="maintenanceDues" ng-model="input.maintDues" class="textAlignLeft">
 			</label>
 			<label class="item item-input">
 				<span class="input-label">Effective Month</span>
@@ -15,7 +15,7 @@
 			  </label>									
 			<div class="row">
 				<div class="col">
-					<a class="button button-block button-assertive" ng-click="cancel()">Cancel</a>	
+					<a class="button button-block" ng-click="cancel()">Cancel</a>	
 				</div>
 				<div class="col">
 					<a class="button button-block button-calm" ng-click="updateDues()">{{duesAction}}</a>	

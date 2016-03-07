@@ -133,10 +133,10 @@ angular.module('notification.services', ['ionic'])
       user.set("deviceReg", "Y");
       user.save();
     },
-    sendInvitationCode: function(invitationCode, phoneNumber) {
+    sendInvitationCode: function(invitationCode, phoneNumber, regionName) {
       if(ENV=="PROD") {
         //sendSmsPlivo
-        Parse.Cloud.run('sendSmsPlivo', {"phoneNumber": phoneNumber, "invitationCode": invitationCode}, {
+        Parse.Cloud.run('sendSmsPlivo', {"phoneNumber": phoneNumber, "invitationCode": invitationCode, "regionName": regionName}, {
           success: function(response) {
             console.log("Response from sendSmsPlivo : " + JSON.stringify(response));
             LogService.log({type:"INFO", message: "SMS Send is success " + JSON.stringify(response)}); 

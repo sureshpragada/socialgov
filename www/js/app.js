@@ -174,6 +174,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })        
 
+    .state('tab.community-picman', {
+      url: '/community-picman',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/picture-manager.html',
+          controller: 'PictureManagerCtrl'
+        }
+      }
+    })        
+
     .state('tab.regions', {
       url: '/regions',
       views: {
@@ -348,6 +359,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })
+
+    .state('tab.homes', {
+      url: '/homes',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-homes.html',
+          controller: 'RegionHomesCtrl'
+        }
+      }
+    })             
 
     .state('tab.neighbors', {
       url: '/neighbors',
@@ -809,7 +831,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false
     });
 
-    $urlRouterProvider.otherwise('/tab/dash');
+    $urlRouterProvider.otherwise('/tab/region/native');
 
 })
 
