@@ -7,7 +7,7 @@
         <div class="col" style="text-align: center;">
           <h4>Reserve Fund</h4>
           <h2 class="royal" ng-if="currentReserve">
-            {{currentReserve.reserveAmount | number:2 | ourcurrency}}&nbsp;
+            {{currentReserve.reserveAmount | formatCurrency}}&nbsp;
             <i class="icon ion-arrow-up-a balanced" ng-if="currentReserve.progress=='UP'"></i>
             <i class="icon ion-arrow-down-a assertive" ng-if="currentReserve.progress=='DOWN'"></i>
           </h2>
@@ -27,7 +27,7 @@
       <div class="item item-divider item-energized">Reserve History</div>      
       <ion-list can-swipe="true">
         <ion-item ng-repeat="reserveAudit in reserveAuditList">
-          {{reserveAudit.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{reserveAudit.get("reserveAmount")  | number:2 | ourcurrency}}</span>
+          {{reserveAudit.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{reserveAudit.get("reserveAmount")  | formatCurrency}}</span>
           <ion-option-button class="button-info button-assertive" ng-click="deleteReserveAudit($index)">Delete</ion-option-button>  
         </ion-item>            
       </ion-list>     

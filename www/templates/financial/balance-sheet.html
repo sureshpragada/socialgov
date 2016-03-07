@@ -13,24 +13,24 @@
         </div>      
         <ion-item class="item-icon-right" href="#/tab/revenue-list/{{balanceSheet.id}}">
           Revenue
-          <span class="item-note">{{revenueTotal | number:2 | ourcurrency}}</span>
+          <span class="item-note">{{revenueTotal | formatCurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
         </ion-item>
         <ion-item class="item-icon-right" href="#/tab/expense-list/{{balanceSheet.id}}">
           Expenses
-          <span class="item-note">{{expenseTotal | number:2 | ourcurrency}}</span>
+          <span class="item-note">{{expenseTotal | formatCurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
         </ion-item>        
-        <ion-item ng-if="revenueTotal>=expenseTotal">
+        <ion-item class="item-icon-right" ng-if="revenueTotal>=expenseTotal">
           Reserve
-          <span class="item-note balanced">{{revenueTotal-expenseTotal | number:2 |  ourcurrency}}</span>
+          <span class="item-note balanced">{{revenueTotal-expenseTotal  | formatCurrency}}</span>
         </ion-item>                
-        <ion-item ng-if="revenueTotal<expenseTotal">
+        <ion-item class="item-icon-right" ng-if="revenueTotal<expenseTotal">
           Defecit
-          <span class="item-note assertive">{{expenseTotal-revenueTotal | number:2 | ourcurrency}}</span>
+          <span class="item-note assertive">{{revenueTotal-expenseTotal  | formatCurrency}}</span>
         </ion-item>                
         <ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="closeBalanceSheetInput.carryForwardBalance" ng-if="openBalanceSheets.length==2 && closeBalanceSheetInput.closeInitiated && isAdmin && balanceSheet.get('status')=='OPEN'">
-          Carry forward balance sheet balance of <span style="font-weight: bold;">{{revenueTotal-expenseTotal | number:2 |  ourcurrency}}</span> as revenue to next balance sheet 
+          Carry forward balance sheet balance of <span style="font-weight: bold;">{{revenueTotal-expenseTotal | formatCurrency}}</span> as revenue to next balance sheet 
         </ion-checkbox>                    
         <ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="closeBalanceSheetInput.carryForwardHomeOwnerUnpaidBalance" ng-if="openBalanceSheets.length==2 && closeBalanceSheetInput.closeInitiated && isAdmin && balanceSheet.get('status')=='OPEN' && homeOwnerUnpaidPaymentList.length>0">
           Carry forward <span style="font-weight: bold;">{{homeOwnerUnpaidPaymentList.length}}</span> unpaid home owner balances to next balance sheet 

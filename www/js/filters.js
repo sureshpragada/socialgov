@@ -19,14 +19,19 @@ angular.module('starter.filters', [])
     	}
     }
 })
-.filter('currencyIndianFormat', function() {
+.filter('formatCurrency', function() {
     return function(input) {
-      if(input) {
-        return input.toLocaleString('en-IN', {
-            maximumFractionDigits: 2,
-            style: 'currency',
-            currency: 'INR'
-        });
+      if(!isNaN(input)) {
+        if(REGION_SETTINGS.locale=="en-IN") {
+          input=input.toFixed(2);            
+          var n1 = input.split('.');
+          var n2 = n1[1] || null;          
+          n1 = n1[0].replace(/(\d)(?=(\d\d)+\d$)/g, "$1,");
+          input = n2 ? n1 + '.' + n2 : n1;
+          return "Rs " + input;          
+        } else {
+          return "$ " + input.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+        }        
       } else {
         return input;
       }

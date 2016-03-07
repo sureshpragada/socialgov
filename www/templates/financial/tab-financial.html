@@ -7,7 +7,7 @@
       <div class="row">
         <div class="col" style="text-align: center;">
           <h4>Payment</h4>
-          <h3 class="positive" ng-if="paymentAmount">{{paymentAmount  | number:2 | ourcurrency}}</h3>
+          <h3 class="positive" ng-if="paymentAmount">{{paymentAmount  | formatCurrency}}</h3>
           <h3 class="positive" ng-if="!paymentAmount">NA</h3>          
 <!--           <h3 class="positive" ng-if="!currentDues && isAdmin && !controllerMessage">
             <a class="button button-small button-block button-royal" href="#/tab/dues-list">Setup Dues</a>
@@ -48,11 +48,10 @@
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                 -->
 
-
       <ion-item class="item-icon-right" href="#/tab/dues-list">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Maintenance Payment
-        <span class="item-note" ng-if="currentDues">{{currentDues.get('maintDues')  | number:2 | ourcurrency}}</span>
+        <span class="item-note" ng-if="currentDues">{{currentDues.get('maintDues')  | formatCurrency}}</span>
         <span class="item-note assertive" ng-if="!currentDues && isAdmin">Setup</span>
       </ion-item>      
 
@@ -67,7 +66,7 @@
       <ion-item class="item-icon-right" href="#/tab/reserves-detail" ng-if="regionSettings.reserveVisibility=='OPEN' || isAdmin">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Reserve Fund
-        <span class="item-note">{{reserve | number:2 | ourcurrency}}</span>
+        <span class="item-note">{{reserve | formatCurrency}}</span>
       </ion-item>      
     </div>        
 

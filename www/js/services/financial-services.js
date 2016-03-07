@@ -1,6 +1,6 @@
 angular.module('financial.services', [])
 
-.factory('FinancialService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', 'AccountService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, AccountService, $q) {
+.factory('FinancialService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', 'AccountService', '$q', '$filter', function(CacheFactory, RegionService, NotificationService, LogService, AccountService, $q, $filter) {
 
 // Mar 2016 4000.00
 // Sep 2015 3000.00
@@ -314,15 +314,15 @@ angular.module('financial.services', [])
       }
       return false;
     },
-    carryForwardFinalBalanceAmountToNextBalanceSheet: function(inputBalanceSheet, carryForwardAmount) {
+    carryForwardFinalBalanceAmountToNextBalanceSheet: function(closedBalanceSheet, inputBalanceSheet, carryForwardAmount) {
       var revenueInputData={
         residency: inputBalanceSheet.get("residency"),
         createdBy: inputBalanceSheet.get("openedBy"),
         revenueAmount: carryForwardAmount,
         revenueDate: inputBalanceSheet.get("startDate"),
-        note: "Carry forwarded amount from previous balance sheet.",
+        note: "Balance carry forwarded from " + $filter('date')(closedBalanceSheet.get("startDate"), 'MMMM yyyy') + " balance sheet.",
         category: false,
-        revenueSource: "Carry forwarded amount",
+        revenueSource: $filter('date')(closedBalanceSheet.get("startDate"), 'MMM yyyy') + " Balance",
         balanceSheet: inputBalanceSheet,
         status: "COMPLETED"
       };

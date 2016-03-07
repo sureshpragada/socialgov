@@ -14,7 +14,7 @@
         <ion-item class="item-icon-right" ng-repeat="expense in expenseList" href="#/tab/expense-detail/{{expense.id}}">
           <span ng-if="expense.get('expenseCategory')=='Other'">{{expense.get("paidTo")}} </span>
           <span ng-if="expense.get('expenseCategory')!='Other'">{{expense.get("expenseCategory")}} </span>
-          <span class="item-note">{{expense.get("expenseAmount") | number:2 | ourcurrency}}</span>
+          <span class="item-note">{{expense.get("expenseAmount") | formatCurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>

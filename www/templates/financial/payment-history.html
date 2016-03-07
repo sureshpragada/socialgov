@@ -6,7 +6,7 @@
       <ion-list>
         <ion-item class="item-icon-left item-icon-right" ng-repeat="payment in paymentList" href="#/tab/payment-detail/{{payment.id}}">
           {{payment.get("revenueDate") | date:'mediumDate'}} 
-          <span class="item-note">{{payment.get("revenueAmount") | number:2 | ourcurrency}}</span>
+          <span class="item-note">{{payment.get("revenueAmount") | formatCurrency}}</span>
           <i class="icon ion-ios-checkmark-outline balanced" ng-if="payment.get('status')=='COMPLETED'"></i>
           <i class="icon ion-ios-information-outline assertive" ng-if="payment.get('status')=='PENDING'"></i>          
           <i class="icon ion-chevron-right icon-accessory"></i>
