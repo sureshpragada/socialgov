@@ -69,12 +69,14 @@ angular.module('starter.controllers')
 
 .controller('UpdateHowToMakePaymentCtrl', function($scope, $state, $http, RegionService, SettingsService) {
   console.log("Update how to make payment controller");
-  $scope.input={ paymentInstr: null};
+  $scope.input={ paymentInstr: "1. Handover the payment to watchman.\n\n2. Treasurer will collect your payment from watchman and mark your dues as paid.\n\n3. You will receive confirmation notification once your payment has been added to balance sheet."};
   RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
-    $scope.input.paymentInstr=region.get("paymentInstr");
+    if(region.get("paymentInstr")!=null && region.get("paymentInstr").length>0) {
+      $scope.input.paymentInstr=region.get("paymentInstr");  
+    }    
     $scope.region=region;
   }, function(error) {
-    console.log("Unable to get region");
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community instructions.");
   });  
 
   $scope.updatePaymentInstr=function() {
@@ -486,22 +488,22 @@ angular.module('starter.controllers')
 //   };
 // })
 
-// .controller('PaymentHistoryCtrl', function($scope, $http, SettingsService, FinancialService) {
-//   console.log("Payment history controller");
+.controller('PaymentHistoryCtrl', function($scope, $http, SettingsService, FinancialService) {
+  console.log("Payment history controller");
 
-//   var user=Parse.User.current();
-//   FinancialService.getMyPaymentHistory(user.get("residency"), user.get("homeNo")).then(function(paymentList) {
-//     if(paymentList!=null && paymentList.length>0) {
-//       $scope.paymentList=paymentList;
-//       $scope.$apply();
-//     } else {
-//       $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not made any payments.");  
-//     }
-//   }, function(error) {
-//     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your payment history.");
-//   });
+  var user=Parse.User.current();
+  FinancialService.getMyPaymentHistory(user.get("residency"), user.get("homeNo")).then(function(paymentList) {
+    if(paymentList!=null && paymentList.length>0) {
+      $scope.paymentList=paymentList;
+      $scope.$apply();
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not made any payments.");  
+    }
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your payment history.");
+  });
 
-// })
+})
 
 .controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, AccountService, $ionicLoading) {
   console.log("Revenue List controller " + $stateParams.balanceSheetId);
@@ -890,7 +892,7 @@ angular.module('starter.controllers')
       var forwardingBalanceSheet=$scope.getOtherBalanceSheet();      
 
       if($scope.closeBalanceSheetInput.carryForwardBalance==true) {
-        promiseArray.push(FinancialService.carryForwardFinalBalanceAmountToNextBalanceSheet(forwardingBalanceSheet, $scope.revenueTotal-$scope.expenseTotal));        
+        promiseArray.push(FinancialService.carryForwardFinalBalanceAmountToNextBalanceSheet($scope.balanceSheet, forwardingBalanceSheet, $scope.revenueTotal-$scope.expenseTotal));        
       } 
 
       if($scope.closeBalanceSheetInput.carryForwardHomeOwnerUnpaidBalance==true && $scope.homeOwnerUnpaidPaymentList.length>0) {
@@ -986,7 +988,7 @@ angular.module('starter.controllers')
         $scope.input.maintDues=dues.get("maintDues");
       }
     } else {
-      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Maintenance dues can be setup to simplify managing home owner payments.");  
+      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Setting up maintenance payment will simplify managing home owner payments.");  
     } 
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community to generate monthly home owner payments.");

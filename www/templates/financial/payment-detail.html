@@ -8,7 +8,7 @@
         <span class="item-note">{{revenueRecord.get("revenueDate") | date:'mediumDate'}}</span>
       </div>
       <div class="item">Revenue Amount
-        <span class="item-note">{{revenueRecord.get("revenueAmount") | number:2 | ourcurrency}}</span>
+        <span class="item-note">{{revenueRecord.get("revenueAmount") | formatCurrency}}</span>
       </div>      
       <div class="item">Status
         <span class="item-note balanced" ng-if="revenueRecord.get('status')=='COMPLETED'">Paid</span>

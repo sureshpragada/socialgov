@@ -17,7 +17,7 @@
 <!--           <i class="icon ion-alert-circled assertive" ng-if="revenue.get('status')=='PENDING'"></i>                   -->
           <i class="icon ion-ios-information-outline assertive" ng-if="revenue.get('status')=='PENDING'"></i>                    
           Home # {{revenue.get("homeNo")}}           
-          <span class="item-note">{{revenue.get("revenueAmount") | number:2 | ourcurrency}}</span>
+          <span class="item-note">{{revenue.get("revenueAmount") | formatCurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>      
@@ -28,7 +28,7 @@
         <ion-item class="item-divider item-energized">Other Revenue</ion-item>        
         <ion-item class="item-icon-right" ng-repeat="revenue in otherRevenueList" href="#/tab/revenue-detail/{{revenue.id}}">
           {{revenue.get("revenueSource")}} 
-          <span class="item-note">{{revenue.get("revenueAmount") | number:2 | ourcurrency}}</span>
+          <span class="item-note">{{revenue.get("revenueAmount") | formatCurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>
       </ion-list>      

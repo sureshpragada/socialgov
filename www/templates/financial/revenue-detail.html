@@ -15,7 +15,7 @@
         <span class="item-note">{{revenueRecord.get("revenueDate") | date:'mediumDate'}}</span>
       </div>
       <div class="item">Revenue Amount
-        <span class="item-note">{{revenueRecord.get("revenueAmount") | number:2 | ourcurrency}}</span>
+        <span class="item-note">{{revenueRecord.get("revenueAmount") | formatCurrency}}</span>
       </div>   
       <!-- <div class="item">Category<span class="item-note">{{revenueRecord.id}}</span></div> -->
     </div>      
