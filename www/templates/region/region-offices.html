@@ -6,6 +6,7 @@
     </ion-nav-buttons>
   <ion-content class="visible-cards">
   	<my-app-message info="appMessage"></my-app-message>
+  	<my-app-message info="controllerMessage"></my-app-message>
   	<div ng-repeat="region in regions track by $index" ng-init="regionIndex = $index">
 	    <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')" ng-init="officeIndex = $index">
 		  <div class="item item-icon-right">

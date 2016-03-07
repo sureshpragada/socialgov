@@ -305,6 +305,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.edit-service-contact', {
+      url: '/edit-service-contact/{regionUniqueName}/{index}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-edit-service-contacts.html',
+          controller: 'RegionEditServiceContactsCtrl'
+        }
+      }
+    })
+
     .state('tab.add-service-contact', {
       url: '/add-service-contact/{regionUniqueName}',
       cache: false,      

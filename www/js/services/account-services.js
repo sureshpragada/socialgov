@@ -461,9 +461,11 @@ angular.module('account.services', [])
         "pincode":this.communityAddress.pinCode,
         type:"DEFAULT"
       }
-      var builderAddress = {"name":this.communityInfo.builderName, type:"DEFAULT"};
       address.push(communityAddress);
-      address.push(builderAddress);
+      if(this.communityInfo.builderName){
+        var builderAddress = {"name":this.communityInfo.builderName, type:"DEFAULT"};
+        address.push(builderAddress);
+      }
       region.set("demography",demography);
       region.set("type","CONST");
       region.set("execOffAddrList",address);

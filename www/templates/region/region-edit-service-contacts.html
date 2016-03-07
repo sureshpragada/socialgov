@@ -1,6 +1,7 @@
-<ion-view title="Add Service Contact">
+<ion-view title="Edit Service Contact">
 	<ion-content>
 		<my-app-message info="controllerMessage"></my-app-message>
+		<div>
 		<ion-list>
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">Service Provider Name</span>
@@ -17,7 +18,7 @@
 			    	<option value="Handyman">Handyman</option>
 			    	<option value="Landscape">Landscape</option>			    	
 			    	<option value="House Cleaning">House Cleaning</option>			    	
-			    	<option value="Notary">Notary</option>			    				    				    	
+			    	<option value="Notary">Notary</option>			    				    		
 			    </select>				    
 			</label>
 	    	<label class="item item-input item-stacked-label">
@@ -34,9 +35,7 @@
 			</label>
     	</ion-list>
     	<div class="padding" >
-        	<button class="button button-block button-balanced" ng-click="submit()">Add Service Contact</button>
-     	</div>
-     	<div class="padding" >
+        	<button class="button button-block button-balanced" ng-click="submit()">Submit Service Contact</button>
         	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
     	</div>
 	</ion-content>
