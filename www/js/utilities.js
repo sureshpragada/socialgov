@@ -2,6 +2,17 @@ String.prototype.capitalizeFirstLetter = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
+Array.prototype.convertToFlatString = function() {
+    var result="";
+    for(var i=0;i<this.length;i++) {
+        result+=this[i];
+        if(i!=this.length-1) {
+            result+=", ";
+        }
+    }
+    return result;
+};
+
 Date.prototype.getTimeWithMeridiem=function() {
     var hours=this.getHours();
     var minutes=this.getMinutes();

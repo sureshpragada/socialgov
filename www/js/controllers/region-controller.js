@@ -915,7 +915,8 @@ angular.module('starter.controllers')
          { text: 'Vice President' },
          { text: 'Secretary' },
          { text: 'Treasurer' },
-         { text: 'Board Member' }
+         { text: 'Board Member' },
+         { text: 'Incharge Member' }
        ],
        cancelText: 'Cancel',
        cancel: function() {
@@ -932,7 +933,9 @@ angular.module('starter.controllers')
             AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Treasurer");
           } else if(index==4) { // Report spam
             AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Board Member");
-          } 
+          } else if(index==5) { // Report spam
+            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Incharge Member");
+          }           
           SettingsService.setAppSuccessMessage("Resident has been appointed on board.");
           $state.go("tab.neighbors");
           return true;
@@ -1090,6 +1093,8 @@ angular.module('starter.controllers')
     activityModeration: regionSettings.activityModeration
   };
 
+  $scope.whoControlFinancial=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "Financial").convertToFlatString();  
+
   $scope.saveSettings=function() {
     RegionService.getRegion($scope.user.get("residency")).then(function(region) {
       var currentRegionSettings=region.get("settings");
@@ -1120,6 +1125,84 @@ angular.module('starter.controllers')
 
   $scope.updateCoverPhoto=function() {
     RegionService.gotoCoverPhoto();
+  };
+
+  $scope.updateFinancialManagers=function(functionName) {
+    $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "Financial"});
+  };
+
+})
+
+.controller('RegionSettingsFunctionCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
+  $scope.settingsChanged=false;  
+  $scope.functionName=$stateParams.functionName;
+  var regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);          
+  console.log("Region settings : " + JSON.stringify(regionSettings));
+
+  var currentFunctionControls=RegionService.getFunctionControllersFromRegionSettings(regionSettings, $stateParams.functionName);
+  var legislativeRoles=USER_ROLES[0].titles;
+  $scope.roleList=[];  
+  for(var i=0;i<legislativeRoles.length;i++) {
+    for(var j=0;j<currentFunctionControls.length;j++) {
+      var roleAllowed=false;
+      if(currentFunctionControls[j]==legislativeRoles[i].id) {
+        roleAllowed=true;
+        break;
+      }
+    }
+    $scope.roleList.push({
+      name: legislativeRoles[i].id,
+      allowed: roleAllowed
+    });              
+  }
+
+  console.log("Role list " + JSON.stringify($scope.roleList));
+
+  $scope.saveSettings=function() {
+    console.log("Selection of role list : " + JSON.stringify($scope.roleList));
+    var whoIsControlling=[];
+    for(var i=0;i<$scope.roleList.length;i++) {
+      if($scope.roleList[i].allowed==true) {
+        whoIsControlling.push($scope.roleList[i].name);
+      }
+    }
+
+    console.log("Selected role list : " + JSON.stringify(whoIsControlling));
+
+    if(whoIsControlling.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Select at least one role to control this functionality.");
+      return;
+    } else {
+      RegionService.getRegion($stateParams.regionUniqueName).then(function(region) {
+        var currentRegionSettings=region.get("settings");
+        console.log("Current region settings : " + JSON.stringify(currentRegionSettings));
+        for(var i=0;i<currentRegionSettings.permissions.length;i++) {
+          if(currentRegionSettings.permissions[i].functionName==$stateParams.functionName) {
+            currentRegionSettings.permissions[i].allowedRoles=whoIsControlling;
+            break;
+          } 
+        }
+        region.set("settings", currentRegionSettings);
+
+        region.save().then(function(updatedRegion){
+          console.log("Update region settings : " + JSON.stringify(updatedRegion.get("settings")));
+          RegionService.updateRegion($stateParams.regionUniqueName, updatedRegion);
+          SettingsService.setAppSuccessMessage($stateParams.functionName + " controls have been changed.");
+          $state.go("tab.region-settings", {regionUniqueName: $stateParams.regionUniqueName});      
+        }, function(error){
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to save control settings.");
+          console.log("Error updating region " + JSON.stringify(error));
+        });
+      }, function(error) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to find region to save settings.");
+        console.log("Error retrieving region " + JSON.stringify(error));
+      });    
+
+    }
+  };
+
+  $scope.initiateSettingsChange=function() {
+    $scope.settingsChanged=true;
   };
 
 })

@@ -1,6 +1,6 @@
 <ion-view view-title="Settings">
   <ion-nav-buttons side="secondary">
-    <a class="button button-light button-outline"  ng-if="settingsChanged" style="border-color: #fff; color: #fff;" ng-click="saveSettings()">save</a>      
+    <a class="button button-light button-outline"  ng-if="settingsChanged" style="border-color: #fff; color: #fff;" ng-click="saveSettings()">Save</a>      
   </ion-nav-buttons>
   <ion-content class="visible-cards">
     <my-app-message info="controllerMessage"></my-app-message>
@@ -12,6 +12,11 @@
       <ion-toggle ng-model="inputSettings.reserveVisibility" ng-change="notifySettingChanged()">
           Show reserves to everyone
       </ion-toggle>                
+      <ion-item class="item-icon-right" ng-click="updateFinancialManagers()">
+          Financial Access Controls
+          <p>{{whoControlFinancial}}</p>
+          <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>                            
       <ion-item class="item-icon-right" ng-click="updateCoverPhoto()" >
           Update Cover Photo 
           <i class="icon ion-chevron-right icon-accessory"></i>

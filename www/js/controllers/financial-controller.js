@@ -5,8 +5,8 @@ angular.module('starter.controllers')
 
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=Parse.User.current();
-  $scope.isAdmin=AccountService.canUpdateRegion();
-  $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
+  $scope.isAdmin=AccountService.isFunctionalAdmin($scope.regionSettings, FINANCIAL_FUNCTION_NAME);
 
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
@@ -56,11 +56,11 @@ angular.module('starter.controllers')
 
 .controller('HowToMakePaymentCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
   console.log("How to make payment controller");
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
   RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
     $scope.paymentInstr=region.get("paymentInstr");
     if($scope.paymentInstr==null || $scope.paymentInstr.length<=0) {
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Payment instructions are not available.");  
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Payment instructions have not been published for your community.");  
     }
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get payment instructions.");
@@ -91,13 +91,13 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, AccountService, $ionicLoading, $ionicModal) {
+.controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, AccountService, RegionService, $ionicLoading, $ionicModal) {
   console.log("Expense List controller " + $stateParams.balanceSheetId);
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading expense items...<ion-spinner/></p>"
   });  
   $scope.appMessage=SettingsService.getAppMessage();  
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   FinancialService.getBalanceSheetByObjectId($stateParams.balanceSheetId).then(function(balanceSheet){
     $scope.focusBalanceSheet=balanceSheet;
@@ -200,10 +200,9 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $ionicModal, $cordovaDialogs, $state, SettingsService, AccountService, FinancialService, PictureManagerService) {
+.controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $ionicModal, $cordovaDialogs, $state, SettingsService, AccountService, RegionService, FinancialService, PictureManagerService) {
   console.log("Expense detail controller " + $stateParams.expenseId);
-  $scope.isAdmin=AccountService.canUpdateRegion();
-  console.log($scope.isAdmin);
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
   FinancialService.getExpenseRecord($stateParams.expenseId).then(function(expenseRecord){
     $scope.expenseRecord = expenseRecord[0];
     console.log(JSON.stringify($scope.expenseRecord));
@@ -376,10 +375,10 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, $cordovaDialogs, SettingsService, FinancialService, AccountService) {  
+.controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, $cordovaDialogs, SettingsService, FinancialService, AccountService, RegionService) {  
   console.log("Payment detail controller " + $stateParams.revenueId);
   $scope.appMessage=SettingsService.getAppMessage();    
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   FinancialService.getRevenueRecord($stateParams.revenueId).then(function(revenueRecord){
     $scope.revenueRecord = revenueRecord[0];
@@ -505,13 +504,13 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, AccountService, $ionicLoading) {
+.controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, RegionService, AccountService, $ionicLoading) {
   console.log("Revenue List controller " + $stateParams.balanceSheetId);
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading revenue items...<ion-spinner/></p>"
   });    
   $scope.appMessage=SettingsService.getAppMessage();    
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   FinancialService.getBalanceSheetByObjectId($stateParams.balanceSheetId).then(function(balanceSheet){
     $scope.focusBalanceSheet=balanceSheet;
@@ -559,8 +558,11 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService, $cordovaDialogs) {
+.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService, $cordovaDialogs, $ionicLoading) {
   console.log("Manage Revenue controller " + $stateParams.balanceSheetId);
+  // $ionicLoading.show({
+  //   template: "<p class='item-icon-left'>Preparing revenue item...<ion-spinner/></p>"
+  // });      
   $scope.focusBalanceSheet=FinancialService.createBalanceSheetEntityWithObjectId($stateParams.balanceSheetId);  
   $scope.input={
     revenueDate: new Date(),
@@ -778,10 +780,10 @@ angular.module('starter.controllers')
 
 })
 
-.controller('BalanceSheetListCtrl', function($scope, $http, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService) {
+.controller('BalanceSheetListCtrl', function($scope, $http, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, RegionService) {
   console.log("Balance sheet list controller ");
   $scope.appMessage=SettingsService.getAppMessage();
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading community balance sheets...<ion-spinner/></p>"
@@ -807,10 +809,10 @@ angular.module('starter.controllers')
 
 })
 
-.controller('BalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, LogService, $q, $cordovaDialogs) {
+.controller('BalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, RegionService, LogService, $q, $cordovaDialogs) {
   console.log("Balance sheet controller " + $stateParams.balanceSheetId);
   $scope.appMessage=SettingsService.getAppMessage();
-  $scope.isAdmin=AccountService.canUpdateRegion();  
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
   $scope.user=AccountService.getUser();
 
   $scope.closeBalanceSheetInput={
@@ -1051,7 +1053,7 @@ angular.module('starter.controllers')
 .controller('ReservesDetailCtrl', function($scope, $http, $stateParams, SettingsService, AccountService, RegionService, FinancialService) {
   console.log("Reserves detail controller ");
   $scope.appMessage=SettingsService.getAppMessage();
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
     $scope.currentReserve=region.get("reserve");
@@ -1122,10 +1124,10 @@ angular.module('starter.controllers')
 
 })
 
-.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, AccountService, $ionicLoading, LogService) {
+.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, RegionService, AccountService, $ionicLoading, LogService) {
   console.log("Dues List controller");
   $scope.appMessage=SettingsService.getAppMessage();
-  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading community maintenance payment...<ion-spinner/></p>"
