@@ -78,6 +78,10 @@ angular.module('starter.controllers')
     $state.go("tab.add-service-contact",{regionUniqueName: $stateParams.regionUniqueName});
   };
 
+  $scope.editServiceContact=function(contactIndex){
+    $state.go("tab.edit-service-contact",{regionUniqueName: $stateParams.regionUniqueName, index:contactIndex});
+  };
+
   $scope.deleteServiceContact=function(index) {
     $cordovaDialogs.confirm('Do you want to delete this service contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
@@ -100,7 +104,50 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AddServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {  
+.controller('RegionEditServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs) {  
+  
+  console.log("Entered into RegionEditServiceContactsCtrl");
+
+  $scope.serviceContact=null;
+  var ServiceContact = Parse.Object.extend("ServiceContact");
+  var query = new Parse.Query(ServiceContact);
+  query.equalTo("region", $stateParams.regionUniqueName);
+  query.find({
+    success: function(personalServiceContacts) {
+       $scope.$apply(function(){
+          $scope.serviceContact=personalServiceContacts[$stateParams.index];
+          console.log(JSON.stringify(personalServiceContacts));
+          console.log(JSON.stringify($scope.serviceContact));
+        });
+    },
+    error: function(serviceContact, error) {
+      console.log("Error retrieving service contacts " + error.message);
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to open the service contact.");
+    }
+  });  
+
+  $scope.submit=function(){
+    $scope.serviceContact.save($scope.serviceContact, {
+      success: function(serviceContact) {
+        SettingsService.setAppSuccessMessage("Service contact has been updated.");
+        $state.go("tab.service",{regionUniqueName: $stateParams.regionUniqueName});
+      },
+      error: function(serviceContact, error) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
+        console.log("Error adding service contact " + JSON.stringify(error));
+      }
+    });     
+
+  };
+
+  $scope.cancel=function(){
+    $state.go("tab.service",{regionUniqueName:$stateParams.regionUniqueName});
+  };
+
+})
+
+
+.controller('AddServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs) {  
   $scope.serviceContact={
     status: "A", 
     type: "Plumber", 
@@ -114,12 +161,13 @@ angular.module('starter.controllers')
 
   $scope.submit=function() {
     if($scope.serviceContact.serviceName==null || $scope.serviceContact.serviceName.length==0) {
+        $state.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider name.");
       $scope.serviceContactErrorMessage="Please enter service provider name.";
       return;
     }
 
     if($scope.serviceContact.servicePhoneNumber==null || $scope.serviceContact.servicePhoneNumber.length==0) {
-      $scope.serviceContactErrorMessage="Please enter service provider phone number.";
+      $state.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider phone number.");
       return;
     }
 
@@ -127,9 +175,11 @@ angular.module('starter.controllers')
     var serviceContact = new ServiceContact();
     serviceContact.save($scope.serviceContact, {
       success: function(newServiceContact) {
+        SettingsService.setAppSuccessMessage("Service contact has been added.")
         $state.go("tab.service",{regionUniqueName: AccountService.getUser().get('residency')});
       },
       error: function(serviceContact, error) {
+        $state.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
         $scope.serviceContactErrorMessage="Unable to add this service contact.";
         console.log("Error adding service contact " + JSON.stringify(error));
       }
@@ -203,29 +253,28 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
-  console.log(JSON.stringify($scope.regions));
   $scope.deleteOffice=function(regionIndex, officeIndex){
-    $scope.offices=$scope.regions[regionIndex].get("execOffAddrList");
-    $scope.offices.splice(officeIndex,1);
-    for(var i=0; i < $scope.offices.length;i++) { 
-      delete $scope.offices[i].$$hashKey;
-      if($scope.offices[i].execAdmin!=null) {
-        for(var j=0; j < $scope.offices[i].execAdmin.length; j++){
-          delete $scope.offices[i].execAdmin[j].$$hashKey;
+    var offices=$scope.regions[regionIndex].get("execOffAddrList");
+    offices.splice(officeIndex,1);
+    for(var i=0; i < offices.length;i++) { 
+      delete offices[i].$$hashKey;
+      if(offices[i].contacts!=null) {
+        for(var j=0; j < offices[i].contacts.length; j++){
+          delete offices[i].contacts[j].$$hashKey;
         }
       }
     }
-
     $scope.regions[regionIndex].save(null, {
       success: function(region) {
         RegionService.updateRegion(region.get("uniqueName"), region);        
         $scope.$apply(function(){ // To refresh the view with the delete
+          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Office has been deleted.");
           console.log("delete is success");
         });
       },
       error: function(region, error) {
         console.log("Error in deleting the office " + error.message);
-        $scope.deleteErrorMessage="Unable to process your delete request.";
+        $scope.controllerMessage="Unable to process your delete request.";
       }
     });
 
@@ -411,11 +460,9 @@ angular.module('starter.controllers')
 
   // $scope.newExecObj={};
   // $scope.newOfficeObj={};
-  var officeIndex=$stateParams.officeIndex;
-
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
-    $scope.newOfficeObj=$scope.region.get('execOffAddrList')[officeIndex];
+    $scope.newOfficeObj=$scope.region.get('execOffAddrList')[$stateParams.officeIndex];
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information."); 
     console.log("Error retrieving region " + JSON.stringify(error));
@@ -425,12 +472,14 @@ angular.module('starter.controllers')
     // for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
     //   delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
     // }
-    for(var i=0; i <$scope.region.get('execOffAddrList').length;i++){
-      var execOffAddr=$scope.region.get('execOffAddrList')[i];
-      delete execOffAddr.$$hashKey;
-      // for(var j=0;j<execOffAddr.execAdmin.length;j++) {
-      //   delete execOffAddr.execAdmin[j].$$hashKey;
-      // }
+    var officesList=$scope.region.get('execOffAddrList');
+    for(var i=0; i <officesList.length;i++){
+      delete officesList[i].$$hashKey;
+      if(officesList[i].contacts!=undefined){
+        for(var j=0;j<officesList[i].contacts.length;j++) {
+          delete officesList[i].contacts[j].$$hashKey;
+        }
+      }
     }
 
     // if(typeof($scope.newOfficeObj.phoneNumberList)=="string"){
@@ -451,12 +500,11 @@ angular.module('starter.controllers')
     //       }
     //     }
     // }
-    console.log(JSON.stringify($scope.region));
     $scope.region.save(null, {
         success: function(region) {
           console.log("edit is success " + JSON.stringify(region));          
           RegionService.updateRegion(region.get("uniqueName"), region);          
-          SettingsService.setAppMessage("Office has been updated.");
+          SettingsService.setAppSuccessMessage("Office has been updated.");
           $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});          
         }
     });

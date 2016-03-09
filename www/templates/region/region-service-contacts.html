@@ -10,6 +10,7 @@
 	      <h2>{{serviceContact.get('serviceName')}}</h2>
 	      <p>{{serviceContact.get('type')}}</p>
 	      <p>{{serviceContact.get('servicePhoneNumber')}}</p>
+	      <ion-option-button class="button-info button-positive" ng-click="editServiceContact(personalServiceContactsIndex)">Edit</ion-option-button>
 	      <ion-option-button class="button-info button-assertive" ng-click="deleteServiceContact(personalServiceContactsIndex)">Delete</ion-option-button>
 	    </ion-item>
     </ion-list>
