@@ -316,8 +316,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.service-contact-detail', {
+      url: '/service-contact-detail/{serviceContactId}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-service-contact-detail.html',
+          controller: 'RegionServiceContactDetailCtrl'
+        }
+      }
+    })
+
     .state('tab.edit-service-contact', {
-      url: '/edit-service-contact/{regionUniqueName}/{index}',
+      url: '/edit-service-contact/{serviceContactId}',
       cache: false,      
       views: {
         'tab-region': {

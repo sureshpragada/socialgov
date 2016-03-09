@@ -655,8 +655,10 @@ angular.module('starter.controllers')
     AccountService.setYourInfo($scope.user);
     AccountService.createNewCommunity().then(function(regionData){
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
+        LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
         RegionService.initializeRegionCache(regionData);          
         NotificationService.registerDevice();
+        LogService.log({type:"INFO", message: "Device registered during community setup  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });                   
         ActivityService.postWelcomeActivity(regionData, userData);          
         SettingsService.setAppSuccessMessage("Community has been registered.");
         $ionicLoading.hide();

@@ -48,7 +48,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
-  $scope.regions=RegionService.getRegionListFromCache();  
+  $scope.appMessage=SettingsService.getAppMessage();
 
   $scope.personalServiceContacts=null;
   var ServiceContact = Parse.Object.extend("ServiceContact");
@@ -57,43 +57,52 @@ angular.module('starter.controllers')
   query.equalTo("status", "A");  
   query.include("user");
   query.descending("createdAt");
-  query.find({
-    success: function(personalServiceContacts) {
-      $scope.$apply(function(){
-        if(personalServiceContacts!=null && personalServiceContacts.length>0) {
-          $scope.personalServiceContacts=personalServiceContacts;
-        } else {
-          console.log("No service contacts have been found.");
-          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service recommendations are not made by your neighbors.");
-        }
-      });
-    },
-    error: function(serviceContact, error) {
-      console.log("Error retrieving service contacts " + error.message);
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community service recommendations.");
+  query.find().then(function(personalServiceContacts) {
+    if(personalServiceContacts!=null && personalServiceContacts.length>0) {
+      $scope.personalServiceContacts=personalServiceContacts;
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service recommendations are not made by your neighbors.");
     }
+  },function(error) {
+    console.log("Error retrieving service contacts " + JSON.stringify(error));
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community service recommendations.");
   });          
 
   $scope.gotoAddServiceContact=function() {
     $state.go("tab.add-service-contact",{regionUniqueName: $stateParams.regionUniqueName});
   };
 
-  $scope.editServiceContact=function(contactIndex){
-    $state.go("tab.edit-service-contact",{regionUniqueName: $stateParams.regionUniqueName, index:contactIndex});
+})
+
+.controller('RegionServiceContactDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
+  $scope.appMessage=SettingsService.getAppMessage();
+
+  $scope.serviceContact=null;
+  var ServiceContact = Parse.Object.extend("ServiceContact");
+  var query = new Parse.Query(ServiceContact);
+  query.equalTo("objectId", $stateParams.serviceContactId);
+  query.first().then(function(personalServiceContact) {
+    $scope.serviceContact=personalServiceContact;
+  },function(error) {
+    console.log("Error retrieving service contacts " + JSON.stringify(error));
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve service contact for edit.");
+  });  
+
+  $scope.gotoEditServiceContact=function() {
+    $state.go("tab.edit-service-contact",{serviceContactId: $scope.serviceContact.id});
   };
 
-  $scope.deleteServiceContact=function(index) {
-    $cordovaDialogs.confirm('Do you want to delete this service contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
+  $scope.deleteServiceContact=function() {
+    $cordovaDialogs.confirm('Do you want to delete this service contact?', 'Delete Contact', ['Delete','Ignore']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
-        $scope.personalServiceContacts[index].save({status: "D"}, {
+        $scope.serviceContact.save({status: "D", deleteBy: AccountService.getUser()}, {
           success: function(updatedServiceContact) {
-            $scope.$apply(function(){
-              $scope.personalServiceContacts.splice(index,1);        
-            });
+            SettingsService.setAppSuccessMessage("Service contact has been deleted successfully.");
+            $state.go("tab.service",{regionUniqueName: AccountService.getUserResidency()});
           },
           error: function(serviceContact, error) {
             console.log("Error removing service contact " + JSON.stringify(error));
-            $cordovaDialogs.alert("Unable to delete service contact at this time.");
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete service contact at this time.");
           }
         });    
       } else {
@@ -104,44 +113,65 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegionEditServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs) {  
-  
-  console.log("Entered into RegionEditServiceContactsCtrl");
+.controller('RegionEditServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs) {    
+  console.log("Entered into RegionEditServiceContactsCtrl " + $stateParams.serviceContactId);
 
+  $scope.inputServiceContact={};
   $scope.serviceContact=null;
   var ServiceContact = Parse.Object.extend("ServiceContact");
   var query = new Parse.Query(ServiceContact);
-  query.equalTo("region", $stateParams.regionUniqueName);
-  query.find({
-    success: function(personalServiceContacts) {
-       $scope.$apply(function(){
-          $scope.serviceContact=personalServiceContacts[$stateParams.index];
-          console.log(JSON.stringify(personalServiceContacts));
-          console.log(JSON.stringify($scope.serviceContact));
-        });
-    },
-    error: function(serviceContact, error) {
-      console.log("Error retrieving service contacts " + error.message);
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to open the service contact.");
-    }
-  });  
+  query.equalTo("objectId", $stateParams.serviceContactId);
+  query.first().then(function(personalServiceContact) {
+      $scope.serviceContact=personalServiceContact;
+      $scope.inputServiceContact.type=$scope.serviceContact.get("type");
+      $scope.inputServiceContact.serviceName=$scope.serviceContact.get("serviceName");
+      $scope.inputServiceContact.servicePhoneNumber=$scope.serviceContact.get("servicePhoneNumber");
+      $scope.inputServiceContact.serviceAddressLine1=$scope.serviceContact.get("serviceAddressLine1");
+      $scope.inputServiceContact.serviceAddressLine2=$scope.serviceContact.get("serviceAddressLine2");
+      $scope.inputServiceContact.otherCategoryName=$scope.serviceContact.get("otherCategoryName");
+    },function(error) {
+      console.log("Error retrieving service contacts " + JSON.stringify(error));
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve service contact for edit.");
+    });  
 
   $scope.submit=function(){
-    $scope.serviceContact.save($scope.serviceContact, {
-      success: function(serviceContact) {
+    if($scope.inputServiceContact.type=="Other" && ($scope.inputServiceContact.otherCategoryName==null || $scope.inputServiceContact.otherCategoryName.length<1)) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter category name.");
+      return;      
+    } else {
+      $scope.serviceContact.set("otherCategoryName", $scope.inputServiceContact.otherCategoryName);
+    }
+
+    if($scope.inputServiceContact.serviceName==null || $scope.inputServiceContact.serviceName.length==0) {
+      console.log("Service name is not here");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider name.");
+      return;
+    } else {
+      $scope.inputServiceContact.serviceName=$scope.inputServiceContact.serviceName.capitalizeFirstLetter();
+      $scope.serviceContact.set("serviceName", $scope.inputServiceContact.serviceName);
+    }
+
+    if($scope.inputServiceContact.servicePhoneNumber==null || $scope.inputServiceContact.servicePhoneNumber.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider phone number.");
+      return;
+    } else {
+      $scope.serviceContact.set("servicePhoneNumber", $scope.inputServiceContact.servicePhoneNumber);
+    }
+
+    $scope.serviceContact.set("serviceAddressLine1", $scope.inputServiceContact.serviceAddressLine1);
+    $scope.serviceContact.set("serviceAddressLine2", $scope.inputServiceContact.serviceAddressLine2);
+
+    $scope.serviceContact.save().then(function(serviceContact) {
         SettingsService.setAppSuccessMessage("Service contact has been updated.");
-        $state.go("tab.service",{regionUniqueName: $stateParams.regionUniqueName});
-      },
-      error: function(serviceContact, error) {
+        $state.go("tab.service",{regionUniqueName: AccountService.getUserResidency()});
+      },function(serviceContact, error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
         console.log("Error adding service contact " + JSON.stringify(error));
-      }
-    });     
-
+      });     
   };
 
   $scope.cancel=function(){
-    $state.go("tab.service",{regionUniqueName:$stateParams.regionUniqueName});
+    $state.go("tab.service",{regionUniqueName: AccountService.getUserResidency()});
   };
 
 })
@@ -151,23 +181,31 @@ angular.module('starter.controllers')
   $scope.serviceContact={
     status: "A", 
     type: "Plumber", 
-    user: Parse.User.current(),
-    region: Parse.User.current().get("residency"),
+    user: AccountService.getUser(),
+    region: AccountService.getUserResidency(),
     serviceName: null,
     servicePhoneNumber: null,
     serviceAddressLine1: null,
-    serviceAddressLine2: null
+    serviceAddressLine2: null,
+    otherCategoryName: null
   };
 
   $scope.submit=function() {
+    if($scope.serviceContact.type=="Other" && ($scope.serviceContact.otherCategoryName==null || $scope.serviceContact.otherCategoryName.length<1)) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter category name.");
+      return;      
+    } 
+
     if($scope.serviceContact.serviceName==null || $scope.serviceContact.serviceName.length==0) {
-        $state.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider name.");
-      $scope.serviceContactErrorMessage="Please enter service provider name.";
+      console.log("Service name is not here");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider name.");
       return;
+    } else {
+      $scope.serviceContact.serviceName=$scope.serviceContact.serviceName.capitalizeFirstLetter();
     }
 
     if($scope.serviceContact.servicePhoneNumber==null || $scope.serviceContact.servicePhoneNumber.length==0) {
-      $state.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider phone number.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider phone number.");
       return;
     }
 
@@ -179,12 +217,10 @@ angular.module('starter.controllers')
         $state.go("tab.service",{regionUniqueName: AccountService.getUser().get('residency')});
       },
       error: function(serviceContact, error) {
-        $state.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
-        $scope.serviceContactErrorMessage="Unable to add this service contact.";
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
         console.log("Error adding service contact " + JSON.stringify(error));
       }
     });     
-
   };
   
   $scope.cancel=function(){

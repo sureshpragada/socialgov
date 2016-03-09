@@ -1,0 +1,32 @@
+<ion-view>
+  <ion-nav-title>
+    Service Contact
+  </ion-nav-title>
+  <ion-content class="visible-cards">
+    <my-app-message info="appMessage"></my-app-message>
+    <my-app-message info="controllerMessage"></my-app-message>
+    <div class="card">
+      <div class="item">
+        <h2>{{serviceContact.get('serviceName')}}</h2>
+        <p ng-if="serviceContact.get('type')!='Other'">{{serviceContact.get('type')}}</p>
+        <p ng-if="serviceContact.get('type')=='Other'">{{serviceContact.get('otherCategoryName')}}</p>
+      </div>
+      <ion-item>
+        <h3>
+          <i class="icon ion-ios-telephone"></i>
+          {{serviceContact.get('servicePhoneNumber')}}
+        </h3>
+        <p>{{serviceContact.get('serviceAddressLine1')}}</p>
+        <p>{{serviceContact.get('serviceAddressLine2')}}</p>
+      </ion-item>                        
+    </div>    
+    <div class="padding">
+      <button class="button button-balanced button-block" ng-click="gotoEditServiceContact()">
+        Edit Service Contact
+      </button>
+      <button class="button button-assertive button-block" ng-click="deleteServiceContact()">
+        Delete Service Contact
+      </button>      
+    </div>
+  </ion-content>
+</ion-view>
