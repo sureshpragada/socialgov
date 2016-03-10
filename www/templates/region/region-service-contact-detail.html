@@ -18,7 +18,10 @@
         </h3>
         <p>{{serviceContact.get('serviceAddressLine1')}}</p>
         <p>{{serviceContact.get('serviceAddressLine2')}}</p>
-      </ion-item>                        
+        <br>
+        <p><span class="positive">Recommended By</span></p>
+        <p>{{serviceContact.get('user').get("firstName")}} {{serviceContact.get('user').get("lastName")}}</p>        
+      </ion-item>                
     </div>    
     <div class="padding">
       <button class="button button-balanced button-block" ng-click="gotoEditServiceContact()">

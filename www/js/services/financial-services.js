@@ -62,7 +62,7 @@ angular.module('financial.services', [])
     setupDues: function(inputDues) {
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
-      dues.set("maintDues", inputDues.maintDues);
+      dues.set("maintDues", parseFloat(inputDues.maintDues));
       dues.set("effectiveMonth", inputDues.effectiveMonth);
       dues.set("notes", inputDues.notes);
       dues.set("residency", inputDues.residency);
@@ -72,7 +72,7 @@ angular.module('financial.services', [])
     updateDues: function(duesId, inputDues) {
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
-      dues.set("maintDues", inputDues.maintDues);
+      dues.set("maintDues", parseFloat(inputDues.maintDues));
       dues.set("effectiveMonth", inputDues.effectiveMonth);
       dues.set("notes", inputDues.notes);
       dues.set("residency", inputDues.residency);

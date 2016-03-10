@@ -47,9 +47,11 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
+.controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicLoading) {  
   $scope.appMessage=SettingsService.getAppMessage();
-
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading service contacts...<ion-spinner/></p>"
+  });  
   $scope.personalServiceContacts=null;
   var ServiceContact = Parse.Object.extend("ServiceContact");
   var query = new Parse.Query(ServiceContact);
@@ -63,9 +65,11 @@ angular.module('starter.controllers')
     } else {
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service recommendations are not made by your neighbors.");
     }
+    $ionicLoading.hide();    
   },function(error) {
     console.log("Error retrieving service contacts " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community service recommendations.");
+    $ionicLoading.hide();
   });          
 
   $scope.gotoAddServiceContact=function() {
@@ -74,18 +78,23 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegionServiceContactDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {  
+.controller('RegionServiceContactDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicLoading) {  
   $scope.appMessage=SettingsService.getAppMessage();
-
+  $ionicLoading.show({
+    template: "<p class='item-icon-left'>Loading service contact...<ion-spinner/></p>"
+  });  
   $scope.serviceContact=null;
   var ServiceContact = Parse.Object.extend("ServiceContact");
   var query = new Parse.Query(ServiceContact);
   query.equalTo("objectId", $stateParams.serviceContactId);
+  query.include("user");
   query.first().then(function(personalServiceContact) {
     $scope.serviceContact=personalServiceContact;
+    $ionicLoading.hide();
   },function(error) {
     console.log("Error retrieving service contacts " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve service contact for edit.");
+    $ionicLoading.hide();
   });  
 
   $scope.gotoEditServiceContact=function() {
@@ -163,7 +172,7 @@ angular.module('starter.controllers')
 
     $scope.serviceContact.save().then(function(serviceContact) {
         SettingsService.setAppSuccessMessage("Service contact has been updated.");
-        $state.go("tab.service",{regionUniqueName: AccountService.getUserResidency()});
+        $state.go("tab.service-contact-detail",{serviceContactId: $scope.serviceContact.id});
       },function(serviceContact, error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
         console.log("Error adding service contact " + JSON.stringify(error));
@@ -177,7 +186,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('AddServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs) {  
+.controller('AddServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs, $ionicLoading) {  
   $scope.serviceContact={
     status: "A", 
     type: "Plumber", 
@@ -209,22 +218,27 @@ angular.module('starter.controllers')
       return;
     }
 
+    $ionicLoading.show({
+      template: "<p class='item-icon-left'>Adding service contact...<ion-spinner/></p>"
+    });  
     var ServiceContact = Parse.Object.extend("ServiceContact");
     var serviceContact = new ServiceContact();
     serviceContact.save($scope.serviceContact, {
       success: function(newServiceContact) {
         SettingsService.setAppSuccessMessage("Service contact has been added.")
+        $ionicLoading.hide();
         $state.go("tab.service",{regionUniqueName: AccountService.getUser().get('residency')});
       },
       error: function(serviceContact, error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
         console.log("Error adding service contact " + JSON.stringify(error));
+        $ionicLoading.hide();
       }
     });     
   };
   
   $scope.cancel=function(){
-    $state.go("tab.service",{regionUniqueName: AccountService.getUser().get('residency')});
+    $state.go("tab.service",{regionUniqueName: AccountService.getUserResidency()});
   };
 
 })

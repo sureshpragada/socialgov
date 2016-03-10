@@ -602,26 +602,23 @@ angular.module('starter.controllers')
     });
   }
 
+  // TODO :: Cache dues to avoid these calls
   if($scope.pageTransitionData==null) {
-    // TODO :: Cache dues to avoid these calls
-    if($scope.pageTransitionData==null) {
-      FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {    
-        if(duesList!=null) {
-          var currentDues=FinancialService.getCurrentDues(duesList);
-          if(currentDues!=null) {
-            $scope.input.revenueAmount=currentDues.get("maintDues");
-          } else {
-            var upcomingDues=FinancialService.getUpcomingDues(duesList);
-            if(upcomingDues!=null) {
-              $scope.input.revenueAmount=upcomingDues.get("maintDues");
-            }
+    FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {    
+      if(duesList!=null) {
+        var currentDues=FinancialService.getCurrentDues(duesList);
+        if(currentDues!=null) {
+          $scope.input.revenueAmount=currentDues.get("maintDues");
+        } else {
+          var upcomingDues=FinancialService.getUpcomingDues(duesList);
+          if(upcomingDues!=null) {
+            $scope.input.revenueAmount=upcomingDues.get("maintDues");
           }
         }
-      }, function(error) {
-        console.log("Unable to retrieve dues of this community");
-      });      
-    }
-
+      }
+    }, function(error) {
+      console.log("Unable to retrieve dues of this community");
+    });      
   }
 
   $scope.addRevenue=function() {
@@ -1166,7 +1163,8 @@ angular.module('starter.controllers')
   $scope.input={
     createdBy: Parse.User.current(),
     residency: Parse.User.current().get("residency"),
-    maintDues: 0
+    effectiveMonth: new Date().firstDayOfMonth(),
+    maintDues: "0.00"
   };
   $scope.duesAction="Setup Payment";
 
@@ -1175,7 +1173,7 @@ angular.module('starter.controllers')
       console.log(JSON.stringify(dues));
       $scope.input.notes=dues.get("notes");
       $scope.input.effectiveMonth=dues.get("effectiveMonth");
-      $scope.input.maintDues=dues.get("maintDues");
+      $scope.input.maintDues=dues.get("maintDues").toFixed(2);
       $scope.duesAction="Update Payment";
       $scope.$apply();
     }, function(error) {
@@ -1190,7 +1188,7 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter effective month.");
       return;
     }
-    if($scope.input.maintDues==null || $scope.input.maintDues<1) {
+    if($scope.input.maintDues==null || isNaN($scope.input.maintDues) || parseFloat($scope.input.maintDues)<1) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter maintenance payment amount.");
       return;
     }
