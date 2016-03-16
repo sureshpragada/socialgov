@@ -1,5 +1,6 @@
 <ion-view view-title="Activity">
   <ion-nav-buttons side="secondary">
+<!--     <a class="button button-icon icon ion-compose" href="#/tab/pick-activity-type" ng-if="user.get('status')!='S'"></a> -->
     <a class="button button-icon icon ion-compose" href="#/tab/post" ng-if="user.get('status')!='S'"></a>
   </ion-nav-buttons>
   <ion-content class="visible-cards">
@@ -21,9 +22,12 @@
       <div class="item item-body">
         <a ng-click="showActivityImage(activityIndex)">
           <img class="full-image" ng-src="{{activity.get('images')[0]}}" ng-if="activity.get('images')">
-        </a>
+        </a>        
         <p ng-bind-html="activity.get('notifyMessage') | nl2br">
         </p>
+        <a ng-if="activity.get('activityType')=='POLL'" class="button button-block button-balanced" ng-click="respondToPoll(activity.id)">
+          Respond To Poll
+        </a>
         <p>{{activity.createdAt | date:'mediumDate'}}&nbsp;{{activity.createdAt | date:'shortTime'}}</p>        
         <p ng-if="activity.get('status')=='S'" >
           <span class="assertive">* Activity marked as spam</span>

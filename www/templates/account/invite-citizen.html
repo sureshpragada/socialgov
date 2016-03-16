@@ -1,12 +1,12 @@
 <ion-view view-title="Invite">
-	<ion-nav-buttons side="secondary">
+	<ion-nav-buttons side="secondary" ng-if="!communityHomesLoadError">
 <!-- 		<a class="button button-icon icon ion-person-add icon-assertive" ng-click="pickContact()"></a> -->
 <!-- 		<a class="button button-icon icon ion-ios-personadd icon-assertive" ng-click="pickContact()"></a> -->
 		<a class="button button-light button-outline"  style="border-color: #fff; color: #fff;" ng-click="pickContact()">Contacts</a>    
 	</ion-nav-buttons>
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
-		<div class="list">		
+		<div class="list" ng-if="!communityHomesLoadError">		
 			<label class="item item-input">
 				<span class="input-label">First Name</span>
 				<input type="text" name="firstName"  ng-model="user.firstName">
@@ -14,21 +14,33 @@
 			<label class="item item-input">
 				<span class="input-label">Last Name</span>
 				<input type="text" name="lastName" ng-model="user.lastName">
-			</label>			
-			<label class="item item-input" ng-if="regionSettings.supportHomeNumber">
-				<span class="input-label">Home/Unit/Apt #</span>
-				<input type="text" name="homeNumber" ng-model="user.homeNumber">
-			</label>					
-	        <ion-toggle class="toggle-balanced" ng-model="user.homeOwner">
-	          Home Owner
-	        </ion-toggle>          				
+			</label>	
+			<label class="item item-input item-select" ng-if="regionSettings.supportMultiCountry">
+			    <span class="input-label">Country Code</span>
+			    <select ng-model="user.country" ng-options="country.name for country in countryList"></select>			    
+			 </label>												
 			<label class="item item-input">
 				<span class="input-label">Phone Number</span>
 				<input type="tel" name="phoneNum" ng-model="user.phoneNum" maxlength="15">
-			</label>
+			</label>			
+			<ion-item ng-if="user.pageTransitionData">
+				Home/Unit/Apt #
+				<span class="item-note">{{user.homeNumber}}</span>
+			</ion-item>
+			<label class="item item-input" ng-if="regionSettings.supportHomeNumber==false && user.pageTransitionData==false">
+				<span class="input-label">Home/Unit/Apt #</span>
+				<input type="text" name="homeNumber" ng-model="user.homeNumber">
+			</label>					
+			<label class="item item-input item-select" ng-if="regionSettings.supportHomeNumber && user.pageTransitionData==false && availableHomes">
+			    <div class="input-label">Home/Unit/Apt #</div>
+			    <select ng-model="user.dropDownHome" ng-options="availableHome.label for availableHome in availableHomes"></select>
+			</label>								
+	        <ion-toggle class="toggle-balanced" ng-model="user.homeOwner">
+	          Home Owner
+	        </ion-toggle>          				
 			<div class="row">
 				<div class="col">
-					<a class="button button-block" href="#/tab/neighbors">Cancel</a>	
+					<a class="button button-block" ng-click="cancel()">Cancel</a>	
 				</div>
 				<div class="col">
 					<a class="button button-block button-balanced" ng-click="invite()">Invite</a>	

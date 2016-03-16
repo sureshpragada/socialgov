@@ -9,6 +9,7 @@
         <div class="item item-text-wrap">
           <h2 ng-if="functionName=='Financial'">Who can manage financials of this community?</h2>
           <h2 ng-if="functionName=='Board Appointment'">Who can manage board member appointments?</h2>
+          <h2 ng-if="functionName=='Settings'">Who can control community settings?</h2>
         </div>      
         <ion-checkbox class="checkbox-balanced" ng-model="role.allowed" ng-repeat="role in roleList" ng-change="initiateSettingsChange()">{{role.name}}</ion-checkbox>
       </ion-list>

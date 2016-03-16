@@ -10,20 +10,24 @@
 				<span class="input-label">Last Name</span>
 				<input type="text" name="lastName" ng-model="inputUser.lastName">
 			</label>		
-			<label class="item item-input" ng-if="regionSettings.supportHomeNumber">
+			<label class="item item-input">
 				<span class="input-label">Home/Unit/Apt #</span>
 				<input type="text" name="homeNo" ng-model="inputUser.homeNo">
 			</label>			
 	        <ion-toggle class="toggle-balanced" ng-model="inputUser.homeOwner">
 	          Home Owner
 	        </ion-toggle>          							
+			<label class="item item-input item-select" ng-if="regionSettings.supportMultiCountry">
+			    <span class="input-label">Country Code</span>
+			    <select ng-model="inputUser.country" ng-options="country.name for country in countryList"></select>			    
+			 </label>													        
 			<label class="item item-input">
 				<span class="input-label">Phone Number</span>
 				<input type="tel" name="phoneNum" ng-model="inputUser.phoneNum" maxlength="15">
 			</label>							
 			<div class="row">
 				<div class="col">
-					<a class="button button-block" href="#/tab/neighbor-detail/{{inputUser.userId}}">Cancel</a>	
+					<a class="button button-block" href="#/tab/neighbor-detail/{{inputUser.userId}}">Ignore</a>	
 				</div>
 				<div class="col">
 					<a class="button button-block button-balanced" ng-click="update()">Update</a>	

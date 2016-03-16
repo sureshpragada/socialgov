@@ -1,0 +1,33 @@
+<ion-view view-title="Poll">
+	<ion-content>
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">
+		  <ion-item class="item-divider">Question</ion-item>
+		  <label class="item item-input">
+		    <textarea placeholder="Type in your poll question..." rows="3" ng-model="post.notifyMessage"></textarea>
+		  </label>
+		  <ion-item class="item-divider">Choices</ion-item>
+		  <label class="item item-input">
+		    <textarea placeholder="Type in your first choice..." rows="2" ng-model="post.choices[0]"></textarea>
+		  </label>		  
+		  <label class="item item-input">
+		    <textarea placeholder="Type in your second choice..." rows="2" ng-model="post.choices[1]"></textarea>
+		  </label>		  
+		  <label class="item item-input">
+		    <textarea placeholder="Type in your third choice... (Optional)" rows="2" ng-model="post.choices[2]"></textarea>
+		  </label>		  
+			<label class="item item-input">
+				<span class="input-label">Poll End Date</span>
+				<input type="date" name="pollEndDate"  ng-model="post.endDate">
+			</label>								  		  		  
+		</div>
+		<div class="row">
+			<div class="col">
+				<button class="button button-block button-outline" ng-click="cancelSubmit()">Ignore</button>
+			</div>					
+			<div class="col">
+				<button class="button button-block button-calm" ng-click="submitPoll()">Submit Poll</button>
+			</div>
+		</div>
+	</ion-content>
+</ion-view>

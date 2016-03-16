@@ -8,6 +8,17 @@
 	        <ion-toggle class="toggle-balanced" ng-model="input.areDuesPaid" ng-if="input.category">
 	          Payment Received
 	        </ion-toggle>          	        
+	        <ion-toggle class="toggle-balanced" ng-model="input.fullPayment" ng-if="editRevenueRecord && input.category && input.areDuesPaid">
+	          Full Payment
+	        </ion-toggle>      
+			<label class="item item-input">
+				<span class="input-label">Revenue Amount</span>
+				<input type="number" name="revenueAmount" step="any" ng-model="input.revenueAmount">
+			</label>	        
+			<ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="input.additionalPayment" ng-if="editRevenueRecord && input.areDuesPaid && input.category && !input.fullPayment">
+				Generate additional payment for remaining amount 
+				<!-- <span class="font-weight: bold;">{{editRevenueRecord.get("revenueAmount")-input.revenueAmount | formatCurrency}}</span> -->
+			</ion-checkbox>		            	        	        
 			<label class="item item-input item-select" ng-if="input.category && availableHomes">
 			    <div class="input-label">Home Number</div>
 			    <select ng-model="input.home" ng-options="availableHome.label for availableHome in availableHomes"></select>
@@ -20,10 +31,6 @@
 				<span class="input-label">Revenue Source</span>
 				<input type="text" name="revenueSource" ng-model="input.revenueSource">
 			</label>			        
-			<label class="item item-input">
-				<span class="input-label">Revenue Amount</span>
-				<input type="number" name="revenueAmount" step="any" ng-model="input.revenueAmount">
-			</label>
 			<label class="item item-input">
 				<span class="input-label">Revenue Date</span>
 				<input type="date" name="revenueDate"  ng-model="input.revenueDate">

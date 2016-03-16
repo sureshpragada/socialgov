@@ -1,0 +1,12 @@
+<ion-view title="Post">
+  <ion-content>
+    <my-app-message info="appMessage"></my-app-message>  
+    <my-app-message info="controllerMessage"></my-app-message>  
+  	<ion-list>
+	    <ion-item ng-click="gotoActivity(activityType.id)" ng-repeat="activityType in activityTypeList" class="item-icon-right">
+        {{activityType.label}}
+        <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

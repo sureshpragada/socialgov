@@ -15,6 +15,7 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
   $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.canControlSettings=AccountService.isFunctionalAdmin(AccountService.getUserResidency(), "Settings");
 
   var residency=$stateParams.regionUniqueName;
   if(residency==null || residency.trim().length==0 || residency=="native") {
@@ -1096,28 +1097,11 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegionHomesCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Listing your homes...<ion-spinner/></p>"
-  });        
-  $scope.appMessage=SettingsService.getAppMessage();    
-  AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
-    $scope.neighborList=neighborList;
-    // TODO :: Filter blocked users from the list
-    if($scope.neighborList!=null && $scope.neighborList.length<2) {
-      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
-    }
-    $ionicLoading.hide();
-  }, function(error) {
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
-    $ionicLoading.hide();
-  });
-
-})
-
 .controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Admin Neighbor Account update controller");
   $scope.inputUser={};
+  $scope.countryList=COUNTRY_LIST;
+  $scope.inputUser.country=$scope.countryList[0];        
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
     $scope.user=neighbor;
     $scope.inputUser.firstName=$scope.user.get("firstName");
@@ -1126,12 +1110,13 @@ angular.module('starter.controllers')
     $scope.inputUser.userId=$scope.user.id;
     $scope.inputUser.phoneNum=$scope.user.get("phoneNum");
     $scope.inputUser.homeOwner=$scope.user.get("homeOwner");
+    $scope.inputUser.country=AccountService.getCountryFromCountryList($scope.user.get("countryCode"), $scope.countryList);
     $scope.$apply();
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
   });  
-  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());  
 
   $scope.update=function() {
     console.log("Update request " + JSON.stringify($scope.inputUser));
@@ -1170,7 +1155,7 @@ angular.module('starter.controllers')
     }    
 
     AccountService.updateNeighborAccount($scope.inputUser, $scope.user).then(function(newUser) {
-      SettingsService.setAppSuccessMessage("Nighbor information update is successful.");
+      SettingsService.setAppSuccessMessage("Neighbor information update is successful.");
       $state.go("tab.neighbor-detail", {userId: $scope.user.id});
     }, function(error) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update neighbor information.");  
@@ -1192,6 +1177,7 @@ angular.module('starter.controllers')
   };
 
   $scope.whoControlFinancial=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "Financial").convertToFlatString();  
+  $scope.whoControlSettings=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "Settings").convertToFlatString();  
 
   $scope.saveSettings=function() {
     RegionService.getRegion($scope.user.get("residency")).then(function(region) {
@@ -1227,6 +1213,10 @@ angular.module('starter.controllers')
 
   $scope.updateFinancialManagers=function(functionName) {
     $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "Financial"});
+  };
+
+  $scope.updateSettingsManagers=function(functionName) {
+    $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "Settings"});
   };
 
 })
@@ -1301,63 +1291,6 @@ angular.module('starter.controllers')
 
   $scope.initiateSettingsChange=function() {
     $scope.settingsChanged=true;
-  };
-
-})
-
-.controller('UploadNeighborsCtrl', function($scope, $stateParams, $q, AccountService, RegionService, $state, SettingsService, LogService) {
-  $scope.appMessage=SettingsService.getAppMessage();
-  $scope.input={
-    neighborData: null
-  };
-
-  $scope.submit=function(){
-    if($scope.input.regionName==null || $scope.input.regionName.length<1){      
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter region unique name.");
-      return;
-    }
-
-    if($scope.input.neighborData!=null && $scope.input.neighborData.length>0){      
-      var neighborLines = $scope.input.neighborData.split('\n');
-      var userPromises=[];
-      for(var i=0; i < neighborLines.length; i++){
-        var neighborLine = neighborLines[i].split(',');
-        console.log(JSON.stringify(neighborLine));
-
-        var newUser=new Parse.User();
-        newUser.set("username", "91"+neighborLine[3]);
-        newUser.set("password", "custom");
-        newUser.set("residency", $scope.input.regionName);
-        newUser.set("firstName", neighborLine[1].length>0?neighborLine[1]:neighborLine[0]);
-        newUser.set("lastName", neighborLine[2].length>0?neighborLine[2]:neighborLine[0]);
-        newUser.set("phoneNum", neighborLine[3]);
-        newUser.set("countryCode", "91");
-        newUser.set("role", "CTZEN");
-        newUser.set("notifySetting", true);
-        newUser.set("deviceReg", "N");
-        newUser.set("homeOwner", true);
-        newUser.set("homeNo", neighborLine[0]);
-        newUser.set("status", "P");
-        userPromises.push(newUser.save());
-      }
-      $q.all(userPromises).then(function(results){
-        SettingsService.setAppSuccessMessage("Upload of neighbor data is successful.");
-        AccountService.refreshResidentCache();
-        $state.go("tab.region", {regionUniqueName: "native"});          
-      },function(error){
-        // console.log("Error creating users " + JSON.stringify(error));
-        SettingsService.setAppInfoMessage("Upload of neighbor data is partially failed. Please check neighbors and then adjust the data. " + JSON.stringify(error));
-        AccountService.refreshResidentCache();
-        $state.go("tab.region", {regionUniqueName: "native"});                    
-      });
-    }
-    else{
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter neighbor information in comma separated format");
-    }
-  };
-
-  $scope.cancel=function(){
-    $state.go("tab.region",{regionUniqueName: "native"});          
   };
 
 })
