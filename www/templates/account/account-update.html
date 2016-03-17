@@ -11,11 +11,11 @@
 				<input type="text" name="lastName" ng-model="inputUser.lastName">
 			</label>		
 			<!-- Changing home number is not supported for residents, admin should change  -->
-			<label class="item item-input" ng-if="regionSettings.supportHomeNumber==false">
+			<label class="item item-input" ng-if="!regionSettings.supportHomeNumber">
 				<span class="input-label">Home/Unit/Apt #</span>
 				<input type="text" name="homeNumber" ng-model="inputUser.homeNumber">
 			</label>										
-			<label class="item item-input" ng-if="regionSettings.supportHomeNumber">
+			<label class="item item-input">
 				<span class="input-label">Blood Group</span>
 				<input type="text" size="4" name="bloodGroup" ng-model="inputUser.bloodGroup">
 			</label>										

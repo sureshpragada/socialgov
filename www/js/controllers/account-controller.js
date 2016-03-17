@@ -657,7 +657,7 @@ angular.module('starter.controllers')
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
         AccountService.addHome({
           homeNo: userData.get("homeNo"), 
-          residency: regionData.get("regionUniqueName")
+          residency: regionData.get("uniqueName")
         });
         LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
         RegionService.initializeRegionCache(regionData);          

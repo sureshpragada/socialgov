@@ -389,23 +389,23 @@ angular.module('account.services', [])
       userQuery.equalTo("objectId", userId);
       return userQuery.first();   
     },    
-    // getListOfHomesInCommunity: function(regionName) {
-    //   var deferred = $q.defer();      
-    //   this.getResidentsInCommunity(regionName).then(function(neighborList) {
-    //     var homeList=[];
-    //     var runningHomeNo="";
-    //     for(var i=0;i<neighborList.length;i++) {
-    //       if(neighborList[i].get("homeNo")!=null && runningHomeNo!=neighborList[i].get("homeNo")) {
-    //         runningHomeNo=neighborList[i].get("homeNo");
-    //         homeList.push({label: runningHomeNo, value: runningHomeNo});
-    //       }
-    //     }
-    //     deferred.resolve(homeList);
-    //   }, function(error) {
-    //     deferred.reject(error);
-    //   });
-    //   return deferred.promise;  
-    // },
+    getTestListOfHomesInCommunity: function(regionName) {
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(regionName).then(function(neighborList) {
+        var homeList=[];
+        var runningHomeNo="";
+        for(var i=0;i<neighborList.length;i++) {
+          if(neighborList[i].get("homeNo")!=null && runningHomeNo!=neighborList[i].get("homeNo")) {
+            runningHomeNo=neighborList[i].get("homeNo");
+            homeList.push({label: runningHomeNo, value: runningHomeNo});
+          }
+        }
+        deferred.resolve(homeList);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;  
+    },
     getListOfHomesInCommunity: function(regionName) {
       var deferred = $q.defer();      
       this.getAllHomes(regionName).then(function(homeList) {

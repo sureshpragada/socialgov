@@ -1,28 +1,29 @@
 <ion-view view-title="View Poll">
 	<ion-content  class="visible-cards">
 		<my-app-message info="controllerMessage"></my-app-message>
-		<div class="list card">
+		<div class="list card" ng-if="!input.pollingClosed">
 			<ion-item class="item-text-wrap" style="font-weight: bold;">
 				{{activity.get("notifyMessage")}}
 			</ion-item>
-			<ion-checkbox ng-repeat="choice in activity.get('choices')" ng-model="input.vote[$index]" class="checkbox-balanced item-text-wrap">
+			<ion-checkbox ng-repeat="choice in activity.get('choices')" ng-model="input.vote[$index]" class="checkbox-balanced item-text-wrap" ng-change="handleCheckBoxSelection($index)">
 				{{choice}}
 			</ion-checkbox>
-			<div class="padding">
-				<button class="button button-block button-balanced" ng-click="submitPoll()">Submit Response</button>
-				<button class="button button-block button-outline" ng-click="respondLater()">Respond Later</button>
-			</div>			
 		</div>
-<!-- 		<div class="list card">
+		<div class="padding-horizontal" ng-if="!input.pollingClosed">
+			<button class="button button-block button-balanced" ng-click="submitPollResponse()">Submit Response</button>
+			<button class="button button-block button-outline" ng-click="respondLater()">Respond Later</button>
+		</div>					
+		<div class="list card" ng-if="input.pollingClosed">
 			<ion-item class="item-text-wrap" style="font-weight: bold;">
 				{{activity.get("notifyMessage")}}
 			</ion-item>
-			<ion-item ng-repeat="choice in activity.get('choices')" ng-model="input.vote[$index]" class="item-icon-left item-text-wrap">
-				<i ng-if="$index==1" class="icon ion-ios-checkmark-outline balanced"></i>
-				<i  ng-if="$index!=1" class="icon ion-ios-information-outline assertive"></i>
-				{{choice}} <span class="energized" ng-if="$index==1">(34 votes)</span>
-				<span class="positive" ng-if="$index!=1">(5 votes)</span>
+			<ion-item ng-repeat="choice in activity.get('choices')" class="item-icon-left item-text-wrap">
+				<i ng-if="$index==winningIndex" class="icon ion-ios-checkmark-outline balanced"></i>
+				<i  ng-if="$index!=winningIndex" class="icon ion-ios-information-outline assertive"></i>
+				{{choice}} 
+				<span class="balanced" ng-if="$index==winningIndex">({{currentVotes[$index]}} votes)</span>
+				<span class="assertive" ng-if="$index!=winningIndex">({{currentVotes[$index]}} votes)</span>
 			</ion-item>
-		</div>		 -->
+		</div>		
 	</ion-content>
 </ion-view>

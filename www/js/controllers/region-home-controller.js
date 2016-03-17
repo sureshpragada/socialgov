@@ -81,7 +81,7 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.input={
     homeData: null
-  };
+  };  
 
   $scope.submit=function(){
     if($scope.input.homeData!=null && $scope.input.homeData.length>0){      
@@ -99,26 +99,47 @@ angular.module('starter.controllers')
           }          
         }
       }
-      // console.log("Input homes " + JSON.stringify(inputHomes));
-      // console.log("Removed duplicates  " + JSON.stringify(inputHomes.removeDuplicates()));
-      AccountService.addHomes(AccountService.getUserResidency(), inputHomes).then(function(newHomes){
-        console.log("new homes " + JSON.stringify(newHomes));
-        if(newHomes.length>1) {
-          SettingsService.setAppSuccessMessage(newHomes.length + " homes have been added to community.");
+      console.log("Input homes " + JSON.stringify(inputHomes));
+      inputHomes=inputHomes.removeDuplicates();
+      console.log("Removed duplicates 1 " + JSON.stringify(inputHomes));      
+      AccountService.getAllHomes(AccountService.getUserResidency()).then(function(existingHomes){
+        for(var i=0;i<existingHomes.length;i++) {
+          var index=inputHomes.indexOf(existingHomes[i].get("homeNo"));
+          if(index!=-1) {
+            inputHomes.splice(index, 1);
+          }
+        }
+        console.log("Removed duplicates 2 " + JSON.stringify(inputHomes));      
+        if(inputHomes.length>0) {
+          $scope.addHomes(inputHomes);  
         } else {
-          SettingsService.setAppSuccessMessage("Home has been added to community.");
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Home numbers are already exists in your community.");  
         }        
-        AccountService.refreshHomesCache();
-        $state.go("tab.homes");          
-      },function(error){
-        SettingsService.setAppInfoMessage("Unable to add home(s) in your community. " + JSON.stringify(error));
-        AccountService.refreshHomesCache();
-        $state.go("tab.homes");          
+      }, function(error){
+        console.log("Error while finding existing homes : " + JSON.stringify(error));
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get existing home list to filter duplicate entries from your list.");
       });
     }
     else{
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter home numbers in your community. Please separate them by comma to enter multiple numbers.");
     }
+  };
+
+  $scope.addHomes=function(finalHomeList) {
+    AccountService.addHomes(AccountService.getUserResidency(), finalHomeList).then(function(newHomes){
+      console.log("new homes " + JSON.stringify(newHomes));
+      if(newHomes.length>1) {
+        SettingsService.setAppSuccessMessage(newHomes.length + " homes have been added to community.");
+      } else {
+        SettingsService.setAppSuccessMessage("Home has been added to community.");
+      }        
+      AccountService.refreshHomesCache();
+      $state.go("tab.homes");          
+    },function(error){
+      SettingsService.setAppInfoMessage("Unable to add home(s) in your community. " + JSON.stringify(error));
+      AccountService.refreshHomesCache();
+      $state.go("tab.homes");          
+    });
   };
 
   $scope.cancel=function(){

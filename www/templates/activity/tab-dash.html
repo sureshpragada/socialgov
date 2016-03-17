@@ -25,7 +25,7 @@
         </a>        
         <p ng-bind-html="activity.get('notifyMessage') | nl2br">
         </p>
-        <a ng-if="activity.get('activityType')=='POLL'" class="button button-block button-balanced" ng-click="respondToPoll(activity.id)">
+        <a ng-if="activity.get('activityType')=='POLL'" class="button button-block button-balanced button-outline" ng-click="respondToPoll(activity.id, activityIndex)">
           Respond To Poll
         </a>
         <p>{{activity.createdAt | date:'mediumDate'}}&nbsp;{{activity.createdAt | date:'shortTime'}}</p>        
