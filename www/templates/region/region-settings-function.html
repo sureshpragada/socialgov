@@ -1,0 +1,18 @@
+<ion-view view-title="Access Controls">
+  <ion-nav-buttons side="secondary">
+    <a class="button button-light button-outline"  ng-if="settingsChanged" style="border-color: #fff; color: #fff;" ng-click="saveSettings()">save</a>      
+  </ion-nav-buttons>
+  <ion-content class="visible-cards">
+    <my-app-message info="controllerMessage"></my-app-message>
+    <div class="card">
+      <ion-list>
+        <div class="item item-text-wrap">
+          <h2 ng-if="functionName=='Financial'">Who can manage financials of this community?</h2>
+          <h2 ng-if="functionName=='Board Appointment'">Who can manage board member appointments?</h2>
+        </div>      
+        <ion-checkbox class="checkbox-balanced" ng-model="role.allowed" ng-repeat="role in roleList" ng-change="initiateSettingsChange()">{{role.name}}</ion-checkbox>
+      </ion-list>
+    </div>        
+  </ion-content>
+</ion-view>
+ 

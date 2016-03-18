@@ -5,7 +5,7 @@ angular.module('region.services', [])
   var regionCache;
   if (!CacheFactory.get('regionCache')) {
     regionCache = CacheFactory('regionCache', {
-      maxAge: 1 * 60 * 60 * 1000, // 1 Day
+      maxAge: 15 * 60 * 1000, // 1 Hour
       deleteOnExpire: 'none'
     });
   }
@@ -190,6 +190,16 @@ angular.module('region.services', [])
       } 
       return REGION_SETTINGS;
     },
+    getFunctionControllersFromRegionSettings: function(regionSettings, functionName) {
+      var whoControlsFunction=[]; 
+      for(var i=0;i<regionSettings.permissions.length;i++) {
+        if(regionSettings.permissions[i].functionName==functionName) {
+          whoControlsFunction=regionSettings.permissions[i].allowedRoles;
+          break;
+        }
+      }
+      return whoControlsFunction;
+    },    
     getContactFromNewCommunity: function(regionUniqueName) {
       var Region = Parse.Object.extend("Region");
       var query = new Parse.Query(Region);

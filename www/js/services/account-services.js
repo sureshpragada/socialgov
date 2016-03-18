@@ -54,6 +54,25 @@ angular.module('account.services', [])
     refreshResidentCache: function() {
       residentCache.removeAll();
     },
+    isFunctionalAdmin: function(regionSettings, functionName) {
+      var user=this.getUser();
+      if(user!=null && user.get("status")!="S"){
+        if(user.get("role")=="SUADM") {
+          return true;
+        } else if(user.get("role")=="LEGI") {
+          var whoControlsFunction=RegionService.getFunctionControllersFromRegionSettings(regionSettings, functionName); 
+          for(var i=0;i<whoControlsFunction.length;i++) {
+            if(whoControlsFunction[i]==user.get("title")) {
+              return true;
+            }
+          }
+        } 
+      }
+      return false;
+    },
+    getUserResidency: function() {
+      return this.getUser().get("residency");
+    },
     getRolesAllowedToChange: function() {
       return [USER_ROLES[0], USER_ROLES[1], USER_ROLES[2], USER_ROLES[3]];      
     },    
@@ -119,7 +138,7 @@ angular.module('account.services', [])
       }
     },
     getUser: function() {
-      if(new Date().getTime()-userLastRefreshTimeStamp>(5 * 60 * 1000)) {
+      if(new Date().getTime()-userLastRefreshTimeStamp>(1 * 60 * 1000)) {
         Parse.User.current().fetch();        
         userLastRefreshTimeStamp=new Date().getTime();
         console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
@@ -453,7 +472,7 @@ angular.module('account.services', [])
       var Region = Parse.Object.extend("Region");
       var region = new Region();
       var demography = {"units":this.communityInfo.noOfUnits, "est":this.communityInfo.year}
-      var address = [];
+      var addressList = [];
       var communityAddress = {"name":this.communityAddress.name, "addressLine1":this.communityAddress.addressLine1, 
         "addressLine2":this.communityAddress.addressLine2,
         "city":this.communityAddress.city,
@@ -461,14 +480,12 @@ angular.module('account.services', [])
         "pincode":this.communityAddress.pinCode,
         type:"DEFAULT"
       }
-      address.push(communityAddress);
-      if(this.communityInfo.builderName){
-        var builderAddress = {"name":this.communityInfo.builderName, type:"DEFAULT"};
-        address.push(builderAddress);
+      addressList.push(communityAddress);      
+      if(this.communityInfo.builderName!=null && this.communityInfo.builderName.length>0) {
+        addressList.push({"name":this.communityInfo.builderName, type:"DEFAULT"});        
       }
       region.set("demography",demography);
-      region.set("type","CONST");
-      region.set("execOffAddrList",address);
+      region.set("execOffAddrList",addressList);
       region.set("legiRepList",[]);
       region.set("name",this.communityAddress.name);
       region.set("parentRegion",[]);
@@ -494,6 +511,7 @@ angular.module('account.services', [])
       user.set("residency",region.get("uniqueName"));
       user.set("role","SUADM");
       user.set("status","A");
+      user.set("deviceReg", "N");
       user.set("homeOwner",this.yourInfo.homeOwner);
       return user.signUp();
     },
