@@ -162,7 +162,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })    
 
     .state('tab.post', {
-      url: '/post',
+      url: '/post/{activityType}',
       cache: false,
       views: {
         'tab-dash': {

@@ -1,7 +1,7 @@
 <ion-view view-title="Activity">
   <ion-nav-buttons side="secondary">
-<!--     <a class="button button-icon icon ion-compose" href="#/tab/pick-activity-type" ng-if="user.get('status')!='S'"></a> -->
-    <a class="button button-icon icon ion-compose" href="#/tab/post" ng-if="user.get('status')!='S'"></a>
+    <a class="button button-icon icon ion-compose" href="#/tab/pick-activity-type" ng-if="user.get('status')!='S'"></a>
+<!--     <a class="button button-icon icon ion-compose" href="#/tab/post" ng-if="user.get('status')!='S'"></a> -->
   </ion-nav-buttons>
   <ion-content class="visible-cards">
     <my-app-message info="appMessage"></my-app-message>
@@ -25,9 +25,15 @@
         </a>        
         <p ng-bind-html="activity.get('notifyMessage') | nl2br">
         </p>
+        <p ng-repeat="choice in activity.get('choices')" ng-init="choiceIndex = $index">{{choiceIndex+1}}. {{choice}}</p>
         <a ng-if="activity.get('activityType')=='POLL'" class="button button-block button-balanced button-outline" ng-click="respondToPoll(activity.id, activityIndex)">
-          Respond To Poll
+          <span ng-if="isPollExpired($index)">View Poll Results</span>
+          <span ng-if="!isPollExpired($index)">Respond To Poll</span>
         </a>
+        <p ng-if="activity.get('activityType')=='POLL' && !isPollExpired($index)">
+          <span class="assertive">* Poll closes on {{activity.get('endDate') | date:'mediumDate'}}.</span>
+        </p>                
+
         <p>{{activity.createdAt | date:'mediumDate'}}&nbsp;{{activity.createdAt | date:'shortTime'}}</p>        
         <p ng-if="activity.get('status')=='S'" >
           <span class="assertive">* Activity marked as spam</span>

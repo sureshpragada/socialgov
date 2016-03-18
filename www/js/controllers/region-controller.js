@@ -15,7 +15,6 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
   $scope.isAdmin=AccountService.canUpdateRegion();
-  $scope.canControlSettings=AccountService.isFunctionalAdmin(AccountService.getUserResidency(), "Settings");
 
   var residency=$stateParams.regionUniqueName;
   if(residency==null || residency.trim().length==0 || residency=="native") {
@@ -26,6 +25,7 @@ angular.module('starter.controllers')
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
     $scope.regionSettings=RegionService.getRegionSettings(residency);              
+    $scope.canControlSettings=AccountService.isFunctionalAdmin($scope.regionSettings, "Settings");        
     $scope.updateCoverPhotoIfAvailable($scope.region);
     $scope.posterImages=$scope.region.get("posterImages");
     $ionicLoading.hide();

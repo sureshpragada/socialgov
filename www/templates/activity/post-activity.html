@@ -3,13 +3,13 @@
 		<my-app-message info="postErrorMessage"></my-app-message>
 		<div class="card padding success" ng-show="postWarnMessage">{{postWarnMessage | translate}}</div>				
 		<div class="list">
-			<label class="item item-input item-select">
+<!-- 			<label class="item item-input item-select">
 			    <div class="input-label">
 			      Activity
 			    </div>
 			    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities" ng-change="handleActivitySelection()">
 			    </select>
-			  </label>
+			  </label> -->
 			<label class="item item-input item-select" ng-hide="allowedRegions.length==1">
 			    <div class="input-label">
 			      Region
@@ -17,9 +17,9 @@
 			    <select ng-model="selectChoices.selectedRegion" ng-options="region.label for region in allowedRegions">
 			    </select>
 			  </label>
-
+			  <ion-item class="item-divider">Message</ion-item>
 			  <label class="item item-input">
-			    <textarea placeholder="Message" rows="10" ng-model="post.notifyMessage"></textarea>
+			    <textarea placeholder="Type in your message..." rows="10" ng-model="post.notifyMessage"></textarea>
 			  </label>
 			  <a class="item item-icon-right" ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded==null">
 			    Picture
