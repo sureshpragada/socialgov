@@ -2,11 +2,6 @@
 	<ion-content>
 		<my-app-message info="controllerMessage"></my-app-message>
 		<ion-list>
-			<label class="item item-input item-stacked-label">
-				<span class="input-label">Service Provider Name</span>
-				<input type="text" name="name"  ng-model="serviceContact.serviceName" class="textAlignLeft">
-			</label>
-
 			<label class="item item-input item-select">
 			    <div class="input-label" >
 			      Service Category
@@ -18,14 +13,23 @@
 			    	<option value="Landscape">Landscape</option>			    	
 			    	<option value="House Cleaning">House Cleaning</option>			    	
 			    	<option value="Notary">Notary</option>			    				    				    	
+					<option value="Other">Other</option>			    				    				    				    	
 			    </select>				    
 			</label>
+			<label class="item item-input item-stacked-label" ng-if="serviceContact.type=='Other'">
+				<span class="input-label">Category Name</span>
+				<input type="text" name="name"  ng-model="serviceContact.otherCategoryName" class="textAlignLeft">
+			</label>						
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Provider Name</span>
+				<input type="text" name="name"  ng-model="serviceContact.serviceName" class="textAlignLeft">
+			</label>			
 	    	<label class="item item-input item-stacked-label">
 	        	<span class="input-label">Phone Number</span>
 	      		<input type="tel" name="numbers"  ng-model="serviceContact.servicePhoneNumber" class="textAlignLeft">
 	    	</label>			
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">Address Line 1</span>
+				<span class="input-label">Address</span>
 				<input type="text" name="addr1"  ng-model="serviceContact.serviceAddressLine1" class="textAlignLeft">
 			</label>
 			<label class="item item-input item-stacked-label">
@@ -35,9 +39,7 @@
     	</ion-list>
     	<div class="padding" >
         	<button class="button button-block button-balanced" ng-click="submit()">Add Service Contact</button>
-     	</div>
-     	<div class="padding" >
-        	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+        	<button class="button button-block button-outline" ng-click="cancel()">Never mind</button>
     	</div>
 	</ion-content>
 </ion-view>

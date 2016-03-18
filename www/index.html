@@ -33,6 +33,7 @@
     <script src="js/controllers/activity-controllers.js"></script>    
     <script src="js/controllers/test-controller.js"></script>    
     <script src="js/controllers/region-controller.js"></script>    
+    <script src="js/controllers/region-home-controller.js"></script>        
     <script src="js/controllers/account-controller.js"></script>   
     <script src="js/controllers/financial-controller.js"></script>             
     <script src="js/picture-module.js"></script>        
@@ -69,7 +70,7 @@
 
     Parse.initialize(PARSE_APPLICATION_KEY, PARSE_JAVASCRIPT_KEY);  
 
-    var COUNTRY_LIST=[{countryCode: "91", name: "India"}];
+    var COUNTRY_LIST=[{countryCode: "91", name: "India"},{countryCode: "1", name: "United States"}];
     var REG_TOP_REGION_TYPES=["city", "mandal"];
     var INITIAL_REGION_TYPE="village";
     var IOS_APP_IDENTIFIER="org.socialgov";   
@@ -94,21 +95,23 @@
       {id:"SUADM", label:"Administrator"} 
     ];
     var ACTIVITY_LIST=[
-      {id:"ISSU", label:"Report Problem"},      
-      {id:"IDEA", label:"Development Idea"},
-      {id:"ASK", label:"Ask Community"},       
+      {id:"IDEA", label:"Development Idea"},    
+      {id:"ASK", label:"Ask Your Community"},             
+      {id:"ISSU", label:"Report Community Problem"},      
       {id:"EVNT", label:"Public Program"},        
-      {id:"NOTF", label:"Notification"}      
+      {id:"NOTF", label:"Send Notification"},
+      {id:"POLL", label:"Community Poll"}
     ];    
     var SHOW_SERVICE_CONTACTS=true;
     var REGION_SETTINGS={
       "financialMgmt":"SELF",
       "neighborPrivacy":false,
       "supportHomeNumber":true,
+      "supportMultiCountry":false,
       "currencySymbol":"Rs",
       "areaCode":"91",
       "serviceContacts":"SELF",
-      "hoa":false,
+      "hoa":true,
       "legislativeMgmt":"SELF",
       "reserveVisibility":"OPEN",
       "activityModeration": false,
@@ -117,11 +120,15 @@
         {
           "functionName": "Financial",
           "allowedRoles": ["Sarpanch", "MPTC"]
-        }
+        },
+        {
+          "functionName": "Settings",
+          "allowedRoles": ["Sarpanch", "MPTC"]
+        }        
       ]
     };
     var FINANCIAL_FUNCTION_NAME="Financial";
-    var APP_VERSION="0.0.26"
+    var APP_VERSION="0.0.26";
 
   </script>
 

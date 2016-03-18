@@ -19,12 +19,20 @@ angular.module('financial.services', [])
     });
   }
 
+  var duesCache;
+  if (!CacheFactory.get('duesCache')) {
+    duesCache = CacheFactory('duesCache', {
+      maxAge: 5 * 60 * 1000, // 5 mins
+      deleteOnExpire: 'none'
+    });
+  }
+
   return {
     getBalanceSheets: function(regionUniqueName) {
       var deferred = $q.defer();
       var cachedObjectInfo=balanceSheetCache.info(regionUniqueName);
       if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
-        console.log("Found in cache");
+        console.log("Found balance sheet in cache");
         deferred.resolve(balanceSheetCache.get(regionUniqueName));  
       } else {
         var BalanceSheet = Parse.Object.extend("BalanceSheet");
@@ -34,11 +42,11 @@ angular.module('financial.services', [])
         query.find(function(balanceSheets) {
             balanceSheetCache.remove(regionUniqueName);
             balanceSheetCache.put(regionUniqueName, balanceSheets);          
-            console.log("Queried from in cache");
+            console.log("Queried balance sheet from in cache");
             deferred.resolve(balanceSheets);
           }, function(error) {
             if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
-              console.log("Failed to get it to cache");
+              console.log("Failed to get balance sheet from cache");
               deferred.resolve(balanceSheetCache.get(regionUniqueName));  
             } else {
               deferred.reject(error);
@@ -46,11 +54,42 @@ angular.module('financial.services', [])
           }); 
       }
       return deferred.promise;
-    },    
+    },        
     refreshBalanceSheetCache: function(regionUniqueName) {
       console.log("removed from cache");
-      balanceSheetCache.removeAll();
+      balanceSheetCache.remove(regionUniqueName);
     },
+    getAllDues: function(regionUniqueName) {
+      var deferred = $q.defer();
+      var cachedObjectInfo=duesCache.info(regionUniqueName);
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        console.log("Found dues in cache");
+        deferred.resolve(duesCache.get(regionUniqueName));  
+      } else {
+        var Dues = Parse.Object.extend("Dues");
+        var query = new Parse.Query(Dues);
+        query.equalTo("residency",regionUniqueName);
+        query.descending("effectiveMonth");
+        query.find(function(dues) {
+            duesCache.remove(regionUniqueName);
+            duesCache.put(regionUniqueName, dues);          
+            console.log("Queried dues to cache");
+            deferred.resolve(dues);
+          }, function(error) {
+            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              console.log("Failed to get dues from cache");
+              deferred.resolve(duesCache.get(regionUniqueName));  
+            } else {
+              deferred.reject(error);
+            }
+          }); 
+      }
+      return deferred.promise;
+    },        
+    refreshDuesCache: function(regionUniqueName) {
+      console.log("removed from cache");
+      duesCache.remove(regionUniqueName);
+    },    
     getFinancialSnapshot: function(residency, homeNo) {
       var deferred=$q.all([
         this.getMyPaymentHistory(residency, homeNo),
@@ -60,9 +99,10 @@ angular.module('financial.services', [])
       return deferred;
     },
     setupDues: function(inputDues) {
+      this.refreshDuesCache(inputDues.residency);
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
-      dues.set("maintDues", inputDues.maintDues);
+      dues.set("maintDues", parseFloat(inputDues.maintDues));
       dues.set("effectiveMonth", inputDues.effectiveMonth);
       dues.set("notes", inputDues.notes);
       dues.set("residency", inputDues.residency);
@@ -70,9 +110,10 @@ angular.module('financial.services', [])
       return dues.save();
     },
     updateDues: function(duesId, inputDues) {
+      this.refreshDuesCache(inputDues.residency);      
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
-      dues.set("maintDues", inputDues.maintDues);
+      dues.set("maintDues", parseFloat(inputDues.maintDues));
       dues.set("effectiveMonth", inputDues.effectiveMonth);
       dues.set("notes", inputDues.notes);
       dues.set("residency", inputDues.residency);
@@ -80,18 +121,19 @@ angular.module('financial.services', [])
       dues.set("objectId", duesId);
       return dues.save();
     },
-    getAllDues: function(residency){
-      var Dues = Parse.Object.extend("Dues");
-      var query = new Parse.Query(Dues);
-      query.equalTo("residency",residency);
-      query.descending("effectiveMonth");
-      return query.find();
-    },
     getDuesByObjectId: function(duesObjectId){
-      var Dues = Parse.Object.extend("Dues");
-      var query = new Parse.Query(Dues);
-      query.equalTo("objectId", duesObjectId);
-      return query.first();
+      var deferred = $q.defer();
+      this.getAllDues(AccountService.getUserResidency()).then(function(dues){
+        for(var i=0;i<dues.length;i++){
+          if(dues[i].id=duesObjectId) {
+            deferred.resolve(dues[i]);  
+          }
+        }
+        deferred.reject("Unable to find requested dues");
+      },function(error){
+        deferred.reject(error);
+      });
+      return deferred.promise;
     },    
     getCurrentDues: function(duesList) {
       for(var i=0;i<duesList.length;i++) {
@@ -117,6 +159,7 @@ angular.module('financial.services', [])
       return historyDues;
     },
     deleteUpcomingDues: function(upcomingDues) {
+      this.refreshDuesCache(upcomingDues.get("residency"));
       return upcomingDues.destroy();
     },
     updateReserve: function(inputReserve) {
@@ -216,29 +259,6 @@ angular.module('financial.services', [])
     saveExpense: function(expenseRecord){
       return expenseRecord.save(); 
     },
-    getAvailableBalanceSheetMonths: function(regionName) {
-      var deferred = $q.defer();
-      RegionService.getRegion(regionName).then(function(region) {
-        var balanceMonths=[];
-        var runningDate=new Date();
-        runningDate.setDate(1);
-        balanceMonths.push(runningDate.getTime());
-        while(runningDate.getTime()>region.createdAt.getTime()) {
-          // console.log("Running month : " + runningDate);
-          if(runningDate.getMonth()==0) {
-            runningDate.setFullYear(runningDate.getFullYear()-1);  
-            runningDate.setMonth(11);  
-          } else {
-            runningDate.setMonth(runningDate.getMonth()-1);    
-          }
-          balanceMonths.push(runningDate.getTime());
-        }
-        deferred.resolve(balanceMonths);
-      }, function(error) {
-        deferred.reject(error);
-      });
-      return deferred.promise;
-    },
     getBalanceSheetRevenues: function(regionName, balanceSheetObject) {
       var Revenue = Parse.Object.extend("Revenue");
       var revenueQuery = new Parse.Query(Revenue);
@@ -283,7 +303,7 @@ angular.module('financial.services', [])
       return categoryList[0];
     },
     openBalanceSheet: function(inputBalanceSheet) {
-      balanceSheetCache.remove(inputBalanceSheet.residency);
+      this.refreshBalanceSheetCache(inputBalanceSheet.residency);
       var BalanceSheet = Parse.Object.extend("BalanceSheet");
       var balanceSheet=new BalanceSheet();
       balanceSheet.set("startDate", inputBalanceSheet.startDate);
@@ -294,7 +314,7 @@ angular.module('financial.services', [])
       return balanceSheet.save();
     },
     closeBalanceSheet: function(balanceSheetObjectId, inputBalanceSheet) {
-      balanceSheetCache.remove(inputBalanceSheet.residency);      
+      this.refreshBalanceSheetCache(inputBalanceSheet.residency);
       var BalanceSheet = Parse.Object.extend("BalanceSheet");
       var balanceSheet=new BalanceSheet();
       balanceSheet.set("objectId", balanceSheetObjectId);      

@@ -1,6 +1,6 @@
 angular.module('starter.controllers')
 
-.controller('TestCtrl', function($scope, $ionicPopover, $ionicActionSheet, $timeout, NotificationService) {
+.controller('TestCtrl', function($scope, $ionicPopover, $ionicActionSheet, $timeout, NotificationService, AccountService) {
   /////////////////// Test 1 : Working with select boxes
   $scope.colors = [
       {name:'black', shade:'dark'},
@@ -62,8 +62,26 @@ var hideSheet = $ionicActionSheet.show({
        hideSheet();
      }, 2000);
 
-
   }
+
+  $scope.testPopulateHomeNumbers=function() {
+    var regionName="srikrishnapatnam";
+
+    AccountService.getTestListOfHomesInCommunity(regionName).then(function(homes){
+      var homeArray=[];
+      for(var i=0;i<homes.length;i++){
+        homeArray.push(homes[i].value);
+      }
+      AccountService.addHomes(regionName, homeArray).then(function(newHomes){
+        console.log("New home entries : " + JSON.stringify(newHomes));
+      }, function(error){
+        console.log("Error adding homes : " + JSON.stringify(error));    
+      })
+    },function(error){
+      console.log("Unable to get list of homes : " + JSON.stringify(error));
+    });
+
+  };
 
   $scope.testActivityPushNotification=function() {
     var activityId="WT9t96kS4X";

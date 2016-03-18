@@ -12,15 +12,20 @@
       <ion-toggle ng-model="inputSettings.reserveVisibility" ng-change="notifySettingChanged()">
           Show reserves to everyone
       </ion-toggle>                
+      <ion-item class="item-icon-right" ng-click="updateCoverPhoto()" >
+          Update Community Picture 
+          <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>                            
       <ion-item class="item-icon-right" ng-click="updateFinancialManagers()">
           Financial Access Controls
           <p>{{whoControlFinancial}}</p>
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                            
-      <ion-item class="item-icon-right" ng-click="updateCoverPhoto()" >
-          Update Cover Photo 
+      <ion-item class="item-icon-right" ng-click="updateSettingsManagers()">
+          Settings Access Controls
+          <p>{{whoControlSettings}}</p>
           <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>                      
+      </ion-item>                                  
     </div>        
   </ion-content>
 </ion-view>

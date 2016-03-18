@@ -6,7 +6,7 @@
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'financial.services', 'activity.services', 'region.services', 'region-financial.services', 'notification.services', 'log.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle'])
-.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService) {
+.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService, $state, $ionicHistory) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -20,6 +20,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     }
 
     RegionService.initializeRegionCacheByCurrentUser();
+
+    $ionicPlatform.registerBackButtonAction(function (event) {
+      if($state.current.name=="tab.dash" || $state.current.name=="tab.region" || $state.current.name=="tab.financial" || $state.current.name=="tab.account" ){
+        ionic.Platform.exitApp();
+      } else {
+        $ionicHistory.goBack(-1);
+        // navigator.app.backHistory();
+      }
+    }, 100);    
 
     $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
       if(ionic.Platform.isAndroid()) {
@@ -119,8 +128,41 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.pick-activity-type', {
+      url: '/pick-activity-type',
+      cache: false,
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/activity/pick-activity-type.html',
+          controller: 'PickActivityTypeCtrl'
+        }
+      }
+    })
+
+    .state('tab.post-poll-activity', {
+      url: '/post-poll-activity',
+      cache: false,
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/activity/post-poll-activity.html',
+          controller: 'PostPollActivityCtrl'
+        }
+      }
+    })
+
+    .state('tab.view-poll-activity', {
+      url: '/view-poll-activity/{activityId}',
+      cache: false,
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/activity/view-poll-activity.html',
+          controller: 'ViewPollActivityCtrl'
+        }
+      }
+    })    
+
     .state('tab.post', {
-      url: '/post',
+      url: '/post/{activityType}',
       cache: false,
       views: {
         'tab-dash': {
@@ -316,8 +358,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.service-contact-detail', {
+      url: '/service-contact-detail/{serviceContactId}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/region-service-contact-detail.html',
+          controller: 'RegionServiceContactDetailCtrl'
+        }
+      }
+    })
+
     .state('tab.edit-service-contact', {
-      url: '/edit-service-contact/{regionUniqueName}/{index}',
+      url: '/edit-service-contact/{serviceContactId}',
       cache: false,      
       views: {
         'tab-region': {
@@ -389,6 +442,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         'tab-region': {
           templateUrl: 'templates/region/region-homes.html',
           controller: 'RegionHomesCtrl'
+        }
+      }
+    })             
+
+    .state('tab.add-homes', {
+      url: '/add-homes',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/add-homes.html',
+          controller: 'AddHomesCtrl'
+        }
+      }
+    })             
+
+    .state('tab.home-detail', {
+      url: '/home-detail/{homeNo}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/home-detail.html',
+          controller: 'HomeDetailCtrl'
         }
       }
     })             

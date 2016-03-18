@@ -2,16 +2,16 @@
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>  
- 	<div class="item item-divider" ng-if="personalServiceContacts">
+ 	<div class="item item-divider" ng-if="personalServiceContacts.length>0">
 		Community Recommendations
 	</div>
     <ion-list ng-if="personalServiceContacts">
-	    <ion-item ng-repeat="serviceContact in personalServiceContacts" ng-init="personalServiceContactsIndex = $index">
+	    <ion-item ng-repeat="serviceContact in personalServiceContacts" class="item-icon-right" href="#/tab/service-contact-detail/{{serviceContact.id}}">
 	      <h2>{{serviceContact.get('serviceName')}}</h2>
-	      <p>{{serviceContact.get('type')}}</p>
+	      <p ng-if="serviceContact.get('type')!='Other'">{{serviceContact.get('type')}}</p>
+	      <p ng-if="serviceContact.get('type')=='Other'">{{serviceContact.get('otherCategoryName')}}</p>
 	      <p>{{serviceContact.get('servicePhoneNumber')}}</p>
-	      <ion-option-button class="button-info button-positive" ng-click="editServiceContact(personalServiceContactsIndex)">Edit</ion-option-button>
-	      <ion-option-button class="button-info button-assertive" ng-click="deleteServiceContact(personalServiceContactsIndex)">Delete</ion-option-button>
+	      <i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>
     </ion-list>
 	<div class="card">

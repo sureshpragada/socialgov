@@ -3,40 +3,44 @@
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div>
 		<ion-list>
-			<label class="item item-input item-stacked-label">
-				<span class="input-label">Service Provider Name</span>
-				<input type="text" name="name"  ng-model="serviceContact.serviceName" class="textAlignLeft">
-			</label>
-
 			<label class="item item-input item-select">
 			    <div class="input-label" >
 			      Service Category
 			    </div>
-			    <select ng-model="serviceContact.type">
+			    <select ng-model="inputServiceContact.type">
 			    	<option value="Plumber">Plumber</option>
 			    	<option value="Electrician">Electrician</option>
 			    	<option value="Handyman">Handyman</option>
 			    	<option value="Landscape">Landscape</option>			    	
 			    	<option value="House Cleaning">House Cleaning</option>			    	
 			    	<option value="Notary">Notary</option>			    				    		
+			    	<option value="Other">Other</option>
 			    </select>				    
 			</label>
+			<label class="item item-input item-stacked-label" ng-if="inputServiceContact.type=='Other'">
+				<span class="input-label">Category Name</span>
+				<input type="text" name="name"  ng-model="inputServiceContact.otherCategoryName" class="textAlignLeft">
+			</label>			
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Provider Name</span>
+				<input type="text" name="name"  ng-model="inputServiceContact.serviceName" class="textAlignLeft">
+			</label>						
 	    	<label class="item item-input item-stacked-label">
 	        	<span class="input-label">Phone Number</span>
-	      		<input type="tel" name="numbers"  ng-model="serviceContact.servicePhoneNumber" class="textAlignLeft">
+	      		<input type="tel" name="numbers"  ng-model="inputServiceContact.servicePhoneNumber" class="textAlignLeft">
 	    	</label>			
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">Address Line 1</span>
-				<input type="text" name="addr1"  ng-model="serviceContact.serviceAddressLine1" class="textAlignLeft">
+				<span class="input-label">Address</span>
+				<input type="text" name="addr1"  ng-model="inputServiceContact.serviceAddressLine1" class="textAlignLeft">
 			</label>
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">City</span>
-				<input type="text" name="addr2"  ng-model="serviceContact.serviceAddressLine2" class="textAlignLeft">
+				<input type="text" name="addr2"  ng-model="inputServiceContact.serviceAddressLine2" class="textAlignLeft">
 			</label>
     	</ion-list>
     	<div class="padding" >
-        	<button class="button button-block button-balanced" ng-click="submit()">Submit Service Contact</button>
-        	<button class="button button-block button-assertive" ng-click="cancel()">Cancel</button>
+        	<button class="button button-block button-balanced" ng-click="submit()">Update Service Contact</button>
+        	<button class="button button-block button-outline" ng-click="cancel()">Never mind</button>
     	</div>
 	</ion-content>
 </ion-view>

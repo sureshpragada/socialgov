@@ -1,0 +1,39 @@
+<ion-view view-title="Poll">
+	<ion-content>
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">
+		  <ion-item class="item-divider">Question</ion-item>
+		  <label class="item item-input">
+		    <textarea placeholder="Type in your poll question..." rows="3" ng-model="post.notifyMessage"></textarea>
+		  </label>
+		  <ion-item class="item-divider item-icon-right">
+		  	Choices		  	
+		  	<a ng-click="addChoice()"><i class="icon ion-ios-plus-outline positive"></i></a>
+		  </ion-item>
+		  <label class="item item-input" ng-repeat="choice in post.choices" ng-init="choiceIndex = $index">
+		    <textarea placeholder="Type in your choice..." rows="2" ng-model="post.choices[choiceIndex]"></textarea>
+		  </label>		  		  
+<!-- 		  <label class="item item-input">
+		    <textarea placeholder="First choice..." rows="2" ng-model="post.choices[0]"></textarea>
+		  </label>		  
+		  <label class="item item-input">
+		    <textarea placeholder="Second choice..." rows="2" ng-model="post.choices[1]"></textarea>
+		  </label>		   -->
+<!-- 		  <label class="item item-input">
+		    <textarea placeholder="Type in your third choice... (Optional)" rows="2" ng-model="post.choices[2]"></textarea>
+		  </label>		   -->
+			<label class="item item-input">
+				<span class="input-label">Poll End Date</span>
+				<input type="date" name="pollEndDate"  ng-model="post.endDate">
+			</label>								  		  		  
+		</div>
+		<div class="row">
+			<div class="col">
+				<button class="button button-block button-outline" ng-click="cancelSubmit()">Ignore</button>
+			</div>					
+			<div class="col">
+				<button class="button button-block button-calm" ng-click="submitPoll()">Submit Poll</button>
+			</div>
+		</div>
+	</ion-content>
+</ion-view>

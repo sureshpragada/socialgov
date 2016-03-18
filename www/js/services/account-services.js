@@ -24,6 +24,14 @@ angular.module('account.services', [])
     });
   }
 
+  var homesCache;
+  if (!CacheFactory.get('homesCache')) {
+    homesCache = CacheFactory('homesCache', {
+      maxAge: 5 * 60 * 1000, // 5 mins
+      deleteOnExpire: 'none'
+    });
+  }  
+
   return {
     getResidentsInCommunity: function(regionUniqueName) {
       var deferred = $q.defer();
@@ -82,6 +90,14 @@ angular.module('account.services', [])
       } else {
         return RegionService.getAllowedRegions(residency);
       }
+    },
+    getCountryFromCountryList: function(countryCode, countryList) {
+      for(var i=0;i<countryList.length;i++) {
+        if(countryCode==countryList[i].countryCode) {
+          return countryList[i];
+        }
+      }
+      return countryList[0];
     },
     getRoleNameFromRoleCode: function(roleCode) {
       for(var i=0;i<USER_ROLES.length;i++) {
@@ -249,14 +265,13 @@ angular.module('account.services', [])
     addContact: function(inputUser) {
       this.refreshResidentCache();
       var newUser=new Parse.User();
-      var currentUser=Parse.User.current();
-      var userName=currentUser.get("countryCode")+""+inputUser.phoneNum;
+      var userName=inputUser.countryCode+""+inputUser.phoneNum;
       newUser.set("username", userName);
       newUser.set("password", "custom");
       newUser.set("firstName", inputUser.firstName.capitalizeFirstLetter());
       newUser.set("lastName", inputUser.lastName.capitalizeFirstLetter());
       newUser.set("phoneNum", inputUser.phoneNum);
-      newUser.set("countryCode", currentUser.get("countryCode"));
+      newUser.set("countryCode", inputUser.countryCode);
       newUser.set("role", "CTZEN");
       newUser.set("notifySetting", true);
       newUser.set("deviceReg", "N");
@@ -308,12 +323,18 @@ angular.module('account.services', [])
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeOwner', userObjectValue: inputUser.homeOwner }));
         console.log("Updating homeOwner");
       }
-
+      if(inputUser.country.countryCode!=neighbor.get("countryCode")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'countryCode', userObjectValue: inputUser.country.countryCode }));
+        console.log("Updating countryCode");
+      }      
       if(inputUser.phoneNum!=neighbor.get("phoneNum")) {
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'phoneNum', userObjectValue: inputUser.phoneNum }));
-        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'username', userObjectValue: neighbor.get("countryCode")+inputUser.phoneNum }));        
         console.log("Updating homeNo");
       }
+      if(inputUser.country.countryCode!=neighbor.get("countryCode") || inputUser.phoneNum!=neighbor.get("phoneNum")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'username', userObjectValue: inputUser.country.countryCode+""+inputUser.phoneNum }));        
+        console.log("Updating countryCode");
+      }                  
 
       var deferred=$q.all(promises);
       return deferred;
@@ -368,7 +389,7 @@ angular.module('account.services', [])
       userQuery.equalTo("objectId", userId);
       return userQuery.first();   
     },    
-    getListOfHomesInCommunity: function(regionName) {
+    getTestListOfHomesInCommunity: function(regionName) {
       var deferred = $q.defer();      
       this.getResidentsInCommunity(regionName).then(function(neighborList) {
         var homeList=[];
@@ -380,6 +401,19 @@ angular.module('account.services', [])
           }
         }
         deferred.resolve(homeList);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;  
+    },
+    getListOfHomesInCommunity: function(regionName) {
+      var deferred = $q.defer();      
+      this.getAllHomes(regionName).then(function(homeList) {
+        var homeListArray=[];
+        for(var i=0;i<homeList.length;i++) {
+          homeListArray.push({label: homeList[i].get("homeNo"), value: homeList[i].get("homeNo")});
+        }
+        deferred.resolve(homeListArray);
       }, function(error) {
         deferred.reject(error);
       });
@@ -522,6 +556,71 @@ angular.module('account.services', [])
         resultString+=splitInput[i]+"_";
       }
       return resultString;
-    }
+    },
+    getAllHomes: function(regionUniqueName) {
+      var deferred = $q.defer();
+      var cachedObjectInfo=homesCache.info(regionUniqueName);
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        console.log("Found dues in cache");
+        deferred.resolve(homesCache.get(regionUniqueName));  
+      } else {
+        var Home = Parse.Object.extend("Home");
+        var query = new Parse.Query(Home);
+        query.equalTo("residency",regionUniqueName);
+        query.ascending("homeNo");
+        query.find(function(homes) {
+            homesCache.remove(regionUniqueName);
+            homesCache.put(regionUniqueName, homes);          
+            console.log("Queried homes to cache");
+            deferred.resolve(homes);
+          }, function(error) {
+            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+              console.log("Failed to get homes from cache");
+              deferred.resolve(homesCache.get(regionUniqueName));  
+            } else {
+              deferred.reject(error);
+            }
+          }); 
+      }
+      return deferred.promise;
+    },        
+    refreshHomesCache: function(regionUniqueName) {
+      console.log("homes removed from cache");
+      homesCache.remove(regionUniqueName);
+    },    
+    addHome: function(inputHome) {
+      this.refreshHomesCache(inputHome.residency);
+      var Home = Parse.Object.extend("Home");
+      var home=new Home();
+      home.set("homeNo", inputHome.homeNo);
+      home.set("residency", inputHome.residency);
+      return home.save();
+    },
+    addHomes: function(regionUniqueName, inputHomes) {
+      this.refreshHomesCache(regionUniqueName);
+      var homesArray=[];
+      for(var i=0;i<inputHomes.length;i++) {
+        var Home = Parse.Object.extend("Home");              
+        var home=new Home();
+        home.set("homeNo", inputHomes[i]);
+        home.set("residency", regionUniqueName);        
+        homesArray.push(home);
+      }
+      return Parse.Object.saveAll(homesArray);
+    },    
+    getHomeByHomeNo: function(homeNo){
+      var deferred = $q.defer();
+      this.getAllHomes(this.getUserResidency()).then(function(homes){
+        for(var i=0;i<homes.length;i++){
+          if(homes[i].get("homeNo")==homeNo) {
+            deferred.resolve(homes[i]);  
+          }
+        }
+        deferred.reject("Unable to find requested home");
+      },function(error){
+        deferred.reject(error);
+      });
+      return deferred.promise;
+    }    
   };
 }]);

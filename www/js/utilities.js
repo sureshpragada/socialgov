@@ -13,6 +13,14 @@ Array.prototype.convertToFlatString = function() {
     return result;
 };
 
+Array.prototype.removeDuplicates = function() {
+    return this.sort().reduce(function(a, b){ 
+        if (b != a[0]) 
+            a.unshift(b); 
+        return a 
+    }, []);
+};
+
 Date.prototype.getTimeWithMeridiem=function() {
     var hours=this.getHours();
     var minutes=this.getMinutes();

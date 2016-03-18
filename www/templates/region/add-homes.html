@@ -1,0 +1,16 @@
+<ion-view title="New Home">
+	<ion-content>
+	    <my-app-message info="appMessage"></my-app-message>
+	    <my-app-message info="controllerMessage"></my-app-message>	
+		<ion-list>
+			<ion-item class="item-divider">Home numbers</ion-item>
+			<label class="item item-input">
+				<textarea placeholder="Enter home numbers separated by comma.  Ex: 101,102,103" rows="10" ng-model="input.homeData"></textarea>
+		    </label>
+		</ion-list>
+		<div class="padding" >
+        	<button class="button button-block button-balanced" ng-click="submit()">Add Home(s)</button>
+        	<button class="button button-block button-outline" ng-click="cancel()">Cancel</button>
+    	</div>
+	</ion-content>
+</ion-view>

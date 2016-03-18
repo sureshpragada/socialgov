@@ -386,14 +386,14 @@ angular.module('starter.controllers')
 .controller('AccountUpdateCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
   console.log("Account update controller");
 
-  var user=Parse.User.current();
+  var user=AccountService.getUser();
   $scope.inputUser={
     firstName: user.get("firstName"), 
     lastName: user.get("lastName"),
     homeNumber: user.get("homeNo"),
     bloodGroup: user.get("bloodGroup")
   };
-  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());  
 
   $scope.update=function() {
     console.log("Update request " + JSON.stringify($scope.inputUser));
@@ -655,8 +655,14 @@ angular.module('starter.controllers')
     AccountService.setYourInfo($scope.user);
     AccountService.createNewCommunity().then(function(regionData){
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
+        AccountService.addHome({
+          homeNo: userData.get("homeNo"), 
+          residency: regionData.get("uniqueName")
+        });
+        LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
         RegionService.initializeRegionCache(regionData);          
         NotificationService.registerDevice();
+        LogService.log({type:"INFO", message: "Device registered during community setup  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });                   
         ActivityService.postWelcomeActivity(regionData, userData);          
         SettingsService.setAppSuccessMessage("Community has been registered.");
         $ionicLoading.hide();
@@ -680,13 +686,42 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading) {
   console.log("Invite citizen controller");
   $scope.user={
     status:"P", 
-    homeOwner: true
+    homeOwner: true,
+    pageTransitionData: false
   };
+  $scope.communityHomesLoadError=false;
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));
+  $scope.countryList=COUNTRY_LIST;
+  $scope.user.country=$scope.countryList[0];    
+
+  var pageTransitionData=SettingsService.getPageTransitionData();
+  console.log("Page transition data : " + JSON.stringify(pageTransitionData));
+  if(pageTransitionData!=null) {
+    $scope.user.homeNumber=pageTransitionData.homeNo;
+    $scope.user.pageTransitionData=true;
+    $ionicLoading.hide();
+  } else if($scope.regionSettings.supportHomeNumber==true){
+    $ionicLoading.show({
+      template: "<p class='item-icon-left'>Loading community homes...<ion-spinner/></p>"
+    });
+    AccountService.getListOfHomesInCommunity(AccountService.getUserResidency()).then(function(homesList) {
+      if(homesList!=null && homesList.length>0) {
+        $scope.availableHomes=homesList;      
+        $scope.user.dropDownHome=$scope.availableHomes[0];    
+      } else {
+        $scope.communityHomesLoadError=true;
+        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Homes have not been added to the community. Please request board members to add the homes in this community to invite residents.");      
+      }
+      $ionicLoading.hide();
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Unable to get community home numbers.");      
+      $ionicLoading.hide();
+    });      
+  }
 
   $scope.invite=function() {
     if($scope.user.firstName==null || $scope.user.firstName.trim().length<=0) {
@@ -698,16 +733,6 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter last name.");
       return;
     } 
-
-    if($scope.regionSettings.supportHomeNumber==true) {
-      if($scope.user.homeNumber==null || $scope.user.homeNumber.length<=0) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
-        return;
-      } else {
-        // replace(/\s+/g, '')  -- Remove only spaces leaving - or anything   
-        $scope.user.homeNumber=$scope.user.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
-      }
-    }    
     
     if ($scope.user.phoneNum!=null) {
       var formattedPhone = $scope.user.phoneNum.replace(/[^0-9]/g, '');  
@@ -726,22 +751,32 @@ angular.module('starter.controllers')
       return;
     }
       
-    console.log("Invited " + JSON.stringify($scope.user));
+    if($scope.user.pageTransitionData==false && $scope.regionSettings.supportHomeNumber==true) {
+      $scope.user.homeNumber=$scope.user.dropDownHome.value;
+    }
 
+    if($scope.regionSettings.supportMultiCountry==true) {
+      $scope.user.countryCode=$scope.user.country.countryCode;
+    } else {
+      $scope.user.countryCode=AccountService.getUser().get("countryCode");
+    }
+
+    console.log("Invited " + JSON.stringify($scope.user));
     // Create user
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation
-      if($scope.regionSettings.sendInvitationCode==true) {
-        RegionService.getRegion(Parse.User.current().get("residency")).then(function(region){
+      // if($scope.regionSettings.sendInvitationCode==true) {
+        RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
           NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), region.get("name"));
         }, function(error){
           NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), "");        
         });        
-      } else {
-        console.log("Region does not support sending invitation code");
-      }
+      // } else {
+      //   console.log("Region does not support sending invitation code");
+      // }
       SettingsService.setAppSuccessMessage("Invitation has been sent.");
-      $state.go("tab.neighbors");
+      $ionicHistory.goBack(-1);
+      // $state.go("tab.neighbors");
     }, function(error) {
       // Verify if this user exist message
       if(error.code==202) {
@@ -752,6 +787,10 @@ angular.module('starter.controllers')
       $scope.$apply();
     });
   
+  };
+
+  $scope.cancel=function() {
+    $ionicHistory.goBack(-1);
   };
 
 /**

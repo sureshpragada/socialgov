@@ -11,7 +11,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.debateList=[];
   $scope.argumentMessageList=[];
   $scope.commentStatusList=[];
-  $scope.user=Parse.User.current();
+  $scope.user=AccountService.getUser();
   $scope.isAdmin=AccountService.canUpdateRegion();
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Finding activity in community<ion-spinner/></p>"
@@ -24,6 +24,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $scope.activities=activityDashboardData[0];
     for(var j=0;j<$scope.activities.length;j++) {
       if($scope.activities[j].get("status")=="P" && !$scope.isAdmin && $scope.activities[j].get("user").id!=$scope.user.id) {
+        $scope.activities.splice(j, 1);
+      } else if($scope.activities[i].get("activityType")="POLL" && $scope.user.get("homeOwner")==false) {
         $scope.activities.splice(j, 1);
       }
     }
@@ -153,6 +155,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   };
 
+  $scope.isPollExpired=function(index) {
+    if($scope.activities[index].get("endDate").getTime()<new Date().getTime()) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   $scope.isThisActionChosen=function(activityId, action) {
     for(var j=0;j<($scope.userActivityList!=null?$scope.userActivityList.length:0);j++) {
@@ -348,6 +357,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     });    
   };  
 
+  $scope.respondToPoll=function(activityId, index) {
+    SettingsService.setPageTransitionData({
+      activity : $scope.activities[index],
+      userActions: $scope.userActivityList 
+    });
+    $state.go("tab.view-poll-activity", {activityId: activityId});
+  };
 
   $scope.openAdminActionSheet=function(activityId, activityIndex, activityStatus) {
     $scope.actionSheetActivityId=activityId;
@@ -375,7 +391,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         },
        buttonClicked: function(index) {
           if(index==0) { // Edit post
-            $state.go("tab.editpost", {activityId: $scope.actionSheetActivityId});   
+            if($scope.activities[$scope.actionSheetActivityIndex].get("activityType")=="POLL") {
+              $cordovaDialogs.alert("Poll editing is not allowed after polling starts.", 'Edit Poll', 'Got it!').then(function() {});
+            } else {
+              $state.go("tab.editpost", {activityId: $scope.actionSheetActivityId});                 
+            }
           } else if(index==1) { // Delete post
             $scope.removePost($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
           } else if(index==2) { // Report spam
@@ -414,7 +434,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         },
        buttonClicked: function(index) {
           if(index==0) { // Edit post
-            $state.go("tab.editpost", {activityId: $scope.actionSheetActivityId});   
+            if($scope.activities[$scope.actionSheetActivityIndex].get("activityType")=="POLL") {
+              $cordovaDialogs.alert("Poll editing is not allowed after polling starts.", 'Edit Poll', 'Got it!').then(function() {});
+            } else {
+              $state.go("tab.editpost", {activityId: $scope.actionSheetActivityId});                 
+            }
           } else if(index==1) { // Delete post
             $scope.removePost($scope.actionSheetActivityId, $scope.actionSheetActivityIndex);
           } else if(index==2) { // Report spam
@@ -506,15 +530,16 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostActivityCtrl', function($scope, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService) {
+
+.controller('PostActivityCtrl', function($scope, $http, $state, $stateParams, $ionicHistory, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService) {
 
   var user=Parse.User.current();  
   var stateData=PictureManagerService.getState();
   console.log(JSON.stringify(stateData));
   $scope.post={"notifyMessage": (stateData.data.message!=null?stateData.data.message:"")};
-  $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
+  // $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
   $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
-  $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};  
+  $scope.selectChoices={selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
   $scope.allowImageUpload=ionic.Platform.isWebView();
@@ -543,7 +568,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           template: "<ion-spinner></ion-spinner> Posting activity "
         });
 
-        $scope.post.activityType=$scope.selectChoices.selectedActivityType.id;
+        $scope.post.activityType=$stateParams.activityType;
         $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
         $scope.post.support=0;
         $scope.post.oppose=0;
@@ -575,7 +600,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             }            
             $ionicLoading.hide();                      
             PictureManagerService.reset();
-            $state.go("tab.dash");  
+            $ionicHistory.goBack(-2);
           },
           error: function(activity, error) {
             console.log("Error in posting message " + error.message);
@@ -597,13 +622,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     if(($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10) || PictureManagerService.getState().imageUrl!=null) {
       $cordovaDialogs.confirm('Do you want to abort posting?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
         if(buttonIndex==1) {
-          $state.go("tab.dash");
+          $ionicHistory.goBack(-2);
         } else {
           console.log("Canceled posting of activity");
         }
       });      
     } else {
-      $state.go("tab.dash");
+      $ionicHistory.goBack(-2);
     }
   };
 
@@ -617,9 +642,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   function displayActivityWarnMessage() {
-    if($scope.selectChoices.selectedActivityType.id=="ASK") {
+    if($stateParams.activityType=="ASK") {
       $scope.postWarnMessage="Messages.PostActivityAskWarn";  
-    } else if($scope.selectChoices.selectedActivityType.id=="ISSU") {
+    } else if($stateParams.activityType=="ISSU") {
       $scope.postWarnMessage="Messages.PostActivityIssueWarn";  
     } else {
       $scope.postWarnMessage=null;  
@@ -628,7 +653,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService) {
+.controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService, $ionicHistory) {
   var user=Parse.User.current();  
   $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
   $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
@@ -640,6 +665,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   var query=new Parse.Query(Activity);
   query.get($stateParams.activityId,{
     success: function(activity) {
+      // if(activity.get("activityType")=="POLL") {
+      //   SettingsService.setAppInfoMessage("Poll editing is not allowed after polling starts.")
+      //   $ionicHistory.goBack(-1);
+      // }
       $scope.preActivity=activity;
       $scope.post.notifyMessage=activity.get("notifyMessage");
       $scope.selectChoices={selectedActivityType: ActivityService.getActivityTypeInAList(activity.get('activityType'), $scope.allowedActivities), selectedRegion: $scope.allowedRegions[0]};            
@@ -687,4 +716,244 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $state.go("tab.dash");
   };
 
-});
+})
+
+.controller('PickActivityTypeCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService) {
+  console.log("Pick activity type controller");
+  $scope.activityTypeList=ACTIVITY_LIST;
+
+  $scope.gotoActivity=function(activityType){
+    if(activityType=="POLL") {
+      $state.go("tab.post-poll-activity");
+    } else {
+      $state.go("tab.post", {activityType: activityType});
+    }
+  };
+
+})
+
+.controller('PostPollActivityCtrl', function($scope, $http, $state, $ionicHistory, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService) {
+  console.log("Post poll activity controller");
+  $scope.post={
+    activityType: "POLL",
+    user: AccountService.getUser(),
+    regionUniqueName: AccountService.getUserResidency(),
+    notifyMessage: "",
+    endDate: new Date().addDays(7).endOfTheDay(),
+    choices: [],
+    votes: [],
+    pollSettings: {whoCanVote: "ALL"},
+    debate: 0
+  };
+  for(var i=0;i<2;i++) {
+    $scope.post.choices.push(null);
+  }      
+  console.log("Choices " + JSON.stringify($scope.post.choices));
+  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
+
+  $scope.addChoice=function() {
+    console.log("Adding choice");
+    var haveUsedDefaultChoices=true;
+    for(var i=0;i<$scope.post.choices.length;i++) {
+      if($scope.post.choices[i]!=null && $scope.post.choices[i].trim().length<0) {
+        haveUsedDefaultChoices=false;
+        break;
+      }
+    }    
+    if(haveUsedDefaultChoices==true) {
+      $scope.post.choices.push(null);
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please provide first two choices to add additional choices.");
+    }
+  };
+
+  $scope.submitPoll=function() {
+    if($scope.post.notifyMessage==null || $scope.post.notifyMessage.length<10 || $scope.post.notifyMessage.length>2048) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Poll question should be minimum 10 characters.");
+      return;
+    }      
+
+    if($scope.post.endDate.getTime()<new Date().getTime()) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please select poll end date in the future.");
+      return;
+    }      
+
+    for(var i=0;i<$scope.post.choices.length;i++) {
+      if($scope.post.choices[i]!=null && $scope.post.choices[i].trim().length<0) {
+        $scope.post.choices.splice(i, 1);
+      }
+    }
+
+    if($scope.post.choices.length<2) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter minimum two poll choices.");
+      return;      
+    } 
+
+    var badwords=ActivityService.getBadWordsFromMesage($scope.post.notifyMessage);
+    if(badwords!=null && badwords.length>0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please remove bad words " + JSON.stringify(badwords) + " from the question.");
+      return;
+    }
+
+    $scope.post.notifyMessage = ActivityService.toProperPost($scope.post.notifyMessage);
+    $cordovaDialogs.confirm('Do you want to submit this poll?', 'Submit Poll', ['Submit','Continue Edit']).then(function(buttonIndex) { 
+      if(buttonIndex==1) {       
+        $ionicLoading.show({
+          template: "<ion-spinner></ion-spinner>Submitting your poll..."
+        });
+
+        if($scope.regionSettings.activityModeration==true) {
+          $scope.post.status="P";
+        } else {
+          $scope.post.status="A";  
+        }        
+
+        for(var i=0;i<$scope.post.choices.length;i++) {
+          $scope.post.votes.push(0);
+        }
+
+        alert(JSON.stringify($scope.post));    
+        $ionicLoading.hide();
+        return;
+
+        var Activity = Parse.Object.extend("Activity");
+        var activity = new Activity();
+        activity.save($scope.post, {
+          success: function(activity) {
+            // Push the new activity to the top of activity chart, probably through Activity service
+            if($scope.regionSettings.activityModeration==true) {
+              // Send notification only board members
+              AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
+              SettingsService.setAppSuccessMessage("Poll has been submitted; Board will review and enable this to community."); 
+            } else {
+              // Send the push notification to everyone in community
+              NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
+              SettingsService.setAppSuccessMessage("Poll has been submitted.");            
+            }            
+            $ionicLoading.hide();                      
+            $state.go("tab.dash");  
+          },
+          error: function(activity, error) {
+            console.log("Error in submitting poll " + JSON.stringify(error));
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to submit the poll. " + error.message);
+            $ionicLoading.hide();                      
+          }
+        });
+      } else {
+        console.log("Canceled submitting of poll");
+      }
+    });
+
+  };  
+
+  $scope.cancelSubmit=function(){
+    if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10) {
+      $cordovaDialogs.confirm('Do you want to cancel submitting the poll?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
+        if(buttonIndex==1) {
+          // $state.go("tab.dash");
+          $ionicHistory.goBack(-2);
+        } else {
+          console.log("Canceled posting of activity");
+        }
+      });      
+    } else {
+      // $state.go("tab.dash");
+      $ionicHistory.goBack(-2);
+    }
+  };
+
+})
+
+.controller('ViewPollActivityCtrl', function($scope, $stateParams, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService, $ionicHistory) {
+  console.log("Post poll activity controller " + $stateParams.activityId);
+  $scope.input={
+    vote: [],
+    pollingClosed: false
+  };
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());
+  var pageTransitionData=SettingsService.getPageTransitionData();
+  if(pageTransitionData!=null) {
+    $scope.activity=pageTransitionData.activity;
+    $scope.userActions=pageTransitionData.userActions;
+    // Is poll expired?
+    if($scope.activity.get("endDate").getTime()<new Date().getTime()) {
+      $scope.input.pollingClosed=true;
+      $scope.currentVotes=$scope.activity.get("votes");
+      $scope.winningIndex=0;
+      for(var i=0;i<$scope.currentVotes.length-1;i++) {
+        if($scope.currentVotes[i+1]>$scope.currentVotes[i]) {
+          $scope.winningIndex=i+1;
+        }
+      }      
+    } else {
+      // Not expired; Has this user voted on this before?
+      for(var i=0;i<$scope.activity.get("choices").length;i++) {
+        $scope.input.vote.push(false);      
+      }      
+      $ionicLoading.show({
+        template: "<ion-spinner></ion-spinner>Checking voting preferences..."
+      });      
+      $scope.isPollSubmitted=false;        
+      ActivityService.isHomePerformedActivity($scope.activity).then(function(userActivityList){
+        if(userActivityList!=null && userActivityList.length>0) {
+          $scope.isPollSubmitted=true;
+          $scope.input.vote[userActivityList[0].get("votedIndex")]=true;
+          $scope.controllerMessage=SettingsService.getControllerInfoMessage("We have received voting from your home. Thanks for your response!");
+        }        
+        $ionicLoading.hide();
+      },function(error){
+        console.log("Error while finding poll activity status : " + JSON.stringify(error));        
+        $ionicLoading.hide();
+      });
+    }
+  } else {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get poll details to take your input.");
+  }
+
+  $scope.handleCheckBoxSelection=function(changedIndex) {
+    // TODO :: If poll allows multiple selections, skip this radion button imitation
+    for(var i=0;i<$scope.input.vote.length;i++) {
+      if(i!=changedIndex && $scope.input.vote[i]==true) {
+        $scope.input.vote[i]=false;
+      }
+    }
+  };
+
+  $scope.submitPollResponse=function() {
+    var votedIndex=-1;
+    for(var i=0;i<$scope.input.vote.length;i++) {
+      if($scope.input.vote[i]==true) {
+        votedIndex=i;
+        break;
+      }
+    }    
+    if(votedIndex!=-1) {
+      $cordovaDialogs.confirm('Do you want to submit your vote?', 'Submit Vote', ['Submit Vote','Let me think']).then(function(buttonIndex) { 
+        if(buttonIndex==1) {       
+          $ionicLoading.show({
+            template: "<ion-spinner></ion-spinner>Submitting your vote..."
+          });
+          ActivityService.respondToPoll($scope.activity.id, votedIndex).then(function(updatedActivity){
+            SettingsService.setAppSuccessMessage("Submitted your response for the poll.");
+            $ionicLoading.hide();
+            $state.go("tab.dash");
+          },function(error){
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to accept your vote.");  
+            $ionicLoading.hide();
+          });
+        } else {
+          console.log("Canceled submitting of poll");
+        }
+      });
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please select your choice.");
+    }
+  };  
+
+  $scope.respondLater=function(){
+    $ionicHistory.goBack(-1);
+  };
+
+})
+
+;

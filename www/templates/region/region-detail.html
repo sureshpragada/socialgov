@@ -21,16 +21,16 @@
           Add Cover Photo 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
-      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">
+      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy && !isAdmin">
           <i class="icon ion-ios-people-outline royal"></i>
           Neighbors 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>          
-<!--       <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy || isAdmin">
+      <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin">
           <i class="icon ion-ios-home-outline royal"></i>
           Residences
           <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>                 -->
+      </ion-item>                
       <ion-item class="item-icon-right" href="#/tab/invite-citizen"  ng-if="regionSettigns.neighborPrivacy && !isAdmin">
         <i class="icon ion-ios-people-outline royal"></i>
         {{'InvitePage' | translate}}        
@@ -61,16 +61,16 @@
           Demography
           <i class="icon ion-chevron-right icon-accessory"></i>    
       </ion-item>       -->
-      <ion-item href="#/tab/region-settings/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="isAdmin">
+      <ion-item href="#/tab/region-settings/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="canControlSettings">
         <i class="icon ion-ios-gear-outline royal"></i>      
           Community Settings
           <i class="icon ion-chevron-right icon-accessory"></i>    
       </ion-item>                                    
-      <ion-item href="#/tab/upload-neighbors" class="item-icon-left item-icon-right" ng-if="canLogout">
+<!--       <ion-item href="#/tab/upload-neighbors" class="item-icon-left item-icon-right" ng-if="canLogout">
         <i class="icon ion-ios-upload-outline royal"></i>      
           Upload Neighbors
           <i class="icon ion-chevron-right icon-accessory"></i>    
-      </ion-item>                                          
+      </ion-item>                                           -->
   	</ion-list>
   </ion-content>
 </ion-view>

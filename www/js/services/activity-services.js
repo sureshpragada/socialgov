@@ -30,6 +30,65 @@ angular.module('activity.services', [])
       userActivityQuery.equalTo("user", Parse.User.current());
       return userActivityQuery.find();
     },
+    getActivityById: function(activityId) {
+      var Activity=Parse.Object.extend("Activity");
+      var query=new Parse.Query(Activity);
+      query.equalTo("objectId", activityId);
+      return query.first();
+    },
+    addUserActivity: function(activity, type, action, addenda) { // choice could be index of the option chosen
+      var UserActivity = Parse.Object.extend("UserActivity");
+      var userActivity = new UserActivity();
+      userActivity.set("user", AccountService.getUser());
+      userActivity.set("activity", activity);
+      userActivity.set("action", this.getActionCode(action));
+      if(type=="POLL") {
+        userActivity.set("votedIndex", addenda.pollVotedIndex);            
+        userActivity.set("homeNo", addenda.homeNo);
+      }      
+      return userActivity.save();          
+    },
+    respondToPoll: function(activityId, votedIndex) {
+      var self=this;
+      var deferred = $q.defer();
+      // Make a new call to get activity as others might be voting here
+      this.getActivityById(activityId).then(function(refreshedActivity){
+        var currentVotes=refreshedActivity.get("votes");
+        currentVotes[votedIndex]=currentVotes[votedIndex]+1;
+        refreshedActivity.set("votes", currentVotes);
+        refreshedActivity.save().then(function(updatedActivity){
+          // Save user action
+          self.addUserActivity(updatedActivity, "POLL", "support", {pollVotedIndex: votedIndex, homeNo: AccountService.getUser().get("homeNo")}).
+            then(function(newUserActivity){
+            deferred.resolve(updatedActivity);  
+          }, function(userActivityError){
+            deferred.reject(userActivityError);
+          });
+        },function(activitySaveError){
+          deferred.reject(activitySaveError);
+        });
+      },function(activityRetrieveError){
+        deferred.reject(activityRetrieveError);
+      });
+      return deferred.promise;
+    },
+    getUserActionFromTheList: function(activityId, userActivityList) {            
+      if(userActivityList!=null && userActivityList.length>0) {
+        for(var j=0;j<userActivityList.length;j++) {
+          if(userActivityList[j].get("activity").id==activityId) {
+            return userActivityList[j];
+          }
+        }
+      }
+      return null;
+    },
+    isHomePerformedActivity: function(activity) {            
+      var UserActivity = Parse.Object.extend("UserActivity");
+      var userActivityQuery=new Parse.Query(UserActivity);
+      userActivityQuery.equalTo("homeNo", AccountService.getUser().get("homeNo"));
+      userActivityQuery.equalTo("activity", activity);      
+      return userActivityQuery.find();      
+    },    
     postActivity: function(post) {
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
