@@ -1,13 +1,21 @@
 <ion-view view-title="View Poll">
 	<ion-content  class="visible-cards">
 		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list card">
+			<ion-item ng-if="!input.pollingClosed">
+				Poll Closes On<span class="item-note balanced">{{activity.get("endDate") | date:'mediumDate'}}</span>
+			</ion-item>
+			<ion-item ng-if="input.pollingClosed">
+				Poll Closed On<span class="item-note assertive">{{activity.get("endDate") | date:'mediumDate'}}</span>
+			</ion-item>			
+		</div>		
 		<div class="list card" ng-if="!input.pollingClosed">
 			<ion-item class="item-text-wrap" style="font-weight: bold;">
 				{{activity.get("notifyMessage")}}
 			</ion-item>
 			<ion-checkbox ng-repeat="choice in activity.get('choices')" ng-model="input.vote[$index]" class="checkbox-balanced item-text-wrap" ng-change="handleCheckBoxSelection($index)" ng-disabled="isPollSubmitted">
 				{{choice}}
-			</ion-checkbox>
+			</ion-checkbox>			
 		</div>
 		<div class="padding-horizontal" ng-if="!input.pollingClosed && !isPollSubmitted">
 			<button class="button button-block button-balanced" ng-click="submitPollResponse()">Submit Your Vote</button>
@@ -21,11 +29,7 @@
 				<i ng-if="$index==winningIndex" class="icon ion-thumbsup balanced"></i>
 				<i  ng-if="$index!=winningIndex" class="icon ion-thumbsdown assertive"></i>
 				{{choice}} 
-				<p>
-					<span>{{currentVotes[$index]}} votes</span>				
-<!-- 					<span class="balanced" ng-if="$index==winningIndex">{{currentVotes[$index]}} votes</span>
-					<span class="assertive" ng-if="$index!=winningIndex">{{currentVotes[$index]}} votes</span> -->
-				</p>
+				<p><span>{{currentVotes[$index]}} votes</span></p>
 			</ion-item>
 		</div>		
 	</ion-content>

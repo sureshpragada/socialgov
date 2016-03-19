@@ -25,7 +25,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     for(var j=0;j<$scope.activities.length;j++) {
       if($scope.activities[j].get("status")=="P" && !$scope.isAdmin && $scope.activities[j].get("user").id!=$scope.user.id) {
         $scope.activities.splice(j, 1);
-      } else if($scope.activities[i].get("activityType")="POLL" && $scope.user.get("homeOwner")==false) {
+      } else if($scope.activities[j].get("activityType")=="POLL" && $scope.user.get("homeOwner")==false) {
         $scope.activities.splice(j, 1);
       }
     }
@@ -752,10 +752,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
 
   $scope.addChoice=function() {
-    console.log("Adding choice");
     var haveUsedDefaultChoices=true;
     for(var i=0;i<$scope.post.choices.length;i++) {
-      if($scope.post.choices[i]!=null && $scope.post.choices[i].trim().length<0) {
+      if($scope.post.choices[i]==null || $scope.post.choices[i].trim().length<1) {
         haveUsedDefaultChoices=false;
         break;
       }
@@ -763,7 +762,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     if(haveUsedDefaultChoices==true) {
       $scope.post.choices.push(null);
     } else {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please provide first two choices to add additional choices.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first two choices to add additional choices.");
     }
   };
 
@@ -812,10 +811,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           $scope.post.votes.push(0);
         }
 
-        alert(JSON.stringify($scope.post));    
-        $ionicLoading.hide();
-        return;
-
+        // alert(JSON.stringify($scope.post));    
+        // $ionicLoading.hide();
+        // return;
         var Activity = Parse.Object.extend("Activity");
         var activity = new Activity();
         activity.save($scope.post, {
@@ -831,7 +829,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               SettingsService.setAppSuccessMessage("Poll has been submitted.");            
             }            
             $ionicLoading.hide();                      
-            $state.go("tab.dash");  
+            $ionicHistory.goBack(-2);
           },
           error: function(activity, error) {
             console.log("Error in submitting poll " + JSON.stringify(error));
