@@ -10,7 +10,7 @@
   	<div ng-repeat="region in regions track by $index" ng-init="regionIndex = $index">
 	    <div class="card" ng-repeat="execOffAddr in region.get('execOffAddrList')" ng-init="officeIndex = $index">
 		  <div class="item item-icon-right">
-	        <a ng-click="openOfficePopover($event, regionIndex, officeIndex)" ng-if="canUpdateRegion"><i class="icon ion-navicon royal"></i></a>
+	        <a ng-click="openOfficePopover($event, regionIndex, officeIndex)" ng-if="canUpdateRegion"><i class="icon ion-android-more-vertical royal"></i></a>
 		    {{execOffAddr.name}}
 		  </div>
 		  <div class="item item-text-wrap">
@@ -20,6 +20,12 @@
 		    	<div ng-if="execOffAddr.city">{{execOffAddr.city}}</div>
 		    	<div ng-if="execOffAddr.state">{{execOffAddr.state}}</div>
 		    	<div ng-if="execOffAddr.pincode">{{execOffAddr.pincode}}</div>
+		    	<div ng-if="execOffAddr.phoneNum">
+		    		<p>
+		    			<i class="icon ion-iphone"></i>
+		    			<span>{{execOffAddr.phoneNum}}</span>
+		    		</p>
+		    	</div>
 		    </div>
 		<!--     <p ng-if="execOffAddr.phoneNumberList">
 	    	<p ng-if="execOffAddr.addressLine1">{{execOffAddr.addressLine1}}</p>
@@ -37,8 +43,11 @@
 		    <p ng-if="execOffAddr.email">
 		    	{{execOffAddr.email}}
 		    </p>		    
- -->		<div ng-repeat="contact in execOffAddr.contacts" class="nameContact">
-		        <h2>{{contact.title}}</h2>
+ -->		<div ng-repeat="contact in execOffAddr.contacts track by $index" ng-init="contactIndex = $index">
+		        <h2>
+		        	<i class="ion-minus-circled" ng-click="deleteContact(regionIndex,officeIndex,contactIndex)"></i>
+		        	<span>{{contact.title}}</span>
+		        </h2>	
 		        <p>
 					{{contact.name}}
 				</p>
@@ -49,7 +58,8 @@
 				    </span>	        	        
 				</p>
 		        <p ng-if="contact.email">
-					{{contact.email}}
+		        	 <i class="icon ion-email"></i>
+					<span>{{contact.email}}</span>
 				</p>				
 		     </div>	    	
 		  </div>
