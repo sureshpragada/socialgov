@@ -2,13 +2,13 @@
   <ion-content>
     <div class="list">
       <a class="item" ng-click="editThis()">
-        Edit
+        Edit Office
+      </a>
+      <a class="item" ng-click="removeThis()" ng-if="canDeleteOffice">
+        Delete Office
       </a>
       <a class="item" ng-click="addContact()">
         Add Contact
-      </a>
-      <a class="item" ng-click="removeThis()" ng-if="canDeleteOffice">
-        Delete
       </a>
     </div>
   </ion-content>

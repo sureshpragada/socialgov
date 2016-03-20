@@ -366,13 +366,40 @@ angular.module('starter.controllers')
     });
   };
 
+  $scope.deleteContact=function(regionIndex,officeIndex,contactIndex){
+    var offices=$scope.regions[regionIndex].get("execOffAddrList");
+    var contacts=offices[officeIndex].contacts;
+    contacts.splice(contactIndex,1);
+    for(var i=0; i < offices.length;i++) { 
+      delete offices[i].$$hashKey;
+      if(offices[i].contacts!=null) {
+        for(var j=0; j < offices[i].contacts.length; j++){
+          delete offices[i].contacts[j].$$hashKey;
+        }
+      }
+    }
+    $scope.regions[regionIndex].save(null, {
+      success: function(region) {
+        RegionService.updateRegion(region.get("uniqueName"), region);        
+        $scope.$apply(function(){ // To refresh the view with the delete
+          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Contact has been deleted.");
+          console.log("delete is success");
+        });
+      },
+      error: function(region, error) {
+        console.log("Error in deleting the office " + error.message);
+        $scope.controllerMessage="Unable to process your delete request.";
+      }
+    });
+    console.log(JSON.stringify(contacts));
+  };
 })
 
 .controller('AddContactToOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
 
   console.log("Entered int AddContactToOfficeCtrl");
 
-  $scope.contact={"name":"","title":"","phoneNum":""};
+  $scope.contact={name:"",title:"",phoneNum:"",email:""};
   var office=null,officeContacts=null;
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
@@ -398,6 +425,10 @@ angular.module('starter.controllers')
     }
     else if($scope.contact.phoneNum=="" || $scope.contact.phoneNum.length!=10){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Phone number length should be 10 characters.");
+      return; 
+    }
+    else if($scope.contact.email=="" || $scope.contact.email.indexOf('@')==-1||$scope.contact.email.indexOf('.')==-1){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter proper Email Id.");
       return; 
     }
     else {
@@ -446,7 +477,7 @@ angular.module('starter.controllers')
 
   // $scope.phoneNums={officeNum:"",execNum:""};
   // $scope.newExecAdminObj={title:"",name:"",phoneNumberList:[]};
-  $scope.newOfficeObj={name:"", addressLine1:"", addressLine2:"", city:"", state:"", pincode:"",type:"CUSTOM"};
+  $scope.newOfficeObj={name:"", addressLine1:"", addressLine2:"", city:"", state:"", pincode:"",phoneNum:"",type:"CUSTOM"};
   $scope.submit=function(){
     if($scope.newOfficeObj.name==""){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter office name."); 
@@ -467,6 +498,10 @@ angular.module('starter.controllers')
     else if($scope.newOfficeObj.pincode==""){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter pincode."); 
       return;
+    }
+    else if($scope.newOfficeObj.phoneNum=="" || $scope.newOfficeObj.phoneNum.length!=10){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Phone number should be 10 characters."); 
+      return; 
     }
     else{
         // if($scope.phoneNums.execNum!=""){
