@@ -1,0 +1,24 @@
+<ion-view view-title="Rules & Regulations">
+  <ion-content class="visible-cards">
+  <my-app-message info="appMessage"></my-app-message>
+  <my-app-message info="controllerMessage"></my-app-message>
+    <div class="card padding" ng-if="communityRules">
+      <h4>
+        Community rules and regulations :
+      </h4>
+      <div ng-bind-html="communityRules | nl2br" style="margin-bottom: 20px;"></div>    
+    </div>
+      <div class="padding" ng-if="isAdmin">
+        <a class="button button-block button-royal" href="#/tab/update-community-rules">Update Rules & Regulations</a>
+      </div>    
+  </ion-content>
+</ion-view>
+
+
+<!-- 
+1. Handover the payment to watchman.
+
+2. Treasurer will collect your payment from watchman and mark your dues as paid.
+
+3. You will receive confirmation notification once your payment has been entered in ledger. -->
+ 

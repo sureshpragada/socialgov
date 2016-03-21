@@ -43,19 +43,16 @@
 		    <p ng-if="execOffAddr.email">
 		    	{{execOffAddr.email}}
 		    </p>		    
- -->		<div ng-repeat="contact in execOffAddr.contacts track by $index" ng-init="contactIndex = $index">
+ -->		
+ 			<div ng-repeat="contact in execOffAddr.contacts track by $index" ng-init="contactIndex = $index" class="padding-vertical">
 		        <h2>
-		        	<i class="ion-minus-circled" ng-click="deleteContact(regionIndex,officeIndex,contactIndex)"></i>
 		        	<span>{{contact.title}}</span>
+		        	<i class="ion-minus-circled assertive" ng-click="deleteContact(regionIndex,officeIndex,contactIndex)" ng-show="canUpdateRegion"></i>
 		        </h2>	
-		        <p>
-					{{contact.name}}
-				</p>
+		        <p>{{contact.name}}</p>
 				<p>
 			        <i class="icon ion-iphone"></i>
-				    <span>
-				    	{{contact.phoneNum}}
-				    </span>	        	        
+				    <span>{{contact.phoneNum}}</span>	        	        
 				</p>
 		        <p ng-if="contact.email">
 		        	 <i class="icon ion-email"></i>

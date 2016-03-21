@@ -424,13 +424,15 @@ angular.module('starter.controllers')
       return; 
     }
     else if($scope.contact.phoneNum=="" || $scope.contact.phoneNum.length!=10){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Phone number length should be 10 characters.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number.");
       return; 
     }
-    else if($scope.contact.email=="" || $scope.contact.email.indexOf('@')==-1||$scope.contact.email.indexOf('.')==-1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter proper Email Id.");
-      return; 
-    }
+    // else if($scope.contact.email!=null && $scope.contact.email.trim().length>0) {
+    //   if($scope.contact.email.indexOf('@')==-1||$scope.contact.email.indexOf('.')==-1){
+    //     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter proper Email Id.");
+    //     return; 
+    //   }
+    // }
     else {
       $scope.contact.name=$scope.contact.name.capitalizeFirstLetter();
       $scope.contact.title=$scope.contact.title.capitalizeFirstLetter();
@@ -1329,5 +1331,49 @@ angular.module('starter.controllers')
   };
 
 })
+
+.controller('CommunityRulesCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
+  console.log("Community rules controller");
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.isAdmin=AccountService.canUpdateRegion();
+  RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+    $scope.communityRules=region.get("communityRules");
+    if($scope.communityRules==null || $scope.communityRules.length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Community rules and regulations have not been published for your community.");  
+    }
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get community rules and regulations.");
+  });  
+})
+
+.controller('UpdateCommunityRulesCtrl', function($scope, $state, $http, RegionService, SettingsService, $ionicHistory, AccountService) {
+  console.log("Update community rules controller");
+  $scope.input={ communityRules: "1. Do not play loud noises after 10 PM.\n\n2. Do not dry your clothes on the balcony."};
+  RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+    if(region.get("communityRules")!=null && region.get("communityRules").length>0) {
+      $scope.input.communityRules=region.get("communityRules");  
+    }    
+    $scope.region=region;
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get community rules and regulations.");
+  });  
+
+  $scope.updateCommunityRules=function() {
+    if($scope.input.communityRules!=null && $scope.input.communityRules.length>0) {
+      $scope.region.set("communityRules", $scope.input.communityRules);
+      $scope.region.save().then(function(newRegion){
+        RegionService.updateRegion(newRegion.get("uniqueName"), newRegion);
+        SettingsService.setAppSuccessMessage("Community rules and regulations have been updated.");
+        $state.go("tab.community-rules");
+      }, function(error){
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update community rules and regulations.");
+      });      
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community rules and regulations.");
+    }
+  };
+
+})
+
 
 ;

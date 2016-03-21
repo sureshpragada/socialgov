@@ -1,7 +1,7 @@
 <ion-view title="Demography">
-    <ion-nav-buttons side="secondary" >
+<!--     <ion-nav-buttons side="secondary" >
       <a class="button" href="#/tab/changedemodetails/{{region.get('uniqueName')}}" ng-show="isAdmin">Edit</a>
-    </ion-nav-buttons>
+    </ion-nav-buttons> -->
     <ion-content>
       <my-app-message info="appMessage"></my-app-message>
       <my-app-message info="controllerMessage"></my-app-message>    
@@ -13,18 +13,18 @@
   			   Area <span class="item-note">{{region.get('demography').area}} Sq Km </span>
   			</ion-item>
   			<ion-item>
-  			   {{'Population' | translate}} <span class="item-note">{{region.get("demography").population}} </span>
+  			   {{'Population' | translate}} <span class="item-note">{{region.get("demography").units}} </span>
   			</ion-item>
-    	</ion-list> 
-    	<ion-item>
-	        {{'PostalCode' | translate}}
-	        <span class="item-note">{{region.get('demography').pinCodes}}</span>
-      </ion-item>
-      <ion-item class="item-divider">
-        History:
-      </ion-item>      
-      <ion-item class="item-text-wrap">
-          {{region.get('demography').history}}
-      </ion-item>
+        <ion-item class="item-icon-right" ng-if="regionSettings.hoa" href="#/tab/community-rules">
+          Rules & Regulations
+          <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>    
+        </ion-item>      
+        <ion-item class="item-divider" ng-if="!regionSettings.hoa">
+          History:
+        </ion-item>      
+        <ion-item class="item-text-wrap" ng-if="!regionSettings.hoa">
+            {{region.get('demography').history}}
+        </ion-item>
+      </ion-list>       
 	</ion-content>
 </ion-view>
