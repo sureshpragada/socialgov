@@ -1,9 +1,41 @@
 angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
-.controller('TabsCtrl', function($scope) {
+.controller('TabsCtrl', function($scope, $ionicModal) {
   $scope.badges = {
     activity : 0
   };      
+
+  // $ionicModal.fromTemplateUrl('templates/choice-modal.html', {
+  //   scope: $scope,
+  //   animation: 'slide-in-up'
+  // }).then(function(modal) {
+  //   $scope.choiceModal = modal;
+  // })  
+
+  // $scope.closeChoiceModal = function() {
+  //   $scope.choiceModal.hide();
+  // };
+
+  // $scope.$on('$destroy', function() {
+  //   $scope.choiceModal.remove();
+  // });
+
+  // $scope.selectModalChoice=function(selectedIndex) {
+  //   if (typeof callback === "function") {
+  //     callback(selectedIndex);
+  //   } else {
+  //     console.log("Call back function is not defined " + selectedIndex);
+  //   }
+  //   $scope.choiceModal.hide();
+  // };
+
+  // $scope.openChoiceModal=function(choices, callbackFunc) {    
+  //   $scope.modalChoices=choices;
+  //   $scope.callback=callbackFunc;
+  //   console.log("About to open the dialog");
+  //   $scope.choiceModal.show();    
+  // };
+
 })
 
 .controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal) {
@@ -25,7 +57,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     for(var j=0;j<$scope.activities.length;j++) {
       if($scope.activities[j].get("status")=="P" && !$scope.isAdmin && $scope.activities[j].get("user").id!=$scope.user.id) {
         $scope.activities.splice(j, 1);
-      } else if($scope.activities[j].get("activityType")=="POLL" && $scope.user.get("homeOwner")==false) {
+      } else if($scope.activities[j].get("activityType")=="POLL" && 
+          $scope.activities[j].get("pollSettings").whoCanVote=="HOME_OWNER" && $scope.user.get("homeOwner")==false) {
         $scope.activities.splice(j, 1);
       }
     }
@@ -732,7 +765,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('PostPollActivityCtrl', function($scope, $http, $state, $ionicHistory, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService) {
+.controller('PostPollActivityCtrl', function($scope, $http, $state, $ionicHistory, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService, $ionicModal) {
   console.log("Post poll activity controller");
   $scope.post={
     activityType: "POLL",
@@ -750,6 +783,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   }      
   console.log("Choices " + JSON.stringify($scope.post.choices));
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
+
+  $scope.whoCanVoteChoices=["Everyone", "Only Home Owners"];
+  $scope.whoCanVoteSelectedIndex=0; 
 
   $scope.addChoice=function() {
     var haveUsedDefaultChoices=true;
@@ -811,6 +847,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           $scope.post.votes.push(0);
         }
 
+        if($scope.whoCanVoteSelectedIndex==1) {
+          $scope.post.pollSettings.whoCanVote="HOME_OWNER";
+        }
+
         // alert(JSON.stringify($scope.post));    
         // $ionicLoading.hide();
         // return;
@@ -843,6 +883,31 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     });
 
   };  
+
+  $ionicModal.fromTemplateUrl('templates/choice-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.choiceModal = modal;
+  })  
+
+  $scope.closeChoiceModal = function() {
+    $scope.choiceModal.hide();
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.choiceModal.remove();
+  });
+
+  $scope.selectModalChoice=function(selectedIndex) {
+    $scope.whoCanVoteSelectedIndex=selectedIndex;
+    $scope.choiceModal.hide();
+  };
+
+  $scope.openChoiceModalOfWhoCanVote=function() {
+    $scope.modalChoices=$scope.whoCanVoteChoices;
+    $scope.choiceModal.show();        
+  };
 
   $scope.cancelSubmit=function(){
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10) {

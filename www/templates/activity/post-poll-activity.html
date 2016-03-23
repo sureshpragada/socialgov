@@ -26,6 +26,10 @@
 				<span class="input-label">Poll End Date</span>
 				<input type="date" name="pollEndDate"  ng-model="post.endDate">
 			</label>								  		  		  
+			<ion-item class="item-icon-right" ng-click="openChoiceModalOfWhoCanVote()">
+				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+				Who can vote?<span class="item-note">{{whoCanVoteChoices[whoCanVoteSelectedIndex]}}</span>
+			</ion-item>
 		</div>
 		<div class="row">
 			<div class="col">
