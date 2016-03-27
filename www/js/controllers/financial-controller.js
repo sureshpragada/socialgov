@@ -304,6 +304,16 @@ angular.module('starter.controllers')
     expenseAmount: 0
   };
 
+  $scope.$on('choiceSelectionComplete', function(e,data) {  
+    if(data.choiceName=="expenseCategory") {
+      $scope.input.category=$scope.availableCategories[data.selected];  
+    }    
+  });
+
+  $scope.openChoiceModalOfExpenseCategories=function() {
+    $scope.$parent.openChoiceModal("expenseCategory", $scope.availableCategories);
+  };
+
   $scope.addExpense=function() {
     if($scope.input.expenseAmount==null ||  $scope.input.expenseAmount<1) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter expense amount");
@@ -346,6 +356,16 @@ angular.module('starter.controllers')
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get expense record.");
   });  
   
+  $scope.$on('choiceSelectionComplete', function(e,data) {  
+    if(data.choiceName=="expenseCategory") {
+      $scope.editExpense.category=$scope.availableCategories[data.selected];  
+    }    
+  });
+
+  $scope.openChoiceModalOfExpenseCategories=function() {
+    $scope.$parent.openChoiceModal("expenseCategory", $scope.availableCategories);
+  };
+
   $scope.cancel=function() {
     $state.go("tab.expense-detail", {expenseId: $stateParams.expenseId});
   };

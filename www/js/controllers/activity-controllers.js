@@ -5,36 +5,31 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     activity : 0
   };      
 
-  // $ionicModal.fromTemplateUrl('templates/choice-modal.html', {
-  //   scope: $scope,
-  //   animation: 'slide-in-up'
-  // }).then(function(modal) {
-  //   $scope.choiceModal = modal;
-  // })  
+  $ionicModal.fromTemplateUrl('templates/choice-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.choiceModal = modal;
+  })  
 
-  // $scope.closeChoiceModal = function() {
-  //   $scope.choiceModal.hide();
-  // };
+  $scope.closeChoiceModal = function() {
+    $scope.choiceModal.hide();
+  };
 
-  // $scope.$on('$destroy', function() {
-  //   $scope.choiceModal.remove();
-  // });
+  $scope.$on('$destroy', function() {
+    $scope.choiceModal.remove();
+  });
 
-  // $scope.selectModalChoice=function(selectedIndex) {
-  //   if (typeof callback === "function") {
-  //     callback(selectedIndex);
-  //   } else {
-  //     console.log("Call back function is not defined " + selectedIndex);
-  //   }
-  //   $scope.choiceModal.hide();
-  // };
+  $scope.selectModalChoice=function(selectedIndex) {
+    $scope.$broadcast ('choiceSelectionComplete', {choiceName: $scope.choiceName, selected: selectedIndex});
+    $scope.choiceModal.hide();
+  };
 
-  // $scope.openChoiceModal=function(choices, callbackFunc) {    
-  //   $scope.modalChoices=choices;
-  //   $scope.callback=callbackFunc;
-  //   console.log("About to open the dialog");
-  //   $scope.choiceModal.show();    
-  // };
+  $scope.openChoiceModal=function(choiceName, choices) {    
+    $scope.choiceName=choiceName;
+    $scope.modalChoices=choices;
+    $scope.choiceModal.show();    
+  };
 
 })
 
@@ -784,7 +779,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   console.log("Choices " + JSON.stringify($scope.post.choices));
   $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));  
 
-  $scope.whoCanVoteChoices=["Everyone", "Only Home Owners"];
+  $scope.whoCanVoteChoices=[
+    {label: "Everyone", value: "Everyone"}, 
+    {label: "Only Home Owners", value: "Only Home Owners"}
+  ];
   $scope.whoCanVoteSelectedIndex=0; 
 
   $scope.addChoice=function() {
@@ -884,29 +882,14 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   };  
 
-  $ionicModal.fromTemplateUrl('templates/choice-modal.html', {
-    scope: $scope,
-    animation: 'slide-in-up'
-  }).then(function(modal) {
-    $scope.choiceModal = modal;
-  })  
-
-  $scope.closeChoiceModal = function() {
-    $scope.choiceModal.hide();
-  };
-
-  $scope.$on('$destroy', function() {
-    $scope.choiceModal.remove();
+  $scope.$on('choiceSelectionComplete', function(e,data) {  
+    if(data.choiceName=="whoCanVote") {
+      $scope.whoCanVoteSelectedIndex=data.selected;  
+    }    
   });
 
-  $scope.selectModalChoice=function(selectedIndex) {
-    $scope.whoCanVoteSelectedIndex=selectedIndex;
-    $scope.choiceModal.hide();
-  };
-
   $scope.openChoiceModalOfWhoCanVote=function() {
-    $scope.modalChoices=$scope.whoCanVoteChoices;
-    $scope.choiceModal.show();        
+    $scope.$parent.openChoiceModal("whoCanVote", $scope.whoCanVoteChoices);
   };
 
   $scope.cancelSubmit=function(){

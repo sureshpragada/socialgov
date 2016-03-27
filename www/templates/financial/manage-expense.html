@@ -2,10 +2,14 @@
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
-			<label class="item item-input item-select">
+<!-- 			<label class="item item-input item-select">
 			    <div class="input-label">Expense Category</div>
 			    <select ng-model="input.category" ng-options="availableCategory.label for availableCategory in availableCategories"></select>
-			  </label>					
+			  </label>					 -->
+	      <ion-item class="item-icon-right" ng-click="openChoiceModalOfExpenseCategories()">
+	        <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+	        Expense Category<span class="item-note">{{input.category.label}}</span>
+	      </ion-item>			  
 			<label class="item item-input" ng-if="input.category.value=='Other'">
 				<span class="input-label">Paid To</span>
 				<input type="text" name="paidTo" ng-model="input.paidTo">

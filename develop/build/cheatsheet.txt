@@ -9,6 +9,7 @@ ionic emulate android --livereload
 ionic serve
 ionic serve --lab
 cordova prepare android 
+
 ionic run android
 cordova platform list
 cordova platform update android@4.1.1
@@ -83,3 +84,38 @@ https://xtremepush.com/
 https://aws.amazon.com/blogs/aws/resources-for-migrating-parse-applications-to-aws/
 CloudKit or Cloudmine
 http://julienrenaux.fr/2016/01/29/complete-parse-server-migration-guide/
+
+
+Replies to Apple : 
+==================
+Does your app access any paid content or services?
+- What are the paid content or services, and what are the costs?
+- Who pays for the content or services? Who uses the content or services?
+- Where do they pay, and what’s the payment method?
+- If users create an account to use your app, are there fees involved?
+- How do users obtain an account?
+- How do users receive an invitation code?
+
+
+Hi,
+
+To better understand our responses, here is quick recap of purpose of the app. 
+
+This app will help home owner associations to manage finances (opening balance sheets, enter revenue and expense items) of the association, residents in their communities and collaborate with home owners to resolve the issues.
+
+The way it works is, one of the home owner in the community can setup their community, then add residences in their communities, then invite residents into each home. Then they will enter monthly maintenance fees and manage their monthly balance sheets.
+
+Here are responses to your question in their order. 
+
+1. App does not use any paid services or does not have any paid content. 
+2. Main content of the app is monthly balance sheets including revenue and expense line items. This information will be entered by treasurer of the association on monthly basis and it will be visible to all residents to give the transparency. Other content is, residents can report community problems, ideas and polls and send notifications to the home owners. 
+3. No one will pay for the content. All content will be generated mostly by home owner association board members (in the form of finances) and residents (problems, ideas, polls).
+4. No paid services in the app. 
+5. No fees involved to create the account. Users should be owners of the home in the community to join.
+6. Since home owner associations/communities are closed, no one can join any community they just wanted. They should be living in this community to join the community on the app.
+7. Board members will invite the residents of each home to see financial information and report any problems they have in the community. 
+
+Hope this helps to review the app. Please let us know should you need more information.
+
+Thank you,
+OurBlock Team
