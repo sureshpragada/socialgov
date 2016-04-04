@@ -3,9 +3,15 @@
     <my-app-message info="appMessage"></my-app-message>  
     <my-app-message info="controllerMessage"></my-app-message>  
   	<ion-list>
-	    <ion-item ng-click="gotoActivity(activityType.id)" ng-repeat="activityType in activityTypeList" class="item-icon-right">
+	    <ion-item ng-click="gotoActivity(activityType.id)" ng-repeat="activityType in activityTypeList" class="item-icon-left item-icon-right">
         {{activityType.label}}
-        <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+        <i class="icon ion-ios-lightbulb-outline positive" ng-if="activityType.id=='IDEA'"></i>
+        <i class="icon ion-ios-flag-outline positive" ng-if="activityType.id=='ISSU'"></i>
+        <i class="icon ion-ios-bell-outline positive" ng-if="activityType.id=='NOTF'"></i>
+        <i class="icon ion-ios-pie-outline positive" ng-if="activityType.id=='POLL'"></i>
+        <i class="icon ion-ios-help-outline positive" ng-if="activityType.id=='ASK'"></i>
+        <i class="icon ion-ios-calendar-outline positive" ng-if="activityType.id=='EVNT'"></i>        
+        <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>        
       </ion-item>
     </ion-list>
   </ion-content>

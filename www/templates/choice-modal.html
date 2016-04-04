@@ -4,6 +4,7 @@
 		<ion-item ng-repeat="modalChoice in modalChoices" class="item-icon-right" ng-click="selectModalChoice($index)">
 			<i class="icon ion-chevron-right icon-accessory"></i>
 			{{modalChoice.label}}
+			<p ng-if="modalChoice.opt">{{modalChoice.opt}}</p>
 		</ion-item>
 	</ion-list>
 	<div class="padding">

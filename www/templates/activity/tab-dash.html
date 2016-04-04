@@ -6,7 +6,7 @@
   <ion-content class="visible-cards">
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="tipMessage"></my-app-message>    
-    <my-app-message info="activityError"></my-app-message>
+    <my-app-message info="controllerMessage"></my-app-message>
     <div class="list card" ng-repeat="activity in activities" ng-hide="activityError" ng-init="activityIndex = $index">
       <div class="item item-avatar item-icon-right">
         <img ng-src="{{activity.get('user').get('images')[0]}}" ng-if="activity.get('user').get('images')">
@@ -33,6 +33,13 @@
         <p ng-if="activity.get('activityType')=='POLL' && !isPollExpired($index)">
           <span class="assertive">* Poll closes on {{activity.get('endDate') | date:'mediumDate'}}.</span>
         </p>                
+        <p ng-if="activity.get('activityType')=='ISSU'">
+          <a class="button icon-left ion-ios-checkmark button-clear button-balanced" ng-if="activity.get('problemStatus')=='RESOLVED'">{{activity.get('problemStatus') | formatProblemStatus}}</a>        
+          <a ng-if="activity.get('problemStatus')=='OPEN' && !isAdmin && user.id==activity.get('user').id" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Resolved</a>
+<!--           <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markResolved(activity.id, activityIndex)">Assign Problem</a>          
+ -->
+          <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Problem Resolved</a>                    
+        </p>                        
 
         <p>{{activity.createdAt | date:'mediumDate'}}&nbsp;{{activity.createdAt | date:'shortTime'}}</p>        
         <p ng-if="activity.get('status')=='S'" >
@@ -86,27 +93,6 @@
           Answer ({{activity.get("debate")}})
         </a>
       </div>                  
-      <div class="item item-body" ng-if="isDebateRequested(activity.id, activityIndex) &&  user.get('status')!='S'">
-        <label class="item item-input">
-          <textarea placeholder="Type in your message" rows="5" ng-model="argumentMessageList[activityIndex]"></textarea>
-        </label>
-        <div class="padding">
-          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, activityIndex)" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">Submit Feedback</button>
-          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, activityIndex)" ng-if="activity.get('activityType')=='NOTF' || activity.get('activityType')=='EVNT'">Comment</button>          
-          <button class="button button-small button-royal" ng-click="postDebateArgument(activity.id, activityIndex)" ng-if="activity.get('activityType')=='ASK'">Submit Answer</button>                    
-        </div>        
-      </div> 
-      <div ng-if="isDebateRequested(activity.id, activityIndex)">
-        <div class="item item-text-wrap" ng-repeat="debate in debateList[activityIndex]" ng-init="debateIndex = $index">
-          <p class="commentUserDivider quote" ng-bind-html="debate.get('argument') | nl2br"></p>          
-          <p>{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}&nbsp;&nbsp;{{debate.createdAt | date:'short'}}</p>
-          <p>
-            <a ng-click="reportDebateSpam(debate.id, activityIndex, debateIndex)" class="assertive">Report Spam</a> &nbsp;
-            <a ng-click="removeDebateSpamFlag(debate.id, activityIndex, debateIndex)" class="balanced" ng-if="debate.get('status')=='S'">Remove spam flag</a> &nbsp;
-            <a ng-click="flagCommentUserAbusive(debate.id, activityIndex, debateIndex)" class="assertive" ng-if="debate.get('status')=='S'">Block user</a>
-          </p> 
-        </div>
-      </div>       
     </div>
   </ion-content>
 </ion-view>

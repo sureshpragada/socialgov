@@ -424,6 +424,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.board-appointment', {
+      url: '/board-appointment',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/board-appointment.html',
+          controller: 'BoardAppointmentCtrl'
+        }
+      }
+    })
+
+    .state('tab.manage-legislative-titles', {
+      url: '/manage-legislative-titles',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/manage-legislative-titles.html',
+          controller: 'ManageLegislativeTitlesCtrl'
+        }
+      }
+    })
+
     .state('tab.selflegis', {
       url: '/selflegis/{regionUniqueName}',
       cache: false,      

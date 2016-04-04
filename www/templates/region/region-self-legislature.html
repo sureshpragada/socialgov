@@ -1,4 +1,8 @@
 <ion-view title="Legislature">
+  <ion-nav-buttons side="secondary">
+    <a class="button button-icon icon ion-ios-personadd-outline" href="#/tab/board-appointment" ng-if="canUpdateRegion"></a>
+    <a class="button button-icon icon ion-ios-gear-outline" href="#/tab/manage-legislative-titles" ng-if="canUpdateRegion"></a>
+  </ion-nav-buttons>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>  	

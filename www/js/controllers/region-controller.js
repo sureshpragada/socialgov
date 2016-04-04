@@ -289,13 +289,185 @@ angular.module('starter.controllers')
     if($scope.legisList==null || $scope.legisList.length==0) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Legislative board is not established in your community.");
       if($scope.canUpdateRegion==true) {
-        $scope.ideaMessage=SettingsService.getControllerIdeaMessage("Looking to appoint a resident on the board? Controls are available in neighbor details section.");
+        $scope.ideaMessage=SettingsService.getControllerIdeaMessage("Looking to establish the board? Use controls above to manage titles and appoint residents on the board.");
       }      
+    } else {
+      RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+        var legiTitles=region.get('legiTitles');
+        var sortedLegiList=[];
+        for(var i=0;i<legiTitles.length;i++) {
+          for(var j=0;j<$scope.legisList.length;j++) {
+            if(legiTitles[i].title==$scope.legisList[j].get("title")) {
+              sortedLegiList.push($scope.legisList[j]);
+            }
+          }
+        }
+        $scope.legisList=sortedLegiList;
+      }, function(error) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to present your board in appropriate order.");
+        LogService.log({type:"ERROR", message: "Unable to present your board in appropriate order " + JSON.stringify(error)}); 
+      });    
     }
   },function(error){
     console.log("Unable to get legislative contacts " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve legislative contacts.");
   });
+
+})
+
+.controller('ManageLegislativeTitlesCtrl', function($scope, $interval, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicListDelegate, $ionicLoading) {
+  console.log("Controller ManageLegislativeTitlesCtrl");
+  $scope.control={
+    shuffleInitiated: false
+  };
+
+  RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+    $scope.region=region;
+    if($scope.region.get('legiTitles')!=null) {
+      $scope.legiTitleList=$scope.region.get('legiTitles');
+    } else {
+      $scope.legiTitleList=[];
+    }    
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get legislative titles.");
+    LogService.log({type:"ERROR", message: "Unable to get region to get legislative titles  " + JSON.stringify(error)}); 
+  });    
+
+  $scope.acceptNewTitle=function() {
+    $cordovaDialogs.prompt('Enter new legislative title', 'Legislative Title', ['Submit','Cancel'])
+    .then(function(result) {
+      if(result.buttonIndex==1) {
+        var input = result.input1;
+        if(input!=null && input.trim().length>0) {
+          var found=false;
+          for(var i=0;i<$scope.legiTitleList.length;i++) {
+            if($scope.legiTitleList[i].title==input) {
+              found=true;
+              break;
+            }
+          }
+          if(found==false) {
+            $scope.legiTitleList.push({title: input});
+            $scope.saveLegiTitleUpdatesInRegion("Unable to save your legislative title order.");
+          } else {
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Title already exists in the list");
+          }
+        }
+      }
+    });    
+  };
+
+  $scope.deleteTitle=function(index) {
+    $scope.legiTitleList.splice(index, 1);
+    $scope.saveLegiTitleUpdatesInRegion("Unable to delete title from the list.");    
+    $ionicListDelegate.closeOptionButtons();
+  };  
+
+  $scope.shuffle=function(item, fromIndex, toIndex) {
+    $scope.legiTitleList.splice(fromIndex, 1);
+    $scope.legiTitleList.splice(toIndex, 0, item);
+    $scope.saveLegiTitleUpdatesInRegion("Unable to order titles in the list.");    
+  };
+
+  $scope.saveLegiTitleUpdatesInRegion=function(errorMessage) {
+    $ionicLoading.show({
+      template: "<p class='item-icon-left'>Saving your action...<ion-spinner/></p>"
+    });
+    $scope.region.set("legiTitles",$scope.legiTitleList);
+    $scope.region.save().then(function(region) {
+      RegionService.updateRegion(region.get("uniqueName"), region);
+      $ionicLoading.hide();
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage(errorMessage);
+      $interval(function(){
+        $scope.controllerMessage=null;
+      }, 5000, 1);      
+      $ionicLoading.hide();
+    });    
+  }
+
+})
+
+.controller('BoardAppointmentCtrl', function($scope, $interval, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicListDelegate, $ionicLoading, $ionicHistory) {
+  console.log("Controller BoardAppointmentCtrl");
+  $scope.legiTitleSelectedIndex=0;  
+  $scope.legiTitleList=[];
+  $scope.residentSelectedIndex=0;  
+  $scope.residentList=[];
+
+  $scope.tipMessage=SettingsService.getControllerIdeaMessage("Cant find the title on your board? Title management is available in legislatives section.");
+
+  RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+    var legiTitles=region.get('legiTitles');
+    for(var i=0;i<legiTitles.length;i++) {
+      $scope.legiTitleList.push({
+        label: legiTitles[i].title,
+        value: legiTitles[i].title
+      });
+    }
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get legislative titles.");
+    LogService.log({type:"ERROR", message: "Unable to get region to get legislative titles  " + JSON.stringify(error)}); 
+  });    
+
+  var pageTransData=SettingsService.getPageTransitionData();
+  if(pageTransData!=null) {
+    $scope.residentList.push({
+      label: pageTransData.get("firstName") + " " + pageTransData.get("lastName"),
+      value: pageTransData.get("firstName") + " " + pageTransData.get("lastName"),
+      opt: pageTransData.get("homeNo"),
+      id: pageTransData.id
+    });
+  } else {
+    AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(residents){
+      for(var i=0;i<residents.length;i++) {
+        $scope.residentList.push({
+          label: residents[i].get("firstName") + " " + residents[i].get("lastName"),
+          value: residents[i].get("firstName") + " " + residents[i].get("lastName"),
+          opt: residents[i].get("homeNo"),
+          id: residents[i].id
+        });
+      }
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get residents in your community.");
+      LogService.log({type:"ERROR", message: "Unable to get residents in community " + JSON.stringify(error)}); 
+    });
+  }
+
+  $scope.$on('choiceSelectionComplete', function(e,data) {  
+    if(data.choiceName=="legiTitles") {
+      $scope.legiTitleSelectedIndex=data.selected;  
+    } else if(data.choiceName=="residents") {
+      $scope.residentSelectedIndex=data.selected;  
+    }
+  });
+
+  $scope.openChoiceModalOfLegiTitles=function() {
+    $scope.$parent.openChoiceModal("legiTitles", $scope.legiTitleList);
+  };  
+
+  $scope.openChoiceModalOfResidents=function() {
+    $scope.$parent.openChoiceModal("residents", $scope.residentList);
+  };
+
+  $scope.appoint=function() {
+    $ionicLoading.show({
+      template: "<p class='item-icon-left'>Appointing on the board...<ion-spinner/></p>"
+    });
+    AccountService.updateRoleAndTitle($scope.residentList[$scope.residentSelectedIndex].id, "LEGI", 
+      $scope.legiTitleList[$scope.legiTitleSelectedIndex].value).then(function(status) {
+      SettingsService.setAppSuccessMessage("Resident is appointed on board.");
+      $ionicLoading.hide();
+      $ionicHistory.goBack(-1);      
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to complete this appointment.");
+      $ionicLoading.hide();
+    });    
+  };
+
+  $scope.cancel=function() {
+    $ionicHistory.goBack(-1);
+  };
 
 })
 
@@ -1017,9 +1189,9 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard) {
+.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory) {
   console.log("Neighbor details controller " + $stateParams.userId);
-  $scope.operatingUser=Parse.User.current();
+  $scope.operatingUser=AccountService.getUser();
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
   AccountService.getUserById($stateParams.userId).then(function(neighbor) {
@@ -1041,46 +1213,13 @@ angular.module('starter.controllers')
   $scope.removeOnBoard=function() {
     AccountService.updateRoleAndTitle($scope.user.id, "CTZEN", null);
     SettingsService.setAppSuccessMessage("Resident has been removed from board.");
-    $state.go("tab.neighbors");    
+    $ionicHistory.goBack(-1);
+    // $state.go("tab.neighbors");    
   };
 
   $scope.appointOnBoard=function() {
-    var hideSheet = $ionicActionSheet.show({
-       buttons: [
-         { text: 'President' },
-         { text: 'Vice President' },
-         { text: 'Secretary' },
-         { text: 'Treasurer' },
-         { text: 'Board Member' },
-         { text: 'Incharge Member' }
-       ],
-       cancelText: 'Cancel',
-       cancel: function() {
-          console.log("Action has been cancelled");
-        },
-       buttonClicked: function(index) {
-          if(index==0) { // Edit post
-            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "President");
-          } else if(index==1) { // Delete post
-            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Vice President");
-          } else if(index==2) { // Report spam
-            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Secretary");
-          } else if(index==3) { // Report spam
-            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Treasurer");
-          } else if(index==4) { // Report spam
-            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Board Member");
-          } else if(index==5) { // Report spam
-            AccountService.updateRoleAndTitle($scope.user.id, "LEGI", "Incharge Member");
-          }           
-          SettingsService.setAppSuccessMessage("Resident has been appointed on board.");
-          $state.go("tab.neighbors");
-          return true;
-       }
-     });
-
-    $timeout(function() {
-         hideSheet();
-       }, 5000);
+    SettingsService.setPageTransitionData($scope.user);
+    $state.go("tab.board-appointment");
   };
 
   $scope.copyInvitationMessage=function() {
@@ -1262,26 +1401,30 @@ angular.module('starter.controllers')
   $scope.settingsChanged=false;  
   $scope.functionName=$stateParams.functionName;
   var regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);          
-  console.log("Region settings : " + JSON.stringify(regionSettings));
-
+  // console.log("Region settings : " + JSON.stringify(regionSettings));
   var currentFunctionControls=RegionService.getFunctionControllersFromRegionSettings(regionSettings, $stateParams.functionName);
-  var legislativeRoles=USER_ROLES[0].titles;
-  $scope.roleList=[];  
-  for(var i=0;i<legislativeRoles.length;i++) {
-    for(var j=0;j<currentFunctionControls.length;j++) {
-      var roleAllowed=false;
-      if(currentFunctionControls[j]==legislativeRoles[i].id) {
-        roleAllowed=true;
-        break;
+  
+  RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+    var legiTitleList=region.get('legiTitles');
+    $scope.roleList=[];  
+    for(var i=0;i<legiTitleList.length;i++) {
+      for(var j=0;j<currentFunctionControls.length;j++) {
+        var roleAllowed=false;
+        if(currentFunctionControls[j]==legiTitleList[i].title) {
+          roleAllowed=true;
+          break;
+        }
       }
+      $scope.roleList.push({
+        name: legiTitleList[i].title,
+        allowed: roleAllowed
+      });              
     }
-    $scope.roleList.push({
-      name: legislativeRoles[i].id,
-      allowed: roleAllowed
-    });              
-  }
-
-  console.log("Role list " + JSON.stringify($scope.roleList));
+    console.log("Role list " + JSON.stringify($scope.roleList));
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get legislative titles.");
+    LogService.log({type:"ERROR", message: "Unable to get legislative titles " + JSON.stringify(error)}); 
+  });    
 
   $scope.saveSettings=function() {
     console.log("Selection of role list : " + JSON.stringify($scope.roleList));

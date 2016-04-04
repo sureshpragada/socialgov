@@ -1,0 +1,30 @@
+<ion-modal-view>
+    <ion-header-bar class="bar-positive">
+		<button class="button button-clear" ng-click="closeCommentsModal()">Close</button>
+	  	<h1 class="title">Comments</h1>    
+	</ion-header-bar>
+    <ion-content>
+		<ion-list>
+			<my-app-message info="commentPostMessage"></my-app-message>		
+	      <div class="item item-body" ng-if="user.get('status')!='S'">
+	        <label class="item item-input">
+	          <textarea placeholder="Type in your message..." rows="5" ng-model="postComment.data"></textarea>
+	        </label>
+	        <div class="padding">
+	          <button class="button button-small button-royal" ng-click="postDebateArgument()">Post Comment</button>        
+	        </div>        
+	      </div> 
+	      <div>	      	      
+	        <div class="item item-text-wrap" ng-repeat="debate in debateList[postComment.activityIndex]" ng-init="debateIndex = $index">
+	          <p class="commentUserDivider quote" ng-bind-html="debate.get('argument') | nl2br"></p>          
+	          <p>{{debate.get("user").get("firstName")}} {{debate.get("user").get("lastName")}}&nbsp;&nbsp;{{debate.createdAt | date:'short'}}</p>
+	          <p>
+	            <a ng-click="reportDebateSpam(debate.id, activityIndex, debateIndex)" class="assertive">Report Spam</a> &nbsp;
+	            <a ng-click="removeDebateSpamFlag(debate.id, activityIndex, debateIndex)" class="balanced" ng-if="debate.get('status')=='S'">Remove spam flag</a> &nbsp;
+	            <a ng-click="flagCommentUserAbusive(debate.id, activityIndex, debateIndex)" class="assertive" ng-if="debate.get('status')=='S'">Block user</a>
+	          </p> 
+	        </div>
+	      </div>  
+		</ion-list>	
+    </ion-content>
+</ion-modal-view>

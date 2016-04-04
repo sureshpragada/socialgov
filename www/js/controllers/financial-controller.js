@@ -977,6 +977,19 @@ angular.module('starter.controllers')
     return null;
   };
 
+  $scope.emailBalanceSheet=function() {
+    $cordovaDialogs.prompt('Enter email address', 'Email Balance Sheet', ['Send Email','Cancel'])
+    .then(function(result) {
+      if(result.buttonIndex==1) {
+        var input = result.input1;
+        if(input!=null && input.trim().length>0) {
+          // Send an email by formatting balance sheet   
+          console.log("Sending email to " + input);
+        }
+      }
+    });  
+  };
+
   $scope.initiateDeleteBalanceSheet=function(action) {
     $scope.closeBalanceSheetInput.deleteInitiated=action;
     if(action==true) {

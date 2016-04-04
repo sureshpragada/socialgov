@@ -33,37 +33,50 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal) {
-  $scope.activityError=null;
+.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal, $ionicScrollDelegate) {
+  console.log("Activity controller");  
   $scope.debateList=[];
-  $scope.argumentMessageList=[];
-  $scope.commentStatusList=[];
   $scope.user=AccountService.getUser();
   $scope.isAdmin=AccountService.canUpdateRegion();
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Finding activity in community<ion-spinner/></p>"
   });
-  console.log("Activity controller");
-
   $scope.appMessage=SettingsService.getAppMessage();
 
   ActivityService.getActivityDataForDashboard().then(function(activityDashboardData){
     $scope.activities=activityDashboardData[0];
+    var filterActivity=false;
     for(var j=0;j<$scope.activities.length;j++) {
-      if($scope.activities[j].get("status")=="P" && !$scope.isAdmin && $scope.activities[j].get("user").id!=$scope.user.id) {
-        $scope.activities.splice(j, 1);
-      } else if($scope.activities[j].get("activityType")=="POLL" && 
-          $scope.activities[j].get("pollSettings").whoCanVote=="HOME_OWNER" && $scope.user.get("homeOwner")==false) {
+      if($scope.isAdmin==false) {        
+        // Admin sees everything; he should delete post if it true spam to avoid bloating of activity view
+        // Start filtering posts by status
+        if($scope.activities[j].get("status")=="S") {
+          // Residents do not see spam content
+          filterActivity=true;
+        } else if($scope.activities[j].get("status")=="P" && $scope.activities[j].get("user").id!=$scope.user.id) {
+          // Residents do not see pending posts; unless they have posted the message
+          filterActivity=true;
+        } else {
+          // Filter by activity type
+          if($scope.activities[j].get("activityType")=="POLL" && $scope.activities[j].get("pollSettings").whoCanVote=="HOME_OWNER" && $scope.user.get("homeOwner")==false) {
+            // Residents who are not home owners are not allowed to vote home owner specific polls
+            filterActivity=true;
+          } else if($scope.activities[j].get("activityType")=="ISSU" && $scope.activities[j].get("problemType")=="PERSONAL" && $scope.activities[j].get("user").id!=$scope.user.id) {
+            // Residents can see their non community (personal) problems
+            filterActivity=true;
+          }
+        }
+      }
+      if(filterActivity==true) {
         $scope.activities.splice(j, 1);
       }
+      filterActivity=false;      
     }
     if($scope.activities!=null && $scope.activities.length>0) {
       $scope.notifyUserUnreadActivityCount();
       $scope.userActivityList=activityDashboardData[1];
       for(var k=0;k<$scope.activities.length;k++) {
-        $scope.argumentMessageList.push("");
         $scope.debateList.push(null);
-        $scope.commentStatusList.push(false);
       }
     } 
     if($scope.activities==null || $scope.activities.length<=1) {
@@ -72,7 +85,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $ionicLoading.hide();          
   }, function(error){
     LogService.log({type:"ERROR", message: "Unable to get community activities " + JSON.stringify(error) + " residency : " + $scope.user.get("residency")}); 
-    $scope.activityError=SettingsService.getControllerErrorMessage("Unable to get your community activities.");            
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your community activities.");            
     $ionicLoading.hide();
   });
 
@@ -97,89 +110,76 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     SettingsService.setPreference("lastActivityView", new Date().getTime());
   }
 
+  $ionicModal.fromTemplateUrl('templates/activity/activity-feedback-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.commentsModal = modal;
+  })  
+
+  $scope.closeCommentsModal = function() {
+    $scope.commentsModal.hide();
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.commentsModal.remove();
+  });
+
   $scope.beginDebate=function(activityId, index) {
-    if(!$scope.isDebateRequested(activityId, index)) {
-      var Debate = Parse.Object.extend("Debate");
-      var query = new Parse.Query(Debate);
-      query.equalTo("activity", $scope.activities[index]);
-      if(AccountService.canUpdateRegion()) {
-        query.containedIn("status", ["A","S"]);
-      } else {
-        query.equalTo("status", "A");  
-      }      
-      query.include("user");
-      query.descending("createdAt");
-      query.find({
-        success: function(debates) {
-          $scope.$apply(function(){
-            if(debates!=null && debates.length>0) {
-              $scope.debateList[index]=debates;
-            } else {
-              console.log("No arguments found for activity " + activityId);
-              $scope.debateList[index]=[];
-            }
-          });
-        },
-        error: function(activity, error) {
-          console.log("Error retrieving arguments of a debate " + error.message);
-        }
-      });          
+    $scope.postComment={
+      data: null, 
+      activityIndex: index
+    };
+    if($scope.debateList[index]==null) {
+      ActivityService.getActivityComments(activityId).then(function(comments){
+        if(comments!=null && comments.length>0) {
+          console.log("Comments size is good " + JSON.stringify(comments));
+          $scope.debateList[index]=comments;  
+        } else {
+          console.log("No comments");
+          $scope.debateList[index]=[];  
+          $scope.commentPostMessage=SettingsService.getControllerIdeaMessage("Be the first one to comment on this activity.");
+        }              
+        $scope.$apply();
+      }, function(error){
+        console.log("Unable to get comments " + JSON.stringify(error));
+        $scope.commentPostMessage=SettingsService.getControllerErrorMessage("Unable to get comments of this activity.");
+      });         
     }
-    $scope.commentStatusList[index]=$scope.commentStatusList[index]?false:true;
+    $scope.commentsModal.show();
   };
 
-  $scope.isDebateRequested=function(activityId, index) {
-    return $scope.commentStatusList[index];
-    // if($scope.debateList[index]!=null) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-  };
-
-  $scope.postDebateArgument=function(activityId, index) {
-    if($scope.argumentMessageList[index]==null || $scope.argumentMessageList[index].length==0) {
-      $cordovaDialogs.alert('Please enter the feedback', 'Feedback', 'OK');
+  $scope.postDebateArgument=function() {
+    console.log("Posting comment started " + $scope.postComment.data);
+    if($scope.postComment.data==null || $scope.postComment.data.trim().length==0) {
+      $scope.commentPostMessage=SettingsService.getControllerErrorMessage("Please enter your comment.");
       return;
     }
 
-    var badwords=ActivityService.getBadWordsFromMesage($scope.argumentMessageList[index]);
+    var badwords=ActivityService.getBadWordsFromMesage($scope.postComment.data);
     if(badwords!=null && badwords.length>0) {
-      $cordovaDialogs.alert("Please remove bad words " + JSON.stringify(badwords) + " from the message.", 'Feedback', 'OK');
+      console.log("Found bad words");
+      $scope.commentPostMessage=SettingsService.getControllerErrorMessage("Please remove bad words " + JSON.stringify(badwords) + " from the message.");      
       return;
-    }    
+    }
 
-    var activity=$scope.activities[index];
-    var Debate = Parse.Object.extend("Debate");
-    var debate = new Debate();
-    debate.set("user", Parse.User.current());
-    debate.set("activity", activity);
-    debate.set("status", "A");
-    debate.set("argument", $scope.argumentMessageList[index]);
-    
-    debate.save(null, {
-      success: function(newDebate) {
-        $scope.$apply(function(){
-          activity.increment("debate", 1);
-          activity.save();              
-          $scope.argumentMessageList[index]="";
-          $scope.debateList[index].unshift(newDebate);
-          // Send notification to all other commenetators and post author
-          var notifyUsers=[activity.get("user").id]; 
-          for(var i=0;i<$scope.debateList[index].length;i++) {
-            var userId=$scope.debateList[index][i].get("user").id;
-            if(notifyUsers.indexOf(userId)==-1) {
-              notifyUsers.push(userId);  
-            }
-          }
-          NotificationService.pushNotificationToUserList(notifyUsers, debate.get("argument"));
-          console.log("Successfully added debate entry");          
-        });
-      },
-      error: function(debate, error) {
-        console.log("Error adding debate entry " + error.message);
+    console.log("No bad words");
+    ActivityService.postActivityComment($scope.activities[$scope.postComment.activityIndex], $scope.postComment.data).then(function(newDebate){
+      console.log("Successfullly posted your message");
+      $scope.debateList[$scope.postComment.activityIndex].unshift(newDebate);      
+      // Send notification to all other commenetators and post author
+      var notifyUsers=[$scope.activities[$scope.postComment.activityIndex].get("user").id]; 
+      for(var i=0;i<$scope.debateList[$scope.postComment.activityIndex].length;i++) {
+        var userId=$scope.debateList[$scope.postComment.activityIndex][i].get("user").id;
+        if(notifyUsers.indexOf(userId)==-1) {
+          notifyUsers.push(userId);  
+        }
       }
-    });          
+      NotificationService.pushNotificationToUserList(notifyUsers, newDebate.get("argument"));
+    }, function(error){
+      LogService.log({type:"ERROR", message: "Unable to post comment  " +  JSON.stringify(error)}); 
+      $scope.commentPostMessage=SettingsService.getControllerErrorMessage("Unable to post your comment.");
+    });
 
   };
 
@@ -192,18 +192,20 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.isThisActionChosen=function(activityId, action) {
-    for(var j=0;j<($scope.userActivityList!=null?$scope.userActivityList.length:0);j++) {
-      if($scope.userActivityList[j].get("activity").id==activityId) {
-        if($scope.userActivityList[j].get("action")==ActivityService.getActionCode(action)) {
-          if(action=="support") {
-            return "calm";
-          } else {
-            return "assertive";
+    if($scope.userActivityList!=null) {
+      for(var j=0;j<$scope.userActivityList.length;j++) {
+          if($scope.userActivityList[j].get("activity").id==activityId) {
+            if($scope.userActivityList[j].get("action")==ActivityService.getActionCode(action)) {
+              if(action=="support") {
+                return "calm";
+              } else {
+                return "assertive";
+              }
+            } else {
+              return;
+            }
           }
-        } else {
-          return;
         }
-      }
     }
     return;
   };
@@ -296,6 +298,23 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         console.log("Canceled removal of activity");
       }
     });
+  };
+
+  $scope.markProblemResolved=function(activityId, index) {
+    $cordovaDialogs.confirm('Is problem really resolved?', 'Resolution confirmation', ['Yes, it is resolved','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        ActivityService.markProblemResolved($scope.activities[index]).then(function(updatedActivity){
+          // Send notification to reporter of the problem and assigned if there is one
+          var notifyUsers=[$scope.activities[index].get("user").id]; 
+          NotificationService.pushNotificationToUserList(notifyUsers, "RESOLVED :: " + $scope.activities[index].get("notifyMessage"));
+        }, function(error){
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to mark problem as resolved");
+        });
+      } else {
+        console.log("Canceled marking of activity as resolved");
+      }
+    });    
   };
 
   $scope.reportActivitySpam=function(activityId, index) {
@@ -531,8 +550,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('ActivityCtrl', function($scope, $http, $stateParams, NotificationService, LogService, ActivityService) {
-  $scope.activityDetailError=null;
+.controller('ActivityCtrl', function($scope, $http, $stateParams, NotificationService, LogService, ActivityService, SettingsService) {
+  $scope.appMessage=SettingsService.getAppMessage();
   var Activity=Parse.Object.extend("Activity");
   var query=new Parse.Query(Activity);
   query.include("user");
@@ -561,18 +580,28 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 .controller('PostActivityCtrl', function($scope, $http, $state, $stateParams, $ionicHistory, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService) {
 
-  var user=Parse.User.current();  
+  var user=AccountService.getUser();  
   var stateData=PictureManagerService.getState();
   console.log(JSON.stringify(stateData));
-  $scope.post={"notifyMessage": (stateData.data.message!=null?stateData.data.message:"")};
-  // $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
+
+  $scope.post={
+    notifyMessage: stateData.data.message!=null?stateData.data.message:"",
+    activityType: stateData.data.activityType!=null?stateData.data.activityType:$stateParams.activityType,
+    user: AccountService.getUser(),
+    support: 0,
+    oppose: 0,
+    debate: 0    
+  };
+  $scope.activitySettings={
+    communityProblem: true
+  };
   $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
   $scope.selectChoices={selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
   $scope.allowImageUpload=ionic.Platform.isWebView();
   $scope.pictureUploaded=stateData.imageUrl;
-  $scope.regionSettings=RegionService.getRegionSettings(Parse.User.current().get("residency"));
+  $scope.regionSettings=RegionService.getRegionSettings(user.get("residency"));
 
   displayActivityWarnMessage();
   $scope.submitPost=function() {
@@ -590,25 +619,22 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
     $scope.post.notifyMessage = ActivityService.toProperPost($scope.post.notifyMessage);
     $cordovaDialogs.confirm('Do you want to post this activity?', 'Post Activity', ['Post','Continue Edit']).then(function(buttonIndex) { 
-      if(buttonIndex==1) {
-       
+      if(buttonIndex==1) {       
         $ionicLoading.show({
-          template: "<ion-spinner></ion-spinner> Posting activity "
+          template: "<p class='item-icon-left'>Posting activity...<ion-spinner/></p>"
         });
-
-        $scope.post.activityType=$stateParams.activityType;
         $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
-        $scope.post.support=0;
-        $scope.post.oppose=0;
-        $scope.post.debate=0;
         if($scope.regionSettings.activityModeration==true) {
           $scope.post.status="P";
         } else {
           $scope.post.status="A";  
         }        
-        $scope.post.user=Parse.User.current();
         if(PictureManagerService.getState().imageUrl!=null) {
           $scope.post.images=[PictureManagerService.getState().imageUrl];  
+        }
+        if($scope.post.activityType=="ISSU") {
+          $scope.post.problemStatus="OPEN";
+          $scope.post.problemType=$scope.activitySettings.communityProblem==true?"COMMUNITY":"PERSONAL";
         }
 
         // alert(JSON.stringify($scope.post));
@@ -617,7 +643,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         activity.save($scope.post, {
           success: function(activity) {
             // Push the new activity to the top of activity chart, probably through Activity service
-            if($scope.regionSettings.activityModeration==true) {
+            if($scope.regionSettings.activityModeration==true || ($scope.post.activityType=='ISSU' && $scope.post.communityProblem==false)) {
               // Send notification only board members
               AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
@@ -656,7 +682,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
       });      
     } else {
-      $ionicHistory.goBack(-2);
+      $ionicHistory.goBack(-1);
     }
   };
 
@@ -672,8 +698,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   function displayActivityWarnMessage() {
     if($stateParams.activityType=="ASK") {
       $scope.postWarnMessage="Messages.PostActivityAskWarn";  
-    } else if($stateParams.activityType=="ISSU") {
-      $scope.postWarnMessage="Messages.PostActivityIssueWarn";  
+    // } else if($stateParams.activityType=="ISSU") {
+    //   $scope.postWarnMessage="Messages.PostActivityIssueWarn";  
     } else {
       $scope.postWarnMessage=null;  
     }
@@ -748,7 +774,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 .controller('PickActivityTypeCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService) {
   console.log("Pick activity type controller");
-  $scope.activityTypeList=ACTIVITY_LIST;
+  $scope.activityTypeList=ActivityService.getAllowedActivities(AccountService.getUser().get("role"));
 
   $scope.gotoActivity=function(activityType){
     if(activityType=="POLL") {
@@ -896,15 +922,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     if($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10) {
       $cordovaDialogs.confirm('Do you want to cancel submitting the poll?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
         if(buttonIndex==1) {
-          // $state.go("tab.dash");
           $ionicHistory.goBack(-2);
         } else {
           console.log("Canceled posting of activity");
         }
       });      
     } else {
-      // $state.go("tab.dash");
-      $ionicHistory.goBack(-2);
+      $ionicHistory.goBack(-1);
     }
   };
 

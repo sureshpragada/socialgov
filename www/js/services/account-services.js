@@ -244,6 +244,7 @@ angular.module('account.services', [])
       });      
     },
     updateRoleAndTitle: function(userId, role, title) {
+      var deferred = $q.defer();
       this.refreshResidentCache();
       Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
         success: function(status1) {
@@ -251,16 +252,20 @@ angular.module('account.services', [])
           Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'title', userObjectValue: title }, {
             success: function(status2) {
               console.log("Successfully updated user title " + JSON.stringify(status2));
+              deferred.resolve("Successfully updated user title " + JSON.stringify(status2));
             },
             error: function(error) {
               LogService.log({type:"ERROR", message: "Unable to update user title " + JSON.stringify(error) + " UserId : " + userId}); 
+              deferred.reject(error);
             }
           });      
         },
         error: function(error) {
           LogService.log({type:"ERROR", message: "Unable to update user role " + JSON.stringify(error) + " UserId : " + userId}); 
+          deferred.reject(error);
         }
       });      
+      return deferred.promise;
     },
     addContact: function(inputUser) {
       this.refreshResidentCache();
@@ -528,6 +533,7 @@ angular.module('account.services', [])
       region.set("posterImages",[]);
       region.set("settings",REGION_SETTINGS);
       region.set("type",INITIAL_REGION_TYPE);
+      region.set("legiTitles",LEGI_DEFAULT_ROLES);      
       var currentDate=new Date();
       region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+currentDate.getMonth()+"_"+currentDate.getDate()+"_"+currentDate.getMilliseconds()+"_"+this.communityAddress.city.toLowerCase());
       return region.save();
