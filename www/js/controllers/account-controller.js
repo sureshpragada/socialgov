@@ -769,6 +769,7 @@ angular.module('starter.controllers')
         RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
           NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), region.get("name"));
         }, function(error){
+          LogService.log({type:"ERROR", message: "Unable to get region to send SMS " + JSON.stringify(error)}); 
           NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), "");        
         });        
       // } else {

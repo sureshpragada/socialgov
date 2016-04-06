@@ -1236,8 +1236,14 @@ angular.module('starter.controllers')
 
   $scope.sendInvitationCode=function() {
     console.log("Sent invitation code");
-    NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"), "");              
-    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");
+    RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
+      NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"), region.get("name"));              
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");      
+    }, function(error){
+      LogService.log({type:"ERROR", message: "Unable to get region to send SMS 2 " + JSON.stringify(error)}); 
+      NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"), "");              
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");            
+    });            
   };
 
   $scope.blockUser=function() {
@@ -1444,11 +1450,26 @@ angular.module('starter.controllers')
       RegionService.getRegion($stateParams.regionUniqueName).then(function(region) {
         var currentRegionSettings=region.get("settings");
         console.log("Current region settings : " + JSON.stringify(currentRegionSettings));
-        for(var i=0;i<currentRegionSettings.permissions.length;i++) {
-          if(currentRegionSettings.permissions[i].functionName==$stateParams.functionName) {
-            currentRegionSettings.permissions[i].allowedRoles=whoIsControlling;
-            break;
-          } 
+        if(currentRegionSettings.permissions!=null) {
+          var updated=false;
+          for(var i=0;i<currentRegionSettings.permissions.length;i++) {
+            if(currentRegionSettings.permissions[i].functionName==$stateParams.functionName) {
+              currentRegionSettings.permissions[i].allowedRoles=whoIsControlling;
+              updated=true;
+              break;
+            } 
+          }
+          if(updated==false) {
+            currentRegionSettings.permissions.push({
+                functionName: $stateParams.functionName,
+                allowedRoles: whoIsControlling
+              });                       
+          }
+        } else {
+          currentRegionSettings.permissions=[{
+              functionName: $stateParams.functionName,
+              allowedRoles: whoIsControlling
+            }];           
         }
         region.set("settings", currentRegionSettings);
 

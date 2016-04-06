@@ -71,6 +71,10 @@ angular.module('activity.services', [])
       ]);
       return deferred;
     },
+    refreshActivityCache: function() {
+      activityCache.remove("activityList");
+      activityCache.remove("userActivityList");
+    },
     getActivityComments: function(activityId) {
       var Debate = Parse.Object.extend("Debate");
       var query = new Parse.Query(Debate);
@@ -171,11 +175,12 @@ angular.module('activity.services', [])
       return userActivityQuery.find();      
     },    
     postActivity: function(post) {
+      this.refreshActivityCache();
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
       return activity.save(post);
     },
-    postWelcomeActivity: function(region, postingUser) {
+    postWelcomeActivity: function(region, postingUser) {      
       var post={
           activityType: "NOTF",
           regionUniqueName: region.get("uniqueName"),   

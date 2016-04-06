@@ -652,6 +652,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted.");            
             }            
+            ActivityService.refreshActivityCache();
             $ionicLoading.hide();                      
             PictureManagerService.reset();
             $ionicHistory.goBack(-2);
@@ -750,6 +751,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       $scope.preActivity.save(null, {
         success: function(activity) {
           // Push the new activity to the top of activity chart, probably through Activity service
+          ActivityService.refreshActivityCache();
           SettingsService.setAppSuccessMessage("Activity has been updated.");
           $state.go("tab.dash");  
         },
@@ -892,6 +894,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Poll has been submitted.");            
             }            
+            ActivityService.refreshActivityCache();
             $ionicLoading.hide();                      
             $ionicHistory.goBack(-2);
           },

@@ -192,10 +192,12 @@ angular.module('region.services', [])
     },
     getFunctionControllersFromRegionSettings: function(regionSettings, functionName) {
       var whoControlsFunction=[]; 
-      for(var i=0;i<regionSettings.permissions.length;i++) {
-        if(regionSettings.permissions[i].functionName==functionName) {
-          whoControlsFunction=regionSettings.permissions[i].allowedRoles;
-          break;
+      if(regionSettings.permissions!=null) {
+        for(var i=0;i<regionSettings.permissions.length;i++) {
+          if(regionSettings.permissions[i].functionName==functionName) {
+            whoControlsFunction=regionSettings.permissions[i].allowedRoles;
+            break;
+          }
         }
       }
       return whoControlsFunction;

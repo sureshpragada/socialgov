@@ -34,7 +34,7 @@
           <span class="assertive">* Poll closes on {{activity.get('endDate') | date:'mediumDate'}}.</span>
         </p>                
         <p ng-if="activity.get('activityType')=='ISSU'">
-          <a class="button icon-left ion-ios-checkmark button-clear button-balanced" ng-if="activity.get('problemStatus')=='RESOLVED'">{{activity.get('problemStatus') | formatProblemStatus}}</a>        
+          <a class="button icon-left ion-checkmark-circled button-clear button-balanced" ng-if="activity.get('problemStatus')=='RESOLVED'">{{activity.get('problemStatus') | formatProblemStatus}}</a>        
           <a ng-if="activity.get('problemStatus')=='OPEN' && !isAdmin && user.id==activity.get('user').id" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Resolved</a>
 <!--           <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markResolved(activity.id, activityIndex)">Assign Problem</a>          
  -->
