@@ -13,19 +13,14 @@
 		  <label class="item item-input" ng-repeat="choice in post.choices track by $index">
 		    <textarea placeholder="Type in your choice..." rows="2" ng-model="post.choices[$index]"></textarea>
 		  </label>		  		  
-<!-- 		  <label class="item item-input">
-		    <textarea placeholder="First choice..." rows="2" ng-model="post.choices[0]"></textarea>
-		  </label>		  
-		  <label class="item item-input">
-		    <textarea placeholder="Second choice..." rows="2" ng-model="post.choices[1]"></textarea>
-		  </label>		   -->
-<!-- 		  <label class="item item-input">
-		    <textarea placeholder="Type in your third choice... (Optional)" rows="2" ng-model="post.choices[2]"></textarea>
-		  </label>		   -->
 			<label class="item item-input">
 				<span class="input-label">Poll End Date</span>
 				<input type="date" name="pollEndDate"  ng-model="post.endDate">
 			</label>								  		  		  
+			<ion-item class="item-icon-right" ng-click="openChoiceModalOfWhoCanVote()">
+				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+				Who can vote?<span class="item-note">{{whoCanVoteChoices[whoCanVoteSelectedIndex].label}}</span>
+			</ion-item>
 		</div>
 		<div class="row">
 			<div class="col">

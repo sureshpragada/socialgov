@@ -1,15 +1,23 @@
 <ion-view view-title="Post Activity">
 	<ion-content>
 		<my-app-message info="postErrorMessage"></my-app-message>
-		<div class="card padding success" ng-show="postWarnMessage">{{postWarnMessage | translate}}</div>				
 		<div class="list">
-<!-- 			<label class="item item-input item-select">
-			    <div class="input-label">
-			      Activity
-			    </div>
-			    <select ng-model="selectChoices.selectedActivityType" ng-options="activity.label for activity in allowedActivities" ng-change="handleActivitySelection()">
-			    </select>
-			  </label> -->
+		  <ion-item class="item-icon-left item-text-wrap" ng-if="postWarnMessage">
+		    <i class="icon ion-information-circled royal"></i>
+		    <div ng-bind-html="postWarnMessage | translate"></div>
+		  </ion-item>          		
+			<li class="item item-toggle" ng-if="post.activityType=='ISSU'">
+			 Community Problem
+			 <label class="toggle toggle-balanced">
+			   <input type="checkbox" ng-model="activitySettings.communityProblem">
+			   <div class="track">
+			     <div class="handle"></div>
+			   </div>
+			 </label>
+			</li>
+<!-- 	        <ion-toggle class="toggle-assertive" ng-model="activitySettings.communityProblem" ng-if="post.activityType=='ISSU'">
+	          Community Problem
+	        </ion-toggle>      -->     			
 			<label class="item item-input item-select" ng-hide="allowedRegions.length==1">
 			    <div class="input-label">
 			      Region

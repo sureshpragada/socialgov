@@ -281,6 +281,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.community-rules', {
+      url: '/community-rules',
+      cache: false,
+      views: {
+        "tab-region": {
+          templateUrl: 'templates/region/community-rules.html',
+          controller: 'CommunityRulesCtrl'        
+        }
+      }
+    })
+
+    .state('tab.update-community-rules', {
+      url: '/update-community-rules',
+      cache: false,
+      views: {
+        "tab-region": {
+          templateUrl: 'templates/region/update-community-rules.html',
+          controller: 'UpdateCommunityRulesCtrl'        
+        }
+      }
+    })        
+
     .state('tab.region-settings', {
       url: '/region-settings/{regionUniqueName}',
       cache: false,      
@@ -398,6 +420,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         'tab-region': {
           templateUrl: 'templates/region/region-legislature.html',
           controller: 'RegionLegisDetailCtrl'
+        }
+      }
+    })
+
+    .state('tab.board-appointment', {
+      url: '/board-appointment',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/board-appointment.html',
+          controller: 'BoardAppointmentCtrl'
+        }
+      }
+    })
+
+    .state('tab.manage-legislative-titles', {
+      url: '/manage-legislative-titles',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/manage-legislative-titles.html',
+          controller: 'ManageLegislativeTitlesCtrl'
         }
       }
     })

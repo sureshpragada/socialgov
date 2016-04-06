@@ -21,21 +21,16 @@
           Add Cover Photo 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
-      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="!regionSettigns.neighborPrivacy && !isAdmin">
+      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin">
           <i class="icon ion-ios-people-outline royal"></i>
           Neighbors 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>          
-      <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin">
+      <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber">
           <i class="icon ion-ios-home-outline royal"></i>
           Residences
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
-      <ion-item class="item-icon-right" href="#/tab/invite-citizen"  ng-if="regionSettigns.neighborPrivacy && !isAdmin">
-        <i class="icon ion-ios-people-outline royal"></i>
-        {{'InvitePage' | translate}}        
-        <i class="icon ion-chevron-right icon-accessory"></i>                                   
-      </ion-item>                        
       <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt!='SELF'">
         <i class="icon ion-ios-person-outline royal"></i>
           {{'LegContact' | translate}}
@@ -56,11 +51,16 @@
           {{'ExecContact' | translate}}
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>      
-<!--       <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+      <ion-item class="item-icon-left item-icon-right" href="#/tab/invite-citizen"  ng-if="!regionSettings.supportHomeNumber">
+        <i class="icon ion-ios-people-outline royal"></i>
+        {{'InvitePage' | translate}}        
+        <i class="icon ion-chevron-right icon-accessory"></i>                                   
+      </ion-item>                              
+      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
         <i class="icon ion-ios-world-outline royal"></i>      
           Demography
           <i class="icon ion-chevron-right icon-accessory"></i>    
-      </ion-item>       -->
+      </ion-item>      
       <ion-item href="#/tab/region-settings/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="canControlSettings">
         <i class="icon ion-ios-gear-outline royal"></i>      
           Community Settings

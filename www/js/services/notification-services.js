@@ -1,6 +1,6 @@
 angular.module('notification.services', ['ionic'])
 
-.factory('NotificationService', ['$http', 'LogService', 'RegionService', '$cordovaPush', function($http, LogService, RegionService, $cordovaPush) {
+.factory('NotificationService', ['$http', 'LogService', 'RegionService', '$cordovaPush', '$cordovaEmailComposer', '$cordovaClipboard', '$cordovaDialogs', function($http, LogService, RegionService, $cordovaPush, $cordovaEmailComposer, $cordovaClipboard, $cordovaDialogs) {
   return {
     getInstallationByInstallationId: function(installationId, successCallback, errorCallback) {
       var paramsRequest={"where":{"objectId":installationId}};
@@ -147,7 +147,26 @@ angular.module('notification.services', ['ionic'])
           }
         });
       }
-    }
+    },
+    sendEmail: function(email) {
+      if(ionic.Platform.isWebView()) {
+        $cordovaEmailComposer.isAvailable().then(function() {
+           $cordovaEmailComposer.open(email).then(function(success){
+            LogService.log({type:"INFO", message: "Emailed balance sheet report " + JSON.stringify(success)});                     
+           }, function (error) {
+            LogService.log({type:"ERROR", message: "Unable to email balance sheet report " + JSON.stringify(error)});           
+           });
+         }, function () {
+            $cordovaClipboard.copy(report).then(function () {
+              $cordovaDialogs.alert("Email is not setup on your device hence copied the report to your clipboard.", 'Balance Sheet Report', 'OK');
+            }, function () {
+              $cordovaDialogs.alert("Unable to copy balance sheet report to clipboard.", 'Balance Sheet Report', 'OK');
+            });          
+         });            
+      } else {
+        console.log("Not a web view, hence skipping email compose");
+      }    
+    }    
   };
 }])
 ;

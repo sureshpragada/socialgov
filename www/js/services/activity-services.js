@@ -1,34 +1,115 @@
 angular.module('activity.services', [])
 
-.factory('ActivityService', ['$http', '$q', 'AccountService', 'NotificationService', 'LogService', 'paragraph', 'RegionService', function($http, $q, AccountService, NotificationService, LogService, paragraph, RegionService) {
+.factory('ActivityService', ['CacheFactory', '$http', '$q', 'AccountService', 'NotificationService', 'LogService', 'paragraph', 'RegionService', function(CacheFactory, $http, $q, AccountService, NotificationService, LogService, paragraph, RegionService) {
+
+  var activityCache;
+  if (!CacheFactory.get('activityCache')) {
+    activityCache = CacheFactory('activityCache', {
+      maxAge: 15 * 60 * 1000,
+      deleteOnExpire: 'none'
+    });
+  }
+
   return {
+    getActivityListFromCache: function() {
+      var deferred = $q.defer();
+      var cachedObjectInfo=activityCache.info("activityList");
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        deferred.resolve(activityCache.get("activityList"));  
+      } else {
+        var regionList=RegionService.getRegionHierarchy();      
+        var Activity=Parse.Object.extend("Activity");
+        var query=new Parse.Query(Activity);
+        query.containedIn("regionUniqueName", regionList);
+        query.containedIn("status", ["P", "A", "S"]);        
+        query.include("user");
+        query.descending("createdAt");
+        query.find().then(function(activityList){
+          activityCache.remove("activityList");
+          activityCache.put("activityList", activityList);          
+          deferred.resolve(activityList);
+        }, function(error){
+          if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+            console.log("Unable to refresh activity hence passing cached one "  + JSON.stringify(error));
+            deferred.resolve(activityCache.get("activityList"));  
+          } else {
+            deferred.reject(error);
+          }
+        });
+      }
+      return deferred.promise;
+    },    
+    getUserActivityListFromCache: function() {
+      var deferred = $q.defer();
+      var cachedObjectInfo=activityCache.info("userActivityList");
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        deferred.resolve(activityCache.get("userActivityList"));  
+      } else {
+        var regionList=RegionService.getRegionHierarchy();      
+        var UserActivity = Parse.Object.extend("UserActivity");
+        var userActivityQuery=new Parse.Query(UserActivity);
+        userActivityQuery.equalTo("user", AccountService.getUser());
+        userActivityQuery.find().then(function(userActivityList){
+          activityCache.remove("userActivityList");
+          activityCache.put("userActivityList", userActivityList);          
+          deferred.resolve(userActivityList);
+        }, function(error){
+          if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+            console.log("Unable to refresh user activity hence passing cached one " + JSON.stringify(error));
+            deferred.resolve(activityCache.get("userActivityList"));  
+          } else {
+            deferred.reject(error);
+          }
+        });
+      }
+      return deferred.promise;
+    },
     getActivityDataForDashboard: function() {
       var deferred=$q.all([
-        this.getActivityList(),
-        this.getUserActivityList()
+        this.getActivityListFromCache(),
+        this.getUserActivityListFromCache()
       ]);
       return deferred;
     },
-    getActivityList: function() {
-      var regionList=RegionService.getRegionHierarchy();      
-      console.log("Region list to get activity : " + JSON.stringify(regionList));
-      var Activity=Parse.Object.extend("Activity");
-      var query=new Parse.Query(Activity);
-      query.containedIn("regionUniqueName", regionList);
+    refreshActivityCache: function() {
+      activityCache.remove("activityList");
+      activityCache.remove("userActivityList");
+    },
+    getActivityComments: function(activityId) {
+      var Debate = Parse.Object.extend("Debate");
+      var query = new Parse.Query(Debate);
+
+      var Activity = Parse.Object.extend("Activity");
+      var activity = new Activity();
+      activity.set("id", activityId);
+
+      query.equalTo("activity", activity);
       if(AccountService.canUpdateRegion()) {
-        query.containedIn("status", ["P", "A", "S"]);
+        query.containedIn("status", ["A","S"]);
       } else {
-        query.containedIn("status", ["P", "A"]);
-      }
+        query.equalTo("status", "A");  
+      }      
       query.include("user");
       query.descending("createdAt");
-      return query.find();
+      return query.find(); 
     },
-    getUserActivityList: function() {
-      var UserActivity = Parse.Object.extend("UserActivity");
-      var userActivityQuery=new Parse.Query(UserActivity);
-      userActivityQuery.equalTo("user", Parse.User.current());
-      return userActivityQuery.find();
+    postActivityComment: function(activity, newComment) {
+      var deferred = $q.defer();
+      var Debate = Parse.Object.extend("Debate");
+      var debate = new Debate();
+      debate.set("user", AccountService.getUser());
+      debate.set("activity", activity);
+      debate.set("status", "A");
+      debate.set("argument", newComment);    
+      debate.save().then(function(newDebate) {
+        activity.increment("debate", 1);
+        activity.save();              
+        deferred.resolve(newDebate);
+      },
+      function(error) {
+        deferred.reject(error);
+      });          
+      return deferred.promise;
     },
     getActivityById: function(activityId) {
       var Activity=Parse.Object.extend("Activity");
@@ -47,6 +128,10 @@ angular.module('activity.services', [])
         userActivity.set("homeNo", addenda.homeNo);
       }      
       return userActivity.save();          
+    },
+    markProblemResolved: function(activity) {
+      activity.set("problemStatus", "RESOLVED");
+      return activity.save();
     },
     respondToPoll: function(activityId, votedIndex) {
       var self=this;
@@ -90,11 +175,12 @@ angular.module('activity.services', [])
       return userActivityQuery.find();      
     },    
     postActivity: function(post) {
+      this.refreshActivityCache();
       var Activity = Parse.Object.extend("Activity");
       var activity = new Activity();
       return activity.save(post);
     },
-    postWelcomeActivity: function(region, postingUser) {
+    postWelcomeActivity: function(region, postingUser) {      
       var post={
           activityType: "NOTF",
           regionUniqueName: region.get("uniqueName"),   
@@ -113,6 +199,7 @@ angular.module('activity.services', [])
         allowedActivities.unshift(ACTIVITY_LIST[3]);        
         allowedActivities.unshift(ACTIVITY_LIST[4]);
       }
+      allowedActivities.push(ACTIVITY_LIST[5]);
       return allowedActivities;
     },
     getActivityTypeInAList: function(activityId, activityList) {

@@ -1,0 +1,24 @@
+<ion-view view-title="Appoint">
+	<ion-content>
+		<my-app-message info="tipMessage"></my-app-message>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">
+			<ion-item class="item-icon-right" ng-click="openChoiceModalOfLegiTitles()">
+				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+				Title<p>{{legiTitleList[legiTitleSelectedIndex].label}}</p>
+			</ion-item>
+			<ion-item class="item-icon-right" ng-click="openChoiceModalOfResidents()">
+				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+				Resident Name<p>{{residentList[residentSelectedIndex].label}}</p>
+			</ion-item>			
+		</div>
+		<div class="row">
+			<div class="col">
+				<button class="button button-block button-outline" ng-click="cancel()">Ignore</button>
+			</div>					
+			<div class="col">
+				<button class="button button-block button-balanced" ng-click="appoint()">Appoint</button>
+			</div>
+		</div>		
+	</ion-content>
+</ion-view>

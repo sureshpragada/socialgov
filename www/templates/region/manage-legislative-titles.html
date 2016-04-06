@@ -1,0 +1,17 @@
+<ion-view title="Titles">
+  <ion-nav-buttons side="secondary">
+  	<a class="button button-icon icon ion-ios-plus-outline" ng-click="acceptNewTitle()"></a>
+    <a class="button button-icon icon ion-ios-shuffle" ng-click="control.shuffleInitiated = !control.shuffleInitiated"></a>
+  </ion-nav-buttons>
+  <ion-content>
+    <my-app-message info="controllerMessage"></my-app-message>  	
+    <my-app-message info="ideaMessage"></my-app-message>
+    <ion-list show-reorder="control.shuffleInitiated">    
+	    <ion-item ng-repeat="legiTitle in legiTitleList track by $index">
+	      {{legiTitle.title}}
+	      <ion-reorder-button class="ion-navicon" on-reorder="shuffle(legiTitle, $fromIndex, $toIndex)"></ion-reorder-button>
+		  <ion-option-button class="button-info button-assertive" ng-click="deleteTitle($index)">Delete</ion-option-button>
+	    </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

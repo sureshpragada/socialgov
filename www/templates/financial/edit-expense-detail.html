@@ -1,10 +1,14 @@
 <ion-view view-title="Edit Expense Detail">
-  <ion-content class="visible-cards">
-    <div class="card">
-      <label class="item item-input item-select">
+  <ion-content>
+    <div>
+<!--       <label class="item item-input item-select">
           <div class="input-label">Expense Category</div>
           <select ng-model="editExpense.category" ng-options="availableCategory.label for availableCategory in availableCategories"></select>
-      </label>          
+      </label>           -->
+      <ion-item class="item-icon-right" ng-click="openChoiceModalOfExpenseCategories()">
+        <i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+        Expense Category<span class="item-note">{{editExpense.category.label}}</span>
+      </ion-item>
       <label class="item item-input" ng-if="editExpense.category.value=='Other'">
         <span class="input-label">Paid To</span>
         <input type="text" name="paidTo" ng-model="editExpense.paidTo">

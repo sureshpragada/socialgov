@@ -12,14 +12,16 @@
         <p ng-if="serviceContact.get('type')=='Other'">{{serviceContact.get('otherCategoryName')}}</p>
       </div>
       <ion-item>
-        <h3>
-          <i class="icon ion-ios-telephone"></i>
-          {{serviceContact.get('servicePhoneNumber')}}
-        </h3>
+        <a class="button icon-left ion-ios-telephone-outline button-clear button-positive" style="padding-left:0px;" ng-href="tel: {{serviceContact.get('servicePhoneNumber')}}">{{serviceContact.get('servicePhoneNumber')}}</a>      
+        <br>
         <p>{{serviceContact.get('serviceAddressLine1')}}</p>
         <p>{{serviceContact.get('serviceAddressLine2')}}</p>
+<!--         <h3>
+          <i class="icon ion-ios-telephone"></i>
+          {{serviceContact.get('servicePhoneNumber')}}
+        </h3> -->
         <br>
-        <p><span class="positive">Recommended By</span></p>
+        <p><span>Recommended By</span></p>
         <p>{{serviceContact.get('user').get("firstName")}} {{serviceContact.get('user').get("lastName")}}</p>        
       </ion-item>                
     </div>    

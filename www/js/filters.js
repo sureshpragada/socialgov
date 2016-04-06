@@ -37,4 +37,21 @@ angular.module('starter.filters', [])
       }
     }
 })
+.filter('formatProblemStatus', function() {
+    return function(input) {
+      if(input) {
+        if(input=="OPEN") {
+          return "Waiting for assignment";
+        } else if(input=="IN_PROGRESS") {
+          return "Resolution is in progress";
+        } if(input=="RESOLVED") {
+          return "Problem Resolved";
+        } else {
+          return "Not available";
+        }
+      } else {
+        return "Not available";
+      }
+    }
+})
 ;
