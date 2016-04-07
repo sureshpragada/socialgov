@@ -6,11 +6,11 @@
 		Community Recommendations
 	</div>
     <ion-list ng-if="personalServiceContacts">
-	    <ion-item ng-repeat="serviceContact in personalServiceContacts" class="item-icon-right" href="#/tab/service-contact-detail/{{serviceContact.id}}">
-	      <h2>{{serviceContact.get('serviceName')}}</h2>
-	      <p ng-if="serviceContact.get('type')!='Other'">{{serviceContact.get('type')}}</p>
-	      <p ng-if="serviceContact.get('type')=='Other'">{{serviceContact.get('otherCategoryName')}}</p>
-	      <p>{{serviceContact.get('servicePhoneNumber')}}</p>
+	    <ion-item ng-repeat="serviceContact in personalServiceContacts" class="item-icon-right" href="#/tab/service-contact-detail/{{serviceContact.objectId}}">
+	      <h2>{{serviceContact.serviceName}}</h2>
+	      <p ng-if="serviceContact.type!='Other'">{{serviceContact.type}}</p>
+	      <p ng-if="serviceContact.type=='Other'">{{serviceContact.otherCategoryName}}</p>
+	      <p>{{serviceContact.servicePhoneNumber}}</p>
 	      <i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>
     </ion-list>

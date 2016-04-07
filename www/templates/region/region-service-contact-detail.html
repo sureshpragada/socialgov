@@ -7,22 +7,17 @@
     <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
       <div class="item">
-        <h2>{{serviceContact.get('serviceName')}}</h2>
-        <p ng-if="serviceContact.get('type')!='Other'">{{serviceContact.get('type')}}</p>
-        <p ng-if="serviceContact.get('type')=='Other'">{{serviceContact.get('otherCategoryName')}}</p>
+        <h2>{{serviceContact.serviceName}}</h2>
+        <p ng-if="serviceContact.type!='Other'">{{serviceContact.type}}</p>
+        <p ng-if="serviceContact.type=='Other'">{{serviceContact.otherCategoryName}}</p>
+        <br>
+        <p>{{serviceContact.serviceAddressLine1}}</p>
+        <p>{{serviceContact.serviceAddressLine2}}</p>        
+        <a class="button icon-left ion-ios-telephone-outline button-clear button-positive" style="padding-left:0px;" ng-href="tel: {{serviceContact.servicePhoneNumber}}">{{serviceContact.servicePhoneNumber}}</a>              
       </div>
-      <ion-item>
-        <a class="button icon-left ion-ios-telephone-outline button-clear button-positive" style="padding-left:0px;" ng-href="tel: {{serviceContact.get('servicePhoneNumber')}}">{{serviceContact.get('servicePhoneNumber')}}</a>      
-        <br>
-        <p>{{serviceContact.get('serviceAddressLine1')}}</p>
-        <p>{{serviceContact.get('serviceAddressLine2')}}</p>
-<!--         <h3>
-          <i class="icon ion-ios-telephone"></i>
-          {{serviceContact.get('servicePhoneNumber')}}
-        </h3> -->
-        <br>
-        <p><span>Recommended By</span></p>
-        <p>{{serviceContact.get('user').get("firstName")}} {{serviceContact.get('user').get("lastName")}}</p>        
+      <ion-item ng-if="serviceContact.user.firstName">
+        <h3>Recommended By</h3>
+        <p>{{serviceContact.user.firstName}} {{serviceContact.user.lastName}}</p>        
       </ion-item>                
     </div>    
     <div class="padding">
