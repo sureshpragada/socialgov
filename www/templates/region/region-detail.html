@@ -5,7 +5,7 @@
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
-    <ion-list ng-if="!controllerMessage">
+    <ion-list>
       <div class="item item-image" ng-if="posterImages.length==0">
         <img ng-src="img/picture_template.png">
       </div>     
@@ -41,7 +41,7 @@
           {{'LegContact' | translate}}      
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.serviceContacts=='SELF'">
+      <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
         <i class="icon ion-ios-flame-outline royal"></i>
           Service Contacts
         <i class="icon ion-chevron-right icon-accessory"></i>

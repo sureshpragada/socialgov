@@ -148,16 +148,27 @@ angular.module('notification.services', ['ionic'])
         });
       }
     },
-    sendEmail: function(email) {
-      if(ionic.Platform.isWebView()) {
+    openEmailClient: function(subject, body, attachment, attachmentName) {
+      if(ionic.Platform.isWebView()) {        
         $cordovaEmailComposer.isAvailable().then(function() {
+          var email = {
+            app: "gmail",
+            to: "",
+            attachments: [
+              'base64:'+attachmentName+'//' + btoa(attachment)
+            ],
+            subject: subject,
+            body: body,
+            isHtml: true
+          };          
            $cordovaEmailComposer.open(email).then(function(success){
             LogService.log({type:"INFO", message: "Emailed balance sheet report " + JSON.stringify(success)});                     
            }, function (error) {
             LogService.log({type:"ERROR", message: "Unable to email balance sheet report " + JSON.stringify(error)});           
+            $cordovaDialogs.alert("Unable to open email client to send balance sheet report.", 'Balance Sheet Report', 'OK');            
            });
          }, function () {
-            $cordovaClipboard.copy(report).then(function () {
+            $cordovaClipboard.copy(attachment).then(function () {
               $cordovaDialogs.alert("Email is not setup on your device hence copied the report to your clipboard.", 'Balance Sheet Report', 'OK');
             }, function () {
               $cordovaDialogs.alert("Unable to copy balance sheet report to clipboard.", 'Balance Sheet Report', 'OK');

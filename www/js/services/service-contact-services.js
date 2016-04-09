@@ -42,23 +42,32 @@ angular.module('service-contact.services', [])
       return deferred.promise;
     },
     refreshServiceContacts: function(regionName) {
-      regionCache.remove(regionName);
+      serviceContactCache.remove(regionName);
     },
     getServiceContactByObjectId: function(regionName, serviceContactObjectId) {
       var deferred = $q.defer();      
+      console.log("Look out for " + serviceContactObjectId);
       this.getServiceContacts(regionName).then(function(serviceContacts){
+        console.log("Received objects from getServiceContact list " + JSON.stringify(serviceContacts));
         for(var i=0;i<serviceContacts.length;i++) {
+          console.log("Service contact objectId:"+serviceContacts[i].objectId + " id:"+serviceContactObjectId);
           if(serviceContacts[i].objectId==serviceContactObjectId) {
             deferred.resolve(serviceContacts[i]);
           }
         }
         deferred.reject("Unable to find the service contact in cache " + serviceContactObjectId);
       }, function(error){
+        console.log("Error while receiving objects from getServiceContact list");
         deferred.reject(error);
       });
       return deferred.promise;
     },
     addServiceContact: function(inputServiceContact) {
+      var ServiceContact = Parse.Object.extend("ServiceContact");
+      var serviceContact = new ServiceContact();
+      return serviceContact.save(inputServiceContact);
+    },
+    updateServiceContact: function(inputServiceContact) {
       var ServiceContact = Parse.Object.extend("ServiceContact");
       var serviceContact = new ServiceContact();
       return serviceContact.save(inputServiceContact);

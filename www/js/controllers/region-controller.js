@@ -80,32 +80,32 @@ angular.module('starter.controllers')
     template: "<p class='item-icon-left'>Loading service contact...<ion-spinner/></p>"
   });    
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
+    console.log("region controller received contact");
     $scope.serviceContact=contact;
     $ionicLoading.hide();
   },function(error) {
-    console.log("Error retrieving service contacts " + JSON.stringify(error));
+    console.log("Error retrieving service contact " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve service contact.");
     $ionicLoading.hide();
   });  
 
   $scope.gotoEditServiceContact=function() {
-    $state.go("tab.edit-service-contact",{serviceContactId: $scope.serviceContact.id});
+    $state.go("tab.edit-service-contact",{serviceContactId: $scope.serviceContact.objectId});
   };
 
   $scope.deleteServiceContact=function() {
     $cordovaDialogs.confirm('Do you want to delete this service contact?', 'Delete Contact', ['Delete','Ignore']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
-        $scope.serviceContact.save({status: "D", deleteBy: AccountService.getUser()}, {
-          success: function(updatedServiceContact) {
-            SettingsService.setAppSuccessMessage("Service contact has been deleted successfully.");
-            ServiceContactService.refreshServiceContacts(AccountService.getUserResidency());
-            $state.go("tab.service",{regionUniqueName: AccountService.getUserResidency()});
-          },
-          error: function(serviceContact, error) {
-            console.log("Error removing service contact " + JSON.stringify(error));
-            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete service contact at this time.");
-          }
-        });    
+        $scope.serviceContact.status="D";
+        $scope.serviceContact.deleteBy=AccountService.getUser();
+        ServiceContactService.updateServiceContact($scope.serviceContact).then(function(updatedServiceContact){
+          SettingsService.setAppSuccessMessage("Service contact has been deleted successfully.");
+          ServiceContactService.refreshServiceContacts(AccountService.getUserResidency());
+          $state.go("tab.service",{regionUniqueName: AccountService.getUserResidency()});
+        }, function(error){
+          console.log("Error removing service contact " + JSON.stringify(error));
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete service contact at this time.");
+        });
       } else {
         console.log("Canceled deletion of service contact");
       }
@@ -119,49 +119,34 @@ angular.module('starter.controllers')
 
   $scope.inputServiceContact={};
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
-      $scope.serviceContact=contact;
-      $scope.inputServiceContact.type=$scope.serviceContact.get("type");
-      $scope.inputServiceContact.serviceName=$scope.serviceContact.get("serviceName");
-      $scope.inputServiceContact.servicePhoneNumber=$scope.serviceContact.get("servicePhoneNumber");
-      $scope.inputServiceContact.serviceAddressLine1=$scope.serviceContact.get("serviceAddressLine1");
-      $scope.inputServiceContact.serviceAddressLine2=$scope.serviceContact.get("serviceAddressLine2");
-      $scope.inputServiceContact.otherCategoryName=$scope.serviceContact.get("otherCategoryName");
+      $scope.inputServiceContact=contact;
     },function(error) {
       console.log("Error retrieving service contacts " + JSON.stringify(error));
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve service contact for edit.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve service contact.");
     });  
 
   $scope.submit=function(){
     if($scope.inputServiceContact.type=="Other" && ($scope.inputServiceContact.otherCategoryName==null || $scope.inputServiceContact.otherCategoryName.length<1)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter category name.");
       return;      
-    } else {
-      $scope.serviceContact.set("otherCategoryName", $scope.inputServiceContact.otherCategoryName);
     }
 
     if($scope.inputServiceContact.serviceName==null || $scope.inputServiceContact.serviceName.length==0) {
-      console.log("Service name is not here");
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider name.");
       return;
     } else {
       $scope.inputServiceContact.serviceName=$scope.inputServiceContact.serviceName.capitalizeFirstLetter();
-      $scope.serviceContact.set("serviceName", $scope.inputServiceContact.serviceName);
     }
 
     if($scope.inputServiceContact.servicePhoneNumber==null || $scope.inputServiceContact.servicePhoneNumber.length==0) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider phone number.");
       return;
-    } else {
-      $scope.serviceContact.set("servicePhoneNumber", $scope.inputServiceContact.servicePhoneNumber);
-    }
+    } 
 
-    $scope.serviceContact.set("serviceAddressLine1", $scope.inputServiceContact.serviceAddressLine1);
-    $scope.serviceContact.set("serviceAddressLine2", $scope.inputServiceContact.serviceAddressLine2);
-
-    $scope.serviceContact.save().then(function(serviceContact) {
+    ServiceContactService.updateServiceContact($scope.inputServiceContact).then(function(serviceContact) {
         SettingsService.setAppSuccessMessage("Service contact has been updated.");
         ServiceContactService.refreshServiceContacts(AccountService.getUserResidency());
-        $state.go("tab.service-contact-detail",{serviceContactId: $scope.serviceContact.id});
+        $state.go("tab.service-contact-detail",{serviceContactId: $stateParams.serviceContactId});
       },function(serviceContact, error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add this service contact.");
         console.log("Error adding service contact " + JSON.stringify(error));
@@ -195,7 +180,6 @@ angular.module('starter.controllers')
     } 
 
     if($scope.serviceContact.serviceName==null || $scope.serviceContact.serviceName.length==0) {
-      console.log("Service name is not here");
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter service provider name.");
       return;
     } else {
