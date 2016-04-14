@@ -484,7 +484,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-homes.html',
+          templateUrl: 'templates/region/homes/region-homes.html',
           controller: 'RegionHomesCtrl'
         }
       }
@@ -495,8 +495,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/add-homes.html',
+          templateUrl: 'templates/region/homes/add-homes.html',
           controller: 'AddHomesCtrl'
+        }
+      }
+    })             
+
+    .state('tab.edit-home', {
+      url: '/edit-home/{homeNo}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/homes/region-edit-home.html',
+          controller: 'EditHomeCtrl'
         }
       }
     })             
@@ -506,7 +517,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/home-detail.html',
+          templateUrl: 'templates/region/homes/home-detail.html',
           controller: 'HomeDetailCtrl'
         }
       }
@@ -517,7 +528,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-neighbors.html',
+          templateUrl: 'templates/region/homes/region-neighbors.html',
           controller: 'NeighborListCtrl'
         }
       }
@@ -528,7 +539,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-neighbor-detail.html',
+          templateUrl: 'templates/region/homes/region-neighbor-detail.html',
           controller: 'NeighborDetailCtrl'
         }
       }
@@ -539,7 +550,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/admin-neighbor-update.html',
+          templateUrl: 'templates/region/homes/admin-neighbor-update.html',
           controller: 'AdminNeighborUpdateCtrl'
         }
       }
@@ -550,7 +561,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/upload-neighbors.html',
+          templateUrl: 'templates/region/homes/upload-neighbors.html',
           controller: 'UploadNeighborsCtrl'
         }
       }

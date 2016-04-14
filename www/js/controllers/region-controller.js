@@ -53,12 +53,15 @@ angular.module('starter.controllers')
   $ionicLoading.show({
     template: "<p class='item-icon-left'>Loading service contacts...<ion-spinner/></p>"
   });  
+  $scope.control={
+    searchStr: ""
+  };
+  
   // $scope.personalServiceContacts=null;
   ServiceContactService.getServiceContacts($stateParams.regionUniqueName).then(function(serviceContacts){
     console.log("Received : " + JSON.stringify(serviceContacts));
-    if(serviceContacts!=null && serviceContacts.length>0) {
-      $scope.personalServiceContacts=serviceContacts;
-    } else {
+    $scope.personalServiceContacts=serviceContacts;    
+    if(serviceContacts==null || serviceContacts.length<=0) {
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("Service recommendations are not made by your neighbors.");
     }
     $ionicLoading.hide();    
@@ -252,6 +255,7 @@ angular.module('starter.controllers')
 
 .controller('SelfLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
+  $scope.appMessage=SettingsService.getAppMessage();
   AccountService.getSelfLegisContacts($stateParams.regionUniqueName).then(function(legisList){
     $scope.legisList = legisList;
     if($scope.legisList==null || $scope.legisList.length==0) {
@@ -1157,161 +1161,6 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory) {
-  console.log("Neighbor details controller " + $stateParams.userId);
-  $scope.operatingUser=AccountService.getUser();
-  $scope.appMessage=SettingsService.getAppMessage();    
-  $scope.user=null;
-  AccountService.getUserById($stateParams.userId).then(function(neighbor) {
-    // console.log("Got the neighbor " + JSON.stringify(neighbor));
-
-    $scope.user=neighbor;        
-    $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
-    $scope.$apply();
-  }, function(error) {
-    console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
-  });
-  $scope.isAdmin=AccountService.canUpdateRegion();  
-
-  $scope.getRoleNameFromRoleCode=function(role) {
-    return AccountService.getRoleNameFromRoleCode(role);
-  };
-
-  $scope.removeOnBoard=function() {
-    AccountService.updateRoleAndTitle($scope.user.id, "CTZEN", null);
-    SettingsService.setAppSuccessMessage("Resident has been removed from board.");
-    $ionicHistory.goBack(-1);
-    // $state.go("tab.neighbors");    
-  };
-
-  $scope.appointOnBoard=function() {
-    SettingsService.setPageTransitionData($scope.user);
-    $state.go("tab.board-appointment");
-  };
-
-  $scope.copyInvitationMessage=function() {
-    var invitationMessage="You have been invited to OurBlock. Use invitation code, " + $scope.user.id + " to login to the service. Download app at http://tinyurl.com/jb9tfnr";    
-    $cordovaClipboard.copy(invitationMessage).then(function () {
-      $scope.copyStatusMessage=SettingsService.getControllerInfoMessage("Invitation message has been copied to clipboard.");
-      $interval(function(){
-        $scope.copyStatusMessage=null;
-      }, 5000, 1);
-    }, function () {
-      $scope.copyStatusMessage=SettingsService.getControllerErrorMessage("Unable to copy invitation message to clipboard.");
-    });
-  };
-
-  $scope.sendInvitationCode=function() {
-    console.log("Sent invitation code");
-    RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
-      NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"), region.get("name"));              
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");      
-    }, function(error){
-      LogService.log({type:"ERROR", message: "Unable to get region to send SMS 2 " + JSON.stringify(error)}); 
-      NotificationService.sendInvitationCode($scope.user.id, $scope.user.get("username"), "");              
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code has been sent to neighbor.");            
-    });            
-  };
-
-  $scope.blockUser=function() {
-    $cordovaDialogs.confirm('Do you want to block this user?', 'Block User', ['Block','Cancel'])
-    .then(function(buttonIndex) {      
-      if(buttonIndex==1) {
-         AccountService.flagUserAbusive($stateParams.userId); 
-         $state.go("tab.neighbors");
-      } else {
-        console.log("Canceled blocking of user");
-      }
-    });
-  };
-
-})
-
-.controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Listing your neighbors...<ion-spinner/></p>"
-  });        
-  $scope.appMessage=SettingsService.getAppMessage();    
-  AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
-    $scope.neighborList=neighborList;
-    // TODO :: Filter blocked users from the list
-    if($scope.neighborList!=null && $scope.neighborList.length<2) {
-      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
-    }
-    $ionicLoading.hide();
-  }, function(error) {
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get neighbors details.");
-    $ionicLoading.hide();
-  });
-
-})
-
-.controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
-  console.log("Admin Neighbor Account update controller");
-  $scope.inputUser={};
-  $scope.countryList=COUNTRY_LIST;
-  $scope.inputUser.country=$scope.countryList[0];        
-  AccountService.getUserById($stateParams.userId).then(function(neighbor) {
-    $scope.user=neighbor;
-    $scope.inputUser.firstName=$scope.user.get("firstName");
-    $scope.inputUser.lastName=$scope.user.get("lastName");
-    $scope.inputUser.homeNo=$scope.user.get("homeNo");
-    $scope.inputUser.userId=$scope.user.id;
-    $scope.inputUser.phoneNum=$scope.user.get("phoneNum");
-    $scope.inputUser.homeOwner=$scope.user.get("homeOwner");
-    $scope.inputUser.country=AccountService.getCountryFromCountryList($scope.user.get("countryCode"), $scope.countryList);
-    $scope.$apply();
-  }, function(error) {
-    console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
-  });  
-  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());  
-
-  $scope.update=function() {
-    console.log("Update request " + JSON.stringify($scope.inputUser));
-
-    if($scope.inputUser.firstName==null || $scope.inputUser.firstName.trim().length<=0) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first name.");
-      return;
-    } 
-
-    if($scope.inputUser.lastName==null || $scope.inputUser.lastName.trim().length<=0) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter last name.");
-      return;
-    }     
-    
-    if ($scope.inputUser.phoneNum!=null) {
-      var formattedPhone = $scope.inputUser.phoneNum.replace(/[^0-9]/g, '');  
-
-      if(formattedPhone.length != 10) { 
-         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number");
-         return;
-      } else {
-        $scope.inputUser.phoneNum=formattedPhone;
-      }
-    } else {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter phone number");
-      return;
-    }
-
-    if($scope.regionSettings.supportHomeNumber==true) {
-      if($scope.inputUser.homeNo==null || $scope.inputUser.homeNo.length<=0) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
-        return;
-      } else {
-        $scope.inputUser.homeNo=$scope.inputUser.homeNo.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
-      }
-    }    
-
-    AccountService.updateNeighborAccount($scope.inputUser, $scope.user).then(function(newUser) {
-      SettingsService.setAppSuccessMessage("Neighbor information update is successful.");
-      $state.go("tab.neighbor-detail", {userId: $scope.user.id});
-    }, function(error) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update neighbor information.");  
-    });
-  };
-})
 
 .controller('RegionSettingsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
   $scope.user=Parse.User.current();  

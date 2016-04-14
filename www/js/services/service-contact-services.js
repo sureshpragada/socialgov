@@ -1,12 +1,20 @@
 angular.module('service-contact.services', [])
 
 .factory('ServiceContactService', ['CacheFactory', 'LogService', 'SettingsService', '$q', '$state', function(CacheFactory, LogService, SettingsService, $q, $state) {
+  
+  var storeJsToStandard={
+    getItem: store.get,
+    setItem: store.set,
+    removeItem: store.remove
+  };
+
   var serviceContactCache;
   if (!CacheFactory.get('serviceContactCache')) {
     serviceContactCache = CacheFactory('serviceContactCache', {
       maxAge: 1 * 60 * 60 * 1000, // 1 Hour : as other residents may need this service contact
       deleteOnExpire: 'none', 
-      storageMode: 'localStorage'
+      storageMode: 'localStorage',
+      storageImpl: storeJsToStandard
     });
   }
 

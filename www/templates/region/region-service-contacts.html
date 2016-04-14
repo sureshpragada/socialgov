@@ -1,12 +1,19 @@
 <ion-view title="Service Contacts">
+  <ion-nav-buttons side="secondary">
+    <a class="button button-icon icon ion-ios-plus-outline" ng-click="gotoAddServiceContact()" ng-if="personalServiceContacts.length>=4"></a>
+  </ion-nav-buttons>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>  
- 	<div class="item item-divider" ng-if="personalServiceContacts.length>0">
+<!--  	<div class="item item-divider" ng-if="personalServiceContacts.length>0">
 		Community Recommendations
-	</div>
-    <ion-list ng-if="personalServiceContacts">
-	    <ion-item ng-repeat="serviceContact in personalServiceContacts" class="item-icon-right" href="#/tab/service-contact-detail/{{serviceContact.objectId}}">
+	</div> -->
+    <ion-list ng-if="personalServiceContacts.length>0">
+      <label class="item item-input">
+          <i class="icon ion-search placeholder-icon calm"></i>
+          <input type="text" placeholder="Search" class="textAlignLeft" ng-model="control.searchStr">
+      </label>        
+	    <ion-item ng-repeat="serviceContact in personalServiceContacts | filter:control.searchStr" class="item-icon-right" href="#/tab/service-contact-detail/{{serviceContact.objectId}}">
 	      <h2>{{serviceContact.serviceName}}</h2>
 	      <p ng-if="serviceContact.type!='Other'">{{serviceContact.type}}</p>
 	      <p ng-if="serviceContact.type=='Other'">{{serviceContact.otherCategoryName}}</p>
@@ -14,7 +21,7 @@
 	      <i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>
     </ion-list>
-	<div class="card">
+	<div class="card" ng-if="personalServiceContacts.length<4">
 	  <div class="item item-text-wrap success"> 
 	    Have you received a good service recently?<br><br>
 	    <a class="button button-calm button-block" ng-click="gotoAddServiceContact()">Recommend Service</a>

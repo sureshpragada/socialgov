@@ -27,7 +27,7 @@ angular.module('account.services', [])
   var homesCache;
   if (!CacheFactory.get('homesCache')) {
     homesCache = CacheFactory('homesCache', {
-      maxAge: 5 * 60 * 1000, // 5 mins
+      maxAge: 1 * 60 * 60 * 1000, // 5 mins
       deleteOnExpire: 'none'
     });
   }  
@@ -60,12 +60,13 @@ angular.module('account.services', [])
       return deferred.promise;
     },        
     refreshResidentCache: function() {
+      console.log("residents removed from cache");
       residentCache.removeAll();
     },
     isFunctionalAdmin: function(regionSettings, functionName) {
       var user=this.getUser();
       if(user!=null && user.get("status")!="S"){
-        if(user.get("role")=="SUADM") {
+        if(user.get("role")=="SUADM" || user.get("superAdmin")==true) {
           return true;
         } else if(user.get("role")=="LEGI") {
           var whoControlsFunction=RegionService.getFunctionControllersFromRegionSettings(regionSettings, functionName); 
@@ -109,7 +110,7 @@ angular.module('account.services', [])
     },
     isSuperAdmin: function(){
       var user=Parse.User.current();
-      if(user!=null && user.get("role")=="SUADM"){
+      if(user!=null && user.get("role")=="SUADM" || user.get("superAdmin")==true){
         return true;
       }else{
         return false;
@@ -131,7 +132,7 @@ angular.module('account.services', [])
       }
     },
     canOtherUserUpdateRegion: function(user){
-      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT"){
+      if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT" || user.get("superAdmin")==true){
         return true;
       }else{
         return false;
@@ -139,17 +140,15 @@ angular.module('account.services', [])
     },    
     canUpdateRegion: function(){
       var user=Parse.User.current();
-      if(user!=null){
-        if(user.get("status")=="S") {
-          return false;
-        } else {
-          if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT" || user.get("role")=="LEGI") {
-            return true;
-          } else {
-          return false;
-          }
-        }
-      }else{
+      if(user==null) {
+        return false;
+      } else if(user.get("status")=="S") {
+        return false;
+      } else if(user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT" || user.get("role")=="LEGI") {
+        return true;
+      } else if(user.get("superAdmin")==true) {
+        return true;
+      } else {
         return false;
       }
     },
@@ -550,6 +549,7 @@ angular.module('account.services', [])
       user.set("phoneNum",this.yourInfo.phoneNum);
       user.set("residency",region.get("uniqueName"));
       user.set("role","SUADM");
+      user.set("superAdmin",true);
       user.set("status","A");
       user.set("deviceReg", "N");
       user.set("homeOwner",this.yourInfo.homeOwner);
@@ -623,6 +623,43 @@ angular.module('account.services', [])
           }
         }
         deferred.reject("Unable to find requested home");
+      },function(error){
+        deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    updateHomeNumber: function(home, inputHome) {
+      var deferred = $q.defer();
+      var self=this;            
+      var oldHomeNo=home.get("homeNo");
+      home.set("homeNo", inputHome.homeNo);
+      home.save().then(function(updatedHome){
+        console.log("Home number updated");
+        self.refreshHomesCache(inputHome.residency);
+        // Update residents in this home
+        var residentsToUpdatePromises=[];
+        self.getResidentsOfHome(inputHome.residency, oldHomeNo).then(function(residents){
+          for(var i=0;i<residents.length;i++){
+            residentsToUpdatePromises.push(
+              Parse.Cloud.run('modifyUser', { targetUserId: residents[i].id, userObjectKey: 'homeNo', userObjectValue: inputHome.homeNo}));
+          }
+          if(residentsToUpdatePromises.length>0){
+            console.log("No of users being updated " + residentsToUpdatePromises.length);
+            $q.all(residentsToUpdatePromises).then(function(result){
+              console.log("User update is success "  + JSON.stringify(updatedHome));
+              self.refreshResidentCache(inputHome.residency);                          
+              deferred.resolve(updatedHome);
+            }, function(error){
+              console.log("User update is failed");
+              deferred.reject(error);
+            });
+          } else {
+            console.log("No need to update any " + JSON.stringify(updatedHome));
+            deferred.resolve(updatedHome);
+          }
+        }, function(error){
+          deferred.reject(error);
+        });
       },function(error){
         deferred.reject(error);
       });

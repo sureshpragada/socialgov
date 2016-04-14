@@ -8,7 +8,11 @@
   <my-app-message info="appMessage"></my-app-message>  
   <my-app-message info="controllerMessage"></my-app-message>  
   	<ion-list>
-	    <ion-item class="item-thumbnail-left item-icon-right" collection-repeat="neighbor in neighborList" href="#/tab/neighbor-detail/{{neighbor.id}}">
+      <label class="item item-input" ng-if="control.requestedSearch">
+          <i class="icon ion-search placeholder-icon calm"></i>
+          <input type="text" placeholder="Search by resident name, home number..." class="textAlignLeft" ng-model="control.searchStr">
+      </label>      	
+	    <ion-item class="item-thumbnail-left item-icon-right" collection-repeat="neighbor in neighborList | filter:control.searchStr" href="#/tab/neighbor-detail/{{neighbor.id}}">
 	      <img ng-src="{{neighbor.get('images')[0]}}" ng-if="neighbor.get('images')">
 	      <img ng-src="img/avatar2.png" ng-if="!neighbor.get('images')">
 	      <h2>{{neighbor.get("firstName")}} {{neighbor.get("lastName")}}</h2>		

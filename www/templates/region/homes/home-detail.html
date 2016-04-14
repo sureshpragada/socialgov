@@ -26,6 +26,7 @@
     </ion-list>
     <div class="padding">
 		<a class="button button-block button-calm" ng-click="gotoInvite()">Invite Resident</a>	
+		<a class="button button-block button-outline" ng-click="editHome()" ng-if="neighborList.length!=0">Edit Home</a>    		
 		<a class="button button-block button-outline" ng-click="deleteHome()" ng-if="neighborList.length==0">Delete Home</a>    	
     </div>
   </ion-content>

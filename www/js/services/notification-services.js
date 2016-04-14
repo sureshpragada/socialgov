@@ -150,6 +150,7 @@ angular.module('notification.services', ['ionic'])
     },
     openEmailClient: function(subject, body, attachment, attachmentName) {
       if(ionic.Platform.isWebView()) {        
+        $cordovaEmailComposer.addAlias('gmail', 'com.google.android.gm');
         $cordovaEmailComposer.isAvailable().then(function() {
           var email = {
             app: "gmail",
