@@ -51,9 +51,22 @@ angular.module('starter.controllers')
           saveToPhotoAlbum: false
       };
       $cordovaCamera.getPicture(options).then(function(imageData) {
-           $scope.file= "data:image/jpeg;base64," +imageData;
-           $scope.pictureSelected=true;
-           console.log("Picture data : " + $scope.file);
+         $scope.file= "data:image/jpeg;base64," +imageData;
+         $scope.pictureSelected=true;
+         // console.log("Initial picture data : " + $scope.file);
+          window.imageResizer.resizeImage(
+             function(data) { 
+               $scope.file = "data:image/jpeg;base64," + data.imageData; 
+               console.log("Resized width " + data.width + " Height : " + data.height);
+               // console.log("Resized picture data : " + data.imageData);
+             }, function (error) {
+               console.log("Resize Error : \r\n" + JSON.stringify(error));
+             }, imageData, 0, 225, {
+                resizeType: ImageResizer.RESIZE_TYPE_PIXEL,
+                imageDataType: ImageResizer.IMAGE_DATA_TYPE_BASE64,
+                format: ImageResizer.FORMAT_JPG
+             }
+          );
       }, function(error) {
           console.log("Error getting picture " + JSON.stringify(error));
       });  

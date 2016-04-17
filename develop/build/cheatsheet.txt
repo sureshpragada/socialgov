@@ -12,6 +12,7 @@ cordova prepare android
 
 ionic run android
 cordova platform list
+cordova plugin ls
 cordova platform update android@4.1.1
 
 ionic resources --icon
@@ -28,6 +29,8 @@ cordova plugin add cordova-plugin-camera
 cordova plugin add cordova-plugin-contacts
 cordova plugin add https://github.com/VersoSolutions/CordovaClipboard.git
 cordova plugin add https://github.com/katzer/cordova-plugin-email-composer.git
+cordova plugin add https://github.com/wymsee/cordova-imageResizer
+cordova plugin rm cordova-plugin-image-resizer
 
 
 TODO >> Background service (https://github.com/Red-Folder/bgs-core/wiki/Using-the-MyService-Sample, http://stackoverflow.com/questions/25038694/how-do-i-get-parse-com-push-notifications-working-in-a-cordova-phonegap-android/25038695#25038695, https://github.com/driftyco/ng-cordova/issues/963)
@@ -85,6 +88,7 @@ https://xtremepush.com/
 https://aws.amazon.com/blogs/aws/resources-for-migrating-parse-applications-to-aws/
 CloudKit or Cloudmine
 http://julienrenaux.fr/2016/01/29/complete-parse-server-migration-guide/
+https://cordova.apache.org/docs/en/4.0.0/guide/cli/
 
 
 Replies to Apple : 
