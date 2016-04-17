@@ -1,7 +1,5 @@
 <ion-view>
-  <ion-nav-title>
-    {{region.get("name")}}
-  </ion-nav-title>
+  <ion-nav-title>{{region.get("name")}}</ion-nav-title>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
@@ -23,7 +21,7 @@
       </ion-item>                
       <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin">
           <i class="icon ion-ios-people-outline royal"></i>
-          Neighbors 
+          Residents 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>          
       <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber">

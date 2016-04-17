@@ -43,9 +43,9 @@ angular.module('starter.controllers')
           quality : 75, 
           destinationType : Camera.DestinationType.DATA_URL, 
           sourceType : sourceType, 
-          // allowEdit : true,
-          // targetWidth: 360,
-          // targetHeight: 300,
+          allowEdit : true,
+          // targetWidth: 300,
+          // targetHeight: 225,
           encodingType: Camera.EncodingType.file,
           popoverOptions: CameraPopoverOptions,
           saveToPhotoAlbum: false
