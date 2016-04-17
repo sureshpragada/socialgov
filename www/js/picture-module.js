@@ -43,8 +43,8 @@ angular.module('starter.controllers')
           quality : 75, 
           destinationType : Camera.DestinationType.DATA_URL, 
           sourceType : sourceType, 
-          allowEdit : true,
-          // targetWidth: 400,
+          // allowEdit : true,
+          // targetWidth: 360,
           // targetHeight: 300,
           encodingType: Camera.EncodingType.file,
           popoverOptions: CameraPopoverOptions,
@@ -53,6 +53,7 @@ angular.module('starter.controllers')
       $cordovaCamera.getPicture(options).then(function(imageData) {
            $scope.file= "data:image/jpeg;base64," +imageData;
            $scope.pictureSelected=true;
+           console.log("Picture data : " + $scope.file);
       }, function(error) {
           console.log("Error getting picture " + JSON.stringify(error));
       });  

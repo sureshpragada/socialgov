@@ -62,6 +62,16 @@ angular.module('starter.controllers')
     if($scope.neighborList.length==0) {
       $scope.residentsNotAvailableMessage=SettingsService.getControllerInfoMessage("Residents have not been invited in to this home. ");
       //Invite residents of this home to collaborate and manage their financials.
+    } else {
+      $scope.homeOwnerList=[];
+      $scope.tenantList=[];
+      for(var i=0;i<$scope.neighborList.length;i++) {
+        if($scope.neighborList[i].get("homeOwner")==true) {
+          $scope.homeOwnerList.push($scope.neighborList[i]);
+        } else {
+          $scope.tenantList.push($scope.neighborList[i]);
+        }
+      }
     }
     $ionicLoading.hide();
   }, function(error) {
@@ -167,7 +177,14 @@ angular.module('starter.controllers')
           // replace(/\s+/g, '')  -- Remove only spaces leaving - or anything   
           // $scope.user.homeNumber=$scope.user.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');          
           if(homeLine[j]!=null && homeLine[j].trim().length>0) {
-            inputHomes.push(homeLine[j].trim().toUpperCase().replace(/[^0-9A-Z]/g, ''));          
+            var multiHomeNumbers=$scope.getAllHomeNUmbers(homeLine[j].trim());
+            if(multiHomeNumbers.length>0) {
+              for(var k=0;k<multiHomeNumbers.length;k++) {
+                inputHomes.push(multiHomeNumbers[k].trim().toUpperCase().replace(/[^0-9A-Z]/g, ''));
+              }
+            } else {
+              inputHomes.push(homeLine[j].trim().toUpperCase().replace(/[^0-9A-Z]/g, ''));            
+            }
           } else {
             console.log("Skipping.. Invalid home number " + homeLine[j]);
           }          
@@ -186,6 +203,7 @@ angular.module('starter.controllers')
         console.log("Removed duplicates 2 " + JSON.stringify(inputHomes));      
         if(inputHomes.length>0) {
           $scope.addHomes(inputHomes);  
+          
         } else {
           $scope.controllerMessage=SettingsService.getControllerErrorMessage("Home numbers are already exists in your community.");  
         }        
@@ -215,6 +233,25 @@ angular.module('starter.controllers')
     });
   };
 
+  $scope.getAllHomeNUmbers=function(inputStr) {
+    var homeNumbers=[];    
+    var splitArray=inputStr.split(':');
+    if(splitArray.length==2) {
+      var num1=parseInt($scope.getNumber(splitArray[0]));
+      var num2=parseInt($scope.getNumber(splitArray[1]));
+      var baseHomeStr = splitArray[0].substring(0, splitArray[0].lastIndexOf(num1.toString()));
+      for(var i=num1;i<=num2;i++) {
+        homeNumbers.push(baseHomeStr+i.toString());
+      }
+    } 
+    return homeNumbers;    
+  };
+
+  $scope.getNumber=function(input){
+    var numsInInput=input.match(/[0-9]+/g);
+    return numsInInput[numsInInput.length-1];
+  };
+    
   $scope.cancel=function(){
     $state.go("tab.homes");          
   };

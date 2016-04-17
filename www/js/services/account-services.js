@@ -109,7 +109,7 @@ angular.module('account.services', [])
       return "Citizen";
     },
     isSuperAdmin: function(){
-      var user=Parse.User.current();
+      var user=this.getUser();
       if(user!=null && user.get("role")=="SUADM" || user.get("superAdmin")==true){
         return true;
       }else{
@@ -117,7 +117,7 @@ angular.module('account.services', [])
       }      
     },
     isCitizen: function(){
-      var user=Parse.User.current();
+      var user=this.getUser();
       if(user!=null || user.get("role")=="CTZEN"){
         return true;
       }else{

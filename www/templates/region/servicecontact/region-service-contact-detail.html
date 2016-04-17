@@ -6,14 +6,14 @@
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
-      <div class="item">
+      <div class="item item-text-wrap">
         <h2>{{serviceContact.serviceName}}</h2>
         <p ng-if="serviceContact.type!='Other'">{{serviceContact.type}}</p>
         <p ng-if="serviceContact.type=='Other'">{{serviceContact.otherCategoryName}}</p>
         <br>
         <p>{{serviceContact.serviceAddressLine1}}</p>
         <p>{{serviceContact.serviceAddressLine2}}</p>        
-        <a class="button icon-left ion-ios-telephone-outline button-clear button-positive" style="padding-left:0px;" ng-href="tel: {{serviceContact.servicePhoneNumber}}">{{serviceContact.servicePhoneNumber}}</a>              
+        <a class="button icon-left ion-ios-telephone-outline button-clear button-positive" ng-repeat="phoneNum in phoneNums track by $index" style="padding-left:0px; margin-right: 10px;" ng-href="tel: {{phoneNum}}">{{phoneNum}}</a>              
       </div>
       <ion-item ng-if="serviceContact.user.firstName">
         <h3>Recommended By</h3>

@@ -709,9 +709,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService, $ionicHistory) {
-  var user=Parse.User.current();  
-  $scope.allowedActivities=ActivityService.getAllowedActivities(user.get("role"));
-  $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
+  var user=AccountService.getUser();  
+  $scope.allowedActivities=ActivityService.getAllowedActivities(user);
+  $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), AccountService.getUserResidency());
   $scope.selectChoices={selectedActivityType: $scope.allowedActivities[0], selectedRegion: $scope.allowedRegions[0]};
   $scope.post={notifyMessage: ""};  
 
@@ -776,7 +776,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 .controller('PickActivityTypeCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService) {
   console.log("Pick activity type controller");
-  $scope.activityTypeList=ActivityService.getAllowedActivities(AccountService.getUser().get("role"));
+  $scope.activityTypeList=ActivityService.getAllowedActivities(AccountService.getUser());
 
   $scope.gotoActivity=function(activityType){
     if(activityType=="POLL") {

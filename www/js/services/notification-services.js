@@ -151,9 +151,9 @@ angular.module('notification.services', ['ionic'])
     openEmailClient: function(subject, body, attachment, attachmentName) {
       if(ionic.Platform.isWebView()) {        
         $cordovaEmailComposer.addAlias('gmail', 'com.google.android.gm');
-        $cordovaEmailComposer.isAvailable().then(function() {
+
           var email = {
-            app: "gmail",
+            app: "mailto",
             to: "",
             attachments: [
               'base64:'+attachmentName+'//' + btoa(attachment)
@@ -162,17 +162,34 @@ angular.module('notification.services', ['ionic'])
             body: body,
             isHtml: true
           };          
-           $cordovaEmailComposer.open(email).then(function(){
+           $cordovaEmailComposer.open(email).then(null, function(){
             LogService.log({type:"ERROR", message: "Email balance sheet report has been cancelled "});           
             $cordovaDialogs.alert("You have chose not to email balance sheet.", 'Balance Sheet Report', 'OK');
            });
-         }, function () {
-            $cordovaClipboard.copy(attachment).then(function () {
-              $cordovaDialogs.alert("Email is not setup on your device hence copied the report to your clipboard.", 'Balance Sheet Report', 'OK');
-            }, function () {
-              $cordovaDialogs.alert("Unable to copy balance sheet report to clipboard.", 'Balance Sheet Report', 'OK');
-            });          
-         });            
+
+
+        // $cordovaEmailComposer.isAvailable().then(function() {
+        //   var email = {
+        //     app: "mailto",
+        //     to: "",
+        //     attachments: [
+        //       'base64:'+attachmentName+'//' + btoa(attachment)
+        //     ],
+        //     subject: subject,
+        //     body: body,
+        //     isHtml: true
+        //   };          
+        //    $cordovaEmailComposer.open(email).then(null, function(){
+        //     LogService.log({type:"ERROR", message: "Email balance sheet report has been cancelled "});           
+        //     $cordovaDialogs.alert("You have chose not to email balance sheet.", 'Balance Sheet Report', 'OK');
+        //    });
+        //  }, function () {
+        //     $cordovaClipboard.copy(attachment).then(function () {
+        //       $cordovaDialogs.alert("Email is not setup on your device hence copied the report to your clipboard.", 'Balance Sheet Report', 'OK');
+        //     }, function () {
+        //       $cordovaDialogs.alert("Unable to copy balance sheet report to clipboard.", 'Balance Sheet Report', 'OK');
+        //     });          
+        //  });            
       } else {
         console.log("Not a web view, hence skipping email compose");
       }    

@@ -1,4 +1,4 @@
-<ion-view title="Expenses">
+<ion-view title="{{focusBalanceSheet.get('startDate') | date:'MMMM yyyy'}} Expenses">
   <ion-nav-buttons side="secondary">    
     <a class="button button-icon icon ion-ios-plus-outline" href="#/tab/manage-expense/{{focusBalanceSheet.id}}" ng-if="isAdmin && focusBalanceSheet.get('status')=='OPEN'"></a>
     <a class="button button-icon icon ion-ios-pie-outline" ng-click="showExpenseChart()" ng-if="expenseList.length>0"></a>      
