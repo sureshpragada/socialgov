@@ -89,6 +89,7 @@ https://aws.amazon.com/blogs/aws/resources-for-migrating-parse-applications-to-a
 CloudKit or Cloudmine
 http://julienrenaux.fr/2016/01/29/complete-parse-server-migration-guide/
 https://cordova.apache.org/docs/en/4.0.0/guide/cli/
+https://github.com/CrackerakiUA/ngImgCropFullExtended
 
 
 Replies to Apple : 

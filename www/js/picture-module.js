@@ -28,8 +28,33 @@ angular.module('starter.controllers')
 }])
 
 .controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService, $ionicLoading, $cordovaDialogs) {
-  $scope.pictureSelected=false;  
-  
+  $scope.pictureSelected=false;    
+   $scope.myImage= "";
+    $scope.result={
+      myCroppedImage: ""
+    }           
+    
+    // $scope.myCroppedImage='';
+    // $scope.result={
+    //   myCroppedImage: ""
+    // }
+    // $scope.myCropped="Suresh";
+
+    //     var handleFileSelect=function(evt) {
+    //       var file=evt.currentTarget.files[0];
+    //       var reader = new FileReader();
+    //       reader.onload = function (evt) {
+    //         $scope.pictureSelected=true;            
+    //         $scope.$apply(function($scope){
+    //           $scope.myImage=evt.target.result;
+    //         });
+    //       };
+    //       reader.readAsDataURL(file);
+    //     };
+    //     angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+
+
+
   $scope.takePicture=function() {
     manageupload(Camera.PictureSourceType.CAMERA);
   };
@@ -43,30 +68,16 @@ angular.module('starter.controllers')
           quality : 75, 
           destinationType : Camera.DestinationType.DATA_URL, 
           sourceType : sourceType, 
-          allowEdit : true,
+          // allowEdit : true,
           // targetWidth: 300,
           // targetHeight: 225,
-          encodingType: Camera.EncodingType.file,
+          encodingType: Camera.EncodingType.JPEG,
           popoverOptions: CameraPopoverOptions,
           saveToPhotoAlbum: false
       };
       $cordovaCamera.getPicture(options).then(function(imageData) {
-         $scope.file= "data:image/jpeg;base64," +imageData;
          $scope.pictureSelected=true;
-         // console.log("Initial picture data : " + $scope.file);
-          window.imageResizer.resizeImage(
-             function(data) { 
-               $scope.file = "data:image/jpeg;base64," + data.imageData; 
-               console.log("Resized width " + data.width + " Height : " + data.height);
-               // console.log("Resized picture data : " + data.imageData);
-             }, function (error) {
-               console.log("Resize Error : \r\n" + JSON.stringify(error));
-             }, imageData, 0, 225, {
-                resizeType: ImageResizer.RESIZE_TYPE_PIXEL,
-                imageDataType: ImageResizer.IMAGE_DATA_TYPE_BASE64,
-                format: ImageResizer.FORMAT_JPG
-             }
-          );
+         $scope.myImage= "data:image/jpeg;base64," +imageData;
       }, function(error) {
           console.log("Error getting picture " + JSON.stringify(error));
       });  
@@ -76,8 +87,12 @@ angular.module('starter.controllers')
     $scope.pictureSelected=false;
   };
 
-  $scope.uploadPicture=function() {
-    var file = $scope.file;    
+  $scope.capture=function(imageData) {
+    console.log("captured data : " + JSON.stringify(imageData));
+  };
+
+  $scope.uploadPicture=function() {    
+    var file = $scope.result.myCroppedImage;    
     if(!file) {
       $cordovaDialogs.alert('Select picture from gallery or use camera.', 'Select picture', 'OK');
     } else {

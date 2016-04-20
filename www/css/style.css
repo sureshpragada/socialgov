@@ -90,3 +90,10 @@ input.textAlignLeft {
   stroke: #999;
   fill: #999;
 }
+
+.cropArea {
+      background: #E4E4E4;
+      overflow: hidden;
+      width:auto;
+      height:350px;
+    }
