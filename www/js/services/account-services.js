@@ -205,7 +205,9 @@ angular.module('account.services', [])
       userQuery.descending("role");
       userQuery.first({
         success: function(authoritativeUser) {
-          NotificationService.pushNotificationToUserList([authoritativeUser.id], message);
+          if(authoritativeUser!=null){
+            NotificationService.pushNotificationToUserList([authoritativeUser.id], message);
+          }
         }, error: function(err) {
           LogService.log({type:"ERROR", message: "No admin found to report spam " + JSON.stringify(err) + " Message : " + message}); 
         }

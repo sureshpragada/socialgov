@@ -23,6 +23,7 @@ angular.module('activity.services', [])
         query.containedIn("regionUniqueName", regionList);
         query.containedIn("status", ["P", "A", "S"]);        
         query.include("user");
+        query.include("assignedTo");
         query.descending("createdAt");
         query.find().then(function(activityList){
           activityCache.remove("activityList");
@@ -282,6 +283,13 @@ angular.module('activity.services', [])
       debate.save();      
       AccountService.sendNotificationToAdmin("Comment spam notice : " + debate.get("argument"));
     },
+    deleteComment: function(activity, debate) {
+      activity.set("debate", activity.get("debate")-1);
+      activity.save();
+      debate.set("status", "D");  
+      debate.save();
+      return debate;
+    },
     removeDebateSpamFlag: function(debate) {
       console.log("Updating status field of debate " + debate.id);
       debate.set("status", "A");  
@@ -318,7 +326,7 @@ angular.module('activity.services', [])
     },
     flagUserAbusive: function(activity) {
       AccountService.flagUserAbusive(activity.get("user").id);
-    }    
+    }
   };
 }])
 
