@@ -7,7 +7,7 @@
       <div class="item item-image" ng-if="posterImages.length==0">
         <img ng-src="img/picture_template.png">
       </div>     
-      <div ng-if="posterImages.length>0">
+      <div class="item" ng-if="posterImages.length>0">
         <ion-slide-box>          
           <ion-slide ng-repeat="image in posterImages" ng-init="imageIndex = $index">
             <img class="full-image" ng-src="{{image}}">        

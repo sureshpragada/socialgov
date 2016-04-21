@@ -17,7 +17,7 @@
 	      <h2>Home # {{home.homeNo}} </h2>		
         <p ng-if="home.noOfResidents>0">
           <span ng-if="home.noOfHomeOwners>0">{{home.noOfHomeOwners}} Owners</span>
-          <span ng-if="home.noOfTenants>0"> , </span>
+          <span ng-if="home.noOfTenants>0 && home.noOfHomeOwners>0"> , </span>
           <span ng-if="home.noOfTenants>0">{{home.noOfTenants}} Tenants</span>
         </p>      
         <p ng-if="home.noOfResidents<1"><span class="assertive">No Residents</span></p>              
