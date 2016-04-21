@@ -30,10 +30,16 @@ angular.module('starter.controllers')
 .controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService, $ionicLoading, $cordovaDialogs) {
   $scope.pictureSelected=false;    
    $scope.myImage= "";
-    $scope.result={
+   $scope.result={
       myCroppedImage: ""
-    }           
-    
+   }           
+   var fromPage=PictureManagerService.getState().fromPage;   
+   if(fromPage=="tab.expense-detail" || fromPage=="tab.account") {
+      $scope.aspectRatio="1x1"; 
+   } else {
+      $scope.aspectRatio="4x3"; 
+   }
+
     // $scope.myCroppedImage='';
     // $scope.result={
     //   myCroppedImage: ""
@@ -77,7 +83,7 @@ angular.module('starter.controllers')
       };
       $cordovaCamera.getPicture(options).then(function(imageData) {
          $scope.pictureSelected=true;
-         $scope.myImage= "data:image/jpeg;base64," +imageData;
+         $scope.myImage="data:image/jpeg;base64," +imageData;
       }, function(error) {
           console.log("Error getting picture " + JSON.stringify(error));
       });  
@@ -87,12 +93,9 @@ angular.module('starter.controllers')
     $scope.pictureSelected=false;
   };
 
-  $scope.capture=function(imageData) {
-    console.log("captured data : " + JSON.stringify(imageData));
-  };
-
   $scope.uploadPicture=function() {    
-    var file = $scope.result.myCroppedImage;    
+    // console.log("Cropped image " + JSON.stringify($scope.result.myCroppedImage));    
+    var file = $scope.result.myCroppedImage;  
     if(!file) {
       $cordovaDialogs.alert('Select picture from gallery or use camera.', 'Select picture', 'OK');
     } else {
@@ -108,7 +111,7 @@ angular.module('starter.controllers')
         url: "https://api.imgur.com/3/image.json",
         method: 'POST',
         headers: {
-          'Content-Type': file.type,
+          'Content-Type': "image/jpeg",
           "Authorization": "Client-ID " + IMGUR_KEY
         },
         data: file

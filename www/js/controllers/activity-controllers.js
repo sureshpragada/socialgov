@@ -367,12 +367,13 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.deleteComment=function(debateId, activityIndex, debateIndex) {
-    $cordovaDialogs.confirm('Is this response really delete?', 'Delete comment', ['Yes','Cancel'])
+    $cordovaDialogs.confirm('Do you really want to delete comment?', 'Delete comment', ['Yes','Cancel'])
     .then(function(buttonIndex) {      
       if(buttonIndex==1) {
         ActivityService.deleteComment($scope.activities[activityIndex], $scope.debateList[activityIndex][debateIndex]);
         $scope.debateList[activityIndex].splice(debateIndex, 1);      
-        console.log("Canceled reporting of response spam");
+      } else {
+        console.log("Canceled reporting of response spam");        
       }
     });    
   };
@@ -578,6 +579,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.assignProblem = function(activityId, activityIndex) {
     $scope.activityIndex=activityIndex;
+    $scope.controllerMessage=null;
     $scope.$parent.openChoiceModal("legiContacts", $scope.legiContactsList);
   }; 
 
@@ -592,7 +594,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           $scope.controllerMessage=SettingsService.getControllerInfoMessage("Assigned problem successfully.");
         },
         error: function(activity, error) {
-          $scope.controllerMessage="Unable to assign the problem";
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to assign the problem");
         }
       });
   });
@@ -737,6 +739,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.goToAttachPicture=function() {
+    PictureManagerService.setFromPage("tab.post");
     PictureManagerService.setData({message: $scope.post.notifyMessage});
     $state.go("tab.activity-picman");
   };
