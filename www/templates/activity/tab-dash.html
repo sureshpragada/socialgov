@@ -33,19 +33,20 @@
         <p ng-if="activity.get('activityType')=='POLL' && !isPollExpired($index)">
           <span class="assertive">* Poll closes on {{activity.get('endDate') | date:'mediumDate'}}.</span>
         </p>                
-        <div ng-if="activity.get('activityType')=='ISSU'">
-          <p ng-if="activity.get('problemStatus')=='RESOLVED'">
-            <i class="icon ion-checkmark-circled balanced"></i>
-            <span class="balanced">{{activity.get('problemStatus') | formatProblemStatus}}</span>
-          </p>
-<!--           <a class="button icon-left ion-checkmark-circled button-clear button-balanced" ng-if="activity.get('problemStatus')=='RESOLVED'">{{activity.get('problemStatus') | formatProblemStatus}}</a>        
-           -->
-<!--           <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markResolved(activity.id, activityIndex)">Assign Problem</a>          
- -->
-          <a ng-if="activity.get('problemStatus')=='OPEN' && !isAdmin && user.id==activity.get('user').id" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Problem Resolved</a> 
-          <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Problem Resolved</a>                    
-        </div>                        
+        <p ng-if="activity.get('activityType')=='ISSU'">
+          <a class="button icon-left ion-checkmark-circled button-clear button-balanced" ng-if="activity.get('problemStatus')=='RESOLVED'">{{activity.get('problemStatus') | formatProblemStatus}}</a>
 
+          <a class="button icon-left ion-checkmark-circled button-clear button-balanced" ng-if="activity.get('problemStatus')=='IN_PROGRESS'">{{activity.get('problemStatus') | formatProblemStatus}}</a>
+
+          <a ng-if="activity.get('problemStatus')=='OPEN' && !isAdmin && user.id==activity.get('user').id" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Resolved</a>
+<!--           <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markResolved(activity.id, activityIndex)">Assign Problem</a>          
+ -->      
+          <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="assignProblem(activity.id, activityIndex)">Assign the problem</a>
+          <p ng-if="activity.get('problemStatus')=='IN_PROGRESS'">Problem is assigned to {{activity.get("assignedTo").get("firstName")}}&nbsp{{activity.get("assignedTo").get("lastName")}}</p>
+          <a ng-if="activity.get('problemStatus')=='IN_PROGRESS' && isAdmin" class="button button-block button-balanced button-outline" ng-click="assignProblem(activity.id, activityIndex)">Reassign the problem</a>            
+
+          <a ng-if="activity.get('problemStatus')=='IN_PROGRESS' || activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Problem Resolved</a>                    
+        </p>                        
         <p>{{activity.createdAt | date:'mediumDate'}}&nbsp;{{activity.createdAt | date:'shortTime'}}</p>        
         <p ng-if="activity.get('status')=='S'" >
           <span class="assertive">* Activity marked as spam</span>

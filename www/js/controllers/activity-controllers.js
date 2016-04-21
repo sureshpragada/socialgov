@@ -36,6 +36,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 .controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal, $ionicScrollDelegate) {
   console.log("Activity controller");  
   $scope.debateList=[];
+  $scope.legiContactsList=[];
   $scope.user=AccountService.getUser();
   $scope.isAdmin=AccountService.canUpdateRegion();
   $ionicLoading.show({
@@ -175,6 +176,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           notifyUsers.push(userId);  
         }
       }
+      $scope.postComment.data="";
       NotificationService.pushNotificationToUserList(notifyUsers, newDebate.get("argument"));
     }, function(error){
       LogService.log({type:"ERROR", message: "Unable to post comment  " +  JSON.stringify(error)}); 
@@ -364,6 +366,18 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     });    
   };
 
+  $scope.deleteComment=function(debateId, activityIndex, debateIndex) {
+    $cordovaDialogs.confirm('Is this response really delete?', 'Delete comment', ['Yes','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        ActivityService.deleteComment($scope.activities[activityIndex], $scope.debateList[activityIndex][debateIndex]);
+        $scope.debateList[activityIndex].splice(debateIndex, 1);      
+        console.log("Canceled reporting of response spam");
+      }
+    });    
+  };
+
+
   $scope.removeDebateSpamFlag=function(debateId, activityIndex, debateIndex) {
     $cordovaDialogs.confirm('Do you really want to remove spam flag on this response?', 'Spam confirmation', ['Not a spam','Cancel'])
     .then(function(buttonIndex) {      
@@ -547,6 +561,41 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
   });  
+
+  AccountService.getSelfLegisContacts(AccountService.getUserResidency()).then(function(legiContacts){
+    $scope.legiContacts=legiContacts;
+    for(var i=0;i<legiContacts.length;i++) {
+        $scope.legiContactsList.push({
+          label: legiContacts[i].get("firstName") + " " + legiContacts[i].get("lastName"),
+          value: legiContacts[i].get("firstName") + " " + legiContacts[i].get("lastName"),
+          opt: legiContacts[i].get("title"),
+        });
+      }
+  },function(error){
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get legislative contacts.");
+    LogService.log({type:"ERROR", message: "Unable to get legislative contacts  " + JSON.stringify(error)}); 
+  })
+
+  $scope.assignProblem = function(activityId, activityIndex) {
+    $scope.activityIndex=activityIndex;
+    $scope.$parent.openChoiceModal("legiContacts", $scope.legiContactsList);
+  }; 
+
+  $scope.$on('choiceSelectionComplete', function(e,data) {  
+      $scope.legiContactSelectedIndex=data.selected; 
+      $scope.activities[$scope.activityIndex].set("assignedTo", $scope.legiContacts[$scope.legiContactSelectedIndex]);
+      $scope.activities[$scope.activityIndex].set("problemStatus", "IN_PROGRESS");
+      $scope.activities[$scope.activityIndex].save(null, {
+        success: function(activity) {
+          NotificationService.pushNotificationToUserList([$scope.activities[$scope.activityIndex].get("user").id], "Your problem has been assigned to "+$scope.legiContacts[$scope.legiContactSelectedIndex].get("firstName")+" "+$scope.legiContacts[$scope.legiContactSelectedIndex].get("lastName"));
+          NotificationService.pushNotificationToUserList([$scope.legiContacts[$scope.legiContactSelectedIndex].id], "You have been assigned to a problem of "+$scope.activities[$scope.activityIndex].get("user").get("firstName")+" "+$scope.activities[$scope.activityIndex].get("user").get("lastName"));
+          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Assigned problem successfully.");
+        },
+        error: function(activity, error) {
+          $scope.controllerMessage="Unable to assign the problem";
+        }
+      });
+  });
 
 })
 
