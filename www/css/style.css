@@ -92,8 +92,16 @@ input.textAlignLeft {
 }
 
 .cropArea {
-      background: #E4E4E4;
-      overflow: hidden;
-      width:auto;
-      height:350px;
-    }
+  background: #E4E4E4;
+  overflow: hidden;
+  width:auto;
+  height:350px;
+}
+
+.home-background {
+  background: url('../img/ourblock-background.jpg') no-repeat; 
+  background-size: cover; 
+  background-position: center; 
+  margin: auto; 
+  z-index: 2;   
+}

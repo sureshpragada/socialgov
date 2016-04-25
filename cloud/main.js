@@ -182,7 +182,7 @@ Parse.Cloud.define("sendSmsPlivo", function(request, response) {
     regionName="SocialGov";
   }
   var downloadUrl="http://tinyurl.com/zvu26om"; // http://socialgov.in/redirect/socialgov.html
-  var message="You have been invited to " + regionName + ". Use invitation code, "+ invitationCode + " to login to the service. Download app at " + downloadUrl;
+  var message="You have been invited to " + regionName + ". Use PIN, "+ invitationCode + " to login to the service. Download app at " + downloadUrl;
 
   console.log("SMS will be sent to : " + request.params.phoneNumber + ", message : " + message);
 

@@ -421,27 +421,37 @@ angular.module('starter.controllers')
 
 })
 
-.controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaDialogs, SettingsService, NotificationService, $http) {
+.controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaDialogs, SettingsService, NotificationService, $http, UtilityService) {
   console.log("Invitation login controller " + new Date().getTime());
-  $scope.inputForm={invitationCode: null, terms: true};
+  $scope.inputForm={
+    phoneNum: "",
+    pin: "",
+    pinLength: PIN_LENGTH    
+  };
   $scope.appMessage=SettingsService.getAppMessage();  
+  if($scope.appMessage==null) {
+    $scope.controllerMessage=SettingsService.getControllerInfoMessage("Your invitation SMS have PIN to login to your community."); // You can recover PIN if you have lost your message.       
+  }  
   
   $scope.validateInvitationCode=function() {
-    console.log("Validating invitation code");
-    if($scope.inputForm.invitationCode!=null && $scope.inputForm.invitationCode.length>0) {
-      AccountService.validateInvitationCode($scope.inputForm.invitationCode.trim()).then(function(user) {
+    console.log("Validating invitation code ");
+    if($scope.inputForm.phoneNum.length>0 && $scope.inputForm.pin.length>0) {
+      AccountService.validatePIN($scope.inputForm.phoneNum.trim(), $scope.inputForm.pin.trim()).then(function(user) {
         NotificationService.registerDevice();
-        $state.go("tab.dash");
+        if(user.get("changePin")=='Y') {
+          $state.go("reset-pin");  
+        } else {
+          $state.go("tab.dash");
+        }
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage(error.message);  
       });  
     } else {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter invitation code.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter mobile number you have received invitation and PIN in the SMS message.");
     }
   };
 
   $scope.recoverInvitationCode=function() {
-    SettingsService.setAppInfoMessage("Invitation code will be SMS to your phone number.")
     $state.go("invite-recover");
   };  
 
@@ -459,6 +469,7 @@ angular.module('starter.controllers')
 .controller('InvitationRecoverCtrl', function($scope, $state, RegionService, AccountService, SettingsService, $cordovaContacts, NotificationService, LogService) {
   $scope.user={};
   $scope.appMessage=SettingsService.getAppMessage();
+  $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code will be sent as SMS to your phone number.");
   $scope.recoverInvitationCode=function(){
     console.log(JSON.stringify($scope.user));    
     if($scope.user.firstName==null || $scope.user.firstName.length==0 || $scope.user.lastName==null || $scope.user.lastName.length==0) {
@@ -470,18 +481,54 @@ angular.module('starter.controllers')
       return;
     }
 
-    AccountService.recoverInvitationCode($scope.user).then(function(userList) {
-      if(userList!=null && userList.length==1) {
-        NotificationService.sendInvitationCode(userList[0].id, userList[0].get("username"), "");
-        SettingsService.setAppSuccessMessage("Invitation code has been SMS to your mobile.");
+    AccountService.recoverInvitationCode($scope.user).then(function(recoveredUser) {
+      if(recoveredUser!=null) {
+        NotificationService.sendInvitationCode(recoveredUser.get("pin"), recoveredUser.get("username"), "");
+        SettingsService.setAppSuccessMessage("New PIN is sent as an SMS to your mobile.");
         $state.go("invite-login");
       } else {
-        LogService.log({type:"ERROR", message: "Unable to find unique entry for invitation code recovery  " + $scope.user.phoneNum}); 
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your invitation code.");        
+        LogService.log({type:"ERROR", message: "Unable to recover your PIN " + $scope.user.phoneNum}); 
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your PIN.");        
         $scope.$apply();
       }
     }, function(error) { 
-       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your invitation code.");
+        LogService.log({type:"ERROR", message: "Unable to recover your PIN " + $scope.user.phoneNum + " Message : " + JSON.stringify(error)});       
+       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your PIN.");
+    });
+  };
+
+})
+
+.controller('ResetPinCtrl', function($scope, $state, RegionService, AccountService, SettingsService, $cordovaContacts, NotificationService, LogService) {
+  $scope.inputForm={
+    newPin: "",
+    reenterPin: "",
+    pinLength: PIN_LENGTH
+  };
+  console.log("Ping length : " + $scope.inputForm.pinLength);
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.controllerMessage=SettingsService.getControllerInfoMessage("PIN length should be " + PIN_LENGTH + " digits.");
+  var pageTransitionData=SettingsService.getPageTransitionData();
+  $scope.resetPin=function(){
+    console.log(JSON.stringify($scope.inputForm));    
+    if($scope.inputForm.newPin.trim().length==0 || $scope.inputForm.reenterPin.trim().length==0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter new PIN."); 
+      return;
+    }    
+    if($scope.inputForm.newPin.trim()!=$scope.inputForm.reenterPin.trim()) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please re-enter the PIN."); 
+      return;
+    }        
+    if(pageTransitionData!=null && pageTransitionData.currentPin==$scope.inputForm.newPin.trim()) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Your new PIN cannot match old PIN.");
+      return;
+    }
+
+    AccountService.resetPin($scope.inputForm).then(function(userList) {
+      SettingsService.setAppSuccessMessage("Your PIN reset is successful.");
+      $state.go("tab.dash");
+    }, function(error) { 
+       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to reset your PIN.");
     });
   };
 
@@ -767,10 +814,10 @@ angular.module('starter.controllers')
       // Send invitation
       // if($scope.regionSettings.sendInvitationCode==true) {
         RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
-          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), region.get("name"));
-        }, function(error){
+          NotificationService.sendInvitationCode(newUser.get("pin"), newUser.get("username"), region.get("name"));
+        }, function(error){          
           LogService.log({type:"ERROR", message: "Unable to get region to send SMS " + JSON.stringify(error)}); 
-          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), "");        
+          NotificationService.sendInvitationCode(newUser.get("pin"), newUser.get("username"), "");        
         });        
       // } else {
       //   console.log("Region does not support sending invitation code");

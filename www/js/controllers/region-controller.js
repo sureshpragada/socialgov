@@ -9,7 +9,8 @@ angular.module('starter.controllers')
 
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService, PictureManagerService, $ionicLoading) {
   $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading community...<ion-spinner/></p>"
+    template: "<p class='item-icon-left'>Loading community...<ion-spinner/></p>",
+    duration: LOADING_DURATION
   });  
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  

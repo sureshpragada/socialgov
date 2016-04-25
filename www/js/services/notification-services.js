@@ -134,7 +134,8 @@ angular.module('notification.services', ['ionic'])
       user.save();
     },
     sendInvitationCode: function(invitationCode, phoneNumber, regionName) {
-      if(ENV=="PROD") {
+      console.log("Send invitation code : " + invitationCode + " Phone number : " + phoneNumber + " Region name : " + regionName);
+      if(ENV=="PROD") {        
         //sendSmsPlivo
         Parse.Cloud.run('sendSmsPlivo', {"phoneNumber": phoneNumber, "invitationCode": invitationCode, "regionName": regionName}, {
           success: function(response) {

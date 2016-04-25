@@ -1,6 +1,6 @@
 angular.module('account.services', [])
 
-.factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, $q) {
+.factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', 'UtilityService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, UtilityService, $q) {
   var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
   var userLastRefreshTimeStamp=null; //new Date().getTime();
   var communityAddress={};
@@ -283,6 +283,8 @@ angular.module('account.services', [])
       newUser.set("deviceReg", "N");
       newUser.set("homeOwner", inputUser.homeOwner==true?true:false);
       newUser.set("homeNo", inputUser.homeNumber);
+      newUser.set("pin", UtilityService.generateRandomNumber(PIN_LENGTH));
+      newUser.set("changePin", 'N');      
       return newUser;
     },
     addLookUpContact: function(lookUpUser) {
@@ -296,6 +298,7 @@ angular.module('account.services', [])
       var newUser = this.addContact(inputUser);
       newUser.set("residency", Parse.User.current().get("residency"));
       newUser.set("status", "P");
+      newUser.set("changePin", 'Y');      
       return newUser.save();        
     },
     updateAccount: function(inputUser) {
@@ -370,10 +373,33 @@ angular.module('account.services', [])
         }
       });
     },
-    recoverInvitationCode: function(user) {
+    recoverInvitationCode: function(inputUserForm) {
+      // TODO :: Do lavenstine string match to find the distance of first name and last name
+      var deferred = $q.defer();            
       var query = new Parse.Query(Parse.User);
-      query.equalTo("phoneNum",user.phoneNum);
-      return query.find();  
+      query.equalTo("phoneNum",inputUserForm.phoneNum);
+      query.first().then(function(recoveredUser){
+        var newPin=UtilityService.generateRandomNumber(PIN_LENGTH);
+        recoveredUser.set("pin", newPin);
+        var promises=[];
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: recoveredUser.id, userObjectKey: 'pin', userObjectValue: recoveredUser.get("pin") }));              
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: recoveredUser.id, userObjectKey: 'changePin', userObjectValue: 'Y' }));              
+        $q.all(promises).then(function(operationReturnStatusList){
+          deferred.resolve(recoveredUser);
+        }, function(error){
+          deferred.reject(error);
+        })
+      }, function(error){
+        deferred.reject(error);
+      });  
+      return deferred.promise;
+    },
+    resetPin: function(inputUserForm) {
+      console.log("PIN reset info : " + JSON.stringify(inputUserForm));
+      var user=this.getUser();
+      user.set("pin", inputUserForm.newPin);
+      user.set("changePin", "N");
+      return user.save();
     },
     getResidentsOfHome: function(regionName, homeNo) {
       var deferred = $q.defer();      
@@ -461,6 +487,39 @@ angular.module('account.services', [])
       });    
       return deferred.promise;      
     },
+    validatePIN: function(phoneNum, pin) {
+      var self=this;
+      var deferred = $q.defer();
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("phoneNum", phoneNum);
+      // userQuery.equalTo("pin", pin);
+      userQuery.first(function(user) {
+        if(user!=null) {
+          console.log("User entered pin " + pin + " Pin in the system : " + user.get("pin"));
+            if(user.get("pin")==null || user.get("pin").length==0 || user.get("pin")==pin) {
+              Parse.User.logIn(user.getUsername(), "custom", {
+                success: function(authoritativeUser) {
+                  authoritativeUser.set("status", "A");
+                  if(user.get("pin")==null || user.get("pin").length==0) {
+                    authoritativeUser.set("changePin", "Y");
+                  }
+                  authoritativeUser.save();                
+                  deferred.resolve(authoritativeUser);
+                }, error: function(error) {
+                  deferred.reject(error);
+                }
+              });            
+            } else {
+              deferred.reject(new Parse.Error(5002, "You have entered invalid PIN."));                
+            }
+        } else {
+          deferred.reject(new Parse.Error(5001, "You have entered invalid PIN. Have you received invitation from your association?"));  
+        }
+      }, function(error) {
+        deferred.reject(error);
+      });    
+      return deferred.promise;      
+    },    
     sendNotificationToHomeOwner: function(homeNo, message) {
       this.getResidentsOfHome(Parse.User.current().get("residency"), homeNo).then(function(residents) {
         var residentIdList=[];
@@ -555,6 +614,8 @@ angular.module('account.services', [])
       user.set("status","A");
       user.set("deviceReg", "N");
       user.set("homeOwner",this.yourInfo.homeOwner);
+      user.set("pin",Number.generateRandomNumber(PIN_LENGTH));
+      
       return user.signUp();
     },
     convertToLowerAndAppendUndScore:function(inputString){
