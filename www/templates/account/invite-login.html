@@ -4,11 +4,15 @@
 		<my-app-message info="controllerMessage"></my-app-message>
 		<my-app-message info="appMessage"></my-app-message>
 		<div class="list padding-top">
+			<label class="item item-input item-select">
+			    <span class="input-label">Country Code</span>
+			    <select ng-model="inputForm.country" ng-options="country.name for country in countryList"></select>			    
+			 </label>														
 		  <label class="item item-input item-stacked-label">
 		    <span class="input-label">Mobile Number</span>
-		    <input type="tel" ng-model="inputForm.phoneNum" class="textAlignLeft">
+		    <input type="tel" ng-model="inputForm.phoneNum" class="textAlignLeft" maxlength="10" ng-disabled="inputForm.requestedAccessCode">
 		  </label>     	  
-		  <label class="item item-input item-stacked-label">
+		  <label class="item item-input item-stacked-label" ng-show="inputForm.requestedAccessCode">
 		    <span class="input-label">PIN</span>
 		    <input type="tel" ng-model="inputForm.pin" class="textAlignLeft" maxlength="{{inputForm.pinLength}}">
 		  </label>     	  		  
@@ -16,13 +20,10 @@
 		<div>
 		  <a ng-click="showTerms()" class="icon ion-ios-book-outline assertive"></a> <a ng-click="showTerms()">I agree to terms and conditions</a>
 		</div>
-		<div class="row">
-			<div class="col">
-				<button class="button button-block button-outline" ng-click="recoverInvitationCode()">Recover PIN</button>
-			</div>		
-			<div class="col">
-				<button class="button button-block button-calm" ng-click="validateInvitationCode()">Login</button>
-			</div>											
+		<div>
+			<button class="button button-block button-calm" ng-click="getAccessCode()" ng-show="!inputForm.requestedAccessCode">Get Access Code</button>				
+			<button class="button button-block button-calm" ng-click="validateInvitationCode()" ng-show="inputForm.requestedAccessCode">Validate Access Code</button>		
+<!-- 			<button class="button button-block button-outline" ng-click="recoverInvitationCode()" ng-show="inputForm.requestedAccessCode">Resend Access Code</button> -->
 		</div>
 	</ion-content>
 </ion-view>

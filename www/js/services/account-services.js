@@ -283,8 +283,6 @@ angular.module('account.services', [])
       newUser.set("deviceReg", "N");
       newUser.set("homeOwner", inputUser.homeOwner==true?true:false);
       newUser.set("homeNo", inputUser.homeNumber);
-      newUser.set("pin", UtilityService.generateRandomNumber(PIN_LENGTH));
-      newUser.set("changePin", 'N');      
       return newUser;
     },
     addLookUpContact: function(lookUpUser) {
@@ -298,7 +296,6 @@ angular.module('account.services', [])
       var newUser = this.addContact(inputUser);
       newUser.set("residency", Parse.User.current().get("residency"));
       newUser.set("status", "P");
-      newUser.set("changePin", 'Y');      
       return newUser.save();        
     },
     updateAccount: function(inputUser) {
@@ -394,6 +391,11 @@ angular.module('account.services', [])
       });  
       return deferred.promise;
     },
+    getUserByUserName: function(username) {
+      var query = new Parse.Query(Parse.User);
+      query.equalTo("username",username);
+      return query.find();
+    },    
     resetPin: function(inputUserForm) {
       console.log("PIN reset info : " + JSON.stringify(inputUserForm));
       var user=this.getUser();
@@ -613,9 +615,7 @@ angular.module('account.services', [])
       user.set("superAdmin",true);
       user.set("status","A");
       user.set("deviceReg", "N");
-      user.set("homeOwner",this.yourInfo.homeOwner);
-      user.set("pin",Number.generateRandomNumber(PIN_LENGTH));
-      
+      user.set("homeOwner",this.yourInfo.homeOwner);      
       return user.signUp();
     },
     convertToLowerAndAppendUndScore:function(inputString){
