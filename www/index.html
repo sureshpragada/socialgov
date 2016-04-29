@@ -101,20 +101,21 @@
       {id:"CTZEN", label:"Citizen"},
       {id:"SUADM", label:"Administrator"} 
     ];
-    var ACTIVITY_LIST=[
-      {id:"IDEA", label:"Development Idea"},    
-      {id:"ASK", label:"Ask Community"},             
-      {id:"ISSU", label:"Report Problem"},      
-      {id:"EVNT", label:"Public Program"},        
-      {id:"NOTF", label:"Send Notification"},
-      {id:"POLL", label:"Community Poll"}
-    ];    
     var LEGI_DEFAULT_ROLES=[
       {title:"President"},
       {title:"Vice President"},
-      {title:"Ward Member"}
+      {title:"Secretary"},
+      {title:"Treasurer"}
+    ];        
+    var ACTIVITY_LIST=[
+      {id:"IDEA", label:"Development Idea"},    
+      {id:"ASK", label:"Ask Community"},                    
+      {id:"ISSU", label:"Report Problem"},      
+      {id:"EVNT", label:"Community Event"},        
+      {id:"NOTF", label:"Send Notification"},
+      {id:"POLL", label:"Community Poll"}      
     ];    
-    var SHOW_SERVICE_CONTACTS=true;
+    var SHOW_SERVICE_CONTACTS=true;   
     var REGION_SETTINGS={
       "financialMgmt":"SELF",
       "neighborPrivacy":false,
@@ -122,6 +123,7 @@
       "supportMultiCountry":false,
       "currencySymbol":"Rs",
       "areaCode":"91",
+      "sendInvitationCode":false,
       "serviceContacts":"SELF",
       "hoa":true,
       "legislativeMgmt":"SELF",
@@ -131,12 +133,12 @@
       "permissions": [
         {
           "functionName": "Financial",
-          "allowedRoles": ["Sarpanch", "MPTC"]
+          "allowedRoles": ["President", "Treasurer"]
         },
         {
           "functionName": "Settings",
-          "allowedRoles": ["Sarpanch", "MPTC"]
-        }        
+          "allowedRoles": ["President", "Secretary"]
+        }
       ]
     };
     var FINANCIAL_FUNCTION_NAME="Financial";

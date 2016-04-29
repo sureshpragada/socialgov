@@ -133,9 +133,7 @@ angular.module('starter.controllers')
   }
 
   $scope.authPhoneNum=function() {
-    $ionicLoading.show({
-      template: "<ion-spinner></ion-spinner> Verifying your phone number..."
-    });      
+    $ionicLoading.show(SettingsService.getLoadingMessage("Verifying your phone number"));
     var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
     Parse.User.logIn(userName, "custom", {
       success: function(user) {
@@ -436,10 +434,7 @@ angular.module('starter.controllers')
 
   $scope.getAccessCode=function() {
     if($scope.inputForm.phoneNum.length==10) {
-      $ionicLoading.show({
-        template: "<p class='item-icon-left'>Sending access code...<ion-spinner/></p>",
-        duration: LOADING_DURATION        
-      });      
+      $ionicLoading.show(SettingsService.getLoadingMessage("Sending access code"));      
       AccountService.getUserByUserName($scope.inputForm.country.countryCode+""+$scope.inputForm.phoneNum).then(function(userList) {
         if(userList!=null && userList.length==1) {
           $scope.user=userList[0];
@@ -468,10 +463,7 @@ angular.module('starter.controllers')
     console.log("Validating invitation code ");
     if($scope.inputForm.pin.length==PIN_LENGTH) {
       if($scope.inputForm.pin==$scope.inputForm.code) {
-          $ionicLoading.show({
-            template: "<p class='item-icon-left'>Validating access code...<ion-spinner/></p>",
-            duration: LOADING_DURATION        
-          });              
+          $ionicLoading.show(SettingsService.getLoadingMessage("Validating access code"));       
           Parse.User.logIn($scope.user.get("username"), "custom").then(function(authoritativeUser) {
             authoritativeUser.set("status", "A");
             authoritativeUser.save();                
@@ -736,9 +728,7 @@ angular.module('starter.controllers')
      return; 
     }
 
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Registering your community...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Registering your community"));      
     AccountService.setYourInfo($scope.user);
     AccountService.createNewCommunity().then(function(regionData){
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
@@ -792,9 +782,7 @@ angular.module('starter.controllers')
     $scope.user.pageTransitionData=true;
     $ionicLoading.hide();
   } else if($scope.regionSettings.supportHomeNumber==true){
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Loading community homes...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Loading community homes"));      
     AccountService.getListOfHomesInCommunity(AccountService.getUserResidency()).then(function(homesList) {
       if(homesList!=null && homesList.length>0) {
         $scope.availableHomes=homesList;      

@@ -52,3 +52,65 @@ Follow up on previous rejection item :
 -------------------------------------------
 Please tap on more icon (3 horizontal bars) on top right corner of each post to see options available and you should see options for users to report spam. This will mark the post as spam and sent a push notification to the admin who will take action on the post.
 
+
+OurBlock Story Board : 
+===================================================
+What is our block? How it will be useful to my community?
+
+As an association board member, you know the effort goes into send a message across the community like water distribution times, get a feedback from the residents to make decisions and have residents share community problems. Also, as tresurer, imagine the complexity in maintaining the home owner payments and expenses with the receipts. 
+
+At the same time, as a resident, how can you make people aware of communities real problems and share ideas to solve them. How can we get indepth information about our community financials including reserves to get a 360 degree perspective about our community. 
+
+We believe that small and mid level communities should be able to manage themseleves efficiently. Here is our solution. 
+
+OurBlock is app based solution to manage residential communities. It empowers the residential communities to manage themselves by providing the tools to collaborate each other and manage their financials. 
+
+
+Setup community
+	Spring Arcade, 2-147 Rajendar Nagar Rd, Alakapuri, Hyderabad 500082
+
+Add cover photo
+
+Add homes and invite residents to the community
+	Add 102,103,201-204
+
+Review legislative titles
+	Add "Floor Incharge"
+	Move Treasure up 
+
+Appoint the other members on the board
+
+
+Collaboration
+
+Post a notification 
+	Water will be released on 9 AM this week starting April 25th to April 30th. 
+
+Report a problem
+	Water is leaking on the main street next to home # 103. 
+
+Report a poll
+	What times should we release the water?
+		6 AM - 8 AM
+		6 PM - 8 PM
+		8 PM - 10 PM
+
+Financials
+
+Setup your monthly maintenance fees
+	3000 (put notes as water charge of 2000)
+
+Open a balance sheet
+	Accept payment
+	Enter expense
+	Upload receipt
+
+Close balance sheet
+
+We will do another video to go through the financials.
+
+
+Settings
+
+=========================================================
+

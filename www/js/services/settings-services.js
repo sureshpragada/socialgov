@@ -77,6 +77,12 @@ angular.module('settings.services', [])
         message: infoMessage, 
         type: "INFO"
       };
+    },
+    getLoadingMessage: function(message) {
+      return {
+        template: "<p class='item-icon-left'>"+message+"...<ion-spinner/></p>",
+        duration: LOADING_DURATION
+      };
     }
   };
 }]);

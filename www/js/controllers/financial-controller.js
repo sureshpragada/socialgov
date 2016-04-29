@@ -8,9 +8,7 @@ angular.module('starter.controllers')
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
   $scope.isAdmin=AccountService.isFunctionalAdmin($scope.regionSettings, FINANCIAL_FUNCTION_NAME);
 
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
-  });
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading financial snapshot..."));
   FinancialService.getFinancialSnapshot($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(results){
     // Calculate payment status
     //  TODO :: if($scope.regionSettings.financialMgmt=="SELF") {
