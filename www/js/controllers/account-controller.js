@@ -686,7 +686,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading) {
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading, UserResidencyService) {
   console.log("Invite citizen controller");
   $scope.user={
     status:"P", 
@@ -775,13 +775,34 @@ angular.module('starter.controllers')
       // } else {
       //   console.log("Region does not support sending invitation code");
       // }
+      UserResidencyService.createUserResidency($scope.user, newUser).then(function(userResidency){
+        console.log("user residency has been created.");
+      },function(error){
+        console.log("Unable to create user residency");
+      });
       SettingsService.setAppSuccessMessage("Invitation has been sent.");
       $ionicHistory.goBack(-1);
       // $state.go("tab.neighbors");
     }, function(error) {
       // Verify if this user exist message
       if(error.code==202) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");  
+        UserResidencyService.getResidencyByPhoneNumber($scope.user.phoneNum).then(function(user){
+          console.log(JSON.stringify(user));
+          if(AccountService.getUserResidency() != user.get("residency")){
+            UserResidencyService.createUserResidency($scope.user, null).then(function(userResidency){
+              console.log("User already exists, so user residency has been created.")
+              SettingsService.setAppSuccessMessage("Invitation has been sent.");
+              $ionicHistory.goBack(-1);
+            },function(error){
+              console.log("unable to create user residency.")
+            });
+          }else{
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");  
+          }
+        },function(error){
+          console.log("Unable to get user residency by number "+error);
+        });
+        
       } else {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to invite this contact.");  
       }

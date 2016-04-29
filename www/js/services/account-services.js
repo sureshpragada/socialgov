@@ -352,22 +352,18 @@ angular.module('account.services', [])
       query.equalTo("phoneNum",number);
       query.find({
         success: function(results) {
-          console.log(JSON.stringify(results));
           var objectId = results[0].id;
           var sentMessageCount = results[0].sentInviteMessageCount;
-          console.log(objectId+" "+sentMessageCount);
-          console.log(sentMessageCount==null);
           if(sentMessageCount==null || sentMessageCount<=3){
-            console.log("yes");
             return objectId;
           }
           else{
-            console.log("No");
             return null;
           }
         },
         error: function(error) {
           console.log("unable to find the user");
+          return null;
         }
       });
     },
