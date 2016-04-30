@@ -1,6 +1,6 @@
 <ion-view>
   <ion-nav-title>Resident</ion-nav-title>
-  <ion-content class="visible-cards">
+  <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
 
@@ -41,14 +41,14 @@
         </ion-item>      
     </div>    
 
-    <my-app-message info="copyStatusMessage"></my-app-message>
+<!--     <my-app-message info="copyStatusMessage"></my-app-message>
     <div class="card"  ng-if="isAdmin && user.get('status')=='P'">
       <ion-item class="item-divider">Invitation Message</ion-item>
       <ion-item class="item-text-wrap" on-hold="copyInvitationMessage()">
         You have been invited to OurBlock. Use invitation code, <span style="font-weight: bold;">{{user.id}}</span> to login to the service. Download app at http://tinyurl.com/jb9tfnr              
       </ion-item>                       
     </div>    
-
+ -->
     <div class="padding" ng-if="isAdmin && user">
       <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="user.get('role')!='LEGI'">
         Appoint on Board
@@ -57,9 +57,9 @@
         Remove on Board
       </button>      
       <!-- Remove re-send invitation code after shubham greens onboard is complete -->
-      <button class="button button-royal button-block" ng-click="sendInvitationCode()">
+<!--       <button class="button button-royal button-block" ng-click="sendInvitationCode()">
         Re-Send Invitation Code
-      </button>      
+      </button>       -->
 <!--       <button class="button button-block button-assertive" ng-click="blockUser()">
         Block User
       </button>       -->

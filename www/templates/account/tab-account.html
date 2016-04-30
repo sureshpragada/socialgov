@@ -53,13 +53,13 @@
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Review Role Changes
       </ion-item>      
-      <ion-item on-hold="copyInvitationCode()">
-        Invitation Code<span class="item-note calm">{{user.id}}</span>                        
-      </ion-item>                                   
+<!--       <ion-item on-hold="copyInvitationCode()">
+        PIN<span class="item-note calm">{{user.get("pin")}}</span>                        
+      </ion-item>                                    -->
       <ion-item>
         App Version<span class="item-note">{{appVersion}}</span>                        
       </ion-item>                             
-      <ion-item class="item-icon-right" ng-click="logout()">
+      <ion-item class="item-icon-right" ng-click="logout()" ng-if="privs.isLogoutAllowed">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Sign Out
       </ion-item>      

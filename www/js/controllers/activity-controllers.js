@@ -39,11 +39,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.legiContactsList=[];
   $scope.user=AccountService.getUser();
   $scope.isAdmin=AccountService.canUpdateRegion();
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Finding activity in community<ion-spinner/></p>"
-  });
   $scope.appMessage=SettingsService.getAppMessage();
 
+  $ionicLoading.show(SettingsService.getLoadingMessage("Finding activity"));
   ActivityService.getActivityDataForDashboard().then(function(activityDashboardData){
     $scope.activities=activityDashboardData[0];
     var filterActivity=false;
@@ -671,9 +669,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $scope.post.notifyMessage = ActivityService.toProperPost($scope.post.notifyMessage);
     $cordovaDialogs.confirm('Do you want to post this activity?', 'Post Activity', ['Post','Continue Edit']).then(function(buttonIndex) { 
       if(buttonIndex==1) {       
-        $ionicLoading.show({
-          template: "<p class='item-icon-left'>Posting activity...<ion-spinner/></p>"
-        });
+        $ionicLoading.show(SettingsService.getLoadingMessage("Posting activity"));
         $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
         if($scope.regionSettings.activityModeration==true) {
           $scope.post.status="P";
@@ -911,10 +907,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $scope.post.notifyMessage = ActivityService.toProperPost($scope.post.notifyMessage);
     $cordovaDialogs.confirm('Do you want to submit this poll?', 'Submit Poll', ['Submit','Continue Edit']).then(function(buttonIndex) { 
       if(buttonIndex==1) {       
-        $ionicLoading.show({
-          template: "<ion-spinner></ion-spinner>Submitting your poll..."
-        });
-
+        $ionicLoading.show(SettingsService.getLoadingMessage("Submitting your poll"));
         if($scope.regionSettings.activityModeration==true) {
           $scope.post.status="P";
         } else {
@@ -1014,10 +1007,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
       // Not expired; Has this user voted on this before?
       for(var i=0;i<$scope.activity.get("choices").length;i++) {
         $scope.input.vote.push(false);      
-      }      
-      $ionicLoading.show({
-        template: "<ion-spinner></ion-spinner>Checking voting preferences..."
-      });      
+      }
+      $ionicLoading.show(SettingsService.getLoadingMessage("Checking voting preferences"));      
       $scope.isPollSubmitted=false;        
       ActivityService.isHomePerformedActivity($scope.activity).then(function(userActivityList){
         if(userActivityList!=null && userActivityList.length>0) {
@@ -1055,9 +1046,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     if(votedIndex!=-1) {
       $cordovaDialogs.confirm('Do you want to submit your vote?', 'Submit Vote', ['Submit Vote','Let me think']).then(function(buttonIndex) { 
         if(buttonIndex==1) {       
-          $ionicLoading.show({
-            template: "<ion-spinner></ion-spinner>Submitting your vote..."
-          });
+          $ionicLoading.show(SettingsService.getLoadingMessage("Submitting your vote"));      
           ActivityService.respondToPoll($scope.activity.id, votedIndex).then(function(updatedActivity){
             SettingsService.setAppSuccessMessage("Submitted your response for the poll.");
             $ionicLoading.hide();

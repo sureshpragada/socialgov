@@ -133,9 +133,7 @@ angular.module('starter.controllers')
   }
 
   $scope.authPhoneNum=function() {
-    $ionicLoading.show({
-      template: "<ion-spinner></ion-spinner> Verifying your phone number..."
-    });      
+    $ionicLoading.show(SettingsService.getLoadingMessage("Verifying your phone number"));
     var userName=$scope.selectedValues.country.countryCode+""+$scope.user.phoneNum;
     Parse.User.logIn(userName, "custom", {
       success: function(user) {
@@ -421,27 +419,71 @@ angular.module('starter.controllers')
 
 })
 
-.controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaDialogs, SettingsService, NotificationService, $http) {
+.controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaDialogs, SettingsService, NotificationService, $http, UtilityService, $ionicLoading) {
   console.log("Invitation login controller " + new Date().getTime());
-  $scope.inputForm={invitationCode: null, terms: true};
-  $scope.appMessage=SettingsService.getAppMessage();  
-  
-  $scope.validateInvitationCode=function() {
-    console.log("Validating invitation code");
-    if($scope.inputForm.invitationCode!=null && $scope.inputForm.invitationCode.length>0) {
-      AccountService.validateInvitationCode($scope.inputForm.invitationCode.trim()).then(function(user) {
-        NotificationService.registerDevice();
-        $state.go("tab.dash");
+  $scope.appMessage=SettingsService.getAppMessage();    
+  $scope.countryList=COUNTRY_LIST;
+  $scope.inputForm={
+    phoneNum: "",
+    pin: "",
+    pinLength: PIN_LENGTH, 
+    country: $scope.countryList[0],
+    requestedAccessCode: false
+  };
+  $scope.user=null;
+
+  $scope.getAccessCode=function() {
+    if($scope.inputForm.phoneNum.length==10) {
+      $ionicLoading.show(SettingsService.getLoadingMessage("Sending access code"));      
+      AccountService.getUserByUserName($scope.inputForm.country.countryCode+""+$scope.inputForm.phoneNum).then(function(userList) {
+        if(userList!=null && userList.length==1) {
+          $scope.user=userList[0];
+          $scope.inputForm.code=UtilityService.generateRandomNumber(PIN_LENGTH);
+          NotificationService.sendInvitationCodeV2("access-code", $scope.user.get("username"), "", $scope.inputForm.code);
+          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Access code has been sent as SMS to your mobile number.");          
+          $scope.inputForm.requestedAccessCode=true;          
+          $scope.$apply();          
+          $ionicLoading.hide();
+        } else {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("We do not find your invtation. Please contact your association for the invitation.");          
+          LogService.log({type:"ERROR", message: "We do not find your invtation " + $scope.inputForm.country.countryCode+""+$scope.inputForm.phoneNum});           
+          $ionicLoading.hide();
+        }
       }, function(error) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage(error.message);  
-      });  
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to query user system for your information.");
+        LogService.log({type:"ERROR", message: "Unable to query user system for your information " + $scope.inputForm.phoneNum + " " + JSON.stringify(error)}); 
+        $ionicLoading.hide();
+      }); 
     } else {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter invitation code.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter 10 digit mobile number.");
+    }
+  };
+
+  $scope.validateInvitationCode=function() {
+    console.log("Validating invitation code ");
+    if($scope.inputForm.pin.length==PIN_LENGTH) {
+      if($scope.inputForm.pin==$scope.inputForm.code) {
+          $ionicLoading.show(SettingsService.getLoadingMessage("Validating access code"));       
+          Parse.User.logIn($scope.user.get("username"), "custom").then(function(authoritativeUser) {
+            authoritativeUser.set("status", "A");
+            authoritativeUser.save();                
+            NotificationService.registerDevice();
+            $ionicLoading.hide();            
+            $state.go("tab.dash");            
+          }, function(error) {
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to log you into the system at this time.");  
+            LogService.log({type:"ERROR", message: "Unable to log you into the system at this time " + JSON.stringify(error)});                       
+            $ionicLoading.hide();
+          });            
+      } else {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter access code received in SMS message.");  
+      }
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Access code should be " + PIN_LENGTH + " digit number.");
     }
   };
 
   $scope.recoverInvitationCode=function() {
-    SettingsService.setAppInfoMessage("Invitation code will be SMS to your phone number.")
     $state.go("invite-recover");
   };  
 
@@ -459,6 +501,7 @@ angular.module('starter.controllers')
 .controller('InvitationRecoverCtrl', function($scope, $state, RegionService, AccountService, SettingsService, $cordovaContacts, NotificationService, LogService) {
   $scope.user={};
   $scope.appMessage=SettingsService.getAppMessage();
+  $scope.controllerMessage=SettingsService.getControllerInfoMessage("Invitation code will be sent as SMS to your phone number.");
   $scope.recoverInvitationCode=function(){
     console.log(JSON.stringify($scope.user));    
     if($scope.user.firstName==null || $scope.user.firstName.length==0 || $scope.user.lastName==null || $scope.user.lastName.length==0) {
@@ -470,18 +513,54 @@ angular.module('starter.controllers')
       return;
     }
 
-    AccountService.recoverInvitationCode($scope.user).then(function(userList) {
-      if(userList!=null && userList.length==1) {
-        NotificationService.sendInvitationCode(userList[0].id, userList[0].get("username"), "");
-        SettingsService.setAppSuccessMessage("Invitation code has been SMS to your mobile.");
+    AccountService.recoverInvitationCode($scope.user).then(function(recoveredUser) {
+      if(recoveredUser!=null) {
+        NotificationService.sendInvitationCode(recoveredUser.get("pin"), recoveredUser.get("username"), "");
+        SettingsService.setAppSuccessMessage("New PIN is sent as an SMS to your mobile.");
         $state.go("invite-login");
       } else {
-        LogService.log({type:"ERROR", message: "Unable to find unique entry for invitation code recovery  " + $scope.user.phoneNum}); 
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your invitation code.");        
+        LogService.log({type:"ERROR", message: "Unable to recover your PIN " + $scope.user.phoneNum}); 
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your PIN.");        
         $scope.$apply();
       }
     }, function(error) { 
-       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your invitation code.");
+        LogService.log({type:"ERROR", message: "Unable to recover your PIN " + $scope.user.phoneNum + " Message : " + JSON.stringify(error)});       
+       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to recover your PIN.");
+    });
+  };
+
+})
+
+.controller('ResetPinCtrl', function($scope, $state, RegionService, AccountService, SettingsService, $cordovaContacts, NotificationService, LogService) {
+  $scope.inputForm={
+    newPin: "",
+    reenterPin: "",
+    pinLength: PIN_LENGTH
+  };
+  console.log("Ping length : " + $scope.inputForm.pinLength);
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.controllerMessage=SettingsService.getControllerInfoMessage("PIN length should be " + PIN_LENGTH + " digits.");
+  var pageTransitionData=SettingsService.getPageTransitionData();
+  $scope.resetPin=function(){
+    console.log(JSON.stringify($scope.inputForm));    
+    if($scope.inputForm.newPin.trim().length==0 || $scope.inputForm.reenterPin.trim().length==0) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter new PIN."); 
+      return;
+    }    
+    if($scope.inputForm.newPin.trim()!=$scope.inputForm.reenterPin.trim()) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please re-enter the PIN."); 
+      return;
+    }        
+    if(pageTransitionData!=null && pageTransitionData.currentPin==$scope.inputForm.newPin.trim()) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Your new PIN cannot match old PIN.");
+      return;
+    }
+
+    AccountService.resetPin($scope.inputForm).then(function(userList) {
+      SettingsService.setAppSuccessMessage("Your PIN reset is successful.");
+      $state.go("tab.dash");
+    }, function(error) { 
+       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to reset your PIN.");
     });
   };
 
@@ -568,8 +647,9 @@ angular.module('starter.controllers')
 })
 
 .controller('CommunityAddressCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
+  console.log("Community address controller");
+  $scope.communityAddress=AccountService.getCommunityAddress();
   
-  $scope.communityAddress={};
   $scope.next=function() {
     if($scope.communityAddress.name == null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
@@ -602,8 +682,8 @@ angular.module('starter.controllers')
 })
 
 .controller('CommunityInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
-  
-  $scope.communityInfo={};
+  console.log("Community info controller");
+  $scope.communityInfo=AccountService.getCommunityInfo($scope.communityInfo);
 
   $scope.next=function() {
     console.log(JSON.stringify($scope.communityInfo));
@@ -649,9 +729,7 @@ angular.module('starter.controllers')
      return; 
     }
 
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Registering your community...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Registering your community"));      
     AccountService.setYourInfo($scope.user);
     AccountService.createNewCommunity().then(function(regionData){
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
@@ -705,9 +783,7 @@ angular.module('starter.controllers')
     $scope.user.pageTransitionData=true;
     $ionicLoading.hide();
   } else if($scope.regionSettings.supportHomeNumber==true){
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Loading community homes...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Loading community homes"));      
     AccountService.getListOfHomesInCommunity(AccountService.getUserResidency()).then(function(homesList) {
       if(homesList!=null && homesList.length>0) {
         $scope.availableHomes=homesList;      
@@ -767,10 +843,10 @@ angular.module('starter.controllers')
       // Send invitation
       // if($scope.regionSettings.sendInvitationCode==true) {
         RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
-          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), region.get("name"));
-        }, function(error){
+          NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), region.get("name"), "");
+        }, function(error){          
           LogService.log({type:"ERROR", message: "Unable to get region to send SMS " + JSON.stringify(error)}); 
-          NotificationService.sendInvitationCode(newUser.id, newUser.get("username"), "");        
+          NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), "", "");
         });        
       // } else {
       //   console.log("Region does not support sending invitation code");
@@ -785,6 +861,7 @@ angular.module('starter.controllers')
       // $state.go("tab.neighbors");
     }, function(error) {
       // Verify if this user exist message
+      LogService.log({type:"ERROR", message: "Unable to invite resident " + JSON.stringify(error)});       
       if(error.code==202) {
         UserResidencyService.getUserByPhoneNumber($scope.user.phoneNum).then(function(user){
           UserResidencyService.getUserResidencyByUserAndResidency(user, AccountService.getUserResidency()).then(function(userResidency){

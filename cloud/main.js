@@ -205,3 +205,45 @@ Parse.Cloud.define("sendSmsPlivo", function(request, response) {
     }
   });
 });
+
+Parse.Cloud.define("sendSmsPlivoV2", function(request, response) {
+  var auth_id = "MANJA3NWVJYTAYMTQ0YT";
+  var auth_token = "MTI0NjhmZGU5ODQyZDIzZTU1NDJjZGRjNjBjYmNh";
+  var plivo_number = "16623561633";
+  
+  var invitationCode=request.params.invitationCode;
+  var regionName=request.params.regionName;
+  if(regionName==null || regionName.length<=0) {
+    regionName="SocialGov";
+  }
+  var downloadUrl="http://tinyurl.com/zvu26om"; // http://socialgov.in/redirect/socialgov.html
+
+  var message="";
+  if(request.params.messageType=="invitation") {
+    message="You have been invited to " + regionName + ". Download app at " + downloadUrl;
+  } else if(request.params.messageType=="access-code") {
+    message="Your access code is " + invitationCode + " to login to " + regionName + ". Download app at " + downloadUrl;
+  } 
+  
+  console.log("SMS will be sent to : " + request.params.phoneNumber + ", message : " + message);
+  if(message.length>0) {
+    Parse.Cloud.httpRequest({
+      method: "POST",
+      headers: {'Content-Type': 'application/json',},
+      url: 'https://'+auth_id+':'+auth_token+'@api.plivo.com/v1/Account/'+auth_id+ '/Message/',
+      body: {
+        "src" : plivo_number,
+        "dst" : request.params.phoneNumber,
+        "text" : message
+      },
+      success: function(httpResponse) {
+          console.log(httpResponse.text);
+          response.success("Successfully sent SMS to the invitee.");
+      },
+      error: function(httpResponse) {
+        console.error('Request failed with response code ' + httpResponse.status);
+        response.error('Request failed with response code ' + httpResponse.status);
+      }
+    });
+  }
+});

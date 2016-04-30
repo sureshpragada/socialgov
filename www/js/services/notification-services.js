@@ -134,7 +134,8 @@ angular.module('notification.services', ['ionic'])
       user.save();
     },
     sendInvitationCode: function(invitationCode, phoneNumber, regionName) {
-      if(ENV=="PROD") {
+      console.log("Send invitation code : " + invitationCode + " Phone number : " + phoneNumber + " Region name : " + regionName);
+      if(ENV=="PROD") {        
         //sendSmsPlivo
         Parse.Cloud.run('sendSmsPlivo', {"phoneNumber": phoneNumber, "invitationCode": invitationCode, "regionName": regionName}, {
           success: function(response) {
@@ -148,6 +149,22 @@ angular.module('notification.services', ['ionic'])
         });
       }
     },
+    sendInvitationCodeV2: function(messageType, phoneNumber, regionName, invitationCode) {
+      console.log("Send invitation code : " + invitationCode + " Phone number : " + phoneNumber + " Region name : " + regionName + " Message type : " + messageType);
+      if(ENV=="PROD") {        
+        //sendSmsPlivo
+        Parse.Cloud.run('sendSmsPlivoV2', {"phoneNumber": phoneNumber, "invitationCode": invitationCode, "regionName": regionName, "messageType": messageType}, {
+          success: function(response) {
+            console.log("Response from sendSmsPlivo : " + JSON.stringify(response));
+            LogService.log({type:"INFO", message: "SMS Send is success " + JSON.stringify(response)}); 
+          }, 
+          error: function(error) {
+            console.log("Response from sendSmsPlivo : " + JSON.stringify(error));
+            LogService.log({type:"ERROR", message: "SMS send is failed " + JSON.stringify(error)}); 
+          }
+        });
+      }
+    },    
     openEmailClient: function(subject, body, attachment, attachmentName) {
       if(ionic.Platform.isWebView()) {        
         $cordovaEmailComposer.addAlias('gmail', 'com.google.android.gm');

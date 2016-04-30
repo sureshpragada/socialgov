@@ -1,0 +1,22 @@
+<ion-view view-title="Change PIN">
+	<ion-content class="padding">
+<!-- 		<img class="full-image" src="img/app_logo.png">	 -->
+		<my-app-message info="controllerMessage"></my-app-message>
+		<my-app-message info="appMessage"></my-app-message>
+		<div class="list padding-top">
+		  <label class="item item-input item-stacked-label">
+		    <span class="input-label">Enter new PIN</span>
+		    <input type="tel" ng-model="inputForm.newPin" class="textAlignLeft" maxlength="{{inputForm.pinLength}}">
+		  </label>     	  		  
+		  <label class="item item-input item-stacked-label">
+		    <span class="input-label">Re-enter new PIN</span>
+		    <input type="tel" ng-model="inputForm.reenterPin" class="textAlignLeft" maxlength="{{inputForm.pinLength}}">
+		  </label>     	  		  		  
+		</div>
+		<div>
+			<button class="button button-block button-calm" ng-click="resetPin()">Change PIN</button>
+		</div>		
+	</ion-content>
+</ion-view>
+
+

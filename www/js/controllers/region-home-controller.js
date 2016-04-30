@@ -1,9 +1,7 @@
 angular.module('starter.controllers')
 
 .controller('RegionHomesCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading) {
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Listing your homes...<ion-spinner/></p>"
-  });        
+  $ionicLoading.show(SettingsService.getLoadingMessage("Listing your homes"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.control={
     requestedSearch: true,
@@ -52,9 +50,7 @@ angular.module('starter.controllers')
 
 .controller('HomeDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory) {
   console.log("Home detail controller " + $stateParams.homeNo);
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Listing home residents...<ion-spinner/></p>"
-  });        
+  $ionicLoading.show(SettingsService.getLoadingMessage("Listing home residents"));
   $scope.homeNo=$stateParams.homeNo;
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsOfHome(AccountService.getUserResidency(), $stateParams.homeNo).then(function(neighborList) {
@@ -109,9 +105,7 @@ angular.module('starter.controllers')
 
 .controller('EditHomeCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory) {
   console.log("Edit home controller " + $stateParams.homeNo);
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Retrieving home details...<ion-spinner/></p>"
-  });        
+  $ionicLoading.show(SettingsService.getLoadingMessage("Retrieving home details"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.input={
     homeNo: $stateParams.homeNo,
@@ -390,9 +384,7 @@ angular.module('starter.controllers')
 })
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Listing your neighbors...<ion-spinner/></p>"
-  });        
+  $ionicLoading.show(SettingsService.getLoadingMessage("Listing your neighbors"));
   $scope.control={
     requestedSearch: true,
     searchStr: ""

@@ -102,6 +102,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         if(user==null || !user.authenticated()) {
           console.log("User is not authenticated");
           $state.go("home");
+        } else {
+          // TODO :: Does user need to reset PIN?
         }
       }
     })
@@ -968,6 +970,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       controller: 'InvitationRecoverCtrl',
       cache: false
     })    
+
+    .state('reset-pin', {
+      url: '/reset-pin',
+      templateUrl: 'templates/account/reset-pin.html',
+      controller: 'ResetPinCtrl',
+      cache: false
+    })        
 
     .state('request-invitation', {
       url: '/request-invitation',

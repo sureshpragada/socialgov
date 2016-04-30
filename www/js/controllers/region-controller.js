@@ -8,9 +8,7 @@ angular.module('starter.controllers')
 
 
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService, PictureManagerService, $ionicLoading) {
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading community...<ion-spinner/></p>"
-  });  
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading community"));
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);

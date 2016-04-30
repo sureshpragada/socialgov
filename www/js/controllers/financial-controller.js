@@ -8,9 +8,7 @@ angular.module('starter.controllers')
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
   $scope.isAdmin=AccountService.isFunctionalAdmin($scope.regionSettings, FINANCIAL_FUNCTION_NAME);
 
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading financial snapshot...<ion-spinner/></p>"
-  });
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading financial snapshot"));
   FinancialService.getFinancialSnapshot($scope.user.get("residency"), $scope.user.get("homeNo")).then(function(results){
     // Calculate payment status
     //  TODO :: if($scope.regionSettings.financialMgmt=="SELF") {
@@ -93,9 +91,7 @@ angular.module('starter.controllers')
 
 .controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, AccountService, RegionService, $ionicLoading, $ionicModal) {
   console.log("Expense List controller " + $stateParams.balanceSheetId);
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading expense items...<ion-spinner/></p>"
-  });  
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading expense items"));
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
@@ -526,9 +522,7 @@ angular.module('starter.controllers')
 
 .controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, RegionService, AccountService, $ionicLoading) {
   console.log("Revenue List controller " + $stateParams.balanceSheetId);
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading revenue items...<ion-spinner/></p>"
-  });    
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading revenue items"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
@@ -593,9 +587,7 @@ angular.module('starter.controllers')
   };
 
   console.log("Manage Revenue controller " + $stateParams.balanceSheetId);
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Preparing revenue item...<ion-spinner/></p>"
-  });      
+  $ionicLoading.show(SettingsService.getLoadingMessage("Preparing revenue item"));
   $scope.focusBalanceSheet=FinancialService.createBalanceSheetEntityWithObjectId($stateParams.balanceSheetId);  
   $scope.input={
     revenueDate: new Date(),
@@ -831,9 +823,7 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading community balance sheets...<ion-spinner/></p>"
-  });
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading community balance sheets"));
   FinancialService.getBalanceSheets(Parse.User.current().get("residency")).then(function(availableBalanceSheets) {
     $scope.balanceSheetList=availableBalanceSheets;            
     if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>=0) {
@@ -870,10 +860,7 @@ angular.module('starter.controllers')
     closedBy: $scope.user,
     residency: $scope.user.get("residency")    
   };
-
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading balance sheet...<ion-spinner/></p>"
-  });
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading balance sheet"));
   FinancialService.getBalanceSheets($scope.user.get("residency")).then(function(availableBalanceSheets) {    
     $scope.balanceSheet=FinancialService.getBalanceSheetFromAvaialableBalanceSheets($stateParams.balanceSheetId, availableBalanceSheets);
     $scope.isCloseAllowed=true;    
@@ -932,9 +919,7 @@ angular.module('starter.controllers')
   };
 
   $scope.closeBalanceSheet=function() {
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Closing balance sheet...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Closing balance sheet"));
     FinancialService.closeBalanceSheet($scope.balanceSheet.id, $scope.closeBalanceSheetInput).then(function(closedBalanceSheet){      
       var promiseArray=[];
       var forwardingBalanceSheet=$scope.getOtherBalanceSheet();      
@@ -1016,9 +1001,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteBalanceSheet=function() {
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Deleting balance sheet...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Deleting balance sheet"));
     $q.all([
       $scope.balanceSheet.destroy(),
       Parse.Object.destroyAll($scope.revenueList),
@@ -1090,9 +1073,7 @@ angular.module('starter.controllers')
       return;      
     } 
 
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Creating balance sheet...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Creating balance sheet"));
     $scope.input.startDate=$scope.input.startDate.endOfTheDay();
     FinancialService.openBalanceSheet($scope.input).then(function(newBalanceSheet) {
       if($scope.input.generateHomeOwnerPayments==true) {
@@ -1206,9 +1187,7 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading maintenance fee...<ion-spinner/></p>"
-  });
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading maintenance fee"));
   FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {
     if(duesList!=null && duesList.length>0) {
       $scope.currentDues=FinancialService.getCurrentDues(duesList);
