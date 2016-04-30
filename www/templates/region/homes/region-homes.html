@@ -1,0 +1,30 @@
+<ion-view title="Homes">
+  <ion-nav-buttons side="secondary">
+<!-- 	<a class="button button-light button-outline" style="border-color: #fff; color: #fff;" href="#/tab/add-homes">&nbsp;New&nbsp;Home&nbsp;</a>    	 -->
+<!--     <a class="button button-icon icon ion-ios-search" ng-click="control.requestedSearch = !control.requestedSearch"></a>   -->
+    <a class="button button-icon icon ion-ios-paper-outline" href="#/tab/neighbors"></a>
+    <a class="button button-icon icon ion-ios-plus-outline" href="#/tab/add-homes"></a>
+  </ion-nav-buttons>
+  <ion-content>
+  <my-app-message info="appMessage"></my-app-message>  
+  <my-app-message info="controllerMessage"></my-app-message>  
+  	<ion-list>
+      <label class="item item-input" ng-if="control.requestedSearch">
+          <i class="icon ion-search placeholder-icon calm"></i>
+          <input type="text" placeholder="Search by resident name, home number..." class="textAlignLeft" ng-model="control.searchStr">
+      </label>    
+	    <ion-item class="item-icon-right" collection-repeat="home in homeList | filter:control.searchStr" href="#/tab/home-detail/{{home.homeNo}}">
+	      <h2>Home # {{home.homeNo}} </h2>		
+        <p ng-if="home.noOfResidents>0">
+          <span ng-if="home.noOfHomeOwners>0">{{home.noOfHomeOwners}} Owners</span>
+          <span ng-if="home.noOfTenants>0 && home.noOfHomeOwners>0"> , </span>
+          <span ng-if="home.noOfTenants>0">{{home.noOfTenants}} Tenants</span>
+        </p>      
+        <p ng-if="home.noOfResidents<1"><span class="assertive">No Residents</span></p>              
+<!-- 	      <p ng-if="home.noOfResidents>0">{{home.noOfResidents}} Residents</p>      
+        <p ng-if="home.noOfResidents<1"><span class="assertive">No Residents</span></p>       -->
+		  <i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
+	    </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

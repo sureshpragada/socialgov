@@ -66,7 +66,7 @@
           <a class="button button-block button-calm button-small" ng-click="deleteBalanceSheet()">Delete Sheet</a>
         </div>                    
       </div>            
-      <div class="padding-horizontal" ng-if="!closeBalanceSheetInput.deleteInitiated">
+      <div class="padding-horizontal" ng-if="balanceSheet.get('status')=='CLOSED' && !closeBalanceSheetInput.deleteInitiated">
         <a class="button button-block button-royal" ng-click="emailBalanceSheet()">Email Balance Sheet</a>        
       </div>                            
       <div class="padding-horizontal" ng-if="isAdmin && !closeBalanceSheetInput.deleteInitiated">

@@ -10,14 +10,15 @@
         <a href="#/tab/account-update"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
         <p ng-if="user.get('homeNo')">Home # {{user.get("homeNo")}}</p>
+<!--         <p ng-if="privs.isSuperAdmin">Super Admin</p> -->
       </div>
       <ion-item>
         {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
       </ion-item>            
-<!--       <ion-item>
+      <ion-item>
         Residency<span class="item-note">{{regionDisplayName}}</span>                  
-      </ion-item>                         -->
-      <ion-item ng-if="!isCitizen">
+      </ion-item>                              
+      <ion-item ng-if="!privs.isCitizen">
          {{'Role' | translate}}
           <span class="item-note">{{getRoleNameFromRoleCode(user.get("role"))}}</span>                  
       </ion-item>                        

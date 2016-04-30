@@ -1,0 +1,18 @@
+<ion-item class="item-thumbnail-left item-icon-right" href="#/tab/neighbor-detail/{{resident.id}}">
+	<img ng-src="{{resident.get('images')[0]}}" ng-if="resident.get('images')">
+	<img ng-src="img/avatar2.png" ng-if="!resident.get('images')">
+	<h2>{{resident.get("firstName")}} {{resident.get("lastName")}}</h2>		
+	<p>{{resident.get("phoneNum")}}</p>      	      	      	      	
+<!-- 	<p ng-if="resident.get('homeOwner')==true">Home Owner</p>      	      	      	      
+	<p ng-if="resident.get('homeOwner')==false">Tenant</p>      	      	      	      	       -->
+	<p ng-if="resident.get('status')=='P'">
+		<span class="assertive">Pending Invitation</span>
+	</p>
+	<p ng-if="resident.get('status')!='P'">
+		<span>Accepted Invitation</span>
+	</p>
+	<p ng-if="resident.get('bloodGroup')">
+		<span class="custom-badge">{{resident.get("bloodGroup")}}</span>
+	</p>      
+	<i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
+</ion-item>	    

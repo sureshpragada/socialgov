@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'financial.services', 'activity.services', 'region.services', 'region-financial.services', 'notification.services', 'log.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle', 'user-residency.services'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'financial.services', 'service-contact.services', 'activity.services', 'region.services', 'region-financial.services', 'notification.services', 'log.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle', 'ngImgCrop', 'user-residency.services'])
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService, $state, $ionicHistory) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -374,7 +374,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-service-contacts.html',
+          templateUrl: 'templates/region/servicecontact/region-service-contacts.html',
           controller: 'RegionServiceContactsCtrl'
         }
       }
@@ -385,7 +385,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-service-contact-detail.html',
+          templateUrl: 'templates/region/servicecontact/region-service-contact-detail.html',
           controller: 'RegionServiceContactDetailCtrl'
         }
       }
@@ -396,7 +396,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-edit-service-contacts.html',
+          templateUrl: 'templates/region/servicecontact/region-edit-service-contacts.html',
           controller: 'RegionEditServiceContactsCtrl'
         }
       }
@@ -407,7 +407,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/add-service-contact.html',
+          templateUrl: 'templates/region/servicecontact/add-service-contact.html',
           controller: 'AddServiceContactsCtrl'
         }
       }
@@ -418,7 +418,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-legislature.html',
+          templateUrl: 'templates/region/legis/region-legislature.html',
           controller: 'RegionLegisDetailCtrl'
         }
       }
@@ -429,7 +429,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/board-appointment.html',
+          templateUrl: 'templates/region/legis/board-appointment.html',
           controller: 'BoardAppointmentCtrl'
         }
       }
@@ -440,7 +440,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/manage-legislative-titles.html',
+          templateUrl: 'templates/region/legis/manage-legislative-titles.html',
           controller: 'ManageLegislativeTitlesCtrl'
         }
       }
@@ -451,7 +451,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-self-legislature.html',
+          templateUrl: 'templates/region/legis/region-self-legislature.html',
           controller: 'SelfLegisDetailCtrl'
         }
       }
@@ -462,7 +462,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/add-new-legislative.html',
+          templateUrl: 'templates/region/legis/add-new-legislative.html',
           controller: 'AddLegisCtrl'
         }
       }
@@ -473,7 +473,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/edit-legis-details.html',
+          templateUrl: 'templates/region/legis/edit-legis-details.html',
           controller: 'EditLegisDetailsCtrl'
         }
       }
@@ -484,7 +484,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-homes.html',
+          templateUrl: 'templates/region/homes/region-homes.html',
           controller: 'RegionHomesCtrl'
         }
       }
@@ -495,8 +495,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/add-homes.html',
+          templateUrl: 'templates/region/homes/add-homes.html',
           controller: 'AddHomesCtrl'
+        }
+      }
+    })             
+
+    .state('tab.edit-home', {
+      url: '/edit-home/{homeNo}',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/homes/region-edit-home.html',
+          controller: 'EditHomeCtrl'
         }
       }
     })             
@@ -506,7 +517,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/home-detail.html',
+          templateUrl: 'templates/region/homes/home-detail.html',
           controller: 'HomeDetailCtrl'
         }
       }
@@ -517,7 +528,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-neighbors.html',
+          templateUrl: 'templates/region/homes/region-neighbors.html',
           controller: 'NeighborListCtrl'
         }
       }
@@ -528,7 +539,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/region-neighbor-detail.html',
+          templateUrl: 'templates/region/homes/region-neighbor-detail.html',
           controller: 'NeighborDetailCtrl'
         }
       }
@@ -539,7 +550,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/admin-neighbor-update.html',
+          templateUrl: 'templates/region/homes/admin-neighbor-update.html',
           controller: 'AdminNeighborUpdateCtrl'
         }
       }
@@ -550,7 +561,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/upload-neighbors.html',
+          templateUrl: 'templates/region/homes/upload-neighbors.html',
           controller: 'UploadNeighborsCtrl'
         }
       }

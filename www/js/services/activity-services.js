@@ -194,9 +194,9 @@ angular.module('activity.services', [])
         };
       return this.postActivity(post);
     },
-    getAllowedActivities: function(role) {
+    getAllowedActivities: function(user) {
       var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1], ACTIVITY_LIST[2]];
-      if(role!=null && role!="CTZEN") {
+      if(user!=null && user.get("role")!="CTZEN" || user.get("superAdmin")==true) {
         allowedActivities.unshift(ACTIVITY_LIST[3]);        
         allowedActivities.unshift(ACTIVITY_LIST[4]);
       }

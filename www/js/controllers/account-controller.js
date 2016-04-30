@@ -775,32 +775,37 @@ angular.module('starter.controllers')
       // } else {
       //   console.log("Region does not support sending invitation code");
       // }
-      UserResidencyService.createUserResidency($scope.user, newUser).then(function(userResidency){
+      UserResidencyService.createUserResidency(newUser).then(function(userResidency){
         console.log("user residency has been created.");
+        SettingsService.setAppSuccessMessage("Invitation has been sent.");
+        $ionicHistory.goBack(-1);
       },function(error){
         console.log("Unable to create user residency");
       });
-      SettingsService.setAppSuccessMessage("Invitation has been sent.");
-      $ionicHistory.goBack(-1);
       // $state.go("tab.neighbors");
     }, function(error) {
       // Verify if this user exist message
       if(error.code==202) {
-        UserResidencyService.getResidencyByPhoneNumber($scope.user.phoneNum).then(function(user){
-          console.log(JSON.stringify(user));
-          if(AccountService.getUserResidency() != user.get("residency")){
-            UserResidencyService.createUserResidency($scope.user, null).then(function(userResidency){
-              console.log("User already exists, so user residency has been created.")
-              SettingsService.setAppSuccessMessage("Invitation has been sent.");
-              $ionicHistory.goBack(-1);
-            },function(error){
-              console.log("unable to create user residency.")
-            });
-          }else{
-            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");  
-          }
+        UserResidencyService.getUserByPhoneNumber($scope.user.phoneNum).then(function(user){
+          UserResidencyService.getUserResidencyByUserAndResidency(user, AccountService.getUserResidency()).then(function(userResidency){
+            if(userResidency!=null && userResidency.length==0){
+              UserResidencyService.createUserResidencyWhenUserExists($scope.user, user).then(function(userResidency){
+                console.log("User residency has been created for existing user.");
+                //TODO: send notification
+                SettingsService.setAppSuccessMessage("Invitation has been sent.");
+                $ionicHistory.goBack(-1);
+              },function(error){
+                console.log("Unable to create user residency")
+              });
+            }
+            else{
+              $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");            
+            }
+          },function(error){
+            console.log("unable to get user residency"+ error);
+          });
         },function(error){
-          console.log("Unable to get user residency by number "+error);
+          console.log("Unable to get user by phone number "+error);
         });
         
       } else {

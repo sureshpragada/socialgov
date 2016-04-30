@@ -8,4 +8,16 @@ angular.module('starter.directives', [])
     },  
     templateUrl: 'templates/directives/my-app-message-directive.html'
   };
-});
+})
+
+.directive('resident', function() {
+  return {
+    restrict: 'E',
+    scope: {
+      resident: '=info'
+    },  
+    templateUrl: 'templates/directives/resident-directive.html'
+  };
+})
+
+;

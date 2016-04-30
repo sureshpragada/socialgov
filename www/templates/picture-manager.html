@@ -1,10 +1,16 @@
 <ion-view view-title="Picture Manager">
   <ion-content>
+<!-- <div>Select an image file: <input type="file" id="fileInput" /></div> -->
+  <div class="cropArea">
+    <img-crop image="myImage" result-image="result.myCroppedImage" result-image-size="300" area-min-size="100" area-type="square" result-image-format="image/jpeg" result-image-quality="0.5" result-image-aspect="{{aspectRatio}}"></img-crop>
+  </div>
+<!--   <div>Cropped Image:</div>
+  <div><img ng-src="{{result.myCroppedImage}}" /></div> -->
     <div>
-      <div class="item item-image">
+<!--       <div class="item item-image">
         <img ng-show="file !== undefined" ng-src="{{file}}">
         <img ng-show="file === undefined" ng-src="img/picture_template.png">
-      </div> 
+      </div>  -->
     </div>
     <div class="row"  ng-if="pictureSelected">
       <div class="col">

@@ -1,4 +1,5 @@
-<ion-view view-title="Revenue">
+<ion-view>
+  <ion-nav-title>{{focusBalanceSheet.get('startDate') | date:'MMM yyyy'}} Revenue</ion-nav-title>
   <ion-nav-buttons side="secondary">
     <a class="button button-icon icon ion-ios-plus-outline"  href="#/tab/manage-revenue/{{focusBalanceSheet.id}}" ng-if="isAdmin && focusBalanceSheet.get('status')=='OPEN'"></a>
   </ion-nav-buttons>

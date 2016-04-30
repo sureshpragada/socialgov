@@ -28,8 +28,39 @@ angular.module('starter.controllers')
 }])
 
 .controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService, $ionicLoading, $cordovaDialogs) {
-  $scope.pictureSelected=false;  
-  
+  $scope.pictureSelected=false;    
+   $scope.myImage= "";
+   $scope.result={
+      myCroppedImage: ""
+   }           
+   var fromPage=PictureManagerService.getState().fromPage;   
+   if(fromPage=="tab.expense-detail" || fromPage=="tab.account") {
+      $scope.aspectRatio="1x1"; 
+   } else {
+      $scope.aspectRatio="4x3"; 
+   }
+
+    // $scope.myCroppedImage='';
+    // $scope.result={
+    //   myCroppedImage: ""
+    // }
+    // $scope.myCropped="Suresh";
+
+    //     var handleFileSelect=function(evt) {
+    //       var file=evt.currentTarget.files[0];
+    //       var reader = new FileReader();
+    //       reader.onload = function (evt) {
+    //         $scope.pictureSelected=true;            
+    //         $scope.$apply(function($scope){
+    //           $scope.myImage=evt.target.result;
+    //         });
+    //       };
+    //       reader.readAsDataURL(file);
+    //     };
+    //     angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+
+
+
   $scope.takePicture=function() {
     manageupload(Camera.PictureSourceType.CAMERA);
   };
@@ -43,16 +74,16 @@ angular.module('starter.controllers')
           quality : 75, 
           destinationType : Camera.DestinationType.DATA_URL, 
           sourceType : sourceType, 
-          allowEdit : true,
-          targetWidth: 400,
-          targetHeight: 300,
-          encodingType: Camera.EncodingType.file,
+          // allowEdit : true,
+          // targetWidth: 300,
+          // targetHeight: 225,
+          encodingType: Camera.EncodingType.JPEG,
           popoverOptions: CameraPopoverOptions,
           saveToPhotoAlbum: false
       };
       $cordovaCamera.getPicture(options).then(function(imageData) {
-           $scope.file= "data:image/jpeg;base64," +imageData;
-           $scope.pictureSelected=true;
+         $scope.pictureSelected=true;
+         $scope.myImage="data:image/jpeg;base64," +imageData;
       }, function(error) {
           console.log("Error getting picture " + JSON.stringify(error));
       });  
@@ -62,8 +93,9 @@ angular.module('starter.controllers')
     $scope.pictureSelected=false;
   };
 
-  $scope.uploadPicture=function() {
-    var file = $scope.file;    
+  $scope.uploadPicture=function() {    
+    // console.log("Cropped image " + JSON.stringify($scope.result.myCroppedImage));    
+    var file = $scope.result.myCroppedImage;  
     if(!file) {
       $cordovaDialogs.alert('Select picture from gallery or use camera.', 'Select picture', 'OK');
     } else {
@@ -79,7 +111,7 @@ angular.module('starter.controllers')
         url: "https://api.imgur.com/3/image.json",
         method: 'POST',
         headers: {
-          'Content-Type': file.type,
+          'Content-Type': "image/jpeg",
           "Authorization": "Client-ID " + IMGUR_KEY
         },
         data: file
