@@ -647,8 +647,9 @@ angular.module('starter.controllers')
 })
 
 .controller('CommunityAddressCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
+  console.log("Community address controller");
+  $scope.communityAddress=AccountService.getCommunityAddress();
   
-  $scope.communityAddress={};
   $scope.next=function() {
     if($scope.communityAddress.name == null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
@@ -681,8 +682,8 @@ angular.module('starter.controllers')
 })
 
 .controller('CommunityInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
-  
-  $scope.communityInfo={};
+  console.log("Community info controller");
+  $scope.communityInfo=AccountService.getCommunityInfo($scope.communityInfo);
 
   $scope.next=function() {
     console.log(JSON.stringify($scope.communityInfo));

@@ -127,9 +127,7 @@ angular.module('starter.controllers')
   };
 
   $scope.saveLegiTitleUpdatesInRegion=function(errorMessage) {
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Saving your action...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Saving your action"));
     $scope.region.set("legiTitles",$scope.legiTitleList);
     $scope.region.save().then(function(region) {
       RegionService.updateRegion(region.get("uniqueName"), region);
@@ -208,9 +206,7 @@ angular.module('starter.controllers')
   };
 
   $scope.appoint=function() {
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Appointing on the board...<ion-spinner/></p>"
-    });
+    $ionicLoading.show(SettingsService.getLoadingMessage("Appointing on the board"));
     AccountService.updateRoleAndTitle($scope.residentList[$scope.residentSelectedIndex].id, "LEGI", 
       $scope.legiTitleList[$scope.legiTitleSelectedIndex].value).then(function(status) {
       SettingsService.setAppSuccessMessage("Resident is appointed on board.");

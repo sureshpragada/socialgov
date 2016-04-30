@@ -2,9 +2,7 @@ angular.module('starter.controllers')
 
 .controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicLoading, ServiceContactService) {  
   $scope.appMessage=SettingsService.getAppMessage();
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading service contacts...<ion-spinner/></p>"
-  });  
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading service contacts"));
   $scope.control={
     searchStr: ""
   };
@@ -31,9 +29,7 @@ angular.module('starter.controllers')
 
 .controller('RegionServiceContactDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicLoading, ServiceContactService) {  
   $scope.appMessage=SettingsService.getAppMessage();
-  $ionicLoading.show({
-    template: "<p class='item-icon-left'>Loading service contact...<ion-spinner/></p>"
-  });    
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading service contact"));
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
     console.log("region controller received contact");
     $scope.serviceContact=contact;
@@ -154,9 +150,7 @@ angular.module('starter.controllers')
       return;
     }
 
-    $ionicLoading.show({
-      template: "<p class='item-icon-left'>Adding service contact...<ion-spinner/></p>"
-    });  
+    $ionicLoading.show(SettingsService.getLoadingMessage("Adding service contact"));
     ServiceContactService.addServiceContact($scope.serviceContact).then(function(newServiceContact) {
       SettingsService.setAppSuccessMessage("Service contact has been added.")
       ServiceContactService.refreshServiceContacts(AccountService.getUserResidency());

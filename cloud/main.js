@@ -222,7 +222,7 @@ Parse.Cloud.define("sendSmsPlivoV2", function(request, response) {
   if(request.params.messageType=="invitation") {
     message="You have been invited to " + regionName + ". Download app at " + downloadUrl;
   } else if(request.params.messageType=="access-code") {
-    message="Here is access code to login to " + regionName + ". Download app at " + downloadUrl;
+    message="Your access code is " + invitationCode + " to login to " + regionName + ". Download app at " + downloadUrl;
   } 
   
   console.log("SMS will be sent to : " + request.params.phoneNumber + ", message : " + message);

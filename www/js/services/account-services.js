@@ -4,7 +4,9 @@ angular.module('account.services', [])
   var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
   var userLastRefreshTimeStamp=null; //new Date().getTime();
   var communityAddress={};
-  var communityInfo={};
+  var communityInfo={
+    multiBlock: false
+  };
   var yourInfo={};
 
   var accessRequestCache;  
@@ -563,6 +565,9 @@ angular.module('account.services', [])
     setCommunityInfo:function(info){
       this.communityInfo=info;
     },
+    getCommunityInfo:function(){
+      return this.communityInfo;
+    },    
     setYourInfo:function(info){
       this.yourInfo=info;
     },
