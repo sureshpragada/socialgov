@@ -48,7 +48,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('HomeDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory) {
+.controller('HomeDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory, RegionService) {
   console.log("Home detail controller " + $stateParams.homeNo);
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing home residents"));
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      

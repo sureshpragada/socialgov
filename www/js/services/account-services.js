@@ -623,7 +623,7 @@ angular.module('account.services', [])
       user.set("firstName",this.yourInfo.firstName);
       user.set("lastName",this.yourInfo.lastName);
       // TODO :: User block number in home number setting
-      user.set("homeNo",this.yourInfo.homeNo);
+      user.set("homeNo",UtilityService.generateHomeNumber(this.yourInfo.blockNo, this.yourInfo.unitNo));
       user.set("notifySetting",true);
       user.set("phoneNum",this.yourInfo.phoneNum);
       user.set("residency",region.get("uniqueName"));
