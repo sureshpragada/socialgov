@@ -9,7 +9,7 @@
         <img src="img/avatar2.png" ng-click="showProfilePicture()" ng-if="!user.get('images')">
         <a href="#/tab/account-update"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
-        <p ng-if="user.get('homeNo')">Home # {{user.get("homeNo")}}</p>
+        <p ng-if="user.get('homeNo')">{{user.get("homeNo") | formatHomeNumber}}</p>
 <!--         <p ng-if="privs.isSuperAdmin">Super Admin</p> -->
       </div>
       <ion-item>

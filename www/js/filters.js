@@ -37,6 +37,15 @@ angular.module('starter.filters', [])
       }
     }
 })
+.filter('formatHomeNumber', function() {
+    return function(input) {
+      if(input==null || input.indexOf(";")!=-1) {
+        return input;
+      } else {
+        return "Home " + input;
+      }
+    }
+})
 .filter('formatProblemStatus', function() {
     return function(input) {
       if(input) {

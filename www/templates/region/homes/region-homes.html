@@ -14,7 +14,7 @@
           <input type="text" placeholder="Search by resident name, home number..." class="textAlignLeft" ng-model="control.searchStr">
       </label>    
 	    <ion-item class="item-icon-right" collection-repeat="home in homeList | filter:control.searchStr" href="#/tab/home-detail/{{home.homeNo}}">
-	      <h2>Home # {{home.homeNo}} </h2>		
+	      <h2>{{home.homeNo | formatHomeNumber}} </h2>		
         <p ng-if="home.noOfResidents>0">
           <span ng-if="home.noOfHomeOwners>0">{{home.noOfHomeOwners}} Owners</span>
           <span ng-if="home.noOfTenants>0 && home.noOfHomeOwners>0"> , </span>

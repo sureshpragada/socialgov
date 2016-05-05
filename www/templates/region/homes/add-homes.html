@@ -3,6 +3,10 @@
 	    <my-app-message info="appMessage"></my-app-message>
 	    <my-app-message info="controllerMessage"></my-app-message>	
 		<ion-list>
+			<label class="item item-input item-stacked-label" ng-if="regionSettings.multiBlock">
+				<span class="input-label">Block Number</span>
+				<input type="text" name="blockNo" class="textAlignLeft" ng-model="user.blockNo">
+			</label>										        		
 			<ion-item class="item-divider">Home numbers</ion-item>
 			<label class="item item-input">
 				<textarea placeholder="Enter home numbers separated by comma. Use colon to group multiple numbers.

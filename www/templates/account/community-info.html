@@ -1,22 +1,27 @@
-<ion-view view-title="Community Info">
+<ion-view view-title="About">
 	<ion-content>			
+		<my-app-message info="tipMessage"></my-app-message>	
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">	
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">Established Year</span>
-				<input type="number" name="year" class="textAlignLeft"  ng-model="communityInfo.year">
-			</label>			
+				<span class="input-label">Community Name</span>
+				<input type="text" name="communityName" class="textAlignLeft" ng-model="communityInfo.name">
+			</label>		
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">Number of Homes/Units/Apts</span>
+				<span class="input-label">Year Build</span>
+				<input type="number" name="year" class="textAlignLeft"  ng-model="communityInfo.year">
+			</label>									
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Number of Homes</span>
 				<input type="number" name="noOfUnits" class="textAlignLeft"  ng-model="communityInfo.noOfUnits">
 			</label>		
-<!-- 			<li class="item item-toggle">
-			 Do you have multiple blocks/towers?
+			<li class="item item-toggle item-text-wrap">
+			 Has Multiple Blocks?
 			 <label class="toggle toggle-balanced">
 			   <input type="checkbox" ng-model="communityInfo.multiBlock">
 			   <div class="track"><div class="handle"></div></div>
 			 </label>
-			</li>		 -->	
+			</li>			
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">Builder Name</span>
 				<input type="text" name="builderName" class="textAlignLeft"  ng-model="communityInfo.builderName">

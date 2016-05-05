@@ -51,6 +51,7 @@ angular.module('starter.controllers')
 .controller('HomeDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory) {
   console.log("Home detail controller " + $stateParams.homeNo);
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing home residents"));
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
   $scope.homeNo=$stateParams.homeNo;
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsOfHome(AccountService.getUserResidency(), $stateParams.homeNo).then(function(neighborList) {
@@ -157,11 +158,18 @@ angular.module('starter.controllers')
 
 .controller('AddHomesCtrl', function($scope, $stateParams, $q, AccountService, RegionService, $state, SettingsService, LogService) {
   $scope.appMessage=SettingsService.getAppMessage();
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
   $scope.input={
     homeData: null
   };  
 
   $scope.submit=function(){
+
+    if($scope.regionSettings.multiBlock==true && ($scope.input.blockNo==null || $scope.input.blockNo.trim().length<1)) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter block number of these homes.");
+      return;
+    }
+
     if($scope.input.homeData!=null && $scope.input.homeData.length>0){      
       var inputHomes=[];
       var homeLines = $scope.input.homeData.split('\n');
@@ -189,17 +197,18 @@ angular.module('starter.controllers')
       console.log("Removed duplicates 1 " + JSON.stringify(inputHomes));      
       AccountService.getAllHomes(AccountService.getUserResidency()).then(function(existingHomes){
         for(var i=0;i<existingHomes.length;i++) {
-          var index=inputHomes.indexOf(existingHomes[i].get("homeNo"));
-          if(index!=-1) {
-            inputHomes.splice(index, 1);
-          }
+          if($scope.regionSettings.multiBlock==true && existingHomes[i].get("blockNo")==$scope.input.blockNo && 
+              inputHomes.indexOf(existingHomes[i].get("unitNo"))) {
+                inputHomes.splice(index, 1);
+          } else if($scope.regionSettings.multiBlock==false && inputHomes.indexOf(existingHomes[i].get("unitNo"))!=-1) {
+              inputHomes.splice(index, 1);
+          } 
         }
         console.log("Removed duplicates 2 " + JSON.stringify(inputHomes));      
         if(inputHomes.length>0) {
-          $scope.addHomes(inputHomes);  
-          
+          $scope.addHomes(inputHomes);            
         } else {
-          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Home numbers are already exists in your community.");  
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Home numbers are exists in your community.");  
         }        
       }, function(error){
         console.log("Error while finding existing homes : " + JSON.stringify(error));
@@ -211,7 +220,7 @@ angular.module('starter.controllers')
   };
 
   $scope.addHomes=function(finalHomeList) {
-    AccountService.addHomes(AccountService.getUserResidency(), finalHomeList).then(function(newHomes){
+    AccountService.addHomes(AccountService.getUserResidency(), finalHomeList, $scope.input.blockNo).then(function(newHomes){
       console.log("new homes " + JSON.stringify(newHomes));
       if(newHomes.length>1) {
         SettingsService.setAppSuccessMessage(newHomes.length + " homes have been added to community.");

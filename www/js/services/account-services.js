@@ -3,11 +3,15 @@ angular.module('account.services', [])
 .factory('AccountService', ['CacheFactory', 'RegionService', 'NotificationService', 'LogService', 'UtilityService', '$q', function(CacheFactory, RegionService, NotificationService, LogService, UtilityService, $q) {
   var NO_DATA_FOUND_KEY="NO_DATA_FOUND";
   var userLastRefreshTimeStamp=null; //new Date().getTime();
-  var communityAddress={};
+  var communityAddress={
+    country: COUNTRY_LIST[0]
+  };
   var communityInfo={
     multiBlock: false
   };
-  var yourInfo={};
+  var yourInfo={
+    homeOwner: true
+  };
 
   var accessRequestCache;  
   if (!CacheFactory.get('accessRequestCache')) {
@@ -556,26 +560,26 @@ angular.module('account.services', [])
       this.communityAddress=info;
     },
     getCommunityAddress:function(){
-      return this.communityAddress;
+      return communityAddress;
     },    
     setCommunityInfo:function(info){
       this.communityInfo=info;
     },
     getCommunityInfo:function(){
-      return this.communityInfo;
+      return communityInfo;
     },    
     setYourInfo:function(info){
       this.yourInfo=info;
     },
     getYourInfo:function(){
-      return this.yourInfo;
+      return yourInfo;
     },    
     createNewCommunity:function(){
       var Region = Parse.Object.extend("Region");
       var region = new Region();
       var demography = {"units":this.communityInfo.noOfUnits, "est":this.communityInfo.year}
       var addressList = [];
-      var communityAddress = {"name":this.communityAddress.name, "addressLine1":this.communityAddress.addressLine1, 
+      var communityAddress = {"name":this.communityInfo.name, "addressLine1":this.communityAddress.addressLine1, 
         "addressLine2":this.communityAddress.addressLine2,
         "city":this.communityAddress.city,
         "state":this.communityAddress.state,
@@ -589,25 +593,32 @@ angular.module('account.services', [])
       region.set("demography",demography);
       region.set("execOffAddrList",addressList);
       region.set("legiRepList",[]);
-      region.set("name",this.communityAddress.name);
+      region.set("name",this.communityInfo.name);
       region.set("parentRegion",[]);
       region.set("serviceContactList",[]);
       region.set("financials",[]);
       region.set("posterImages",[]);
-      region.set("settings",REGION_SETTINGS);
+      
+      var defaultRegionSettings=REGION_SETTINGS;
+      defaultRegionSettings.multiBlock=this.communityInfo.multiBlock;
+      defaultRegionSettings.areaCode=this.communityAddress.country.countryCode;
+      defaultRegionSettings.locale=this.communityAddress.country.locale;
+      region.set("settings",defaultRegionSettings);
+
       region.set("type",INITIAL_REGION_TYPE);
       region.set("legiTitles",LEGI_DEFAULT_ROLES);      
       var currentDate=new Date();
-      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityAddress.name)+currentDate.getMonth()+"_"+currentDate.getDate()+"_"+currentDate.getMilliseconds()+"_"+this.communityAddress.city.toLowerCase());
+      region.set("uniqueName",this.convertToLowerAndAppendUndScore(this.communityInfo.name)+currentDate.getMonth()+"_"+currentDate.getDate()+"_"+currentDate.getMilliseconds()+"_"+this.convertToLowerAndAppendUndScore(this.communityAddress.city.toLowerCase()));
       return region.save();
     },
     createNewCommunityAdmin:function(region){
       var user=new Parse.User();
-      user.set("username","91"+this.yourInfo.phoneNum);
+      user.set("username",this.communityAddress.country.countryCode+this.yourInfo.phoneNum);
       user.set("password","custom");
-      user.set("countryCode","91");
+      user.set("countryCode",this.communityAddress.country.countryCode);
       user.set("firstName",this.yourInfo.firstName);
       user.set("lastName",this.yourInfo.lastName);
+      // TODO :: User block number in home number setting
       user.set("homeNo",this.yourInfo.homeNo);
       user.set("notifySetting",true);
       user.set("phoneNum",this.yourInfo.phoneNum);
@@ -661,19 +672,27 @@ angular.module('account.services', [])
     addHome: function(inputHome) {
       this.refreshHomesCache(inputHome.residency);
       var Home = Parse.Object.extend("Home");
-      var home=new Home();
-      home.set("homeNo", inputHome.homeNo);
+      var home=new Home();      
+      home.set("homeNo", UtilityService.generateHomeNumber(inputHome.blockNo, inputHome.unitNo));
+      home.set("unitNo", inputHome.unitNo);      
+      if(inputHome.blockNo!=null && inputHome.blockNo.trim().length>0) {
+        home.set("blockNo", inputHome.blockNo.toUpperCase());
+      }
       home.set("residency", inputHome.residency);
       return home.save();
     },
-    addHomes: function(regionUniqueName, inputHomes) {
+    addHomes: function(regionUniqueName, inputHomes, blockNo) {
       this.refreshHomesCache(regionUniqueName);
       var homesArray=[];
       for(var i=0;i<inputHomes.length;i++) {
         var Home = Parse.Object.extend("Home");              
         var home=new Home();
-        home.set("homeNo", inputHomes[i]);
-        home.set("residency", regionUniqueName);        
+        home.set("residency", regionUniqueName);                
+        home.set("unitNo", inputHomes[i]);
+        home.set("homeNo", UtilityService.generateHomeNumber(blockNo, inputHomes[i]));
+        if(blockNo!=null && blockNo.trim().length>0) {
+          home.set("blockNo", blockNo.trim().toUpperCase());
+        }        
         homesArray.push(home);
       }
       return Parse.Object.saveAll(homesArray);

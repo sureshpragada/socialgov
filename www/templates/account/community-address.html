@@ -1,11 +1,12 @@
-<ion-view view-title="Community Address">
+<ion-view view-title="Location">
 	<ion-content>			
+		<my-app-message info="tipMessage"></my-app-message>
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
-			<label class="item item-input item-stacked-label">
-				<span class="input-label">Community Name</span>
-				<input type="text" name="communityName" class="textAlignLeft" ng-model="communityAddress.name">
-			</label>
+			<label class="item item-input item-select">
+			    <span class="input-label">Country</span>
+			    <select ng-model="communityAddress.country" ng-options="country.name for country in countryList"></select>			    
+			 </label>																	
 			<label class="item item-input item-stacked-label">
 				<span class="input-label">Address Line 1</span>
 				<input type="text" name="addressLine1" class="textAlignLeft" ng-model="communityAddress.addressLine1">

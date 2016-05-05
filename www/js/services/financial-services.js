@@ -377,7 +377,7 @@ angular.module('financial.services', [])
               note: "Carry forwarded amount from previous balance sheet.",
               category: true,
               homeNo: unpaidPaymentList[i].get("homeNo"),
-              revenueSource: "Home # " + unpaidPaymentList[i].get("homeNo"),
+              revenueSource: $filter("formatHomeNumber")(unpaidPaymentList[i].get("homeNo")),
               balanceSheet: inputBalanceSheet,
               status: "PENDING"
             };
@@ -414,7 +414,7 @@ angular.module('financial.services', [])
               revenueDate: balanceSheet.get("startDate"),
               note: "System generated payment ",
               category: true,
-              revenueSource: "Home # " + homesList[i].value,
+              revenueSource: $filter("formatHomeNumber")(homesList[i].value),
               balanceSheet: balanceSheet,
               status: "PENDING",
               homeNo: homesList[i].value

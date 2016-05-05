@@ -16,7 +16,7 @@
         <a ng-click="openActionSheet(activity.id, activityIndex)" ng-if="activity.get('user').id!=user.id && !isAdmin"><i class="icon ion-android-more-vertical royal"></i></a>
         <h2>{{activity.get("user").get("firstName")}} {{activity.get("user").get("lastName")}}</h2>
         <p ng-show="activity.get('activityType')=='NOTF'">{{activity.get("user").get("title")}}</p>
-        <p ng-if="activity.get('user').get('homeNo')">Home # {{activity.get("user").get("homeNo")}}</p>
+        <p ng-if="activity.get('user').get('homeNo')">{{activity.get("user").get("homeNo") | formatHomeNumber}}</p>
       </div>
 
       <div class="item item-body">
