@@ -17,9 +17,8 @@
 	      <img ng-src="img/avatar2.png" ng-if="!neighbor.get('images')">
 	      <h2>{{neighbor.get("firstName")}} {{neighbor.get("lastName")}}</h2>		
 	      <p>
-	      	Home # 
-	      	<span ng-if="neighbor.get('homeNo')">{{neighbor.get("homeNo")}}</span>
-	      	<span ng-if="!neighbor.get('homeNo')">NA</span>
+	      	<span ng-if="neighbor.get('homeNo')">{{neighbor.get("homeNo") | formatHomeNumber}}</span>
+	      	<span ng-if="!neighbor.get('homeNo')">Home # NA</span>
 	      </p>      
 	      <p>
 <!-- 	      	<i class="icon ion-iphone"></i> -->

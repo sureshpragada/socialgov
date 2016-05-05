@@ -1,6 +1,6 @@
-<ion-view view-title="Personal Details">
+<ion-view view-title="Yourself">
 	<ion-content>			
-		<my-app-message info="appMessage"></my-app-message>
+		<my-app-message info="tipMessage"></my-app-message>		
 		<my-app-message info="controllerMessage"></my-app-message>
 		<div class="list">		
 			<label class="item item-input item-stacked-label">
@@ -15,12 +15,16 @@
 				<span class="input-label">Mobile Number</span>
 				<input type="tel" name="phoneNum" class="textAlignLeft" ng-model="user.phoneNum">
 			</label>			
-	        <ion-toggle class="toggle-balanced" ng-model="user.homeOwner">
+	        <ion-toggle class="toggle-calm" ng-model="user.homeOwner">
 	          Are you home owner?
 	        </ion-toggle>          													
+			<label class="item item-input item-stacked-label" ng-if="communityInfo.multiBlock">
+				<span class="input-label">Block Number</span>
+				<input type="text" name="blockNo" class="textAlignLeft" ng-model="user.blockNo">
+			</label>										        
 			<label class="item item-input item-stacked-label">
-				<span class="input-label">Home/Unit/Apt #</span>
-				<input type="text" name="homeNo" class="textAlignLeft" ng-model="user.homeNo">
+				<span class="input-label">Home Number</span>
+				<input type="text" name="unitNo" class="textAlignLeft" ng-model="user.unitNo">
 			</label>									
 			<div class="padding">
 		    	<button class="button button-block button-balanced" ng-click="submit()">Register Community</button>

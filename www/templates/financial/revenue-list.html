@@ -17,7 +17,7 @@
           <i class="icon ion-ios-checkmark-outline balanced" ng-if="revenue.get('status')=='COMPLETED'"></i>
 <!--           <i class="icon ion-alert-circled assertive" ng-if="revenue.get('status')=='PENDING'"></i>                   -->
           <i class="icon ion-ios-information-outline assertive" ng-if="revenue.get('status')=='PENDING'"></i>                    
-          Home # {{revenue.get("homeNo")}}           
+            {{revenue.get("homeNo") | formatHomeNumber}}           
           <span class="item-note">{{revenue.get("revenueAmount") | formatCurrency}}</span>
           <i class="icon ion-chevron-right icon-accessory"></i>
         </ion-item>

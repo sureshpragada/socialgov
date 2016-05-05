@@ -572,7 +572,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService, $cordovaDialogs, $ionicLoading) {
+.controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService, $cordovaDialogs, $ionicLoading, $filter) {
   $scope.loadCommunityHomes=function() {
     AccountService.getListOfHomesInCommunity(AccountService.getUserResidency()).then(function(homesList) {
       if(homesList!=null && homesList.length>0) {
@@ -650,7 +650,8 @@ angular.module('starter.controllers')
 
     if($scope.input.category==true) {
       if($scope.availableHomes!=null && $scope.availableHomes.length>0) {
-        $scope.input.revenueSource="Home # " + $scope.input.home.value;
+        // TODO :: Format home number
+        $scope.input.revenueSource=$filter("formatHomeNumber")($scope.input.home.value);
         $scope.input.homeNo=$scope.input.home.value;
       } else {
         if($scope.input.homeNo==null ||  $scope.input.homeNo.length<1) {
@@ -732,7 +733,7 @@ angular.module('starter.controllers')
   $scope.editPayment=function() {
     if($scope.input.category==true) {
       if($scope.availableHomes!=null && $scope.availableHomes.length>0) {
-        $scope.input.revenueSource="Home # " + $scope.input.home.value;
+        $scope.input.revenueSource=$filter("formatHomeNumber")($scope.input.home.value);
         $scope.input.homeNo=$scope.input.home.value;
       } else {
         if($scope.input.homeNo==null ||  $scope.input.homeNo.length<1) {
