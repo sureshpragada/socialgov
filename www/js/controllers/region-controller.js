@@ -8,6 +8,7 @@ angular.module('starter.controllers')
 
 
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService, PictureManagerService, $ionicLoading) {
+  SettingsService.trackView("Region detail controller");
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading community"));
   $scope.user=Parse.User.current();  
   $scope.appMessage=SettingsService.getAppMessage();  

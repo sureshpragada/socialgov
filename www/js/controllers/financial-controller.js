@@ -1,7 +1,7 @@
 angular.module('starter.controllers')
 
 .controller('FinancialCtrl', function($scope, $http, $ionicLoading, FinancialService, SettingsService, RegionService, AccountService, $ionicHistory) {
-  console.log("Financial controller");  
+  SettingsService.trackView("Financial controller");
 
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=Parse.User.current();

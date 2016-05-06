@@ -257,6 +257,7 @@ angular.module('starter.controllers')
 })
 
 .controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard) {
+  SettingsService.trackView("Account controller");
   $scope.user = AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
   $scope.settings={notifications: $scope.user.get("notifySetting")}; 
