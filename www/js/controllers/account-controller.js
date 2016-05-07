@@ -638,7 +638,7 @@ angular.module('starter.controllers')
 .controller('HomeCtrl', function($scope, $stateParams, $state, AccountService) {
   
   $scope.setUpCommunity=function() {
-    $state.go("community-info");
+    $state.go("community-address");
   };
 
   $scope.haveInvitationCode=function() {
@@ -648,31 +648,31 @@ angular.module('starter.controllers')
 
 .controller('CommunityAddressCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
   console.log("Community address controller");
-  $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us where this community is located;");
-  $scope.controllerMessage=null;  
   $scope.communityAddress=AccountService.getCommunityAddress();
-  $scope.countryList=COUNTRY_LIST;
   
   $scope.next=function() {
-    console.log(JSON.stringify($scope.communityAddress));    
-    if($scope.communityAddress.addressLine1==null || $scope.communityAddress.addressLine1.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community street name."); 
+    if($scope.communityAddress.name == null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
+      return; 
+    }
+    if($scope.communityAddress.addressLine1==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter address."); 
       return; 
     }
     if($scope.communityAddress.city==null || $scope.communityAddress.city.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community city."); 
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your city."); 
       return;  
     }
-    if($scope.communityAddress.state==null || $scope.communityAddress.state.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community state."); 
+    if($scope.communityAddress.state==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your state."); 
       return;  
     }
-    if($scope.communityAddress.pinCode==null || $scope.communityAddress.pinCode.trim().length<5){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community postal code."); 
+    if($scope.communityAddress.pinCode==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your pincode."); 
       return;  
     }
     AccountService.setCommunityAddress($scope.communityAddress);
-    $state.go("your-info");
+    $state.go("community-info");
   };
 
   $scope.cancel=function() {
@@ -683,20 +683,12 @@ angular.module('starter.controllers')
 
 .controller('CommunityInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
   console.log("Community info controller");
-  $scope.controllerMessage=null;  
-  $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about your community;");
   $scope.communityInfo=AccountService.getCommunityInfo($scope.communityInfo);
 
   $scope.next=function() {
     console.log(JSON.stringify($scope.communityInfo));
-
-    if($scope.communityInfo.name==null || $scope.communityInfo.name.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
-      return; 
-    }
-
     if($scope.communityInfo.noOfUnits==null || $scope.communityInfo.noOfUnits.length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter number of units in your community."); 
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter number of homes in your community."); 
       return; 
     }
 
@@ -706,48 +698,34 @@ angular.module('starter.controllers')
     }
     
     AccountService.setCommunityInfo($scope.communityInfo);
-    $state.go("community-address");
+    SettingsService.setAppInfoMessage("You will be setup with adminstrator privileges to build the community.");      
+    $state.go("your-info");
   };
 
   $scope.cancel=function() {
-    $state.go("home");
+    $state.go("community-address");
   };
   
 })
 
 .controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
-  $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about yourself; You will be setup as admin to build community;");        
-  $scope.controllerMessage=null;
-  $scope.user=AccountService.getYourInfo();
-  $scope.communityInfo=AccountService.getCommunityInfo();
-
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.user={
+    homeOwner: true
+  };
   $scope.submit=function() {
-    console.log(JSON.stringify($scope.user));    
-    if($scope.user.firstName==null || $scope.user.firstName.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your firstname."); 
+    if($scope.user.firstName==null || $scope.user.lastName==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter firstname and lastname."); 
       return;
     } 
 
-    if($scope.user.lastName==null || $scope.user.lastName.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your lastname."); 
-      return;
-    } 
-
-    if($scope.user.unitNo==null || $scope.user.unitNo.trim().length<1){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your home number."); 
+    if($scope.user.homeNo==null || $scope.user.homeNo.trim().length==0){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home/unit/apt number."); 
      return; 
     }
 
-    // Set consolidated home number based on block and other criterias;
-    if($scope.communityInfo.multiBlock==true) {
-      if($scope.user.blockNo==null || $scope.user.blockNo.trim().length<1) {
-       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your block number."); 
-       return; 
-      } 
-    } 
-
     if($scope.user.phoneNum==null || $scope.user.phoneNum.trim().length!=10){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your 10 digit phone number."); 
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid 10 digit phone number."); 
      return; 
     }
 
@@ -756,8 +734,7 @@ angular.module('starter.controllers')
     AccountService.createNewCommunity().then(function(regionData){
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
         AccountService.addHome({
-          blockNo: $scope.user.blockNo,
-          unitNo: $scope.user.unitNo, 
+          homeNo: userData.get("homeNo"), 
           residency: regionData.get("uniqueName")
         });
         LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
@@ -864,24 +841,14 @@ angular.module('starter.controllers')
     // Create user
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation
-      // if($scope.regionSettings.sendInvitationCode==true) {
-        RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
-          NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), region.get("name"), "");
-        }, function(error){          
-          LogService.log({type:"ERROR", message: "Unable to get region to send SMS " + JSON.stringify(error)}); 
-          NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), "", "");
-        });        
-      // } else {
-      //   console.log("Region does not support sending invitation code");
-      // }
       UserResidencyService.createUserResidency(newUser).then(function(userResidency){
+        completeUserResidencyCreation(newUser);
         console.log("user residency has been created.");
         SettingsService.setAppSuccessMessage("Invitation has been sent.");
         $ionicHistory.goBack(-1);
       },function(error){
         console.log("Unable to create user residency");
       });
-      // $state.go("tab.neighbors");
     }, function(error) {
       // Verify if this user exist message
       LogService.log({type:"ERROR", message: "Unable to invite resident " + JSON.stringify(error)});       
@@ -891,7 +858,7 @@ angular.module('starter.controllers')
             if(userResidency!=null && userResidency.length==0){
               UserResidencyService.createUserResidencyWhenUserExists($scope.user, user).then(function(userResidency){
                 console.log("User residency has been created for existing user.");
-                //TODO: send notification
+                completeUserResidencyCreation(user);
                 SettingsService.setAppSuccessMessage("Invitation has been sent.");
                 $ionicHistory.goBack(-1);
               },function(error){
@@ -920,6 +887,14 @@ angular.module('starter.controllers')
     $ionicHistory.goBack(-1);
   };
 
+  var completeUserResidencyCreation=function(newUser){
+    RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
+      NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), region.get("name"), "");
+    }, function(error){          
+      LogService.log({type:"ERROR", message: "Unable to get region to send SMS " + JSON.stringify(error)}); 
+      NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), "", "");
+    });
+  };
 /**
 {"id":"1","rawId":"1","displayName":"Plumber","name":{"familyName":"Doe","givenName":"Jane","formatted":"Jane Doe"},"nickname":"Plumber","phoneNumbers":[{"id":"2","pref":false,"value":"212-555-1234","type":"work"},{"id":"3","pref":false,"value":"917-555-5432","type":"mobile"},{"id":"4","pref":false,"value":"203-555-7890","type":"home"}],"emails":null,"addresses":null,"ims":null,"organizations":null,"birthday":null,"note":null,"photos":null,"categories":null,"urls":null}
 */
