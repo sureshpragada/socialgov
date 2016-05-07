@@ -383,7 +383,7 @@ angular.module('starter.controllers')
 })
 
 .controller('AccountUpdateCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
-  console.log("Account update controller");
+  SettingsService.trackView("Account update controller");  
 
   var user=AccountService.getUser();
   $scope.inputUser={
@@ -421,7 +421,7 @@ angular.module('starter.controllers')
 })
 
 .controller('InvitationLoginCtrl', function($scope, $state, RegionService, LogService, AccountService, $cordovaDialogs, SettingsService, NotificationService, $http, UtilityService, $ionicLoading) {
-  console.log("Invitation login controller " + new Date().getTime());
+  SettingsService.trackView("Invitation login controller");    
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.countryList=COUNTRY_LIST;
   $scope.inputForm={
@@ -648,7 +648,7 @@ angular.module('starter.controllers')
 })
 
 .controller('CommunityAddressCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
-  console.log("Community address controller");
+  SettingsService.trackView("Community address controller");      
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us where this community is located;");
   $scope.controllerMessage=null;  
   $scope.communityAddress=AccountService.getCommunityAddress();
@@ -683,7 +683,7 @@ angular.module('starter.controllers')
 })
 
 .controller('CommunityInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
-  console.log("Community info controller");
+  SettingsService.trackView("Community info controller");        
   $scope.controllerMessage=null;  
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about your community;");
   $scope.communityInfo=AccountService.getCommunityInfo($scope.communityInfo);
@@ -717,6 +717,7 @@ angular.module('starter.controllers')
 })
 
 .controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
+  SettingsService.trackView("Your info controller");          
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about yourself; You will be setup as admin to build community;");        
   $scope.controllerMessage=null;
   $scope.user=AccountService.getYourInfo();
@@ -789,7 +790,7 @@ angular.module('starter.controllers')
 })
 
 .controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading) {
-  console.log("Invite citizen controller");
+  SettingsService.trackView("Invite citizen controller");            
   $scope.user={
     status:"P", 
     homeOwner: true,

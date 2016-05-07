@@ -1,7 +1,7 @@
 angular.module('starter.controllers')
 
-.controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs) {
-  
+.controller('RegionLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {
+  SettingsService.trackView("Region legis details controller");
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
@@ -39,6 +39,7 @@ angular.module('starter.controllers')
 })
 
 .controller('SelfLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {
+  SettingsService.trackView("Region self legis details controller");
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   $scope.appMessage=SettingsService.getAppMessage();
   AccountService.getSelfLegisContacts($stateParams.regionUniqueName).then(function(legisList){
@@ -73,7 +74,7 @@ angular.module('starter.controllers')
 })
 
 .controller('ManageLegislativeTitlesCtrl', function($scope, $interval, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicListDelegate, $ionicLoading) {
-  console.log("Controller ManageLegislativeTitlesCtrl");
+  SettingsService.trackView("Region manage legis titles controller");
   $scope.control={
     shuffleInitiated: false
   };
@@ -144,7 +145,7 @@ angular.module('starter.controllers')
 })
 
 .controller('BoardAppointmentCtrl', function($scope, $interval, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicListDelegate, $ionicLoading, $ionicHistory) {
-  console.log("Controller BoardAppointmentCtrl");
+  SettingsService.trackView("Region board appointment controller");
   $scope.legiTitleSelectedIndex=0;  
   $scope.legiTitleList=[];
   $scope.residentSelectedIndex=0;  
@@ -224,7 +225,8 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AddLegisCtrl', function($scope, $stateParams, $state, RegionService, AccountService) {
+.controller('AddLegisCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
+  SettingsService.trackView("Region add legis controller");
   $scope.legisErrorMessage=null;
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
@@ -268,8 +270,8 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('EditLegisDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, $state) {
-
+.controller('EditLegisDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, SettingsService) {
+  SettingsService.trackView("Region edit legis controller");
   var regionUniqueName=$stateParams.regionUniqueName;
   var legisIndex=$stateParams.legisIndex;
 

@@ -1,9 +1,9 @@
 <ion-view view-title="Login">
-	<ion-content class="padding">
+	<ion-content>
 <!-- 		<img class="full-image" src="img/app_logo.png">	 -->
 		<my-app-message info="controllerMessage"></my-app-message>
 		<my-app-message info="appMessage"></my-app-message>
-		<div class="list padding-top">
+		<div class="list">
 			<label class="item item-input item-select">
 			    <span class="input-label">Country Code</span>
 			    <select ng-model="inputForm.country" ng-options="country.name for country in countryList"></select>			    
@@ -17,11 +17,11 @@
 		    <input type="tel" ng-model="inputForm.pin" class="textAlignLeft" maxlength="{{inputForm.pinLength}}">
 		  </label>     	  		  
 		</div>
-		<div>
+		<div class="padding">
 		  <a ng-click="showTerms()" class="icon ion-ios-book-outline assertive"></a> <a ng-click="showTerms()">I agree to terms and conditions</a>
 		</div>
-		<div>
-			<button class="button button-block button-calm" ng-click="getAccessCode()" ng-show="!inputForm.requestedAccessCode">Get Access Code</button>				
+		<div class="padding">
+			<button class="button button-block button-calm" ng-click="getAccessCode()" ng-show="!inputForm.requestedAccessCode">Get Access Code</button>						
 			<button class="button button-block button-calm" ng-click="validateInvitationCode()" ng-show="inputForm.requestedAccessCode">Validate Access Code</button>		
 <!-- 			<button class="button button-block button-outline" ng-click="recoverInvitationCode()" ng-show="inputForm.requestedAccessCode">Resend Access Code</button> -->
 		</div>

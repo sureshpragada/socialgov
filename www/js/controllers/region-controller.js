@@ -48,7 +48,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, SettingsService, $state, $ionicPopover, $cordovaDialogs) {
-  
+  SettingsService.trackView("Region office detail controller");    
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.regions=RegionService.getRegionListFromCache();
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
@@ -216,7 +216,7 @@ angular.module('starter.controllers')
 
 
 .controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
-
+  SettingsService.trackView("Add office controller");  
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
     // execOffAddr=$scope.region.get("execOffAddrList");
@@ -293,7 +293,7 @@ angular.module('starter.controllers')
 })
 
 .controller('EditOfficeDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, SettingsService, $state) {
-
+  SettingsService.trackView("Edit office controller");  
   // $scope.newExecObj={};
   // $scope.newOfficeObj={};
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
@@ -354,6 +354,7 @@ angular.module('starter.controllers')
 
 
 .controller('RegionFinancialOverviewCtrl', function($scope, $stateParams, $state, AccountService, RegionService, RegionFinancialService, $ionicPopover, $cordovaDialogs) {
+  SettingsService.trackView("Region financial overview controller");    
   RegionFinancialService.getRegionFinancials(RegionService.getRegionHierarchy()).then(function(financials) {
     if(financials.length==0) {
       $scope.finOverviewErrorMessage="Financial records not available in your region.";
@@ -410,7 +411,7 @@ angular.module('starter.controllers')
 })
 
 .controller('AddRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state) {
-  
+  SettingsService.trackView("Add region financial overview controller");    
   $scope.addFinancialErrorMessage=null;         
 
   $scope.newFinancialObj = { year:"", revenue:"", expenses:"", regionUniqueName:$stateParams.regionUniqueName, regionExpenses:[], regionRevenue:[], status:"A" };
@@ -456,7 +457,7 @@ angular.module('starter.controllers')
 })
 
 .controller('EditRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state) {
-  
+  SettingsService.trackView("Edit region financial overview controller");    
   $scope.financial={};
   var RegionFinancial = Parse.Object.extend("RegionFinancial");
   var query = new Parse.Query(RegionFinancial);
@@ -548,6 +549,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionFinancialDetailsCtrl', function($scope, $stateParams, RegionService, RegionFinancialService) {
+  SettingsService.trackView("Region financial details controller");  
   $scope.pageTitle=$stateParams.reqDetails=="revenue"?"Revenue":"Expenses";
   var financials=RegionFinancialService.getRegionFinancialDetails($stateParams.regionUniqueName, $stateParams.year);
   if(financials!=null) {
@@ -646,8 +648,9 @@ angular.module('starter.controllers')
 
 })
 
-.controller('ChangeDemoDetailsCtrl', function($scope, $state, $stateParams, RegionService, SettingsService) {
-  $scope.user=Parse.User.current();
+.controller('ChangeDemoDetailsCtrl', function($scope, $state, $stateParams, RegionService, SettingsService, AccountService) {
+  SettingsService.trackView("Change demo details controller");  
+  $scope.user=AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));      
   $scope.newDemoObj={};
   RegionService.getRegion($scope.user.get("residency")).then(function(region) {
@@ -676,8 +679,9 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionSettingsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
-  $scope.user=Parse.User.current();  
+.controller('RegionSettingsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService, AccountService) {
+  SettingsService.trackView("Region settings controller");    
+  $scope.user=AccountService.getUser();  
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.isAdmin=AccountService.canUpdateRegion();
   $scope.settingsChanged=false;  
@@ -735,6 +739,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionSettingsFunctionCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService) {
+  SettingsService.trackView("Region settings function controller");    
   $scope.settingsChanged=false;  
   $scope.functionName=$stateParams.functionName;
   var regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);          
@@ -828,7 +833,7 @@ angular.module('starter.controllers')
 })
 
 .controller('CommunityRulesCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
-  console.log("Community rules controller");
+  SettingsService.trackView("Community rules controller");  
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.canUpdateRegion();
   RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
@@ -842,7 +847,7 @@ angular.module('starter.controllers')
 })
 
 .controller('UpdateCommunityRulesCtrl', function($scope, $state, $http, RegionService, SettingsService, $ionicHistory, AccountService) {
-  console.log("Update community rules controller");
+  SettingsService.trackView("Update community rules controller");  
   $scope.input={ communityRules: "1. Do not play loud noises after 10 PM.\n\n2. Do not dry your clothes on the balcony."};
   RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
     if(region.get("communityRules")!=null && region.get("communityRules").length>0) {
