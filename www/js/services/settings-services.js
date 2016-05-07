@@ -83,6 +83,12 @@ angular.module('settings.services', [])
         template: "<p class='item-icon-left'>"+message+"...<ion-spinner/></p>",
         duration: LOADING_DURATION
       };
+    },
+    trackView: function(view) {
+      console.log(view);
+      if(window.analytics!=null && ENV=="PROD") { 
+        window.analytics.trackView(view); 
+      }
     }
   };
 }]);

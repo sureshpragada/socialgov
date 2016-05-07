@@ -1,6 +1,7 @@
 angular.module('starter.controllers')
 
 .controller('RegionHomesCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading) {
+  SettingsService.trackView("Region homes controller");    
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing your homes"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.control={
@@ -49,7 +50,7 @@ angular.module('starter.controllers')
 })
 
 .controller('HomeDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory, RegionService) {
-  console.log("Home detail controller " + $stateParams.homeNo);
+  SettingsService.trackView("Home detail controller " + $stateParams.homeNo);    
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing home residents"));
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
   $scope.homeNo=$stateParams.homeNo;
@@ -105,7 +106,7 @@ angular.module('starter.controllers')
 
 
 .controller('EditHomeCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory) {
-  console.log("Edit home controller " + $stateParams.homeNo);
+  SettingsService.trackView("Edit home controller" + $stateParams.homeNo);
   $ionicLoading.show(SettingsService.getLoadingMessage("Retrieving home details"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.input={
@@ -157,6 +158,7 @@ angular.module('starter.controllers')
 
 
 .controller('AddHomesCtrl', function($scope, $stateParams, $q, AccountService, RegionService, $state, SettingsService, LogService) {
+  SettingsService.trackView("Add homes controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
   $scope.input={
@@ -318,7 +320,8 @@ angular.module('starter.controllers')
 })
 
 .controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory, RegionService) {
-  console.log("Neighbor details controller " + $stateParams.userId);
+  SettingsService.trackView("Neighbor details controller " + $stateParams.userId);
+
   $scope.operatingUser=AccountService.getUser();
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
@@ -393,6 +396,7 @@ angular.module('starter.controllers')
 })
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
+  SettingsService.trackView("Neighbor list controller");
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing your neighbors"));
   $scope.control={
     requestedSearch: true,

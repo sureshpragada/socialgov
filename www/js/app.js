@@ -19,6 +19,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       StatusBar.styleLightContent();
     }
 
+    if(window.analytics!=null) { 
+      window.analytics.startTrackerWithId(ANALYTICS_TRACKING_ID);
+    }
+
     RegionService.initializeRegionCacheByCurrentUser();
 
     $ionicPlatform.registerBackButtonAction(function (event) {
@@ -104,7 +108,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           $state.go("home");
         } else {
           // TODO :: Does user need to reset PIN?
-        }
+        }        
       }
     })
     // Each tab has its own nav history stack:

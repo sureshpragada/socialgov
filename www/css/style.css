@@ -1,5 +1,9 @@
 /* Empty. Add your own CSS if you like */
 
+.bold {
+  font-weight: bold;
+}
+
 .bullet-list {
   list-style-type: disc;
   margin: 10px;

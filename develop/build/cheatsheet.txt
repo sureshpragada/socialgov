@@ -32,6 +32,7 @@ cordova plugin add https://github.com/VersoSolutions/CordovaClipboard.git
 cordova plugin add https://github.com/katzer/cordova-plugin-email-composer.git
 cordova plugin add https://github.com/wymsee/cordova-imageResizer
 cordova plugin rm cordova-plugin-image-resizer
+cordova plugin add https://github.com/danwilson/google-analytics-plugin.git
 
 
 TODO >> Background service (https://github.com/Red-Folder/bgs-core/wiki/Using-the-MyService-Sample, http://stackoverflow.com/questions/25038694/how-do-i-get-parse-com-push-notifications-working-in-a-cordova-phonegap-android/25038695#25038695, https://github.com/driftyco/ng-cordova/issues/963)
@@ -55,6 +56,7 @@ Auth Token : MTI0NjhmZGU5ODQyZDIzZTU1NDJjZGRjNjBjYmNh
 Ourblock :
 Project ID : 69658048825
 API Key : AIzaSyCCDhH28GowCG4qEc9IRk5swR2N6CUDQh0
+Analytics Tracking ID : UA-77383626-1
 
 Homebites-dev:
 Project ID : 113290303197

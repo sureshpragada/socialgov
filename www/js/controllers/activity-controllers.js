@@ -34,7 +34,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal, $ionicScrollDelegate) {
-  console.log("Activity controller");  
+  SettingsService.trackView("Activity controller");
   $scope.debateList=[];
   $scope.legiContactsList=[];
   $scope.user=AccountService.getUser();
@@ -628,7 +628,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 
 .controller('PostActivityCtrl', function($scope, $http, $state, $stateParams, $ionicHistory, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService) {
-
+  SettingsService.trackView("Post Activity controller");
   var user=AccountService.getUser();  
   var stateData=PictureManagerService.getState();
   console.log(JSON.stringify(stateData));
@@ -757,6 +757,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('EditPostActivityCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService, $ionicHistory) {
+  SettingsService.trackView("Edit Post Activity controller");
   var user=AccountService.getUser();  
   $scope.allowedActivities=ActivityService.getAllowedActivities(user);
   $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), AccountService.getUserResidency());
@@ -823,7 +824,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('PickActivityTypeCtrl', function($scope, $http, $state, $stateParams, NotificationService, LogService, RegionService, ActivityService, AccountService, SettingsService) {
-  console.log("Pick activity type controller");
+  SettingsService.trackView("Pick activity type controller");
   $scope.activityTypeList=ActivityService.getAllowedActivities(AccountService.getUser());
 
   $scope.gotoActivity=function(activityType){
@@ -837,7 +838,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('PostPollActivityCtrl', function($scope, $http, $state, $ionicHistory, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService, $ionicModal) {
-  console.log("Post poll activity controller");
+  SettingsService.trackView("Post poll activity controller");
   $scope.post={
     activityType: "POLL",
     user: AccountService.getUser(),
@@ -983,7 +984,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 })
 
 .controller('ViewPollActivityCtrl', function($scope, $stateParams, $http, $state, NotificationService, LogService, RegionService, ActivityService, AccountService, PictureManagerService, $ionicLoading, $cordovaDialogs, $translate, SettingsService, $ionicHistory) {
-  console.log("Post poll activity controller " + $stateParams.activityId);
+  SettingsService.trackView("Post poll activity controller " + $stateParams.activityId);  
   $scope.input={
     vote: [],
     pollingClosed: false

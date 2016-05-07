@@ -1,6 +1,7 @@
 angular.module('starter.controllers')
 
 .controller('RegionServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicLoading, ServiceContactService) {  
+  SettingsService.trackView("Region service contacts controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading service contacts"));
   $scope.control={
@@ -74,7 +75,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionEditServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs, ServiceContactService) {    
-  console.log("Entered into RegionEditServiceContactsCtrl " + $stateParams.serviceContactId);
+  SettingsService.trackView("Region edit service contacts controller" + $stateParams.serviceContactId);
 
   $scope.inputServiceContact={};
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
@@ -120,6 +121,7 @@ angular.module('starter.controllers')
 
 
 .controller('AddServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs, $ionicLoading, ServiceContactService) {  
+  SettingsService.trackView("Region add service contact controller");
   $scope.serviceContact={
     status: "A", 
     type: "Plumber", 
