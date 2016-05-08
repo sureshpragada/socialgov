@@ -654,10 +654,6 @@ angular.module('starter.controllers')
   $scope.communityAddress=AccountService.getCommunityAddress();
   
   $scope.next=function() {
-    if($scope.communityAddress.name == null){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
-      return; 
-    }
     if($scope.communityAddress.addressLine1==null){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter address."); 
       return; 
@@ -713,7 +709,7 @@ angular.module('starter.controllers')
   
 })
 
-.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading, UserResidencyService) {
 
   SettingsService.trackView("Your info controller");          
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about yourself; You will be setup as admin to build community;");        
@@ -727,7 +723,7 @@ angular.module('starter.controllers')
       return;
     } 
 
-    if($scope.user.homeNo==null || $scope.user.homeNo.trim().length==0){
+    if($scope.user.unitNo==null || $scope.user.unitNo.trim().length==0){
      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home/unit/apt number."); 
      return; 
     }
@@ -745,6 +741,7 @@ angular.module('starter.controllers')
           homeNo: userData.get("homeNo"), 
           residency: regionData.get("uniqueName")
         });
+        UserResidencyService.createUserResidency(userData);
         LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
         RegionService.initializeRegionCache(regionData);          
         NotificationService.registerDevice();
@@ -773,7 +770,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading) {
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading, UserResidencyService) {
   SettingsService.trackView("Invite citizen controller");            
   $scope.user={
     status:"P", 
