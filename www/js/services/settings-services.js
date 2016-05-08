@@ -85,10 +85,22 @@ angular.module('settings.services', [])
       };
     },
     trackView: function(view) {
-      console.log(view);
-      if(window.analytics!=null && ENV=="PROD") { 
+      console.log("View : " + view);
+      if(window.analytics!=null && ENV=="TEST") { 
         window.analytics.trackView(view); 
       }
+    },
+    trackEvent: function(category, action) {
+      console.log("Event : " + category + " " + action);
+      if(window.analytics!=null && ENV=="TEST") { 
+        window.analytics.trackEvent(category, action); 
+      }
+    },
+    trackException: function(message) {
+      console.log("Message : " + message);
+      if(window.analytics!=null && ENV=="TEST") { 
+        window.analytics.trackException(message, false);
+      }      
     }
   };
 }]);

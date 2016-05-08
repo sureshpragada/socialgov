@@ -125,6 +125,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   });
 
   $scope.beginDebate=function(activityId, index) {
+    SettingsService.trackEvent("Activity", "BeginDebate");
     $scope.postComment={
       data: null, 
       activityIndex: index
@@ -150,6 +151,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.postDebateArgument=function() {
     console.log("Posting comment started " + $scope.postComment.data);
+    SettingsService.trackEvent("Activity", "PostDebate");
     if($scope.postComment.data==null || $scope.postComment.data.trim().length==0) {
       $scope.commentPostMessage=SettingsService.getControllerErrorMessage("Please enter your comment.");
       return;
@@ -654,6 +656,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   displayActivityWarnMessage();
   $scope.submitPost=function() {
+    SettingsService.trackEvent("Activity", "PostActivity");    
     $scope.postErrorMessage=null;
     if($scope.post.notifyMessage==null || $scope.post.notifyMessage.length<10 || $scope.post.notifyMessage.length>2048) {
       $scope.postErrorMessage=SettingsService.getControllerErrorMessage("Message should be minimum 10 and maximum 2048 characters.");
@@ -721,6 +724,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };  
 
   $scope.cancelPost=function(){
+    SettingsService.trackEvent("Activity", "CancelPostActivity");    
     if(($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10) || PictureManagerService.getState().imageUrl!=null) {
       $cordovaDialogs.confirm('Do you want to abort posting?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
         if(buttonIndex==1) {
@@ -735,6 +739,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.goToAttachPicture=function() {
+    SettingsService.trackEvent("Activity", "AttachImageToPostActivity");    
     PictureManagerService.setFromPage("tab.post");
     PictureManagerService.setData({message: $scope.post.notifyMessage});
     $state.go("tab.activity-picman");
@@ -785,7 +790,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.postErrorMessage=null;
   $scope.editPost=function() {
-
+    SettingsService.trackEvent("Activity", "EditActivity");    
     var badwords=ActivityService.getBadWordsFromMesage($scope.post.notifyMessage);
     if(badwords!=null && badwords.length>0) {
       $scope.postErrorMessage=SettingsService.getControllerErrorMessage("Please remove bad words " + JSON.stringify(badwords) + " from the message.");
@@ -828,6 +833,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.activityTypeList=ActivityService.getAllowedActivities(AccountService.getUser());
 
   $scope.gotoActivity=function(activityType){
+    SettingsService.trackEvent("Activity", "PickActivity");        
     if(activityType=="POLL") {
       $state.go("tab.post-poll-activity");
     } else {
@@ -878,6 +884,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   };
 
   $scope.submitPoll=function() {
+    SettingsService.trackEvent("Activity", "SubmitPollActivity");        
     if($scope.post.notifyMessage==null || $scope.post.notifyMessage.length<10 || $scope.post.notifyMessage.length>2048) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Poll question should be minimum 10 characters.");
       return;
