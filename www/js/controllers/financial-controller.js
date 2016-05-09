@@ -124,6 +124,7 @@ angular.module('starter.controllers')
   })  
 
   $scope.showExpenseChart = function() {
+      SettingsService.trackEvent("Financial", "ShowChart");        
       $scope.modal.show();    
       // Render the graph
       if($scope.chartContext==null) {
@@ -225,6 +226,7 @@ angular.module('starter.controllers')
   });
 
   $scope.deleteExpense = function(){    
+    SettingsService.trackEvent("Financial", "DeleteExpense");            
     if(ionic.Platform.isWebView()) {
       $cordovaDialogs.beep(1);
     }

@@ -10,7 +10,6 @@ ionic serve
 ionic serve --lab
 cordova prepare android 
 
-
 ionic run android
 cordova platform list
 cordova plugin ls

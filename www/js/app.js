@@ -21,6 +21,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
 
     if(window.analytics!=null) { 
       window.analytics.startTrackerWithId(ANALYTICS_TRACKING_ID);
+      if(AccountService.getUser()!=null) {
+        window.analytics.setUserId(AccountService.getUser().get("username"));
+      }      
     }
 
     RegionService.initializeRegionCacheByCurrentUser();

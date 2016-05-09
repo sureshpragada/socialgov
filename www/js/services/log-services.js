@@ -1,6 +1,6 @@
 angular.module('log.services', ['ionic'])
 
-.factory('LogService', ['$http', function($http) {
+.factory('LogService', ['$http', 'SettingsService', function($http, SettingsService) {
   return {
     log: function(logObject) {
       console.log(JSON.stringify(logObject));
@@ -12,6 +12,8 @@ angular.module('log.services', ['ionic'])
         logObject.username="unauthenticated";
       }
       
+      SettingsService.trackException(JSON.stringify(logObject));
+
       auditLog.save(logObject, {
         success: function(logObject) {
           console.log("Successfully sent audit log")
