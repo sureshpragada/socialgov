@@ -53,7 +53,7 @@ angular.module('starter.controllers')
 })
 
 .controller('HowToMakePaymentCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
-  console.log("How to make payment controller");
+  SettingsService.trackView("How to make payment controller");
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
   RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
     $scope.paymentInstr=region.get("paymentInstr");
@@ -66,7 +66,7 @@ angular.module('starter.controllers')
 })
 
 .controller('UpdateHowToMakePaymentCtrl', function($scope, $state, $http, RegionService, SettingsService, $ionicHistory) {
-  console.log("Update how to make payment controller");
+  SettingsService.trackView("Update how to make payment controller");
   $scope.input={ paymentInstr: "1. Handover the payment to watchman.\n\n2. Treasurer will collect your payment from watchman and mark your dues as paid.\n\n3. You will receive confirmation notification once your payment has been added to balance sheet."};
   RegionService.getRegion(Parse.User.current().get("residency")).then(function(region) {
     if(region.get("paymentInstr")!=null && region.get("paymentInstr").length>0) {
@@ -90,7 +90,7 @@ angular.module('starter.controllers')
 })
 
 .controller('ExpenseListCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, AccountService, RegionService, $ionicLoading, $ionicModal) {
-  console.log("Expense List controller " + $stateParams.balanceSheetId);
+  SettingsService.trackView("Expense List controller");  
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading expense items"));
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
@@ -198,7 +198,7 @@ angular.module('starter.controllers')
 })
 
 .controller('ExpenseDetailCtrl', function($scope, $http, $stateParams, $ionicModal, $cordovaDialogs, $state, SettingsService, AccountService, RegionService, FinancialService, PictureManagerService) {
-  console.log("Expense detail controller " + $stateParams.expenseId);
+  SettingsService.trackView("Expense detail controller");  
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
   FinancialService.getExpenseRecord($stateParams.expenseId).then(function(expenseRecord){
     $scope.expenseRecord = expenseRecord[0];
@@ -272,6 +272,7 @@ angular.module('starter.controllers')
   })  
 
   $scope.showExpenseReceipt = function(index) {
+    SettingsService.trackEvent("Financial", "ShowExpenseReceipt");
     $scope.removeExpenseReceipt=$scope.expenseRecord.get("balanceSheet").get("status")=="OPEN"?true:false;
     $scope.viewingExpenseReceiptIndex=index;
     if($scope.expenseRecord.get("images")!=null && $scope.expenseRecord.get("images").length>0) {
@@ -292,7 +293,7 @@ angular.module('starter.controllers')
 })
 
 .controller('ManageExpenseCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory) {
-  console.log("Manage Expense controller " + $stateParams.balanceSheetId);
+  SettingsService.trackView("Manage Expense controller");
   $scope.availableCategories=FinancialService.getExpenseCategories();
   $scope.focusBalanceSheet=FinancialService.createBalanceSheetEntityWithObjectId($stateParams.balanceSheetId);  
   $scope.input={
@@ -313,6 +314,7 @@ angular.module('starter.controllers')
   };
 
   $scope.addExpense=function() {
+    SettingsService.trackEvent("Financial", "AddExpense");
     if($scope.input.expenseAmount==null ||  $scope.input.expenseAmount<1) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter expense amount");
       return;
@@ -337,7 +339,7 @@ angular.module('starter.controllers')
 })
 
 .controller('EditExpenseDetailCtrl', function($scope, $http, $stateParams, SettingsService, FinancialService, $state) {
-  console.log("Edit expense detail controller"+$stateParams.expenseId);
+  SettingsService.trackView("Edit expense detail controller");
   $scope.availableCategories=FinancialService.getExpenseCategories();
   FinancialService.getExpenseRecord($stateParams.expenseId).then(function(expenseRecord){
     $scope.expenseRecord = expenseRecord[0];
@@ -394,7 +396,7 @@ angular.module('starter.controllers')
 })
 
 .controller('PaymentDetailCtrl', function($scope, $http, $stateParams, $state, $cordovaDialogs, SettingsService, FinancialService, AccountService, RegionService) {  
-  console.log("Payment detail controller " + $stateParams.revenueId);
+  SettingsService.trackView("Payment detail controller");  
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
@@ -416,6 +418,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteRevenue = function(){
+    SettingsService.trackEvent("Financial", "DeleteRevenue");
     if(ionic.Platform.isWebView()) {
       $cordovaDialogs.beep(1);
     }
@@ -506,7 +509,7 @@ angular.module('starter.controllers')
 // })
 
 .controller('PaymentHistoryCtrl', function($scope, $http, SettingsService, FinancialService) {
-  console.log("Payment history controller");
+  SettingsService.trackView("Payment history controller");    
 
   var user=Parse.User.current();
   FinancialService.getMyPaymentHistory(user.get("residency"), user.get("homeNo")).then(function(paymentList) {
@@ -523,7 +526,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RevenueListCtrl', function($scope, $http, $state, SettingsService, FinancialService, $stateParams, RegionService, AccountService, $ionicLoading) {
-  console.log("Revenue List controller " + $stateParams.balanceSheetId);
+  SettingsService.trackView("Revenue List controller");
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading revenue items"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
@@ -575,6 +578,7 @@ angular.module('starter.controllers')
 })
 
 .controller('ManageRevenueCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory, AccountService, $cordovaDialogs, $ionicLoading, $filter) {
+  SettingsService.trackView("Manage Revenue controller");  
   $scope.loadCommunityHomes=function() {
     AccountService.getListOfHomesInCommunity(AccountService.getUserResidency()).then(function(homesList) {
       if(homesList!=null && homesList.length>0) {
@@ -588,7 +592,6 @@ angular.module('starter.controllers')
     });
   };
 
-  console.log("Manage Revenue controller " + $stateParams.balanceSheetId);
   $ionicLoading.show(SettingsService.getLoadingMessage("Preparing revenue item"));
   $scope.focusBalanceSheet=FinancialService.createBalanceSheetEntityWithObjectId($stateParams.balanceSheetId);  
   $scope.input={
@@ -645,6 +648,7 @@ angular.module('starter.controllers')
   }
 
   $scope.addRevenue=function() {
+    SettingsService.trackEvent("Financial", "AddRevenue");
     if($scope.input.revenueAmount==null ||  $scope.input.revenueAmount<1) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter revenue amount");
       return;
@@ -733,6 +737,7 @@ angular.module('starter.controllers')
   // };
 
   $scope.editPayment=function() {
+    SettingsService.trackEvent("Financial", "EditPayment");
     if($scope.input.category==true) {
       if($scope.availableHomes!=null && $scope.availableHomes.length>0) {
         $scope.input.revenueSource=$filter("formatHomeNumber")($scope.input.home.value);
@@ -796,6 +801,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deletePayment=function() {
+    SettingsService.trackEvent("Financial", "DeletePayment");
     if(ionic.Platform.isWebView()) {
       $cordovaDialogs.beep(1);
     }
@@ -822,7 +828,7 @@ angular.module('starter.controllers')
 })
 
 .controller('BalanceSheetListCtrl', function($scope, $http, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, RegionService) {
-  console.log("Balance sheet list controller ");
+  SettingsService.trackView("Balance sheet list controller");    
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
@@ -849,7 +855,7 @@ angular.module('starter.controllers')
 })
 
 .controller('BalanceSheetCtrl', function($scope, $http, $filter, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, RegionService, LogService, $q, $cordovaDialogs, $cordovaEmailComposer, $cordovaClipboard, NotificationService) {
-  console.log("Balance sheet controller " + $stateParams.balanceSheetId);
+  SettingsService.trackView("Balance sheet controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
   $scope.user=AccountService.getUser();
@@ -922,6 +928,7 @@ angular.module('starter.controllers')
   };
 
   $scope.closeBalanceSheet=function() {
+    SettingsService.trackEvent("Financial", "CloseBalanceSheet");
     $ionicLoading.show(SettingsService.getLoadingMessage("Closing balance sheet"));
     FinancialService.closeBalanceSheet($scope.balanceSheet.id, $scope.closeBalanceSheetInput).then(function(closedBalanceSheet){      
       var promiseArray=[];
@@ -966,6 +973,7 @@ angular.module('starter.controllers')
   };
 
   $scope.emailBalanceSheet=function() {
+    SettingsService.trackEvent("Financial", "EmailBalanceSheet");
     var report=$filter('date')($scope.balanceSheet.get("startDate"), 'MMM yyyy')+"\n\n";
     report+="Revenue Entries\n";
     var revenueTotal=0;
@@ -1004,6 +1012,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteBalanceSheet=function() {
+    SettingsService.trackEvent("Financial", "DeleteBalanceSheet");
     $ionicLoading.show(SettingsService.getLoadingMessage("Deleting balance sheet"));
     $q.all([
       $scope.balanceSheet.destroy(),
@@ -1021,7 +1030,7 @@ angular.module('starter.controllers')
 })
 
 .controller('StartBalanceSheetCtrl', function($scope, $http, $state, $stateParams, SettingsService, AccountService, $ionicLoading, FinancialService, $ionicHistory, LogService) {
-  console.log("Start Balance sheet controller ");
+  SettingsService.trackView("Start Balance sheet controller");
   $scope.user=Parse.User.current();
   $scope.balanceSheets=[];
   $scope.input={
@@ -1060,7 +1069,7 @@ angular.module('starter.controllers')
   });    
 
   $scope.startBalanceSheet=function() {
-    
+    SettingsService.trackEvent("Financial", "StartBalanceSheetInitite");
     if($scope.input.generateHomeOwnerPayments==true && ($scope.input.maintDues==null ||  $scope.input.maintDues<1)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter maintenance payment amount.");
       return;
@@ -1112,7 +1121,7 @@ angular.module('starter.controllers')
 })
 
 .controller('ReservesDetailCtrl', function($scope, $http, $stateParams, SettingsService, AccountService, RegionService, FinancialService) {
-  console.log("Reserves detail controller ");
+  SettingsService.trackView("Reserves detail controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
@@ -1137,6 +1146,7 @@ angular.module('starter.controllers')
   $scope.getAllReserveAudit();  
 
   $scope.deleteReserveAudit=function(index) {
+    SettingsService.trackEvent("Financial", "DeleteReserveAudit");
     FinancialService.deleteReserveAudit($scope.reserveAuditList[index]).then(function(reserveAudit) {
       $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Reserve audit entry has been deleted.");      
       $scope.getAllReserveAudit();
@@ -1147,7 +1157,7 @@ angular.module('starter.controllers')
 })
 
 .controller('ManageReservesCtrl', function($scope, $http, $stateParams, $state, SettingsService, RegionService, FinancialService, LogService) {
-  console.log("Manage Reserves controller");
+  SettingsService.trackView("Manage Reserves controller");
   $scope.input={
     createdBy: Parse.User.current(),
     residency: Parse.User.current().get("residency"),
@@ -1166,6 +1176,7 @@ angular.module('starter.controllers')
   });  
 
   $scope.updateReserve=function() {
+    SettingsService.trackEvent("Financial", "UpdateReserve");
     if($scope.input.reserveAmount==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter reserve amount.");
       return;
@@ -1185,13 +1196,13 @@ angular.module('starter.controllers')
 
 })
 
-.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, RegionService, AccountService, $ionicLoading, LogService) {
-  console.log("Dues List controller");
+.controller('DuesListCtrl', function($scope, $http, SettingsService, FinancialService, RegionService, AccountService, $ionicLoading, LogService, $cordovaDialogs) {
+  SettingsService.trackView("Dues List controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading maintenance fee"));
-  FinancialService.getAllDues(Parse.User.current().get("residency")).then(function(duesList) {
+  FinancialService.getAllDues(AccountService.getUserResidency()).then(function(duesList) {
     if(duesList!=null && duesList.length>0) {
       $scope.currentDues=FinancialService.getCurrentDues(duesList);
       $scope.upcomingDues=FinancialService.getUpcomingDues(duesList);
@@ -1207,6 +1218,7 @@ angular.module('starter.controllers')
   });
 
   $scope.deleteUpcomingDues=function() {
+    SettingsService.trackEvent("Financial", "DeleteUpcomingDues");
     FinancialService.deleteUpcomingDues($scope.upcomingDues).then(function(dues) {
       $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Upcoming maintenance fee have been deleted.");
       $scope.upcomingDues=null;
@@ -1216,10 +1228,28 @@ angular.module('starter.controllers')
     });
   };
 
+  $scope.deleteMaintenanceFeeAudit=function(historyIndex) {
+    SettingsService.trackEvent("Financial", "DeleteMaintenanceFeeAudit");
+    $cordovaDialogs.confirm('Do you want to delete maintenance fee audit record?', 'Delete Fee', ['Delete','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        FinancialService.deleteUpcomingDues($scope.duesHistory[historyIndex]).then(function(dues) {
+          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Maintenance fee audit record has been deleted.");
+          $scope.duesHistory.splice(historyIndex, 1);
+          $scope.$apply();
+        }, function(error) {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete maintenance fee audit record.");
+        });
+      } else {
+        console.log("Canceled removal of maintenance fee");
+      }
+    });
+  };
+
 })
 
 .controller('ManageDuesCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory) {
-  console.log("Manage Dues controller ");
+  SettingsService.trackView("Manage Dues controller");
 
   $scope.input={
     createdBy: Parse.User.current(),
@@ -1243,6 +1273,8 @@ angular.module('starter.controllers')
   }
 
   $scope.updateDues=function() {
+    SettingsService.trackEvent("Financial", "UpdateDuesInititation");
+
     console.log("Input : " + JSON.stringify($scope.input));
     if($scope.input.effectiveMonth==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter effective month.");
