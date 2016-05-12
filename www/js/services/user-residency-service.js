@@ -27,12 +27,36 @@ angular.module('user-residency.services', [])
 	      	userQuery.equalTo("phoneNum", number);
 	      	return userQuery.first();
 	    },
-	    getUserResidencyByUserAndResidency: function(user, residency) {
+	    getCurrentUserResidency: function(user, residency) {
 	    	var UserResidency = Parse.Object.extend("UserResidency");
 			var query = new Parse.Query(UserResidency);
 			query.equalTo("user", user);
 			query.equalTo("residency", residency);
 			return query.find();
+	    },
+	    getUserResidencyByUser: function(user){
+	    	var UserResidency = Parse.Object.extend("UserResidency");
+			var query = new Parse.Query(UserResidency);
+			query.equalTo("user", user);
+			query.notEqualTo("residency", user.get("residency"));
+			return query.find();	
+	    },
+	    switchResidency: function(userResidency){
+	    	var user = AccountService.getUser();
+		    user.set("homeNo", userResidency.get("homeNo"));
+		    user.set("homeOwner", userResidency.get("homeOwner"));
+		    user.set("role", userResidency.get("role"));
+		    user.set("residency", userResidency.get("residency"));
+		    user.set("title", userResidency.get("title"));
+		    return user.save();
+	    },
+	    updateUserResidency: function(userResidency){
+	    	var user = AccountService.getUser();
+	    	userResidency.set("homeNo", user.get("homeNo"));
+		    userResidency.set("homeOwner", user.get("homeOwner"));
+		    userResidency.set("role", user.get("role"));
+		    userResidency.set("title", user.get("title"));
+		    return userResidency.save();
 	    }
 	};
 

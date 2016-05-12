@@ -256,7 +256,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard, UserResidencyService) {
   SettingsService.trackView("Account controller");
   $scope.user = AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
@@ -310,6 +310,19 @@ angular.module('starter.controllers')
   }, function(error) {
     $scope.regionDisplayName=$scope.user.get("residency").capitalizeFirstLetter();
   });
+
+  UserResidencyService.getUserResidencyByUser($scope.user).then(function(userResidency){
+    if(userResidency!=null && userResidency.length>0){
+      $scope.canSwitchResidency=true;
+    }
+    $scope.$apply();
+  },function(error){
+    console.log("Unable to get user residency for current user "+JSON.stringify(error));
+  });
+
+  $scope.switchResidency=function(){
+    $state.go("tab.account-switch");
+  };
 
   $scope.getRoleNameFromRoleCode=function(role) {
     return AccountService.getRoleNameFromRoleCode(role);
@@ -378,6 +391,42 @@ angular.module('starter.controllers')
     PictureManagerService.reset();
     PictureManagerService.setFromPage("tab.account");
     $state.go("tab.account-picman");
+  };
+
+})
+
+.controller('SwitchResidencyCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, UserResidencyService, $ionicLoading) {
+  SettingsService.trackView("Switch residency controller");  
+
+  UserResidencyService.getUserResidencyByUser(AccountService.getUser()).then(function(UserResidencies){
+    $scope.userResidencies=UserResidencies;
+    var residencyNames=[];
+    for(var i=0; i<$scope.userResidencies.length; i++){
+      residencyNames.push($scope.userResidencies[i].get("residency"));
+    }
+    RegionService.getRegionsByRegionUniqueNames(residencyNames).then(function(regions){
+      $scope.regions = regions;
+      $scope.$apply();
+      console.log(JSON.stringify($scope.regions));
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get region details.");
+    });
+  },function(error){
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get user residencies.");
+  });
+
+
+  $scope.switchResidency=function(residencyIndex){
+    $ionicLoading.show(SettingsService.getLoadingMessage("Switching Community"));
+    var user = AccountService.getUser();
+    
+    //TODO: Update user residency whenever user's role,title,homeNo etc changes.
+    UserResidencyService.switchResidency($scope.userResidencies[residencyIndex]).then(function(user){
+      $ionicLoading.hide();
+      $state.go("tab.dash");
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to switch residency.");
+    });
   };
 
 })
@@ -757,9 +806,14 @@ angular.module('starter.controllers')
         LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
       });
     },function(error){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
-      $ionicLoading.hide();
-      LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
+      if(error.code==202) {
+        
+      }
+      else{
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
+        $ionicLoading.hide();
+        LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
+      }
     });
   
   };
@@ -860,7 +914,7 @@ angular.module('starter.controllers')
       LogService.log({type:"ERROR", message: "Unable to invite resident " + JSON.stringify(error)});       
       if(error.code==202) {
         UserResidencyService.getUserByPhoneNumber($scope.user.phoneNum).then(function(user){
-          UserResidencyService.getUserResidencyByUserAndResidency(user, AccountService.getUserResidency()).then(function(userResidency){
+          UserResidencyService.getCurrentUserResidency(user, AccountService.getUserResidency()).then(function(userResidency){
             if(userResidency!=null && userResidency.length==0){
               UserResidencyService.createUserResidencyWhenUserExists($scope.user, user).then(function(userResidency){
                 console.log("User residency has been created for existing user.");

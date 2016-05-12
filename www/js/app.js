@@ -881,6 +881,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })
 
+    .state('tab.account-switch', {
+      url: '/account-switch',
+      cache: false,
+      views: {
+        "tab-account": {
+          templateUrl: 'templates/account/switch-residency.html',
+          controller: 'SwitchResidencyCtrl'        
+        }
+      }
+    })
+
     // .state('tab.upload-profile-picture', {
     //   url: '/account-update',
     //   cache: false,
