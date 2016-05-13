@@ -207,6 +207,12 @@ angular.module('region.services', [])
       var query = new Parse.Query(Region);
       query.equalTo("uniqueName", regionUniqueName);
       return query.find();
+    },
+    getRegionsByRegionUniqueNames: function(regionUniqueNames){
+      var Region = Parse.Object.extend("Region");
+      var query = new Parse.Query(Region);
+      query.containedIn("uniqueName", regionUniqueNames);
+      return query.find();
     }
   };
 }])

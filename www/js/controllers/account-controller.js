@@ -256,7 +256,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard, UserResidencyService) {
   SettingsService.trackView("Account controller");
   $scope.user = AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
@@ -310,6 +310,19 @@ angular.module('starter.controllers')
   }, function(error) {
     $scope.regionDisplayName=$scope.user.get("residency").capitalizeFirstLetter();
   });
+
+  UserResidencyService.getUserResidencyByUser($scope.user).then(function(userResidency){
+    if(userResidency!=null && userResidency.length>0){
+      $scope.canSwitchResidency=true;
+    }
+    $scope.$apply();
+  },function(error){
+    console.log("Unable to get user residency for current user "+JSON.stringify(error));
+  });
+
+  $scope.switchResidency=function(){
+    $state.go("tab.account-switch");
+  };
 
   $scope.getRoleNameFromRoleCode=function(role) {
     return AccountService.getRoleNameFromRoleCode(role);
@@ -380,6 +393,42 @@ angular.module('starter.controllers')
     PictureManagerService.reset();
     PictureManagerService.setFromPage("tab.account");
     $state.go("tab.account-picman");
+  };
+
+})
+
+.controller('SwitchResidencyCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, UserResidencyService, $ionicLoading) {
+  SettingsService.trackView("Switch residency controller");  
+
+  UserResidencyService.getUserResidencyByUser(AccountService.getUser()).then(function(UserResidencies){
+    $scope.userResidencies=UserResidencies;
+    var residencyNames=[];
+    for(var i=0; i<$scope.userResidencies.length; i++){
+      residencyNames.push($scope.userResidencies[i].get("residency"));
+    }
+    RegionService.getRegionsByRegionUniqueNames(residencyNames).then(function(regions){
+      $scope.regions = regions;
+      $scope.$apply();
+      console.log(JSON.stringify($scope.regions));
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get region details.");
+    });
+  },function(error){
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get user residencies.");
+  });
+
+
+  $scope.switchResidency=function(residencyIndex){
+    $ionicLoading.show(SettingsService.getLoadingMessage("Switching Community"));
+    var user = AccountService.getUser();
+    
+    //TODO: Update user residency whenever user's role,title,homeNo etc changes.
+    UserResidencyService.switchResidency($scope.userResidencies[residencyIndex]).then(function(user){
+      $ionicLoading.hide();
+      $state.go("tab.dash");
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to switch residency.");
+    });
   };
 
 })
@@ -645,7 +694,7 @@ angular.module('starter.controllers')
 .controller('HomeCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
   SettingsService.trackView("Home controller");    
   $scope.setUpCommunity=function() {
-    $state.go("community-info");
+    $state.go("community-address");
   };
 
   $scope.haveInvitationCode=function() {
@@ -658,7 +707,6 @@ angular.module('starter.controllers')
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us where this community is located;");
   $scope.controllerMessage=null;  
   $scope.communityAddress=AccountService.getCommunityAddress();
-  $scope.countryList=COUNTRY_LIST;
   
   $scope.next=function() {
     SettingsService.trackEvent("Account", "AddCommunityAddress");
@@ -668,19 +716,19 @@ angular.module('starter.controllers')
       return; 
     }
     if($scope.communityAddress.city==null || $scope.communityAddress.city.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community city."); 
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your city."); 
       return;  
     }
-    if($scope.communityAddress.state==null || $scope.communityAddress.state.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community state."); 
+    if($scope.communityAddress.state==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your state."); 
       return;  
     }
-    if($scope.communityAddress.pinCode==null || $scope.communityAddress.pinCode.trim().length<5){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community postal code."); 
+    if($scope.communityAddress.pinCode==null){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your pincode."); 
       return;  
     }
     AccountService.setCommunityAddress($scope.communityAddress);
-    $state.go("your-info");
+    $state.go("community-info");
   };
 
   $scope.cancel=function() {
@@ -698,14 +746,8 @@ angular.module('starter.controllers')
   $scope.next=function() {
     SettingsService.trackEvent("Account", "AddCommunityInfo");
     console.log(JSON.stringify($scope.communityInfo));
-
-    if($scope.communityInfo.name==null || $scope.communityInfo.name.trim().length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community name."); 
-      return; 
-    }
-
     if($scope.communityInfo.noOfUnits==null || $scope.communityInfo.noOfUnits.length<1){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter number of units in your community."); 
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter number of homes in your community."); 
       return; 
     }
 
@@ -715,16 +757,18 @@ angular.module('starter.controllers')
     }
     
     AccountService.setCommunityInfo($scope.communityInfo);
-    $state.go("community-address");
+    SettingsService.setAppInfoMessage("You will be setup with adminstrator privileges to build the community.");      
+    $state.go("your-info");
   };
 
   $scope.cancel=function() {
-    $state.go("home");
+    $state.go("community-address");
   };
   
 })
 
-.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading, UserResidencyService) {
+
   SettingsService.trackView("Your info controller");          
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about yourself; You will be setup as admin to build community;");        
   $scope.controllerMessage=null;
@@ -738,27 +782,17 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your firstname."); 
       return;
     } 
-
     if($scope.user.lastName==null || $scope.user.lastName.trim().length<1){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your lastname."); 
       return;
     } 
-
-    if($scope.user.unitNo==null || $scope.user.unitNo.trim().length<1){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your home number."); 
+    if($scope.user.unitNo==null || $scope.user.unitNo.trim().length==0){
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home/unit/apt number."); 
      return; 
     }
 
-    // Set consolidated home number based on block and other criterias;
-    if($scope.communityInfo.multiBlock==true) {
-      if($scope.user.blockNo==null || $scope.user.blockNo.trim().length<1) {
-       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your block number."); 
-       return; 
-      } 
-    } 
-
     if($scope.user.phoneNum==null || $scope.user.phoneNum.trim().length!=10){
-     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your 10 digit phone number."); 
+     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid 10 digit phone number."); 
      return; 
     }
 
@@ -767,10 +801,10 @@ angular.module('starter.controllers')
     AccountService.createNewCommunity().then(function(regionData){
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
         AccountService.addHome({
-          blockNo: $scope.user.blockNo,
-          unitNo: $scope.user.unitNo, 
+          homeNo: userData.get("homeNo"), 
           residency: regionData.get("uniqueName")
         });
+        UserResidencyService.createUserResidency(userData);
         LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
         RegionService.initializeRegionCache(regionData);          
         NotificationService.registerDevice();
@@ -786,9 +820,14 @@ angular.module('starter.controllers')
         LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
       });
     },function(error){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
-      $ionicLoading.hide();
-      LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
+      if(error.code==202) {
+        
+      }
+      else{
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
+        $ionicLoading.hide();
+        LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
+      }
     });
   
   };
@@ -798,7 +837,8 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading) {
+
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading, UserResidencyService) {
   SettingsService.trackView("Invite citizen controller");            
   $scope.user={
     status:"P", 
@@ -876,24 +916,40 @@ angular.module('starter.controllers')
     // Create user
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation
-      // if($scope.regionSettings.sendInvitationCode==true) {
-        RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
-          NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), region.get("name"), "");
-        }, function(error){          
-          LogService.log({type:"ERROR", message: "Unable to get region to send SMS " + JSON.stringify(error)}); 
-          NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), "", "");
-        });        
-      // } else {
-      //   console.log("Region does not support sending invitation code");
-      // }
-      SettingsService.setAppSuccessMessage("Invitation has been sent.");
-      $ionicHistory.goBack(-1);
-      // $state.go("tab.neighbors");
+      UserResidencyService.createUserResidency(newUser).then(function(userResidency){
+        completeUserResidencyCreation(newUser);
+        console.log("user residency has been created.");
+        SettingsService.setAppSuccessMessage("Invitation has been sent.");
+        $ionicHistory.goBack(-1);
+      },function(error){
+        console.log("Unable to create user residency");
+      });
     }, function(error) {
       // Verify if this user exist message
       LogService.log({type:"ERROR", message: "Unable to invite resident " + JSON.stringify(error)});       
       if(error.code==202) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");  
+        UserResidencyService.getUserByPhoneNumber($scope.user.phoneNum).then(function(user){
+          UserResidencyService.getCurrentUserResidency(user, AccountService.getUserResidency()).then(function(userResidency){
+            if(userResidency!=null && userResidency.length==0){
+              UserResidencyService.createUserResidencyWhenUserExists($scope.user, user).then(function(userResidency){
+                console.log("User residency has been created for existing user.");
+                completeUserResidencyCreation(user);
+                SettingsService.setAppSuccessMessage("Invitation has been sent.");
+                $ionicHistory.goBack(-1);
+              },function(error){
+                console.log("Unable to create user residency")
+              });
+            }
+            else{
+              $scope.controllerMessage=SettingsService.getControllerErrorMessage("Contact already have invitation.");            
+            }
+          },function(error){
+            console.log("unable to get user residency"+ error);
+          });
+        },function(error){
+          console.log("Unable to get user by phone number "+error);
+        });
+        
       } else {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to invite this contact.");  
       }
@@ -906,6 +962,14 @@ angular.module('starter.controllers')
     $ionicHistory.goBack(-1);
   };
 
+  var completeUserResidencyCreation=function(newUser){
+    RegionService.getRegion(AccountService.getUserResidency()).then(function(region){
+      NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), region.get("name"), "");
+    }, function(error){          
+      LogService.log({type:"ERROR", message: "Unable to get region to send SMS " + JSON.stringify(error)}); 
+      NotificationService.sendInvitationCodeV2("invitation", newUser.get("username"), "", "");
+    });
+  };
 /**
 {"id":"1","rawId":"1","displayName":"Plumber","name":{"familyName":"Doe","givenName":"Jane","formatted":"Jane Doe"},"nickname":"Plumber","phoneNumbers":[{"id":"2","pref":false,"value":"212-555-1234","type":"work"},{"id":"3","pref":false,"value":"917-555-5432","type":"mobile"},{"id":"4","pref":false,"value":"203-555-7890","type":"home"}],"emails":null,"addresses":null,"ims":null,"organizations":null,"birthday":null,"note":null,"photos":null,"categories":null,"urls":null}
 */

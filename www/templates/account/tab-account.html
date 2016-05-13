@@ -44,7 +44,11 @@
       <ion-item class="item-icon-right" ng-click="uploadProfilePicture()">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Upload Profile Picture
-      </ion-item>                  
+      </ion-item>                
+      <ion-item class="item-icon-right" ng-click="switchResidency()" ng-if="canSwitchResidency">
+        <i class="icon ion-chevron-right icon-accessory"></i>                           
+        Switch Residency
+      </ion-item>                    
       <ion-item class="item-icon-right" href="#/tab/adminaccess" ng-if="!isPendingRequest && !privs.isSuperAdmin && !regionSettings.hoa">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Request Role Change
@@ -59,7 +63,7 @@
       <ion-item>
         App Version<span class="item-note">{{appVersion}}</span>                        
       </ion-item>                             
-      <ion-item class="item-icon-right" ng-click="logout()" ng-if="privs.isLogoutAllowed">
+      <ion-item class="item-icon-right" ng-click="logout()">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Sign Out
       </ion-item>      
