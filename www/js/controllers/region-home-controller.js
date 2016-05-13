@@ -50,7 +50,7 @@ angular.module('starter.controllers')
 })
 
 .controller('HomeDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory, RegionService) {
-  SettingsService.trackView("Home detail controller " + $stateParams.homeNo);    
+  SettingsService.trackView("Home detail controller ");    
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing home residents"));
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
   $scope.homeNo=$stateParams.homeNo;
@@ -89,6 +89,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteHome=function() {
+    SettingsService.trackEvent("Home", "Delete");
     AccountService.getHomeByHomeNo($scope.homeNo).then(function(home){
       home.destroy().then(function(deletedHome){
         SettingsService.setAppSuccessMessage("Home " + $scope.homeNo + " has been deleted from your community.");
@@ -106,7 +107,7 @@ angular.module('starter.controllers')
 
 
 .controller('EditHomeCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory) {
-  SettingsService.trackView("Edit home controller" + $stateParams.homeNo);
+  SettingsService.trackView("Edit home controller");
   $ionicLoading.show(SettingsService.getLoadingMessage("Retrieving home details"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.input={
@@ -133,7 +134,8 @@ angular.module('starter.controllers')
     $ionicHistory.goBack(-1);
   };
 
-  $scope.editHome=function() {    
+  $scope.editHome=function() {  
+    SettingsService.trackEvent("Home", "Edit");  
     // Validate home number for null and duplicates
     if($scope.input.homeNo!=null && $scope.input.homeNo.length>0 && $scope.input.homeNo!=$scope.home.get("homeNo")){      
       for(var i=0;i<$scope.homeList.length;i++) {
@@ -166,7 +168,7 @@ angular.module('starter.controllers')
   };  
 
   $scope.submit=function(){
-
+    SettingsService.trackEvent("Home", "Add");
     if($scope.regionSettings.multiBlock==true && ($scope.input.blockNo==null || $scope.input.blockNo.trim().length<1)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter block number of these homes.");
       return;
@@ -320,7 +322,7 @@ angular.module('starter.controllers')
 })
 
 .controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory, RegionService) {
-  SettingsService.trackView("Neighbor details controller " + $stateParams.userId);
+  SettingsService.trackView("Neighbor details controller ");
 
   $scope.operatingUser=AccountService.getUser();
   $scope.appMessage=SettingsService.getAppMessage();    
@@ -342,6 +344,7 @@ angular.module('starter.controllers')
   };
 
   $scope.removeOnBoard=function() {
+    SettingsService.trackEvent("Home", "RemoveOnBoard");
     AccountService.updateRoleAndTitle($scope.user.id, "CTZEN", null).then(function(status){
       AccountService.refreshResidentCache();
       SettingsService.setAppSuccessMessage("Resident has been removed from board.");
@@ -439,6 +442,7 @@ angular.module('starter.controllers')
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());  
 
   $scope.update=function() {
+    SettingsService.trackEvent("Home", "NeighborUpdate");
     console.log("Update request " + JSON.stringify($scope.inputUser));
 
     if($scope.inputUser.firstName==null || $scope.inputUser.firstName.trim().length<=0) {

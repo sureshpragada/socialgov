@@ -327,6 +327,7 @@ angular.module('starter.controllers')
   };
 
   $scope.notifySettingChanged=function(settingName, settingValue) {
+    SettingsService.trackEvent("Account", "NotifySettingChanged");
     var user=Parse.User.current();
     user.set(settingName, settingValue);
     user.save(null, {
@@ -375,6 +376,7 @@ angular.module('starter.controllers')
   });
 
   $scope.uploadProfilePicture=function() {
+    SettingsService.trackEvent("Account", "UploadProfilePicture");
     PictureManagerService.reset();
     PictureManagerService.setFromPage("tab.account");
     $state.go("tab.account-picman");
@@ -395,6 +397,7 @@ angular.module('starter.controllers')
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());  
 
   $scope.update=function() {
+    SettingsService.trackEvent("Account", "UpdateAccount");
     console.log("Update request " + JSON.stringify($scope.inputUser));
 
     if($scope.regionSettings.supportHomeNumber==true) {
@@ -434,6 +437,7 @@ angular.module('starter.controllers')
   $scope.user=null;
 
   $scope.getAccessCode=function() {
+    SettingsService.trackEvent("Account", "GetAccessCode");
     if($scope.inputForm.phoneNum.length==10) {
       $ionicLoading.show(SettingsService.getLoadingMessage("Sending access code"));      
       AccountService.getUserByUserName($scope.inputForm.country.countryCode+""+$scope.inputForm.phoneNum).then(function(userList) {
@@ -461,6 +465,7 @@ angular.module('starter.controllers')
   };
 
   $scope.validateInvitationCode=function() {
+    SettingsService.trackEvent("Account", "ValidateInvitationCode");
     console.log("Validating invitation code ");
     if($scope.inputForm.pin.length==PIN_LENGTH) {
       if($scope.inputForm.pin==$scope.inputForm.code) {
@@ -488,7 +493,8 @@ angular.module('starter.controllers')
     $state.go("invite-recover");
   };  
 
-  $scope.showTerms=function() {    
+  $scope.showTerms=function() {   
+    SettingsService.trackEvent("Account", "ShowTerms"); 
     $http.get("img/license.txt")
       .success(function(data) {
         $cordovaDialogs.alert(data, 'Terms & Conditions');
@@ -636,8 +642,8 @@ angular.module('starter.controllers')
 })
 
 
-.controller('HomeCtrl', function($scope, $stateParams, $state, AccountService) {
-  
+.controller('HomeCtrl', function($scope, $stateParams, $state, AccountService, SettingsService) {
+  SettingsService.trackView("Home controller");    
   $scope.setUpCommunity=function() {
     $state.go("community-info");
   };
@@ -655,6 +661,7 @@ angular.module('starter.controllers')
   $scope.countryList=COUNTRY_LIST;
   
   $scope.next=function() {
+    SettingsService.trackEvent("Account", "AddCommunityAddress");
     console.log(JSON.stringify($scope.communityAddress));    
     if($scope.communityAddress.addressLine1==null || $scope.communityAddress.addressLine1.trim().length<1){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community street name."); 
@@ -689,6 +696,7 @@ angular.module('starter.controllers')
   $scope.communityInfo=AccountService.getCommunityInfo($scope.communityInfo);
 
   $scope.next=function() {
+    SettingsService.trackEvent("Account", "AddCommunityInfo");
     console.log(JSON.stringify($scope.communityInfo));
 
     if($scope.communityInfo.name==null || $scope.communityInfo.name.trim().length<1){
@@ -724,6 +732,7 @@ angular.module('starter.controllers')
   $scope.communityInfo=AccountService.getCommunityInfo();
 
   $scope.submit=function() {
+    SettingsService.trackEvent("Account", "Registering");
     console.log(JSON.stringify($scope.user));    
     if($scope.user.firstName==null || $scope.user.firstName.trim().length<1){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your firstname."); 
@@ -825,6 +834,7 @@ angular.module('starter.controllers')
   }
 
   $scope.invite=function() {
+    SettingsService.trackEvent("Account", "InviteResident");
     if($scope.user.firstName==null || $scope.user.firstName.trim().length<=0) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first name.");
       return;
@@ -901,6 +911,7 @@ angular.module('starter.controllers')
 */
   $scope.pickContact=function() {
     console.log("About to pickup service contact");
+    SettingsService.trackEvent("Account", "PickContact");
     $cordovaContacts.pickContact().then(function (contactPicked) {
       console.log("Contact picked  : " + JSON.stringify($scope.contact));      
       if(contactPicked.name!=null) {

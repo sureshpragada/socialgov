@@ -6,6 +6,7 @@ angular.module('starter.controllers')
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   
   $scope.deleteLegis=function(regionIndex, legisIndex){
+    SettingsService.trackEvent("Legis", "Delete");
     $cordovaDialogs.confirm('Do you want to delete this legislative contact?', 'Delete Contact', ['Delete','Cancel']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
         $scope.legislatives=$scope.regions[regionIndex].get('legiRepList');
@@ -92,6 +93,7 @@ angular.module('starter.controllers')
   });    
 
   $scope.acceptNewTitle=function() {
+    SettingsService.trackEvent("Legis", "NewTitle");
     $cordovaDialogs.prompt('Enter new legislative title', 'Legislative Title', ['Submit','Cancel'])
     .then(function(result) {
       if(result.buttonIndex==1) {
@@ -116,6 +118,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteTitle=function(index) {
+    SettingsService.trackEvent("Legis", "DeleteTitle");
     $scope.legiTitleList.splice(index, 1);
     $scope.saveLegiTitleUpdatesInRegion("Unable to delete title from the list.");    
     $ionicListDelegate.closeOptionButtons();
@@ -128,6 +131,7 @@ angular.module('starter.controllers')
   };
 
   $scope.saveLegiTitleUpdatesInRegion=function(errorMessage) {
+    SettingsService.trackEvent("Legis", "SaveShuffle");
     $ionicLoading.show(SettingsService.getLoadingMessage("Saving your action"));
     $scope.region.set("legiTitles",$scope.legiTitleList);
     $scope.region.save().then(function(region) {
@@ -207,6 +211,7 @@ angular.module('starter.controllers')
   };
 
   $scope.appoint=function() {
+    SettingsService.trackEvent("Legis", "Appoint");
     $ionicLoading.show(SettingsService.getLoadingMessage("Appointing on the board"));
     AccountService.updateRoleAndTitle($scope.residentList[$scope.residentSelectedIndex].id, "LEGI", 
       $scope.legiTitleList[$scope.legiTitleSelectedIndex].value).then(function(status) {
@@ -238,6 +243,7 @@ angular.module('starter.controllers')
   $scope.phoneNums={legisNums:""};
   $scope.newLegisObj={title:"", name:"", addressLine1:"", addressLine2:"", phoneNumberList:[]};
   $scope.submit=function(){
+    SettingsService.trackEvent("Legis", "AddLegis");
     if($scope.newLegisObj.title!="" && $scope.newLegisObj.name!=""){
         if($scope.phoneNums.legisNums!=""){
           var num=$scope.phoneNums.legisNums.split(",");
@@ -284,6 +290,7 @@ angular.module('starter.controllers')
   });
 
   $scope.submit=function(){
+    SettingsService.trackEvent("Legis", "EditLegis");
     if(typeof($scope.legisToBeEdited.phoneNumberList)=="string"){
       $scope.legisNum=$scope.legisToBeEdited.phoneNumberList;
       $scope.legisToBeEdited.phoneNumberList=[];

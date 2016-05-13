@@ -218,8 +218,10 @@ angular.module('starter.controllers')
       console.log("Expense receipt uploaded");
     } else {
       console.log("Not expense receipt upload flow");
+    }    
+    if($scope.expenseRecord.get("images")==null) {
+      $scope.controllerMessage = SettingsService.getControllerIdeaMessage("Do you have receipts for this expense? You can attach any number of receipts to this expense;");  
     }
-
     $scope.$apply();
   },function(error){
     $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to get the expense record.");
@@ -250,6 +252,7 @@ angular.module('starter.controllers')
   };
 
   $scope.attachPicture = function() {
+    SettingsService.trackEvent("Financial", "ExpenseDetailAttachPicture");        
     PictureManagerService.reset();
     PictureManagerService.setFromPage("tab.expense-detail");
     PictureManagerService.setFromPagePathParamValue({expenseId: $stateParams.expenseId});
@@ -257,6 +260,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteExpenseReceipt=function() {
+    SettingsService.trackEvent("Financial", "DeleteExpenseReceipt");        
     var images=$scope.expenseRecord.get("images");
     images.splice($scope.viewingExpenseReceiptIndex, 1);
     $scope.expenseRecord.set("images", images);
@@ -320,12 +324,12 @@ angular.module('starter.controllers')
       return;
     }
     if($scope.input.category.value=='Other' && $scope.input.paidTo==null) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter paid to for other expense");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter whom did we paid this expense;");
       return;      
     }
 
     FinancialService.addExpense($scope.input).then(function(newExpense){
-      SettingsService.setAppSuccessMessage("Expense has been recorded.");
+      SettingsService.setAppSuccessMessage("Expense has been recorded; You can attach receipts to this expense now;");
       $state.go("tab.expense-list", {balanceSheetId: newExpense.get("balanceSheet").id});        
     },function(error){
       $scope.controllerMessage = SettingsService.getControllerErrorMessage("Unable to record the expense.");
