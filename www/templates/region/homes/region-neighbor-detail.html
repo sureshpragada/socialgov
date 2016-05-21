@@ -10,14 +10,14 @@
         <img src="img/avatar2.png" ng-if="!user.get('images')">
         <a href="#/tab/admin-neighbor-update/{{user.id}}" ng-if="isAdmin && user.id!=operatingUser.id"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
-        <p ng-if="user.get('homeNo')">{{user.get("homeNo") | formatHomeNumber}}</p>
+        <p ng-if="userResidency.get('homeNo')">{{userResidency.get("homeNo") | formatHomeNumber}}</p>
       </div>
       <ion-item ng-if="isNeighborAdmin">
          {{'Role' | translate}}
-          <span class="item-note">{{getRoleNameFromRoleCode(user.get("role"))}}</span>                  
+          <span class="item-note">{{getRoleNameFromRoleCode(userResidency.get("role"))}}</span>                  
       </ion-item>                        
-      <ion-item ng-if="user.get('title')">
-        Honorable Title<span class="item-note">{{user.get("title")}}</span>                        
+      <ion-item ng-if="userResidency.get('title')">
+        Honorable Title<span class="item-note">{{userResidency.get("title")}}</span>                        
       </ion-item>                       
       <ion-item>
         {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
@@ -29,8 +29,8 @@
       </ion-item>                  
       <ion-item>
         Resident
-        <span class="item-note" ng-if="user.get('homeOwner')">Owner</span>            
-        <span class="item-note" ng-if="!user.get('homeOwner')">Tenant</span>            
+        <span class="item-note" ng-if="userResidency.get('homeOwner')">Owner</span>            
+        <span class="item-note" ng-if="!userResidency.get('homeOwner')">Tenant</span>            
 <!--         <i class="icon ion-checkmark-circled balanced" ng-if="user.get('homeOwner')"></i>     
         <i class="icon ion-android-cancel assertive" ng-if="!user.get('homeOwner')"></i> -->
       </ion-item>            
@@ -50,18 +50,18 @@
     </div>    
  -->
     <div class="padding" ng-if="isAdmin && user">
-      <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="user.get('role')!='LEGI'">
+      <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="userResidency.get('role')!='LEGI'">
         Appoint on Board
       </button>
-      <button class="button button-assertive button-block" ng-click="removeOnBoard()" ng-if="user.get('role')=='LEGI'">
+      <button class="button button-assertive button-block" ng-click="removeOnBoard()" ng-if="userResidency.get('role')=='LEGI'">
         Remove on Board
       </button>      
       <!-- Remove re-send invitation code after shubham greens onboard is complete -->
 <!--       <button class="button button-royal button-block" ng-click="sendInvitationCode()">
         Re-Send Invitation Code
       </button>       -->
-<!--       <button class="button button-block button-assertive" ng-click="blockUser()">
-        Block User
+<!--       <button class="button button-block button-assertive" ng-click="vacateUser()">
+        Vacate User
       </button>       -->
     </div>
   </ion-content>

@@ -181,11 +181,13 @@ angular.module('starter.controllers')
   } else {
     AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(residents){
       for(var i=0;i<residents.length;i++) {
+        var resident=residents[i].get("user");
+        console.log("Resident " + resident.get("firstName") + " " + resident.get("lastName"));
         $scope.residentList.push({
-          label: residents[i].get("firstName") + " " + residents[i].get("lastName"),
-          value: residents[i].get("firstName") + " " + residents[i].get("lastName"),
-          opt: residents[i].get("homeNo"),
-          id: residents[i].id
+          label: resident.get("firstName") + " " + resident.get("lastName"),
+          value: resident.get("firstName") + " " + resident.get("lastName"),
+          opt: resident.get("homeNo"),
+          id: resident.id
         });
       }
     },function(error){

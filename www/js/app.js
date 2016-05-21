@@ -106,7 +106,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       controller: 'TabsCtrl',
       onEnter: function($state) {
         var user=Parse.User.current();
-        if(user==null || !user.authenticated()) {
+        if(user==null || !user.authenticated() || user.get("residency")==null) {
           console.log("User is not authenticated");
           $state.go("home");
         } else {

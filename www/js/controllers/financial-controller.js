@@ -660,7 +660,6 @@ angular.module('starter.controllers')
 
     if($scope.input.category==true) {
       if($scope.availableHomes!=null && $scope.availableHomes.length>0) {
-        // TODO :: Format home number
         $scope.input.revenueSource=$filter("formatHomeNumber")($scope.input.home.value);
         $scope.input.homeNo=$scope.input.home.value;
       } else {

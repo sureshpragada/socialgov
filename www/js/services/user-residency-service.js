@@ -57,6 +57,9 @@ angular.module('user-residency.services', [])
 		    userResidency.set("role", user.get("role"));
 		    userResidency.set("title", user.get("title"));
 		    return userResidency.save();
+	    }, 
+	    removeUserResidency: function(userResidency) {
+	    	return userResidency.destroy();
 	    }
 	};
 
