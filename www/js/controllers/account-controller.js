@@ -451,14 +451,14 @@ angular.module('starter.controllers')
     SettingsService.trackEvent("Account", "UpdateAccount");
     console.log("Update request " + JSON.stringify($scope.inputUser));
 
-    if($scope.regionSettings.supportHomeNumber==true) {
-      if($scope.inputUser.homeNumber==null || $scope.inputUser.homeNumber.length<=0) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
-        return;
-      } else {
-        $scope.inputUser.homeNumber=$scope.inputUser.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
-      }
-    }    
+    // if($scope.regionSettings.supportHomeNumber==true) {
+    //   if($scope.inputUser.homeNumber==null || $scope.inputUser.homeNumber.length<=0) {
+    //     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
+    //     return;
+    //   } else {
+    //     $scope.inputUser.homeNumber=$scope.inputUser.homeNumber.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+    //   }
+    // }    
 
     if($scope.inputUser.firstName==null || $scope.inputUser.lastName==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");

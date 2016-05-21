@@ -875,6 +875,7 @@ angular.module('starter.controllers')
         $state.go("tab.community-rules");
       }, function(error){
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update community rules and regulations.");
+        LogService.log({type:"ERROR", message: "Unable to update community rules " + JSON.stringify(error)});           
       });      
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community rules and regulations.");

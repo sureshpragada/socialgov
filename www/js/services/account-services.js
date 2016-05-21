@@ -411,7 +411,7 @@ angular.module('account.services', [])
       var user=Parse.User.current();
       user.set("firstName", inputUser.firstName);
       user.set("lastName", inputUser.lastName);
-      user.set("homeNo", inputUser.homeNumber);
+      // user.set("homeNo", inputUser.homeNumber);
       user.set("bloodGroup", inputUser.bloodGroup!=null?inputUser.bloodGroup.toUpperCase():"");
       return user.save();
     },
