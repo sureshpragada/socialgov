@@ -6,6 +6,7 @@
       <div class="row">
         <div class="col content-center">
           <h4>Maintenance Fee</h4>
+          <p ng-if="currentDues">[ Since : {{currentDues.get("effectiveMonth") | date:'MMM yyyy'}} ]</p>          
           <h2 class="royal" ng-if="currentDues">
             {{currentDues.get("maintDues") | formatCurrency}}
 <!--             &nbsp;<i class="icon ion-arrow-up-a balanced"></i> -->
@@ -68,9 +69,12 @@
 
     <div class="card" ng-if="duesHistory.length>0">
       <div class="item item-divider">Fee History</div>
-      <ion-item ng-repeat="dues in duesHistory">
-        {{dues.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{dues.get("maintDues")  | formatCurrency}}</span>
-      </ion-item>            
+      <ion-list can-swipe="true">
+        <ion-item ng-repeat="dues in duesHistory">
+          {{dues.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{dues.get("maintDues")  | formatCurrency}}</span>
+          <ion-option-button class="button-info button-assertive" ng-click="deleteMaintenanceFeeAudit($index)">Delete</ion-option-button>  
+        </ion-item>            
+      </ion-list>
     </div>        
 
   </ion-content>

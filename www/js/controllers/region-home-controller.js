@@ -19,7 +19,9 @@ angular.module('starter.controllers')
     for(var i=0;i<homes.length;i++) {
       var residentCount=0, homeOwnerCount=0, tenantCount=0;
       var searchString=homes[i].get("homeNo");
-      for(var j=0;j<residents.length;j++) {
+      console.log("Residents length " + residents.length);
+      for(var j=0;j<residents.length;j++) {  
+        // console.log("Resident : " + JSON.stringify(residents[j]));
         if(homes[i].get("homeNo")==residents[j].get("homeNo")) {
           residentCount++;
           if(residents[j].get("homeOwner")==true) {
@@ -27,7 +29,7 @@ angular.module('starter.controllers')
           } else {
             tenantCount++;
           }
-          searchString=searchString + " " + residents[j].get("firstName") + " " + residents[j].get("lastName") + " " + residents[j].get("bloodGroup");
+          searchString=searchString + " " + residents[j].get("user").get("firstName") + " " + residents[j].get("user").get("lastName") + " " + residents[j].get("user").get("bloodGroup");
         }
       }
       $scope.homeList.push({
@@ -50,7 +52,7 @@ angular.module('starter.controllers')
 })
 
 .controller('HomeDetailCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory, RegionService) {
-  SettingsService.trackView("Home detail controller " + $stateParams.homeNo);    
+  SettingsService.trackView("Home detail controller ");    
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing home residents"));
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
   $scope.homeNo=$stateParams.homeNo;
@@ -89,6 +91,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteHome=function() {
+    SettingsService.trackEvent("Home", "Delete");
     AccountService.getHomeByHomeNo($scope.homeNo).then(function(home){
       home.destroy().then(function(deletedHome){
         SettingsService.setAppSuccessMessage("Home " + $scope.homeNo + " has been deleted from your community.");
@@ -106,7 +109,7 @@ angular.module('starter.controllers')
 
 
 .controller('EditHomeCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory) {
-  SettingsService.trackView("Edit home controller" + $stateParams.homeNo);
+  SettingsService.trackView("Edit home controller");
   $ionicLoading.show(SettingsService.getLoadingMessage("Retrieving home details"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.input={
@@ -133,7 +136,8 @@ angular.module('starter.controllers')
     $ionicHistory.goBack(-1);
   };
 
-  $scope.editHome=function() {    
+  $scope.editHome=function() {  
+    SettingsService.trackEvent("Home", "Edit");  
     // Validate home number for null and duplicates
     if($scope.input.homeNo!=null && $scope.input.homeNo.length>0 && $scope.input.homeNo!=$scope.home.get("homeNo")){      
       for(var i=0;i<$scope.homeList.length;i++) {
@@ -166,7 +170,7 @@ angular.module('starter.controllers')
   };  
 
   $scope.submit=function(){
-
+    SettingsService.trackEvent("Home", "Add");
     if($scope.regionSettings.multiBlock==true && ($scope.input.blockNo==null || $scope.input.blockNo.trim().length<1)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter block number of these homes.");
       return;
@@ -319,18 +323,17 @@ angular.module('starter.controllers')
 
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory, RegionService) {
-  SettingsService.trackView("Neighbor details controller " + $stateParams.userId);
+.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory, RegionService, UserResidencyService, $ionicLoading) {
+  SettingsService.trackView("Neighbor details controller ");
 
   $scope.operatingUser=AccountService.getUser();
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
-  AccountService.getUserById($stateParams.userId).then(function(neighbor) {
+  AccountService.getUserById(AccountService.getUserResidency(), $stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
-
-    $scope.user=neighbor;        
+    $scope.userResidency=neighbor;
+    $scope.user=neighbor.get("user");        
     $scope.isNeighborAdmin=AccountService.canOtherUserUpdateRegion($scope.user);
-    $scope.$apply();
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
@@ -342,8 +345,9 @@ angular.module('starter.controllers')
   };
 
   $scope.removeOnBoard=function() {
+    SettingsService.trackEvent("Home", "RemoveOnBoard");
     AccountService.updateRoleAndTitle($scope.user.id, "CTZEN", null).then(function(status){
-      AccountService.refreshResidentCache();
+      // AccountService.refreshResidentCache();
       SettingsService.setAppSuccessMessage("Resident has been removed from board.");
       $ionicHistory.goBack(-1);
       // $state.go("tab.neighbors");        
@@ -381,14 +385,33 @@ angular.module('starter.controllers')
     });            
   };
 
-  $scope.blockUser=function() {
-    $cordovaDialogs.confirm('Do you want to block this user?', 'Block User', ['Block','Cancel'])
+  $scope.vacateUser=function() {
+    $cordovaDialogs.confirm('Do you want to vacate this user?', 'Vacate User', ['Vacate','Cancel'])
     .then(function(buttonIndex) {      
       if(buttonIndex==1) {
-         AccountService.flagUserAbusive($stateParams.userId); 
-         $state.go("tab.neighbors");
+        $ionicLoading.show(SettingsService.getLoadingMessage("Vacating resident"));
+        UserResidencyService.getCurrentUserResidency($scope.user, AccountService.getUserResidency()).then(function(userResidency){
+          if(userResidency!=null && userResidency.length>0) {
+            console.log("User residency length is moer than zero");
+           UserResidencyService.removeUserResidency(userResidency[0]).then(function(deletedUserResidency) {
+             AccountService.refreshResidentCache(AccountService.getUserResidency());
+             SettingsService.setAppSuccessMessage("Resident has been vacated from this community.");
+             $ionicLoading.hide();
+             $ionicHistory.goBack(-1);            
+           }, function(error){
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Resident is not available in this community.");
+            $ionicLoading.hide();
+           });
+          } else {
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Resident is not available in this community.");
+            $ionicLoading.hide();            
+          }
+        }, function(error){
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to find resident in this community.");
+          $ionicLoading.hide();
+        });
       } else {
-        console.log("Canceled blocking of user");
+        console.log("Canceled vacating user");
       }
     });
   };
@@ -417,28 +440,39 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
+.controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicLoading) {
   console.log("Admin Neighbor Account update controller");
   $scope.inputUser={};
   $scope.countryList=COUNTRY_LIST;
   $scope.inputUser.country=$scope.countryList[0];        
-  AccountService.getUserById($stateParams.userId).then(function(neighbor) {
-    $scope.user=neighbor;
+  $ionicLoading.show(SettingsService.getLoadingMessage("Preparing neighbor data"));
+  AccountService.getUserById(AccountService.getUserResidency(), $stateParams.userId).then(function(neighbor) {
+    $scope.userResidency=neighbor;
+    $scope.user=$scope.userResidency.get("user");
     $scope.inputUser.firstName=$scope.user.get("firstName");
     $scope.inputUser.lastName=$scope.user.get("lastName");
-    $scope.inputUser.homeNo=$scope.user.get("homeNo");
     $scope.inputUser.userId=$scope.user.id;
     $scope.inputUser.phoneNum=$scope.user.get("phoneNum");
-    $scope.inputUser.homeOwner=$scope.user.get("homeOwner");
+    $scope.inputUser.homeOwner=$scope.userResidency.get("homeOwner");
     $scope.inputUser.country=AccountService.getCountryFromCountryList($scope.user.get("countryCode"), $scope.countryList);
-    $scope.$apply();
+
+    AccountService.getListOfHomesInCommunity(AccountService.getUserResidency()).then(function(homesList) {
+      $scope.availableHomes=homesList;      
+      $scope.inputUser.home=AccountService.getHomeRecordFromAvailableHomes($scope.availableHomes, $scope.userResidency.get("homeNo"));    
+      $ionicLoading.hide();
+    }, function(error) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Unable to get community home numbers.");      
+      $ionicLoading.hide();
+    });
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unbale to retrieve neighbor information.");
+    $ionicLoading.hide();
   });  
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());  
 
   $scope.update=function() {
+    SettingsService.trackEvent("Home", "NeighborUpdate");
     console.log("Update request " + JSON.stringify($scope.inputUser));
 
     if($scope.inputUser.firstName==null || $scope.inputUser.firstName.trim().length<=0) {
@@ -465,16 +499,16 @@ angular.module('starter.controllers')
       return;
     }
 
-    if($scope.regionSettings.supportHomeNumber==true) {
-      if($scope.inputUser.homeNo==null || $scope.inputUser.homeNo.length<=0) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
-        return;
-      } else {
-        $scope.inputUser.homeNo=$scope.inputUser.homeNo.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
-      }
-    }    
+    // if($scope.regionSettings.supportHomeNumber==true) {
+    //   if($scope.inputUser.homeNo==null || $scope.inputUser.homeNo.length<=0) {
+    //     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
+    //     return;
+    //   } else {
+    //     $scope.inputUser.homeNo=$scope.inputUser.homeNo.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+    //   }
+    // }    
 
-    AccountService.updateNeighborAccount($scope.inputUser, $scope.user).then(function(newUser) {
+    AccountService.updateNeighborAccount($scope.inputUser, $scope.user, $scope.userResidency).then(function(newUser) {
       SettingsService.setAppSuccessMessage("Neighbor information update is successful.");
       $state.go("tab.neighbor-detail", {userId: $scope.user.id});
     }, function(error) {

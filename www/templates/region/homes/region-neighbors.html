@@ -7,25 +7,25 @@
   <ion-content>
   <my-app-message info="appMessage"></my-app-message>  
   <my-app-message info="controllerMessage"></my-app-message>  
+
   	<ion-list>
       <label class="item item-input" ng-if="control.requestedSearch">
           <i class="icon ion-search placeholder-icon calm"></i>
           <input type="text" placeholder="Search by resident name, home number..." class="textAlignLeft" ng-model="control.searchStr">
       </label>      	
-	    <ion-item class="item-thumbnail-left item-icon-right" collection-repeat="neighbor in neighborList | filter:control.searchStr" href="#/tab/neighbor-detail/{{neighbor.id}}">
-	      <img ng-src="{{neighbor.get('images')[0]}}" ng-if="neighbor.get('images')">
-	      <img ng-src="img/avatar2.png" ng-if="!neighbor.get('images')">
-	      <h2>{{neighbor.get("firstName")}} {{neighbor.get("lastName")}}</h2>		
+	    <ion-item class="item-thumbnail-left item-icon-right" collection-repeat="neighbor in neighborList | filter:control.searchStr" href="#/tab/neighbor-detail/{{neighbor.get('user').id}}">
+	      <img ng-src="{{neighbor.get('user').get('images')[0]}}" ng-if="neighbor.get('user').get('images')">
+	      <img ng-src="img/avatar2.png" ng-if="!neighbor.get('user').get('images')">
+	      <h2>{{neighbor.get('user').get("firstName")}} {{neighbor.get('user').get("lastName")}}</h2>		
 	      <p>
-	      	<span ng-if="neighbor.get('homeNo')">{{neighbor.get("homeNo") | formatHomeNumber}}</span>
+	      	<span ng-if="neighbor.get('homeNo')">{{neighbor.get('user').get("homeNo") | formatHomeNumber}}</span>
 	      	<span ng-if="!neighbor.get('homeNo')">Home # NA</span>
 	      </p>      
 	      <p>
-<!-- 	      	<i class="icon ion-iphone"></i> -->
-	      	{{neighbor.get("phoneNum")}}
+	      	{{neighbor.get('user').get("phoneNum")}}
 	      </p>      	      	      	      
-	      <p ng-if="neighbor.get('bloodGroup')">
-	      	<span class="custom-badge">{{neighbor.get("bloodGroup")}}</span>
+	      <p ng-if="neighbor.get('user').get('bloodGroup')">
+	      	<span class="custom-badge">{{neighbor.get('user').get("bloodGroup")}}</span>
 	      </p>      
 			<i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>

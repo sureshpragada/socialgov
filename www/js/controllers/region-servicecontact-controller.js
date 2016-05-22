@@ -29,6 +29,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionServiceContactDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicLoading, ServiceContactService) {  
+  SettingsService.trackView("Region service contact detail controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading service contact"));
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
@@ -54,6 +55,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteServiceContact=function() {
+    SettingsService.trackEvent("ServiceContact", "Delete");
     $cordovaDialogs.confirm('Do you want to delete this service contact?', 'Delete Contact', ['Delete','Ignore']).then(function(buttonIndex) { 
       if(buttonIndex==1) {
         $scope.serviceContact.status="D";
@@ -75,7 +77,7 @@ angular.module('starter.controllers')
 })
 
 .controller('RegionEditServiceContactsCtrl', function($scope, $stateParams, RegionService, AccountService,SettingsService, $state, $ionicPopover, $cordovaDialogs, ServiceContactService) {    
-  SettingsService.trackView("Region edit service contacts controller" + $stateParams.serviceContactId);
+  SettingsService.trackView("Region edit service contacts controller");
 
   $scope.inputServiceContact={};
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
@@ -86,6 +88,7 @@ angular.module('starter.controllers')
     });  
 
   $scope.submit=function(){
+    SettingsService.trackEvent("ServiceContact", "Edit");
     if($scope.inputServiceContact.type=="Other" && ($scope.inputServiceContact.otherCategoryName==null || $scope.inputServiceContact.otherCategoryName.length<1)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter category name.");
       return;      
@@ -135,6 +138,7 @@ angular.module('starter.controllers')
   };
 
   $scope.submit=function() {
+    SettingsService.trackEvent("ServiceContact", "Add");
     if($scope.serviceContact.type=="Other" && ($scope.serviceContact.otherCategoryName==null || $scope.serviceContact.otherCategoryName.length<1)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter category name.");
       return;      

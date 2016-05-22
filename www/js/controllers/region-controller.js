@@ -35,6 +35,7 @@ angular.module('starter.controllers')
   });  
 
   $scope.updateCoverPhoto=function() {
+    SettingsService.trackEvent("Region", "UploadCoverPhoto");    
     RegionService.gotoCoverPhoto();
   };
 
@@ -115,6 +116,7 @@ angular.module('starter.controllers')
   };
 
   $scope.deleteContact=function(regionIndex,officeIndex,contactIndex){
+    SettingsService.trackEvent("Region", "DeleteOfficeContact");    
     var offices=$scope.regions[regionIndex].get("execOffAddrList");
     var contacts=offices[officeIndex].contacts;
     contacts.splice(contactIndex,1);
@@ -144,8 +146,7 @@ angular.module('starter.controllers')
 })
 
 .controller('AddContactToOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
-
-  console.log("Entered int AddContactToOfficeCtrl");
+  SettingsService.trackView("AddContactToOfficeCtrl");
 
   $scope.contact={name:"",title:"",phoneNum:"",email:""};
   var office=null,officeContacts=null;
@@ -229,6 +230,7 @@ angular.module('starter.controllers')
   // $scope.newExecAdminObj={title:"",name:"",phoneNumberList:[]};
   $scope.newOfficeObj={name:"", addressLine1:"", addressLine2:"", city:"", state:"", pincode:"",phoneNum:"",type:"CUSTOM"};
   $scope.submit=function(){
+    SettingsService.trackEvent("Region", "AddOffice");    
     if($scope.newOfficeObj.name==""){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter office name."); 
       return;
@@ -305,6 +307,7 @@ angular.module('starter.controllers')
   });
 
   $scope.submit=function(){
+    SettingsService.trackEvent("Region", "EditOffice");    
     // for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
     //   delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
     // }
@@ -353,7 +356,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('RegionFinancialOverviewCtrl', function($scope, $stateParams, $state, AccountService, RegionService, RegionFinancialService, $ionicPopover, $cordovaDialogs) {
+.controller('RegionFinancialOverviewCtrl', function($scope, $stateParams, $state, AccountService, RegionService, RegionFinancialService, $ionicPopover, $cordovaDialogs, SettingsService) {
   SettingsService.trackView("Region financial overview controller");    
   RegionFinancialService.getRegionFinancials(RegionService.getRegionHierarchy()).then(function(financials) {
     if(financials.length==0) {
@@ -410,7 +413,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AddRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state) {
+.controller('AddRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state, SettingsService) {
   SettingsService.trackView("Add region financial overview controller");    
   $scope.addFinancialErrorMessage=null;         
 
@@ -456,7 +459,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('EditRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state) {
+.controller('EditRegionFinancialOverviewCtrl', function($scope, $stateParams, AccountService, RegionService, $state, SettingsService) {
   SettingsService.trackView("Edit region financial overview controller");    
   $scope.financial={};
   var RegionFinancial = Parse.Object.extend("RegionFinancial");
@@ -548,7 +551,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('RegionFinancialDetailsCtrl', function($scope, $stateParams, RegionService, RegionFinancialService) {
+.controller('RegionFinancialDetailsCtrl', function($scope, $stateParams, RegionService, RegionFinancialService, SettingsService) {
   SettingsService.trackView("Region financial details controller");  
   $scope.pageTitle=$stateParams.reqDetails=="revenue"?"Revenue":"Expenses";
   var financials=RegionFinancialService.getRegionFinancialDetails($stateParams.regionUniqueName, $stateParams.year);
@@ -662,6 +665,7 @@ angular.module('starter.controllers')
   });    
 
   $scope.submit=function(){
+    SettingsService.trackEvent("Region", "UpdateDemo");    
     $scope.region.set("demography",$scope.newDemoObj);
     $scope.region.save().then(function(region) {
           RegionService.updateRegion(region.get("uniqueName"), region);
@@ -697,6 +701,7 @@ angular.module('starter.controllers')
   $scope.whoControlSettings=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "Settings").convertToFlatString();  
 
   $scope.saveSettings=function() {
+    SettingsService.trackEvent("Region", "SaveSettings");    
     RegionService.getRegion($scope.user.get("residency")).then(function(region) {
       var currentRegionSettings=region.get("settings");
       console.log("Current region settings : " + JSON.stringify(currentRegionSettings));
@@ -725,6 +730,7 @@ angular.module('starter.controllers')
   };
 
   $scope.updateCoverPhoto=function() {
+    SettingsService.trackEvent("Region", "UploadCoverPhoto");    
     RegionService.gotoCoverPhoto();
   };
 
@@ -769,6 +775,7 @@ angular.module('starter.controllers')
   });    
 
   $scope.saveSettings=function() {
+    SettingsService.trackEvent("Region", "UpdateFuncSettings");    
     console.log("Selection of role list : " + JSON.stringify($scope.roleList));
     var whoIsControlling=[];
     for(var i=0;i<$scope.roleList.length;i++) {
@@ -859,6 +866,7 @@ angular.module('starter.controllers')
   });  
 
   $scope.updateCommunityRules=function() {
+    SettingsService.trackEvent("Region", "UpdateCommunityRules");    
     if($scope.input.communityRules!=null && $scope.input.communityRules.length>0) {
       $scope.region.set("communityRules", $scope.input.communityRules);
       $scope.region.save().then(function(newRegion){
@@ -867,6 +875,7 @@ angular.module('starter.controllers')
         $state.go("tab.community-rules");
       }, function(error){
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update community rules and regulations.");
+        LogService.log({type:"ERROR", message: "Unable to update community rules " + JSON.stringify(error)});           
       });      
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community rules and regulations.");

@@ -39,21 +39,66 @@ angular.module('account.services', [])
   }  
 
   return {
+    // getResidentsInCommunity: function(regionUniqueName) {
+    //   var deferred = $q.defer();
+    //   var cachedObjectInfo=residentCache.info(regionUniqueName);
+    //   if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+    //     deferred.resolve(residentCache.get(regionUniqueName));  
+    //     console.log("Returning from cache");
+    //   } else {
+    //     var userQuery = new Parse.Query(Parse.User);
+    //     userQuery.equalTo("residency", regionUniqueName);
+    //     userQuery.ascending("homeNo");
+    //     userQuery.find(function(residents) {
+    //         residentCache.remove(regionUniqueName);
+    //         residentCache.put(regionUniqueName, residents);          
+    //         console.log("Caching resident count " + residents!=null?residents.length:-1);
+    //         deferred.resolve(residents);
+    //       }, function(error) {
+    //         if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+    //           console.log("Returning cached residents");
+    //           deferred.resolve(residentCache.get(regionUniqueName));  
+    //         } else {
+    //           deferred.reject(error);
+    //         }
+    //       }); 
+    //   }
+    //   return deferred.promise;
+    // },        
     getResidentsInCommunity: function(regionUniqueName) {
+      console.log("Requesting residents for " + regionUniqueName);
       var deferred = $q.defer();
       var cachedObjectInfo=residentCache.info(regionUniqueName);
       if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
         deferred.resolve(residentCache.get(regionUniqueName));  
         console.log("Returning from cache");
       } else {
-        var userQuery = new Parse.Query(Parse.User);
+        console.log("Querying for residents " + regionUniqueName);
+        var UserResidency = Parse.Object.extend("UserResidency");
+        var userQuery = new Parse.Query(UserResidency);
         userQuery.equalTo("residency", regionUniqueName);
-        userQuery.ascending("homeNo");
-        userQuery.find(function(residents) {
+        userQuery.ascending("homeNo");        
+        userQuery.include("user");        
+        userQuery.find(function(userResidencyList) {
+            console.log("Found user residencies " + userResidencyList!=null?userResidencyList.length:-1);
             residentCache.remove(regionUniqueName);
-            residentCache.put(regionUniqueName, residents);          
-            console.log("Caching resident count " + residents!=null?residents.length:-1);
-            deferred.resolve(residents);
+            residentCache.put(regionUniqueName, userResidencyList);          
+            deferred.resolve(userResidencyList);
+            // if(userResidencyList!=null && userResidencyList.length>0) {
+            //   residentCache.remove(regionUniqueName);
+            //   var residentArray=[];
+            //   for(var i=0;i<userResidencyList.length;i++) {
+            //     residentArray.push(userResidencyList[i].get("user"));
+            //   }
+
+            //   residentCache.put(regionUniqueName, residentArray);          
+            //   console.log("Caching resident count " + residentArray.length);
+            //   console.log("Caching residents  " + JSON.stringify(residentArray));
+            //   deferred.resolve(residentArray);
+            // } else {
+            //   console.log("Did not find any users " + regionUniqueName);
+            //   deferred.resolve([]);              
+            // }
           }, function(error) {
             if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
               console.log("Returning cached residents");
@@ -64,7 +109,7 @@ angular.module('account.services', [])
           }); 
       }
       return deferred.promise;
-    },        
+    },            
     refreshResidentCache: function() {
       console.log("residents removed from cache");
       residentCache.removeAll();
@@ -158,13 +203,45 @@ angular.module('account.services', [])
         return false;
       }
     },
-    getUser: function() {
-      if(new Date().getTime()-userLastRefreshTimeStamp>(1 * 60 * 1000)) {
-        Parse.User.current().fetch();        
+    getUserOptimized: function() {
+      if(new Date().getTime()-userLastRefreshTimeStamp>(5 * 60 * 1000)) {
+        Parse.User.current().fetch().then(function(newUser) {
+          UserResidencyService.getUserById(newUser.get("residency"), newUser.id).then(function(userWithResidency) {
+            newUser.set("role", userWithResidency.get("role"));
+            newUser.set("title", userWithResidency.get("title"));
+            newUser.save(); 
+          }, function(error) {});
+        }, function(error) {});                 
         userLastRefreshTimeStamp=new Date().getTime();
         console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
       } 
       return Parse.User.current();
+    },    
+    getUser: function() {
+      var self=this;      
+      if(new Date().getTime()-userLastRefreshTimeStamp>(5 * 60 * 1000)) {
+        Parse.User.current().fetch().then(function(newUser) {
+          self.getUserById(newUser.get("residency"), newUser.id).then(function(userWithResidency) {
+            // if(userWithResidency.get("status")=="V") {
+            //   newUser.set("residency", null);
+            // } else {
+              newUser.set("role", userWithResidency.get("role"));
+              newUser.set("title", userWithResidency.get("title"));
+              newUser.set("homeOwner", userWithResidency.get("homeOwner"));
+            // }
+            newUser.save(); 
+          }, function(error) {
+            // TODO :: Remove this user from this residency; Overwriting user with residency when the record is not found could be dangerous as if the network connection fails, we may block him. 
+          });
+        }, function(error) {});                 
+        userLastRefreshTimeStamp=new Date().getTime();
+        console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
+      } 
+      return Parse.User.current();
+    },
+    refreshUser: function() {
+      userLastRefreshTimeStamp=null;
+      this.getUserOptimized();
     },
     updateAccessRequest: function(accessRequest) {
       accessRequestCache.put("accessRequest", accessRequest);
@@ -251,27 +328,52 @@ angular.module('account.services', [])
       });      
     },
     updateRoleAndTitle: function(userId, role, title) {
-      var deferred = $q.defer();
-      this.refreshResidentCache();
-      Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
-        success: function(status1) {
-          console.log("Successfully updated user role " + JSON.stringify(status1));
-          Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'title', userObjectValue: title }, {
-            success: function(status2) {
-              console.log("Successfully updated user title " + JSON.stringify(status2));
-              deferred.resolve("Successfully updated user title " + JSON.stringify(status2));
-            },
-            error: function(error) {
-              LogService.log({type:"ERROR", message: "Unable to update user title " + JSON.stringify(error) + " UserId : " + userId}); 
-              deferred.reject(error);
-            }
-          });      
-        },
-        error: function(error) {
-          LogService.log({type:"ERROR", message: "Unable to update user role " + JSON.stringify(error) + " UserId : " + userId}); 
+      var deferred = $q.defer();      
+      /*
+          Update user residency record
+          getUser, if appointed user is current user
+          refresh the cache
+      */
+      var self=this;      
+      this.getUserById(this.getUserResidency(), userId).then(function(userResidency) {
+        userResidency.set("role", role);
+        userResidency.set("title", title);
+        userResidency.save().then(function(updatedUserResidency){
+          self.refreshResidentCache();                    
+          if(self.getUser().id==userId) {
+            self.refreshUser();
+          }
+          deferred.resolve(updatedUserResidency);
+        }, function(error) {
+          LogService.log({type:"ERROR", message: "Unable to save user to update title " + JSON.stringify(error) + " UserId : " + userId}); 
           deferred.reject(error);
-        }
-      });      
+        });
+      }, function(error) {
+        LogService.log({type:"ERROR", message: "Unable to get user to update title " + JSON.stringify(error) + " UserId : " + userId}); 
+        deferred.reject(error);
+      });
+
+      // this.refreshResidentCache();
+      // Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
+      //   success: function(status1) {
+      //     console.log("Successfully updated user role " + JSON.stringify(status1));
+      //     Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'title', userObjectValue: title }, {
+      //       success: function(status2) {
+      //         console.log("Successfully updated user title " + JSON.stringify(status2));
+      //         deferred.resolve("Successfully updated user title " + JSON.stringify(status2));
+      //       },
+      //       error: function(error) {
+      //         LogService.log({type:"ERROR", message: "Unable to update user title " + JSON.stringify(error) + " UserId : " + userId}); 
+      //         deferred.reject(error);
+      //       }
+      //     });      
+      //   },
+      //   error: function(error) {
+      //     LogService.log({type:"ERROR", message: "Unable to update user role " + JSON.stringify(error) + " UserId : " + userId}); 
+      //     deferred.reject(error);
+      //   }
+      // });      
+
       return deferred.promise;
     },
     addContact: function(inputUser) {
@@ -309,11 +411,11 @@ angular.module('account.services', [])
       var user=Parse.User.current();
       user.set("firstName", inputUser.firstName);
       user.set("lastName", inputUser.lastName);
-      user.set("homeNo", inputUser.homeNumber);
+      // user.set("homeNo", inputUser.homeNumber);
       user.set("bloodGroup", inputUser.bloodGroup!=null?inputUser.bloodGroup.toUpperCase():"");
       return user.save();
     },
-    updateNeighborAccount: function(inputUser, neighbor) {
+    updateNeighborAccount: function(inputUser, neighbor, userResidency) {
       this.refreshResidentCache();    
       console.log("input user " + JSON.stringify(inputUser));
       console.log("neighbor " + JSON.stringify(neighbor));
@@ -327,26 +429,22 @@ angular.module('account.services', [])
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'lastName', userObjectValue: inputUser.lastName }));              
         console.log("Updating lastName");
       }      
-      if(inputUser.homeNo!=neighbor.get("homeNo")) {
-        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeNo', userObjectValue: inputUser.homeNo }));
-        console.log("Updating homeNo");
-      }
-      if(inputUser.homeOwner!=neighbor.get("homeOwner")) {
-        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'homeOwner', userObjectValue: inputUser.homeOwner }));
-        console.log("Updating homeOwner");
-      }
       if(inputUser.country.countryCode!=neighbor.get("countryCode")) {
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'countryCode', userObjectValue: inputUser.country.countryCode }));
         console.log("Updating countryCode");
       }      
       if(inputUser.phoneNum!=neighbor.get("phoneNum")) {
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'phoneNum', userObjectValue: inputUser.phoneNum }));
-        console.log("Updating homeNo");
+        console.log("Updating phoneNum");
       }
       if(inputUser.country.countryCode!=neighbor.get("countryCode") || inputUser.phoneNum!=neighbor.get("phoneNum")) {
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'username', userObjectValue: inputUser.country.countryCode+""+inputUser.phoneNum }));        
-        console.log("Updating countryCode");
+        console.log("Updating username");
       }                  
+
+      userResidency.set("homeNo", inputUser.home.value);
+      userResidency.set("homeOwner", inputUser.homeOwner);
+      promises.push(userResidency.save());
 
       var deferred=$q.all(promises);
       return deferred;
@@ -420,10 +518,28 @@ angular.module('account.services', [])
       });
       return deferred.promise;  
     },
-    getUserById: function(userId) {
-      var userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo("objectId", userId);
-      return userQuery.first();   
+    getUserById: function(regionName, userId) {
+      var deferred = $q.defer();      
+      this.getResidentsInCommunity(regionName).then(function(neighborList) {
+        for(var i=0;i<neighborList.length;i++) {
+          var user=null;
+          if(neighborList[i].get("user").id==userId) {
+            user=neighborList[i];
+            break;
+          }
+        }
+        if(user==null) {
+          deferred.reject("Unable to find the resident.");
+        } else {
+          deferred.resolve(user);
+        }
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;       
+      // var userQuery = new Parse.Query(Parse.User);
+      // userQuery.equalTo("objectId", userId);
+      // return userQuery.first();   
     },    
     getTestListOfHomesInCommunity: function(regionName) {
       var deferred = $q.defer();      

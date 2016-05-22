@@ -9,15 +9,15 @@
     <my-app-message info="ideaMessage"></my-app-message>
 <!-- TODO :: Uncomment when delete works    <ion-list can-swipe="canUpdateRegion"> -->
     <ion-list>    
-	    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="legis in legisList track by $index" ng-init="legisIndex = $index" href="#/tab/neighbor-detail/{{legis.id}}">
+	    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="legis in legisList track by $index" ng-init="legisIndex = $index" href="#/tab/neighbor-detail/{{legis.get('user').id}}">
 	      <img ng-src="{{legis.get('images')[0]}}" ng-if="legis.get('images')">
 	      <img ng-src="img/avatar2.png" ng-if="!legis.get('images')">
-	      <h2>{{legis.get("firstName")}} {{legis.get("lastName")}}</h2>
+	      <h2>{{legis.get("user").get("firstName")}} {{legis.get("user").get("lastName")}}</h2>
 	      <p>{{legis.get('title')}}</p>
-		    <p ng-if="legis.get('phoneNum')">
+		    <p ng-if="legis.get('user').get('phoneNum')">
 <!-- 			    <i class="icon ion-iphone"></i> -->
 			    <span>
-			    	{{legis.get('phoneNum')}}
+			    	{{legis.get('user').get('phoneNum')}}
 			    </span>
 		    </p>	      
 		    <i class="icon ion-chevron-right icon-accessory"></i>

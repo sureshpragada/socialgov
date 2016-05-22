@@ -64,6 +64,33 @@ var hideSheet = $ionicActionSheet.show({
 
   }
 
+  $scope.testPopulateUserResidency=function() {
+    console.log("testPopulateUserResidency called");
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("residency", "mar_16_4th_2_16_710_dublin");
+      userQuery.find().then(function(users){
+        console.log("testPopulateUserResidency success " + users.length);
+        var userResidencyObjects=[];
+        for(var i=0;i<users.length;i++) {
+          var user=users[i];
+          var UserResidency = Parse.Object.extend("UserResidency");
+          var userResidency = new UserResidency();          
+          userResidency.set("user", user);
+          userResidency.set("homeNo", user.get("homeNo"));
+          userResidency.set("homeOwner", user.get("homeOwner"));
+          userResidency.set("residency", user.get("residency"));
+          userResidency.set("role",user.get("role"));
+          userResidency.set("title",user.get("title"));
+          userResidencyObjects.push(userResidency);
+        }
+        Parse.Object.saveAll(userResidencyObjects);
+        console.log("Populate user residency is success");
+      }, function(error) {
+        console.log("Error populating user residencies " + JSON.stringify(error));
+      });
+
+  };
+
   $scope.testPopulateHomeNumbers=function() {
     var regionName="srikrishnapatnam";
 

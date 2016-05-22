@@ -22,9 +22,14 @@
 				<span class="input-label">Expense Date</span>
 				<input type="date" name="expenseDate"  ng-model="input.expenseDate">
 			</label>						
-			  <label class="item item-input">
-			    <textarea placeholder="Notes for expense..." rows="5" ng-model="input.reason"></textarea>
-			  </label>			
+			<div class="item item-divider">Expense Notes</div>        
+			<label class="item item-input">
+				<textarea placeholder="Type in expense notes..." rows="5" ng-model="input.reason"></textarea>
+			</label>			
+<!-- 	      <div class="item item-divider">Attach Receipt</div>        
+	      <div class="item">
+	           <img class="full-image" ng-src="img/picture_template.png" ng-click="showExpenseReceipt(imageIndex)">        
+	      </div>			 -->
 			<div class="row">
 				<div class="col">
 					<a class="button button-block button-outline" ng-click="cancel()">Cancel</a>	

@@ -1,4 +1,4 @@
-<ion-view view-title="Switch Residency">
+<ion-view view-title="Switch">
 	<ion-content>
 		<ion-item class="item-thumbnail-left item-icon-right" ng-repeat="region in regions" ng-init="residencyIndex = $index" ng-click="switchResidency(residencyIndex)" >
 			<img ng-src="{{region.get('posterImages')[0]}}" ng-if="region.get('posterImages').length!=0">
@@ -6,7 +6,8 @@
 			<h2>{{region.get("name")}}</h2>
 			<p>{{region.get("execOffAddrList")[0].city}}</p>
 			<p>{{region.get("execOffAddrList")[0].addressLine1}}</p>
-			<p ng-if="region.get('execOffAddrList')[0].addressLine2">{{region.get("execOffAddrList")[0].addressLine2}}</p>
+<!-- 			<p ng-if="region.get('execOffAddrList')[0].addressLine2">{{region.get("execOffAddrList")[0].addressLine2}}</p> -->
+			<i class="icon ion-chevron-right icon-accessory"></i>                           
 		</ion-item>
 	</ion-content>
 </ion-view>

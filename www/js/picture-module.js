@@ -27,7 +27,8 @@ angular.module('starter.controllers')
   };
 }])
 
-.controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService, $ionicLoading, $cordovaDialogs) {
+.controller('PictureManagerCtrl', function($scope, $state, $http, $cordovaCamera, PictureManagerService, LogService, $ionicLoading, $cordovaDialogs, SettingsService) {
+  SettingsService.trackView("Picture Manage controller");  
   $scope.pictureSelected=false;    
    $scope.myImage= "";
    $scope.result={
@@ -62,10 +63,12 @@ angular.module('starter.controllers')
 
 
   $scope.takePicture=function() {
+    SettingsService.trackEvent("PictureManager", "TakePicture");
     manageupload(Camera.PictureSourceType.CAMERA);
   };
 
   $scope.selectFromGallery=function() {
+    SettingsService.trackEvent("PictureManager", "SelectGallery");
     manageupload(Camera.PictureSourceType.PHOTOLIBRARY);
   };
 
@@ -90,10 +93,12 @@ angular.module('starter.controllers')
   }
 
   $scope.chooseAnotherPicture=function() {
+    SettingsService.trackEvent("PictureManager", "RetakePicture");    
     $scope.pictureSelected=false;
   };
 
   $scope.uploadPicture=function() {    
+    SettingsService.trackEvent("PictureManager", "UploadPicture");
     // console.log("Cropped image " + JSON.stringify($scope.result.myCroppedImage));    
     var file = $scope.result.myCroppedImage;  
     if(!file) {
@@ -130,6 +135,7 @@ angular.module('starter.controllers')
   };
 
   $scope.cancel=function() {
+    SettingsService.trackEvent("PictureManager", "CancelPicture");    
     $state.go(PictureManagerService.getState().fromPage, PictureManagerService.getState().fromPagePathParamValue);
   };
 
