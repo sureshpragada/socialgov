@@ -256,7 +256,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard, UserResidencyService) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard) {
   SettingsService.trackView("Account controller");
   $scope.user = AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
@@ -291,19 +291,22 @@ angular.module('starter.controllers')
   }
 
   $scope.isPendingRequest=false;
-  AccountService.getAccessRequest().then(function(accessrequest){
-    console.log("Access request returned from cache : " + JSON.stringify(accessrequest));
-    if(accessrequest!=null && accessrequest!="NO_DATA_FOUND") {
-      if(accessrequest.get("status")=="PEND"){              
-        $scope.accessRequestMessage=SettingsService.getControllerInfoMessage("Your role change request is in review.");
-        $scope.isPendingRequest=true;
-      } else if(accessrequest.get("status")=="RJCT") {
-        $scope.accessRequestMessage=SettingsService.getControllerErrorMessage("Your role change request is rejected.");
-      }      
-    }
-  }, function() {
-    $scope.accessRequestMessage=SettingsService.getControllerErrorMessage("Unable to retrieve status of your role change request.");
-  });
+  if($scope.regionSettings.hoa==false) {
+    AccountService.getAccessRequest().then(function(accessrequest){
+      console.log("Access request returned from cache : " + JSON.stringify(accessrequest));
+      if(accessrequest!=null && accessrequest!="NO_DATA_FOUND") {
+        if(accessrequest.get("status")=="PEND"){              
+          $scope.accessRequestMessage=SettingsService.getControllerInfoMessage("Your role change request is in review.");
+          $scope.isPendingRequest=true;
+        } else if(accessrequest.get("status")=="RJCT") {
+          $scope.accessRequestMessage=SettingsService.getControllerErrorMessage("Your role change request is rejected.");
+        }      
+      }
+    }, function(error) {
+      LogService.log({type:"ERROR", message: "Unable to get access request for current user "+JSON.stringify(error)});     
+      $scope.accessRequestMessage=SettingsService.getControllerErrorMessage("Unable to retrieve status of your role change request.");
+    });
+  }
 
   RegionService.getRegion($scope.user.get("residency")).then(function(region){
     $scope.regionDisplayName=region.get("name");
@@ -311,13 +314,12 @@ angular.module('starter.controllers')
     $scope.regionDisplayName=$scope.user.get("residency").capitalizeFirstLetter();
   });
 
-  UserResidencyService.getUserResidencyByUser($scope.user).then(function(userResidency){
-    if(userResidency!=null && userResidency.length>0){
+  AccountService.getCurrentUserResidencies().then(function(userResidencyList){
+    if(userResidencyList!=null && userResidencyList.length>1){
       $scope.canSwitchResidency=true;
     }
-    $scope.$apply();
   },function(error){
-    console.log("Unable to get user residency for current user "+JSON.stringify(error));
+    LogService.log({type:"ERROR", message: "Unable to get user residency for current user "+JSON.stringify(error)});     
   });
 
   $scope.switchResidency=function(){
@@ -397,40 +399,60 @@ angular.module('starter.controllers')
 
 })
 
-.controller('SwitchResidencyCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, UserResidencyService, $ionicLoading, ActivityService) {
+.controller('SwitchResidencyCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicLoading, ActivityService) {
   SettingsService.trackView("Switch residency controller");  
 
-  UserResidencyService.getUserResidencyByUser(AccountService.getUser()).then(function(UserResidencies){
-    $scope.userResidencies=UserResidencies;
-    var residencyNames=[];
-    for(var i=0; i<$scope.userResidencies.length; i++){
-      residencyNames.push($scope.userResidencies[i].get("residency"));
+  var currentResidency=AccountService.getUserResidency();
+  AccountService.getCurrentUserResidencies().then(function(userResidencyList){
+    $scope.userResidencies=userResidencyList;
+    if($scope.userResidencies!=null && $scope.userResidencies.length>0) {
+      var residencyNames=[];
+      for(var i=0; i<$scope.userResidencies.length; i++){
+        if(currentResidency!=$scope.userResidencies[i].get("residency")) {
+          residencyNames.push($scope.userResidencies[i].get("residency"));
+        }      
+      }
+      RegionService.getRegionsByRegionUniqueNames(residencyNames).then(function(regions){
+        $scope.regions = regions;
+        $scope.$apply();
+      },function(error){
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get region details.");
+      });
+    } else {      
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("You are not part of any residential community. Please request your legislative board to add you to the community.");  
     }
-    RegionService.getRegionsByRegionUniqueNames(residencyNames).then(function(regions){
-      $scope.regions = regions;
-      $scope.$apply();
-      console.log(JSON.stringify($scope.regions));
-    },function(error){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get region details.");
-    });
   },function(error){
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get user residencies.");
   });
 
-
   $scope.switchResidency=function(residencyIndex){
     $ionicLoading.show(SettingsService.getLoadingMessage("Switching Community"));
     
-    //TODO: Update user residency whenever user's role,title,homeNo etc changes.
-    UserResidencyService.switchResidency($scope.userResidencies[residencyIndex]).then(function(user){
-      RegionService.initializeRegionCacheByCurrentUser();
-      ActivityService.refreshActivityCache();
-      AccountService.refreshResidentCache();
+    var userResidencyToBeSwitched=null;
+    for(var i=0;i<$scope.userResidencies.length;i++) {
+      if($scope.userResidencies[i].get("residency")==$scope.regions[residencyIndex].get("uniqueName")) {
+        userResidencyToBeSwitched=$scope.userResidencies[i];
+        break;
+      }
+    }
+
+    if(userResidencyToBeSwitched!=null) {
+      AccountService.switchResidency(userResidencyToBeSwitched).then(function(user){
+        console.log("Switched residency");
+        RegionService.initializeRegionCacheByCurrentUser();
+        ActivityService.refreshActivityCache();
+        AccountService.refreshResidentCache();
+        $ionicLoading.hide();
+        $state.go("tab.account");
+      },function(error){
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to switch residency.");
+        $ionicLoading.hide();
+      });      
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to find the residency.");
       $ionicLoading.hide();
-      $state.go("tab.account");
-    },function(error){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to switch residency.");
-    });
+    }
+
   };
 
 })
@@ -774,7 +796,7 @@ angular.module('starter.controllers')
   
 })
 
-.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading, UserResidencyService) {
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
   SettingsService.trackView("Your info controller");          
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about yourself; You will be setup as admin to build community;");        
   $scope.controllerMessage=null;
@@ -821,7 +843,7 @@ angular.module('starter.controllers')
           unitNo: $scope.user.unitNo, 
           residency: regionData.get("uniqueName")
         });
-        UserResidencyService.createUserResidency(userData);
+        AccountService.createUserResidency(userData);
         LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
         RegionService.initializeRegionCache(regionData);          
         NotificationService.registerDevice();
@@ -855,7 +877,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading, UserResidencyService) {
+.controller('InviteCitizenCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicHistory, $ionicLoading) {
   SettingsService.trackView("Invite citizen controller");            
   $scope.user={
     status:"P", 
@@ -933,7 +955,7 @@ angular.module('starter.controllers')
     // Create user
     AccountService.addInvitedContact($scope.user).then(function(newUser) {
       // Send invitation
-      UserResidencyService.createUserResidency(newUser).then(function(userResidency){
+      AccountService.createUserResidency(newUser).then(function(userResidency){
         completeUserResidencyCreation(newUser);
         console.log("user residency has been created.");
         SettingsService.setAppSuccessMessage("Invitation has been sent to the resident.");
@@ -947,13 +969,14 @@ angular.module('starter.controllers')
     }, function(error) {
       LogService.log({type:"ERROR", message: "Unable to insert user record " + JSON.stringify(error)});       
       if(error.code==202) {
-        UserResidencyService.getUserByPhoneNumber($scope.user.phoneNum).then(function(user){
+        console.log("User phone number " + $scope.user.phoneNum);
+        AccountService.getUserObjectByPhoneNumber($scope.user.phoneNum).then(function(user){
           console.log("Found the user");
-          UserResidencyService.getCurrentUserResidency(user, AccountService.getUserResidency()).then(function(userResidency){
-            console.log("Queried user residency");
-            if(userResidency!=null && userResidency.length<1){
+          AccountService.getUserResidenciesOfSpecificResidency(user, AccountService.getUserResidency()).then(function(userResidency){
+            console.log("Queried user residency " + userResidency);
+            if(userResidency==null){
               console.log("Resident will be added to this community");
-              UserResidencyService.createUserResidencyWhenUserExists($scope.user, user).then(function(userResidency){
+              AccountService.createUserResidencyWhenUserExists($scope.user, user).then(function(userResidency){
                 console.log("User residency has been created for existing user.");
                 completeUserResidencyCreation(user);
                 SettingsService.setAppSuccessMessage("Invitation has been sent to the resident.");

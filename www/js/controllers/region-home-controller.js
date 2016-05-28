@@ -323,7 +323,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory, RegionService, UserResidencyService, $ionicLoading) {
+.controller('NeighborDetailCtrl', function($scope, $state, $interval, $stateParams,$cordovaDialogs, AccountService, SettingsService, NotificationService, $ionicActionSheet, $timeout, $cordovaClipboard, $ionicHistory, RegionService, $ionicLoading) {
   SettingsService.trackView("Neighbor details controller ");
 
   $scope.operatingUser=AccountService.getUser();
@@ -390,10 +390,10 @@ angular.module('starter.controllers')
     .then(function(buttonIndex) {      
       if(buttonIndex==1) {
         $ionicLoading.show(SettingsService.getLoadingMessage("Vacating resident"));
-        UserResidencyService.getCurrentUserResidency($scope.user, AccountService.getUserResidency()).then(function(userResidency){
-          if(userResidency!=null && userResidency.length>0) {
+        AccountService.getUserResidenciesOfSpecificResidency($scope.user, AccountService.getUserResidency()).then(function(userResidency){
+          if(userResidency!=null) {
             console.log("User residency length is moer than zero");
-           UserResidencyService.removeUserResidency(userResidency[0]).then(function(deletedUserResidency) {
+           AccountService.removeUserResidency(userResidency).then(function(deletedUserResidency) {
              AccountService.refreshResidentCache(AccountService.getUserResidency());
              SettingsService.setAppSuccessMessage("Resident has been vacated from this community.");
              $ionicLoading.hide();

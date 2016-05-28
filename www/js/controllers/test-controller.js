@@ -67,7 +67,7 @@ var hideSheet = $ionicActionSheet.show({
   $scope.testPopulateUserResidency=function() {
     console.log("testPopulateUserResidency called");
       var userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo("residency", "mar_16_4th_2_16_710_dublin");
+      userQuery.equalTo("residency", "arrivare");
       userQuery.find().then(function(users){
         console.log("testPopulateUserResidency success " + users.length);
         var userResidencyObjects=[];
