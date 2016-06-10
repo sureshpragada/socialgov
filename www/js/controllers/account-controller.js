@@ -838,7 +838,7 @@ angular.module('starter.controllers')
       });
     },function(error){
       if(error.code==202) {
-        
+        //TODO
       }
       else{
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");

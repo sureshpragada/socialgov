@@ -326,6 +326,16 @@ angular.module('activity.services', [])
     },
     flagUserAbusive: function(activity) {
       AccountService.flagUserAbusive(activity.get("user").id);
+    },
+    getUserActivtiesByActivityId: function(activityId) {
+      var Activity = Parse.Object.extend("Activity");
+      var innerQuery = new Parse.Query(Activity);
+      innerQuery.equalTo("objectId", activityId);
+      var UserActivity=Parse.Object.extend("UserActivity");
+      var query=new Parse.Query(UserActivity);
+      query.matchesQuery("activity", innerQuery);
+      query.include("user");
+      return query.find();
     }
   };
 }])

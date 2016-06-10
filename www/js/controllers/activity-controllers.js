@@ -240,6 +240,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               $scope.$apply(function(){
                 $scope.userActivityList.push(userActivity);
                 activities[i].increment(action, 1);
+                activities[i].set("lastActionBy", activities[i].get("user").get("firstName") + " " + activities[i].get("user").get("lastName"));
                 activities[i].save();              
                 console.log("Successfully associated user with activity");
               });
@@ -262,8 +263,10 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               console.log("Error while updating user activity : " + JSON.stringify(error));
             }
           });
+          
           activities[i].increment(ActivityService.getAction(previousAction), -1);
           activities[i].increment(action, 1);
+          activities[i].set("lastActionBy", activities[i].get("user").get("firstName") + " " + activities[i].get("user").get("lastName"));
           activities[i].save({
             success: function(activity) {
               // console.log("Successfullly incremented the counters : " + JSON.stringify(activity));
@@ -271,13 +274,43 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             error: function(error) {
               console.log("Error while incrementing counters : " + JSON.stringify(error));
             }
+
           });    
         }
+        console.log(JSON.stringify(activities[i]));
         return;
       }
     }
     console.log("unable to find activity id " + activityId + " to perform " + action);
   };
+
+  $scope.openReactedPeopleList=function(activityIndex){
+
+    console.log("Showing list of reacted people");
+    ActivityService.getUserActivtiesByActivityId(activityIndex).then(function(userActivities){
+      $scope.reactedPeople = userActivities;
+      console.log(JSON.stringify($scope.reactedPeople));
+    },function(error){
+      console.log("Unable to retrieve user activities");
+    });
+    $scope.reactedPeopleModal.show();
+  };
+
+
+  $ionicModal.fromTemplateUrl('templates/activity/activity-reacted-people.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.reactedPeopleModal = modal;
+  })  
+
+  $scope.closeReactedPeopleModal = function() {
+    $scope.reactedPeopleModal.hide();
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.reactedPeopleModal.remove();
+  });
 
   $scope.removePost=function(activityId, index) {
     if(ionic.Platform.isWebView()) {
