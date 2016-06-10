@@ -56,6 +56,17 @@
           <span class="assertive">* Activity is visible to only board members.</span>
         </p>        
       </div>
+      <div class="item">
+        <p ng-if="activity.get('lastActionBy')==null">
+          Be the first one to react on this.
+        </p>
+        <p ng-if="(activity.get('support')+activity.get('oppose'))==1">
+          {{activity.get("lastActionBy")}} reacted on this.
+        </p>
+        <p ng-if="(activity.get('support')+activity.get('oppose'))>1" ng-click="openReactedPeopleList(activity.id)">
+          {{activity.get("lastActionBy")}} and {{activity.get("support")+activity.get("oppose")-1}}  have reacted on this.
+        </p>
+      </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">
         <a class="tab-item" ng-click="respond(activity.id, 'support')">
           <i class="icon ion-thumbsup"  ng-class="isThisActionChosen(activity.id, 'support')"></i>
