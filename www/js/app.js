@@ -6,7 +6,7 @@
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'financial.services', 'service-contact.services', 'activity.services', 'region.services', 'region-financial.services', 'notification.services', 'log.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle', 'ngImgCrop', 'utility.services'])
-.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService, $state, $ionicHistory) {
+.run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService, $state, $ionicHistory, SettingsService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -19,12 +19,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       StatusBar.styleLightContent();
     }
 
-    if(window.analytics!=null) { 
-      window.analytics.startTrackerWithId(ANALYTICS_TRACKING_ID);
-      if(AccountService.getUser()!=null) {
-        window.analytics.setUserId(AccountService.getUser().get("username"));
-      }      
-    }
+    SettingsService.initializeGoogleAnalytics();
 
     RegionService.initializeRegionCacheByCurrentUser();
 
@@ -38,6 +33,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     }, 100);    
 
     $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
+      LogService.log({type:"INFO", message: "Received notification : " + JSON.stringify(notification)});                                 
       if(ionic.Platform.isAndroid()) {
         switch(notification.event) {
           case 'registered':

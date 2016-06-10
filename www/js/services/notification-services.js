@@ -54,7 +54,6 @@ angular.module('notification.services', ['ionic'])
         }, function(err) {
           LogService.log({type:"ERROR", message: "Registration attempt to GCM is failed for  " + Parse.User.current().id + " " +  JSON.stringify(err)}); 
         });
-
       } else if(ionic.Platform.isWebView() && ionic.Platform.isIOS()){
         var self=this;
         var iosConfig = {

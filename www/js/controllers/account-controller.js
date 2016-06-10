@@ -256,7 +256,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard) {
+.controller('AccountCtrl', function($scope, $state, RegionService, LogService, AccountService, NotificationService, SettingsService, $ionicModal, PictureManagerService, $cordovaClipboard, $ionicLoading, $interval) {
   SettingsService.trackView("Account controller");
   $scope.user = AccountService.getUser();
   $scope.regionSettings=RegionService.getRegionSettings($scope.user.get("residency"));    
@@ -264,8 +264,10 @@ angular.module('starter.controllers')
   $scope.privs={
     isSuperAdmin: AccountService.isSuperAdmin(), 
     isCitizen: AccountService.isCitizen(),
-    isLogoutAllowed: AccountService.isLogoutAllowed($scope.user)
+    isLogoutAllowed: AccountService.isLogoutAllowed($scope.user), 
+    isDeviceRegistered: ionic.Platform.isWebView() && $scope.user.get('deviceReg')=='Y'
   };
+  console.log("Register device : " + $scope.user.get('deviceReg') + " Privs : " + $scope.privs.isDeviceRegistered);
   $scope.appVersion=APP_VERSION;
 
   $scope.appMessage=SettingsService.getAppMessage();  
@@ -331,8 +333,23 @@ angular.module('starter.controllers')
   };
 
   $scope.registerDevice=function() {
-    console.log("Registering device");
+    $ionicLoading.show(SettingsService.getLoadingMessage("Registering device"));
     NotificationService.registerDevice();
+    // Wait for 5 seconds to complete the registration
+    $interval(function(){
+        Parse.User.current().fetch().then(function(newUser) {
+          if(newUser.get('deviceReg')=='Y') {
+            $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Device registration is successful");
+            $scope.privs.isDeviceRegistered=true;
+          } else {
+            $scope.controllerMessage=SettingsService.getControllerInfoMessage("Device registration is failed. Please try again later.");
+          }
+          $ionicLoading.hide();
+        }, function(error) {
+          $scope.controllerMessage=SettingsService.getControllerInfoMessage("Device registration is failed. Please try again later.");
+          $ionicLoading.hide();
+        });                       
+    }, 5000, 1);    
   };
 
   $scope.logout=function() {    
