@@ -221,7 +221,7 @@ angular.module('starter.controllers')
         $scope.apply();
       }
     });
-1  };
+  };
 
   // $scope.registerDevice=function() {
   //   if(ionic.Platform.isWebView() && ionic.Platform.isAndroid()) {

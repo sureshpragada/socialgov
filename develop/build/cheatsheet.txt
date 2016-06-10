@@ -10,6 +10,7 @@ ionic serve
 ionic serve --lab
 cordova prepare android 
 
+
 ionic run android
 cordova platform list
 cordova plugin ls
@@ -31,6 +32,7 @@ cordova plugin add https://github.com/VersoSolutions/CordovaClipboard.git
 cordova plugin add https://github.com/katzer/cordova-plugin-email-composer.git
 cordova plugin add https://github.com/wymsee/cordova-imageResizer
 cordova plugin rm cordova-plugin-image-resizer
+
 cordova plugin add https://github.com/danwilson/google-analytics-plugin.git
 
 
@@ -137,3 +139,18 @@ OurBlock Team
 <widget ...>
   <preference name="BackupWebStorage" value="none" />
 </widget>
+
+
+
+curl -s --user 'api:key-89bea41ee44564cc479f013433d927c8' \
+    https://api.mailgun.net/v3/sandbox8642ade5619d489a884f27cca01ba1a0.mailgun.org/messages \
+    -F from='Mailgun Sandbox <postmaster@sandbox8642ade5619d489a884f27cca01ba1a0.mailgun.org>' \
+    -F to='Suresh Pragada <suresh4u78@yahoo.com>' \
+    -F subject='Hello Suresh Pragada' \
+    -F text='Congratulations Suresh Pragada, you just sent an email with Mailgun!  You are truly awesome!' 
+
+You can see a record of this email in your logs: https://mailgun.com/cp/log 
+
+You can send up to 300 emails/day from this sandbox server. Next, you should add your own domain so you can send 10,000 emails/month for free.'
+    
+    
