@@ -4,11 +4,15 @@
 	  	<h1 class="title">Reacted People</h1>    
 	</ion-header-bar>
 		<ion-content>
-			<ion-item ng-repeat="people in reactedPeople">
-				{{people.get("user").get("firstName")}} &nbsp {{people.get("user").get("lastName")}} 
-				&nbsp
-				<i class="icon ion-thumbsup" ng-if="people.get('action')=='S'" ng-class="calm">
-				<i class="icon ion-thumbsdown" ng-if="people.get('action')=='O'" ng-class="assertive">
+			<ion-item class="item-avatar item-icon-right" ng-repeat="people in reactedPeople">
+		        <img ng-src="{{people.get('user').get('images')[0]}}" ng-if="people.get('user').get('images')">
+		        <img src="img/avatar2.png" ng-if="!people.get('user').get('images')">      			
+		        <h2>{{people.get("user").get("firstName")}} {{people.get("user").get("lastName")}}</h2>
+		        <p ng-show="people.get('activityType')=='NOTF'">{{people.get("user").get("title")}}</p>
+		        <p ng-if="people.get('user').get('homeNo')">{{people.get("user").get("homeNo") | formatHomeNumber}}</p>
+				 
+				<i class="icon ion-thumbsup" ng-if="people.get('action')=='S'" style="color: #11c1f3;"></i>
+				<i class="icon ion-thumbsdown" ng-if="people.get('action')=='O'" style="color: #ef473a;"></i>
 			</ion-item>
 		</ion-content>
 </ion-modal-view>

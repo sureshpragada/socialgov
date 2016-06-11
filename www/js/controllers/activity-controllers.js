@@ -226,11 +226,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           }
         }
 
+        var currentUser=AccountService.getUser();
         if(previousUserActivity==null) {
           // User has did an action on this activity for first time, add UserActivity and then increment action
           var UserActivity = Parse.Object.extend("UserActivity");
           var userActivity = new UserActivity();
-          userActivity.set("user", Parse.User.current());
+          userActivity.set("user", currentUser);
           userActivity.set("activity", activities[i]);
 //          userActivity.set("actionType", "V");  // Possible values, V- VOTE & D - DBAT
           userActivity.set("action", ActivityService.getActionCode(action));
@@ -240,7 +241,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               $scope.$apply(function(){
                 $scope.userActivityList.push(userActivity);
                 activities[i].increment(action, 1);
-                activities[i].set("lastActionBy", activities[i].get("user").get("firstName") + " " + activities[i].get("user").get("lastName"));
+                activities[i].set("lastActionBy", currentUser.get("firstName") + " " + currentUser.get("lastName"));
                 activities[i].save();              
                 console.log("Successfully associated user with activity");
               });
@@ -266,7 +267,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           
           activities[i].increment(ActivityService.getAction(previousAction), -1);
           activities[i].increment(action, 1);
-          activities[i].set("lastActionBy", activities[i].get("user").get("firstName") + " " + activities[i].get("user").get("lastName"));
+          activities[i].set("lastActionBy", currentUser.get("firstName") + " " + currentUser.get("lastName"));
           activities[i].save({
             success: function(activity) {
               // console.log("Successfullly incremented the counters : " + JSON.stringify(activity));
@@ -277,7 +278,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
           });    
         }
-        console.log(JSON.stringify(activities[i]));
         return;
       }
     }
@@ -289,9 +289,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     console.log("Showing list of reacted people");
     ActivityService.getUserActivtiesByActivityId(activityIndex).then(function(userActivities){
       $scope.reactedPeople = userActivities;
-      console.log(JSON.stringify($scope.reactedPeople));
+      // console.log(JSON.stringify($scope.reactedPeople));
     },function(error){
-      console.log("Unable to retrieve user activities");
+      console.log("Unable to retrieve user activities " + JSON.stringify(error));
     });
     $scope.reactedPeopleModal.show();
   };

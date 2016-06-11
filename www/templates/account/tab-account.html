@@ -2,6 +2,7 @@
   <ion-content class="visible-cards">
   <my-app-message info="appMessage"></my-app-message>
   <my-app-message info="accessRequestMessage"></my-app-message>
+  <my-app-message info="controllerMessage"></my-app-message>
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Profile</h4> -->
     <div class="card">
       <div class="item item-avatar item-icon-right">
@@ -37,7 +38,7 @@
       <ion-toggle ng-model="settings.notifications" ng-change="notifySettingChanged('notifySetting', settings.notifications)">
           {{'Notify' | translate}}
       </ion-toggle>          
-      <ion-item class="item-icon-right" ng-click="registerDevice()" ng-if="ionic.Platform.isWebView() && user.get('deviceReg')!='Y'">
+      <ion-item class="item-icon-right" ng-click="registerDevice()" ng-if="!privs.isDeviceRegistered">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Register device
       </ion-item>  
@@ -63,7 +64,7 @@
       <ion-item>
         App Version<span class="item-note">{{appVersion}}</span>                        
       </ion-item>                             
-      <ion-item class="item-icon-right" ng-click="logout()">
+      <ion-item class="item-icon-right" ng-click="logout()" ng-if="privs.isLogoutAllowed">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Sign Out
       </ion-item>      

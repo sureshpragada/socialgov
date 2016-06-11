@@ -21,6 +21,14 @@ angular.module('account.services', [])
     });
   }
 
+  var userResidencyCache;  
+  if (!CacheFactory.get('userResidencyCache')) {
+    userResidencyCache = CacheFactory('userResidencyCache', {
+      maxAge: 1 * 60 * 60 * 1000, // 1 Hour
+      deleteOnExpire: 'none'
+    });
+  }
+
   var residentCache;
   if (!CacheFactory.get('residentCache')) {
     residentCache = CacheFactory('residentCache', {
@@ -38,33 +46,7 @@ angular.module('account.services', [])
     });
   }  
 
-  return {
-    // getResidentsInCommunity: function(regionUniqueName) {
-    //   var deferred = $q.defer();
-    //   var cachedObjectInfo=residentCache.info(regionUniqueName);
-    //   if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
-    //     deferred.resolve(residentCache.get(regionUniqueName));  
-    //     console.log("Returning from cache");
-    //   } else {
-    //     var userQuery = new Parse.Query(Parse.User);
-    //     userQuery.equalTo("residency", regionUniqueName);
-    //     userQuery.ascending("homeNo");
-    //     userQuery.find(function(residents) {
-    //         residentCache.remove(regionUniqueName);
-    //         residentCache.put(regionUniqueName, residents);          
-    //         console.log("Caching resident count " + residents!=null?residents.length:-1);
-    //         deferred.resolve(residents);
-    //       }, function(error) {
-    //         if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
-    //           console.log("Returning cached residents");
-    //           deferred.resolve(residentCache.get(regionUniqueName));  
-    //         } else {
-    //           deferred.reject(error);
-    //         }
-    //       }); 
-    //   }
-    //   return deferred.promise;
-    // },        
+  return { 
     getResidentsInCommunity: function(regionUniqueName) {
       console.log("Requesting residents for " + regionUniqueName);
       var deferred = $q.defer();
@@ -84,21 +66,6 @@ angular.module('account.services', [])
             residentCache.remove(regionUniqueName);
             residentCache.put(regionUniqueName, userResidencyList);          
             deferred.resolve(userResidencyList);
-            // if(userResidencyList!=null && userResidencyList.length>0) {
-            //   residentCache.remove(regionUniqueName);
-            //   var residentArray=[];
-            //   for(var i=0;i<userResidencyList.length;i++) {
-            //     residentArray.push(userResidencyList[i].get("user"));
-            //   }
-
-            //   residentCache.put(regionUniqueName, residentArray);          
-            //   console.log("Caching resident count " + residentArray.length);
-            //   console.log("Caching residents  " + JSON.stringify(residentArray));
-            //   deferred.resolve(residentArray);
-            // } else {
-            //   console.log("Did not find any users " + regionUniqueName);
-            //   deferred.resolve([]);              
-            // }
           }, function(error) {
             if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
               console.log("Returning cached residents");
@@ -114,6 +81,59 @@ angular.module('account.services', [])
       console.log("residents removed from cache");
       residentCache.removeAll();
     },
+    getUserObjectByPhoneNumber: function(number){
+      var User = Parse.Object.extend("User");
+      var query = new Parse.Query(User);
+      query.equalTo("phoneNum",number);
+      return query.first();
+    },    
+    getUserResidencies: function(user) {
+      console.log("Querying for user residencies" + user.get("username"));
+      var UserResidency = Parse.Object.extend("UserResidency");
+      var userQuery = new Parse.Query(UserResidency);
+      userQuery.equalTo("user", user);
+      return userQuery.find();
+    },
+    getUserResidenciesOfSpecificResidency: function(user, residency) {
+      console.log("getUserResidenciesOfSpecificResidency " + user.id + " " + residency);
+      var deferred = $q.defer();
+      this.getUserResidencies(user).then(function(userResidencyList){
+        var userResidency=null;
+        for(var i=0;i<userResidencyList.length;i++) {
+          if(userResidencyList[i].get("residency")==residency) {
+            userResidency=userResidencyList[i];
+            break;
+          }
+        }
+        deferred.resolve(userResidency);
+      }, function(error){
+        deferred.reject(error);
+      });
+      return deferred.promise;
+    },    
+    getCurrentUserResidencies: function() {
+      console.log("Requesting user residencies");
+      var deferred = $q.defer();
+      var cachedObjectInfo=userResidencyCache.info("userResidencyCache");
+      if(cachedObjectInfo!=null && !cachedObjectInfo.isExpired) {
+        deferred.resolve(userResidencyCache.get("userResidencyCache"));  
+        console.log("Returning userresidency from cache");
+      } else {        
+        this.getUserResidencies(Parse.User.current()).then(function(userResidencyList) {
+          userResidencyCache.remove("userResidencyCache");
+          userResidencyCache.put("userResidencyCache", userResidencyList);          
+          deferred.resolve(userResidencyList);
+        }, function(error) {
+          if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+            console.log("Returning cached residents");
+            deferred.resolve(userResidencyCache.get("userResidencyCache"));  
+          } else {
+            deferred.reject(error);
+          }
+        }); 
+      }
+      return deferred.promise;
+    },      
     isFunctionalAdmin: function(regionSettings, functionName) {
       var user=this.getUser();
       if(user!=null && user.get("status")!="S"){
@@ -203,36 +223,29 @@ angular.module('account.services', [])
         return false;
       }
     },
-    getUserOptimized: function() {
-      if(new Date().getTime()-userLastRefreshTimeStamp>(5 * 60 * 1000)) {
-        Parse.User.current().fetch().then(function(newUser) {
-          UserResidencyService.getUserById(newUser.get("residency"), newUser.id).then(function(userWithResidency) {
-            newUser.set("role", userWithResidency.get("role"));
-            newUser.set("title", userWithResidency.get("title"));
-            newUser.save(); 
-          }, function(error) {});
-        }, function(error) {});                 
-        userLastRefreshTimeStamp=new Date().getTime();
-        console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
-      } 
-      return Parse.User.current();
-    },    
     getUser: function() {
       var self=this;      
       if(new Date().getTime()-userLastRefreshTimeStamp>(5 * 60 * 1000)) {
         Parse.User.current().fetch().then(function(newUser) {
-          self.getUserById(newUser.get("residency"), newUser.id).then(function(userWithResidency) {
-            // if(userWithResidency.get("status")=="V") {
-            //   newUser.set("residency", null);
-            // } else {
-              newUser.set("role", userWithResidency.get("role"));
-              newUser.set("title", userWithResidency.get("title"));
-              newUser.set("homeOwner", userWithResidency.get("homeOwner"));
-            // }
-            newUser.save(); 
-          }, function(error) {
-            // TODO :: Remove this user from this residency; Overwriting user with residency when the record is not found could be dangerous as if the network connection fails, we may block him. 
-          });
+          self.getCurrentUserResidencies().then(function(userResidencyList) {
+            var foundResidency=false;
+            for(var i=0;i<userResidencyList.length;i++) {
+              if(newUser.get("residency")==userResidencyList[i].get("residency")) {
+                newUser.set("role", userResidencyList[i].get("role"));
+                newUser.set("title", userResidencyList[i].get("title"));
+                newUser.set("homeOwner", userResidencyList[i].get("homeOwner"));                
+                newUser.set("homeNo", userResidencyList[i].get("homeNo"));                
+                newUser.save();                   
+                foundResidency=true;
+                break;
+              }
+            }
+            if(foundResidency==false) {
+              LogService.log({type:"ERROR", message: "User residency not found; Must have been vacated?"}); 
+              // TODO :: Update user status to "V"; Main controlers should look for this status and redirect 
+              // the user to switch residency where it will show info message if he is not invited in any other residencies;
+            }
+          }, function(error) {});
         }, function(error) {});                 
         userLastRefreshTimeStamp=new Date().getTime();
         console.log("Refreshing the user " + userLastRefreshTimeStamp + " " + new Date().getTime());        
@@ -241,7 +254,7 @@ angular.module('account.services', [])
     },
     refreshUser: function() {
       userLastRefreshTimeStamp=null;
-      this.getUserOptimized();
+      this.getUser();
     },
     updateAccessRequest: function(accessRequest) {
       accessRequestCache.put("accessRequest", accessRequest);
@@ -353,27 +366,6 @@ angular.module('account.services', [])
         deferred.reject(error);
       });
 
-      // this.refreshResidentCache();
-      // Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'role', userObjectValue: role }, {
-      //   success: function(status1) {
-      //     console.log("Successfully updated user role " + JSON.stringify(status1));
-      //     Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'title', userObjectValue: title }, {
-      //       success: function(status2) {
-      //         console.log("Successfully updated user title " + JSON.stringify(status2));
-      //         deferred.resolve("Successfully updated user title " + JSON.stringify(status2));
-      //       },
-      //       error: function(error) {
-      //         LogService.log({type:"ERROR", message: "Unable to update user title " + JSON.stringify(error) + " UserId : " + userId}); 
-      //         deferred.reject(error);
-      //       }
-      //     });      
-      //   },
-      //   error: function(error) {
-      //     LogService.log({type:"ERROR", message: "Unable to update user role " + JSON.stringify(error) + " UserId : " + userId}); 
-      //     deferred.reject(error);
-      //   }
-      // });      
-
       return deferred.promise;
     },
     addContact: function(inputUser) {
@@ -449,27 +441,6 @@ angular.module('account.services', [])
       var deferred=$q.all(promises);
       return deferred;
     },
-    getUserObjectByPhoneNumber: function(number){
-      var User = Parse.Object.extend("User");
-      var query = new Parse.Query(User);
-      query.equalTo("phoneNum",number);
-      query.find({
-        success: function(results) {
-          var objectId = results[0].id;
-          var sentMessageCount = results[0].sentInviteMessageCount;
-          if(sentMessageCount==null || sentMessageCount<=3){
-            return objectId;
-          }
-          else{
-            return null;
-          }
-        },
-        error: function(error) {
-          console.log("unable to find the user");
-          return null;
-        }
-      });
-    },
     recoverInvitationCode: function(inputUserForm) {
       // TODO :: Do lavenstine string match to find the distance of first name and last name
       var deferred = $q.defer();            
@@ -537,9 +508,6 @@ angular.module('account.services', [])
         deferred.reject(error);
       });
       return deferred.promise;       
-      // var userQuery = new Parse.Query(Parse.User);
-      // userQuery.equalTo("objectId", userId);
-      // return userQuery.first();   
     },    
     getTestListOfHomesInCommunity: function(regionName) {
       var deferred = $q.defer();      
@@ -863,6 +831,46 @@ angular.module('account.services', [])
         deferred.reject(error);
       });
       return deferred.promise;
+    },
+    createUserResidency: function(user){
+      var UserResidency = Parse.Object.extend("UserResidency");
+      var userResidency = new UserResidency();
+      userResidency.set("user", user);
+      userResidency.set("homeNo", user.get("homeNo"));
+      userResidency.set("homeOwner", user.get("homeOwner")==true?true:false);
+      userResidency.set("residency", user.get("residency"));
+      userResidency.set("role",user.get("role"));
+      return userResidency.save();
+    },
+    createUserResidencyWhenUserExists: function(inputUser, user) {
+      var UserResidency = Parse.Object.extend("UserResidency");
+      var userResidency = new UserResidency();
+      userResidency.set("user", user);
+      userResidency.set("homeNo", inputUser.homeNumber);
+      userResidency.set("homeOwner", inputUser.homeOwner==true?true:false);
+      userResidency.set("residency", this.getUserResidency());
+      userResidency.set("role","CTZEN");
+      return userResidency.save();  
+    },
+    switchResidency: function(userResidency){
+      var user = this.getUser();
+      user.set("homeNo", userResidency.get("homeNo"));
+      user.set("homeOwner", userResidency.get("homeOwner"));
+      user.set("role", userResidency.get("role"));
+      user.set("residency", userResidency.get("residency"));
+      user.set("title", userResidency.get("title"));
+      return user.save();
+    },
+    updateUserResidency: function(userResidency){
+      var user = this.getUser();
+      userResidency.set("homeNo", user.get("homeNo"));
+      userResidency.set("homeOwner", user.get("homeOwner"));
+      userResidency.set("role", user.get("role"));
+      userResidency.set("title", user.get("title"));
+      return userResidency.save();
+    }, 
+    removeUserResidency: function(userResidency) {
+      return userResidency.destroy();
     }    
   };
 }]);

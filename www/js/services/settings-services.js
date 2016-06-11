@@ -84,23 +84,40 @@ angular.module('settings.services', [])
         duration: LOADING_DURATION
       };
     },
+    initializeGoogleAnalytics: function() {
+      if(this.canUseAnalytics()) { 
+        window.analytics.startTrackerWithId(ANALYTICS_TRACKING_ID);
+        // if(AccountService.getUser()!=null) {
+        //   window.analytics.setUserId(AccountService.getUser().get("username"));
+        // }      
+      }
+    },
     trackView: function(view) {
       console.log("View : " + view);
-      if(window.analytics!=null && ENV=="PROD") { 
+      if(this.canUseAnalytics()) { 
         window.analytics.trackView(view); 
       }
     },
     trackEvent: function(category, action) {
       console.log("Event : " + category + " " + action);
-      if(window.analytics!=null && ENV=="PROD") { 
+      if(this.canUseAnalytics()) { 
         window.analytics.trackEvent(category, action); 
       }
     },
     trackException: function(message) {
       console.log("Message : " + message);
-      if(window.analytics!=null && ENV=="PROD") { 
+      if(this.canUseAnalytics()) { 
         window.analytics.trackException(message, false);
       }      
+    },
+    canUseAnalytics: function() {
+      if(window.analytics!=null && ENV=="PROD") { 
+        var user=Parse.User.current();
+        if(user!=null && user.get("deviceReg")=='Y') {
+          return true;
+        } 
+      } 
+      return false; 
     }
   };
 }]);
