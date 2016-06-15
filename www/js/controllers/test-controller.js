@@ -64,6 +64,14 @@ var hideSheet = $ionicActionSheet.show({
 
   }
 
+  $scope.testEmail=function() {
+    NotificationService.sendEmail("suresh4u78@yahoo.com", "Your payment is scheduled", "Please send your payment by this day.").then(function(success) {
+      console.log("Send email success " + JSON.stringify(success));
+    }, function(error) {
+      console.log("Send email error " + JSON.stringify(error));
+    });
+  };
+
   $scope.testPopulateUserResidency=function() {
     console.log("testPopulateUserResidency called");
       var userQuery = new Parse.Query(Parse.User);

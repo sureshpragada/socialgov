@@ -866,6 +866,7 @@ angular.module('starter.controllers')
         NotificationService.registerDevice();
         LogService.log({type:"INFO", message: "Device registered during community setup  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });                   
         ActivityService.postWelcomeActivity(regionData, userData);          
+        $scope.sendRegisteredEmail(regionData, userData);
         SettingsService.setAppSuccessMessage("Community has been registered.");
         $ionicLoading.hide();
         $state.go("tab.region");
@@ -887,6 +888,21 @@ angular.module('starter.controllers')
     });
   
   };
+
+  $scope.sendRegisteredEmail=function(region, user) {
+    var message="Here are details of new community...\n\n"
+    message+="Name : " + region.get("name") + "\n";
+    var addressList=region.get("execOffAddrList");
+    if(addressList!=null && addressList.length>0) {
+      var communityAddress=addressList[0];
+      message+="Address Line 1 : " + communityAddress.addressLine1  + "\n";
+      message+="City : " + communityAddress.city  + "\n\n";      
+    }
+    message+="Admin Name : " + user.get("firstName") + " " + user.get("lastName")  + "\n";
+    message+="Phone Number : " + user.get("username")  + "\n";
+    console.log("Message : " + message);
+    NotificationService.sendEmail("", "", "New Community Registered", message);
+  }
 
   $scope.cancel=function() {
     $state.go("community-info");

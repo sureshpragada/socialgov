@@ -192,7 +192,21 @@ angular.module('notification.services', ['ionic'])
       } else {
         console.log("Not a web view, hence skipping email compose");
       }    
-    }    
+    },
+    sendEmail: function(toEmail, fromEmail, subjectText, bodyText) {
+      if(ENV=="PROD") {        
+        Parse.Cloud.run('sendEmailViaMailgun', {"to": toEmail, "from": fromEmail, "subject": subjectText, "body": bodyText}, {
+          success: function(response) {
+            console.log("Success Response from sendEmailViaMailgun : " + JSON.stringify(response));
+            LogService.log({type:"INFO", message: "Email Send is success " + JSON.stringify(response)}); 
+          }, 
+          error: function(error) {
+            console.log("Error Response from sendEmailViaMailgun : " + JSON.stringify(error));
+            LogService.log({type:"ERROR", message: "Email send is failed " + JSON.stringify(error)}); 
+          }
+        });
+      }
+    }
   };
 }])
 ;

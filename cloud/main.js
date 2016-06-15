@@ -247,3 +247,39 @@ Parse.Cloud.define("sendSmsPlivoV2", function(request, response) {
     });
   }
 });
+
+// https://api.mailgun.net/v3/ourblock.in/  
+var Mailgun = require('mailgun');
+// Mailgun.initialize('sandbox8642ade5619d489a884f27cca01ba1a0.mailgun.org', 'key-89bea41ee44564cc479f013433d927c8');
+Mailgun.initialize('ourblock.in', 'key-89bea41ee44564cc479f013433d927c8');
+
+Parse.Cloud.define("sendEmailViaMailgun", function(request, response) {
+    var fromEmail=request.params.from;
+    if(fromEmail==null || fromEmail.length<1) {
+      // fromEmail="SocialGov <postmaster@sandbox8642ade5619d489a884f27cca01ba1a0.mailgun.org>"; 
+      fromEmail="SocialGov <info@ourblock.in>"; 
+    }
+
+    var toEmail=request.params.to;    
+    if(toEmail==null || toEmail.length<1) {
+      toEmail="suresh4u78@yahoo.com,ygsrinivas@gmail.com";
+    }
+
+    console.log("to email " + toEmail +  "  From Email : " + fromEmail);
+
+    Mailgun.sendEmail({
+      to: toEmail,
+      from: fromEmail,
+      subject: request.params.subject,
+      text: request.params.body
+    }, {
+    success: function(httpResponse) {
+      response.success();
+    },
+    error: function(httpResponse) {
+      console.error(httpResponse);
+      response.error("Something went wrong ");
+    }
+  });
+
+});
