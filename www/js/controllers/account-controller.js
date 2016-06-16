@@ -861,29 +861,47 @@ angular.module('starter.controllers')
           residency: regionData.get("uniqueName")
         });
         AccountService.createUserResidency(userData);
-        LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
-        RegionService.initializeRegionCache(regionData);          
-        NotificationService.registerDevice();
-        LogService.log({type:"INFO", message: "Device registered during community setup  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });                   
-        ActivityService.postWelcomeActivity(regionData, userData);          
-        SettingsService.setAppSuccessMessage("Community has been registered.");
-        $ionicLoading.hide();
-        $state.go("tab.region");
+        completeSettingUpCommunity(regionData, userData);
       },function(error){
-        regionData.destroy();
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
-        $ionicLoading.hide();
-        LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
+        if(error.code==202) {
+          AccountService.getUserObjectByPhoneNumber($scope.user.phoneNum).then(function(user){
+            AccountService.createUserResidencyForAdmin($scope.user, user, regionData).then(function(userResidency){
+              Parse.User.logIn(user.getUsername(), "custom", {
+                success: function(user) {
+                  AccountService.addHome({
+                    blockNo: $scope.user.blockNo,
+                    unitNo: $scope.user.unitNo, 
+                    residency: regionData.get("uniqueName")
+                  });
+                  AccountService.updateUserForNewCommunity(user, userResidency);
+                  completeSettingUpCommunity(regionData, user);
+                },
+                error: function(user, error) {
+                  console.log("Unable to perform login operation.");
+                }
+              });
+            },function(error){
+              regionData.destroy();
+              $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
+              $ionicLoading.hide();
+              LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
+            });
+            
+          },function(error){
+          });
+        }
+        else{
+          regionData.destroy();
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
+          $ionicLoading.hide();
+          LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
+        }
+            
       });
     },function(error){
-      if(error.code==202) {
-        //TODO
-      }
-      else{
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup your community.");
         $ionicLoading.hide();
         LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
-      }
     });
   
   };
@@ -891,6 +909,17 @@ angular.module('starter.controllers')
   $scope.cancel=function() {
     $state.go("community-info");
   };
+
+  var completeSettingUpCommunity=function(regionData, userData){
+    LogService.log({type:"INFO", message: "Setup of community and user is complete  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
+    RegionService.initializeRegionCache(regionData);          
+    NotificationService.registerDevice();
+    LogService.log({type:"INFO", message: "Device registered during community setup  " + " data : " + JSON.stringify(AccountService.getYourInfo()) });                   
+    ActivityService.postWelcomeActivity(regionData, userData);          
+    SettingsService.setAppSuccessMessage("Community has been registered.");
+    $ionicLoading.hide();
+    $state.go("tab.region");
+  }
 })
 
 
