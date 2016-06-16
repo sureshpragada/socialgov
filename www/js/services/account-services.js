@@ -842,6 +842,24 @@ angular.module('account.services', [])
       userResidency.set("role",user.get("role"));
       return userResidency.save();
     },
+    createUserResidencyForAdmin: function(inputUser, user, region) {
+      var UserResidency = Parse.Object.extend("UserResidency");
+      var userResidency = new UserResidency();
+      userResidency.set("user", user);
+      userResidency.set("homeNo", inputUser.unitNo);
+      userResidency.set("homeOwner", inputUser.homeOwner==true?true:false);
+      userResidency.set("residency", region.get("uniqueName"));
+      userResidency.set("role","SUADM");
+      return userResidency.save();  
+    },
+    updateUserForNewCommunity: function(user, userResidency) {
+      user.set("role", userResidency.get("role"));
+      user.set("homeNo", userResidency.get("homeNo"));
+      user.set("homeOwner", userResidency.get("homeOwner"));
+      user.set("residency", userResidency.get("residency"));
+      user.set("superAdmin",true);
+      return user.save();
+    },
     createUserResidencyWhenUserExists: function(inputUser, user) {
       var UserResidency = Parse.Object.extend("UserResidency");
       var userResidency = new UserResidency();
