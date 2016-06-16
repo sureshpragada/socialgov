@@ -430,6 +430,7 @@ angular.module('starter.controllers')
         }      
       }
       RegionService.getRegionsByRegionUniqueNames(residencyNames).then(function(regions){
+        cosnole.log(JSON.stringify(regions));
         $scope.regions = regions;
         $scope.$apply();
       },function(error){
@@ -882,12 +883,14 @@ angular.module('starter.controllers')
               });
             },function(error){
               regionData.destroy();
+              console.log("Unable to create user residency with admin privileges.");
               $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to sign you up for the service.");
               $ionicLoading.hide();
               LogService.log({type:"ERROR", message: "Unable to sign you up for the service  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getYourInfo()) });           
             });
             
           },function(error){
+            console.log("Unable to get user object with phone number " + $scope.user.phoneNum);
           });
         }
         else{
