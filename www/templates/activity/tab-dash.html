@@ -61,10 +61,10 @@
           Be the first one to react on this.
         </p> -->
         <p ng-if="(activity.get('support')+activity.get('oppose'))==1">
-          {{activity.get("lastActionBy")}} reacted on this.
+          {{activity.get("lastActionBy")}} reacted.
         </p>
         <p ng-if="(activity.get('support')+activity.get('oppose'))>1" ng-click="openReactedPeopleList(activity.id)">
-          <span class="positive">{{activity.get("lastActionBy")}} and {{activity.get("support")+activity.get("oppose")-1}} resident(s) reacted on this.</span>
+          <span class="positive">{{activity.get("lastActionBy")}} and {{activity.get("support")+activity.get("oppose")-1}} resident(s) reacted.</span>
         </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">
