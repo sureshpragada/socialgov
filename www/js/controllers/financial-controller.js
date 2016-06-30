@@ -998,11 +998,15 @@ angular.module('starter.controllers')
           for(var i=0;i<$scope.expenseList.length;i++) {
             expenseTotal+=$scope.expenseList[i].get("expenseAmount");
             if($scope.expenseList[i].get("expenseCategory")=='OTHER') {
-              report+=$scope.expenseList[i].get("expenseCategory")+" - " + $scope.expenseList[i].get("expenseCategory") + ",";  
+              report+=$scope.expenseList[i].get("expenseCategory")+" - " + $scope.expenseList[i].get("paidTo") + ",";  
             } else {
               report+=$scope.expenseList[i].get("expenseCategory")+",";  
-            }            
-            report+="Rs " + $scope.expenseList[i].get("expenseAmount").toFixed(2) + "\n";            
+            }       
+            report+="Rs " + $scope.expenseList[i].get("expenseAmount").toFixed(2);            
+            if($scope.expenseList[i].get("reason")!=null && $scope.expenseList[i].get("reason").length>0) {
+              report+="," + $scope.expenseList[i].get("reason");                          
+            } 
+            report+="\n";                          
           }
           report+="Expense Total"+", Rs "+expenseTotal.toFixed(2);
           console.log(report);
