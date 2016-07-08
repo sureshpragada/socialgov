@@ -41,7 +41,7 @@ angular.module('starter.controllers')
       });
     }
     if($scope.homeList.length<2) {
-      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Enter home numbers to get started on financials and then you can invite neighbors.");
+      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Enter home details to invite residents and get started on financials.");
     }
     $ionicLoading.hide();    
   }, function(error) {
@@ -171,10 +171,14 @@ angular.module('starter.controllers')
 
   $scope.submit=function(){
     SettingsService.trackEvent("Home", "Add");
-    if($scope.regionSettings.multiBlock==true && ($scope.input.blockNo==null || $scope.input.blockNo.trim().length<1)) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter block number of these homes.");
-      return;
-    }
+    if($scope.regionSettings.multiBlock==true) {
+      if($scope.input.blockNo==null || $scope.input.blockNo.trim().length<1) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter block number of these homes.");
+        return;
+      } else {
+        $scope.input.blockNo=$scope.input.blockNo.replace(/block/gi,'').trim();
+      }
+    } 
 
     if($scope.input.homeData!=null && $scope.input.homeData.length>0){      
       var inputHomes=[];

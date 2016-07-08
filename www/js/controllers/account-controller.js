@@ -836,6 +836,8 @@ angular.module('starter.controllers')
     if($scope.user.unitNo==null || $scope.user.unitNo.trim().length<1){
      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your home number."); 
      return; 
+    } else {
+      $scope.user.unitNo=$scope.user.unitNo.replace(/unit/gi,'').trim();
     }
 
     // Set consolidated home number based on block and other criterias;
@@ -843,7 +845,9 @@ angular.module('starter.controllers')
       if($scope.user.blockNo==null || $scope.user.blockNo.trim().length<1) {
        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter your block number."); 
        return; 
-      } 
+      } else {
+        $scope.user.blockNo=$scope.user.blockNo.replace(/block/gi,'').trim();
+      }
     } 
 
     if($scope.user.phoneNum==null || $scope.user.phoneNum.trim().length!=10){

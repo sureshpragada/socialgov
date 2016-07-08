@@ -64,6 +64,11 @@ var hideSheet = $ionicActionSheet.show({
 
   }
 
+  $scope.testBlockWordFilter=function() {
+    var blockNo=" Block B";
+    console.log(blockNo.replace(/block/gi,''));
+  }
+
   $scope.testEmail=function() {
     NotificationService.sendEmail("suresh4u78@yahoo.com", "Your payment is scheduled", "Please send your payment by this day.").then(function(success) {
       console.log("Send email success " + JSON.stringify(success));
