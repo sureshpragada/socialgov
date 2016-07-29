@@ -50,6 +50,41 @@ angular.module('starter.controllers')
     $ionicLoading.hide();
   });
 
+
+  $scope.accountsWalkthroughIndex = 0;
+  $scope.accountsWalkthrough = [
+    {
+      id: "setup-maint-fee",
+      text: "Setup your association monthly maintenance fee here. Users with financial privileges will be able to setup the maintenance fee and this is the first step to get started with financials.",
+      active: false
+    },
+    {
+      id: "manage-balance-sheet",
+      text: "View your association's monthly balance sheets here. Balance sheet will have revenue and expense entries and they can be managed with financial administrators.",
+      active: false
+    },
+    {
+      id: "my-payment-history",
+      text: "View your payment history here.",
+      active: false
+    }
+  ];
+
+  $scope.nextAccountsWalkthrough = function() {
+    console.log("Walkthrough is hidden " + $scope.accountsWalkthroughIndex);
+    if($scope.accountsWalkthroughIndex < 2) {
+        $scope.accountsWalkthrough[$scope.accountsWalkthroughIndex].active=false; 
+        $scope.accountsWalkthroughIndex++;
+        $scope.accountsWalkthrough[$scope.accountsWalkthroughIndex].active=true; 
+    }
+  };
+
+  $scope.showHelp=function() {
+    $scope.accountsWalkthroughIndex=0; 
+    $scope.accountsWalkthrough[$scope.accountsWalkthroughIndex].active=true; 
+    console.log("Setting the value " + JSON.stringify($scope.accountsWalkthrough[$scope.accountsWalkthroughIndex]));
+  };
+
 })
 
 .controller('HowToMakePaymentCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
@@ -836,24 +871,41 @@ angular.module('starter.controllers')
   $scope.isAdmin=AccountService.isFunctionalAdmin(RegionService.getRegionSettings(AccountService.getUserResidency()), FINANCIAL_FUNCTION_NAME);
 
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading community balance sheets"));
-  FinancialService.getBalanceSheets(Parse.User.current().get("residency")).then(function(availableBalanceSheets) {
-    $scope.balanceSheetList=availableBalanceSheets;            
-    if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>=0) {
-      $scope.openBalanceSheetList=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets($scope.balanceSheetList);
-      if($scope.openBalanceSheetList.length==0) {
-        $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Track your revenue and expenses by starting a new balance sheet.");
-      } else if($scope.openBalanceSheetList.length==2 && $scope.isAdmin) {
-        $scope.controllerMessage=SettingsService.getControllerInfoMessage("Two balance sheets are allowed to be open at any time.");      
+
+  // Dues calculation
+  FinancialService.getAllDues(AccountService.getUserResidency()).then(function(duesList) {    
+    if(duesList!=null && duesList.length>0) {
+      $scope.dues=FinancialService.getCurrentDues(duesList);
+      if($scope.dues==null) {
+        $scope.dues=FinancialService.getUpcomingDues(duesList);
       }
+      FinancialService.getBalanceSheets(AccountService.getUserResidency()).then(function(availableBalanceSheets) {
+        $scope.balanceSheetList=availableBalanceSheets;            
+        if($scope.balanceSheetList!=null && $scope.balanceSheetList.length>=0) {
+          $scope.openBalanceSheetList=FinancialService.getOpenBalanceSheetFromAvailableBalanceSheets($scope.balanceSheetList);
+          if($scope.openBalanceSheetList.length==0) {
+            if($scope.isAdmin) {
+              $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Track your revenue and expenses by starting a new balance sheet.");          
+            } else {
+              $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Your financial administrator have not created any balance sheet. Please contact your financial adminstrator.");                    
+            }
+          } else if($scope.openBalanceSheetList.length==2 && $scope.isAdmin) {
+            $scope.controllerMessage=SettingsService.getControllerInfoMessage("Two balance sheets are allowed to be open at any time.");      
+          }
+        } 
+        $ionicLoading.hide();
+      }, function(error) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to load balance sheets");
+        $ionicLoading.hide();    
+      });
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Setting up maintenance payment will simplify managing home owner payments.");  
+      $ionicLoading.hide();    
     } 
-    // else if($scope.balanceSheetList!=null && $scope.balanceSheetList.length==0) {
-    //     $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start tracking your revenue and expenses by opening balance sheet.");
-    // }
-    $ionicLoading.hide();
   }, function(error) {
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to load balance sheets");
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve dues of this community to generate monthly home owner payments.");
     $ionicLoading.hide();    
-  });
+  });    
 
 })
 
@@ -1071,12 +1123,9 @@ angular.module('starter.controllers')
   // Dues calculation
   FinancialService.getAllDues($scope.user.get("residency")).then(function(duesList) {    
     if(duesList!=null && duesList.length>0) {
-      var dues=FinancialService.getCurrentDues(duesList);
-      if(dues==null) {
-        dues=FinancialService.getUpcomingDues(duesList);
-      }
-      if(dues!=null) {
-        $scope.input.maintDues=dues.get("maintDues");
+      $scope.dues=FinancialService.getCurrentDues(duesList);
+      if($scope.dues==null) {
+        $scope.dues=FinancialService.getUpcomingDues(duesList);
       }
     } else {
       $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Setting up maintenance payment will simplify managing home owner payments.");  
@@ -1087,10 +1136,11 @@ angular.module('starter.controllers')
 
   $scope.startBalanceSheet=function() {
     SettingsService.trackEvent("Financial", "StartBalanceSheetInitite");
-    if($scope.input.generateHomeOwnerPayments==true && ($scope.input.maintDues==null ||  $scope.input.maintDues<1)) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter maintenance payment amount.");
-      return;
-    }
+
+    // if($scope.input.generateHomeOwnerPayments==true && ($scope.input.maintDues==null ||  $scope.input.maintDues<1)) {
+    //   $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter maintenance payment amount.");
+    //   return;
+    // }
 
     if(FinancialService.isBalanceSheetExistsInThisMonth($scope.balanceSheets, $scope.input.startDate)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Balance sheet exists for this month. Please open balance sheet for upcoming month.");
@@ -1104,9 +1154,9 @@ angular.module('starter.controllers')
 
     $ionicLoading.show(SettingsService.getLoadingMessage("Creating balance sheet"));
     $scope.input.startDate=$scope.input.startDate.endOfTheDay();
-    FinancialService.openBalanceSheet($scope.input).then(function(newBalanceSheet) {
+    FinancialService.openBalanceSheet($scope.input, $scope.dues).then(function(newBalanceSheet) {
       if($scope.input.generateHomeOwnerPayments==true) {
-        FinancialService.generateHomeOwnerPayments(newBalanceSheet, $scope.input.maintDues).then(function(newRevenueEntries){
+        FinancialService.generateHomeOwnerPayments(newBalanceSheet, $scope.dues).then(function(newRevenueEntries){
           $scope.gotoBalanceSheetOnSuccess("New balance sheet has been opened.");
         }, function(error) {
           SettingsService.setAppInfoMessage("Home owner payment generation is failed in new balance sheet. System will attempt to create them offline.");
@@ -1120,7 +1170,8 @@ angular.module('starter.controllers')
       }
     }, function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to open new balance sheet");
-      $ionicLoading.hide();    
+      $ionicLoading.hide();          
+      LogService.log({type:"ERROR", message: "Failed to create balance sheet " + JSON.stringify(error) + " residency : " + $scope.input.residency}); 
     });
   };
 
@@ -1222,8 +1273,19 @@ angular.module('starter.controllers')
   FinancialService.getAllDues(AccountService.getUserResidency()).then(function(duesList) {
     if(duesList!=null && duesList.length>0) {
       $scope.currentDues=FinancialService.getCurrentDues(duesList);
-      $scope.upcomingDues=FinancialService.getUpcomingDues(duesList);
-      $scope.duesHistory=FinancialService.getDuesHistory(duesList);
+      if($scope.currentDues==null) {
+        $scope.currentDues=FinancialService.getUpcomingDues(duesList);
+      }
+      // Calculate approxiate fee for this house
+      if($scope.currentDues!=null && $scope.currentDues.get("maintType")=="VARIABLE") {
+        AccountService.getHomeByHomeNo(AccountService.getUser().get("homeNo")).then(function(home) {
+          $scope.estimatedFee=FinancialService.getMaintenanceFeeForHome($scope.currentDues, home);
+        }, function(error) {
+          console.log("Unable to get home number to calcuate estimated fee");
+        });
+      }      
+      console.log("Current due : " + duesList.length + " " +  JSON.stringify($scope.currentDues));
+      // $scope.duesHistory=FinancialService.getDuesHistory(duesList);
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Maintenance fee is not setup for this community.");
     }
@@ -1234,14 +1296,14 @@ angular.module('starter.controllers')
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve maintenance fee of this community.");
   });
 
-  $scope.deleteUpcomingDues=function() {
-    SettingsService.trackEvent("Financial", "DeleteUpcomingDues");
-    FinancialService.deleteUpcomingDues($scope.upcomingDues).then(function(dues) {
-      $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Upcoming maintenance fee have been deleted.");
-      $scope.upcomingDues=null;
+  $scope.deleteDues=function() {
+    SettingsService.trackEvent("Financial", "DeleteMaintenanceFee");
+    FinancialService.deleteUpcomingDues($scope.currentDues).then(function(dues) {
+      $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Maintenance fee have been deleted.");
+      $scope.currentDues=null;
       $scope.$apply();
     }, function(error) {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete upcoming maintenance fee.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete maintenance fee.");
     });
   };
 
@@ -1268,26 +1330,68 @@ angular.module('starter.controllers')
 .controller('ManageDuesCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory) {
   SettingsService.trackView("Manage Dues controller");
 
-  $scope.input={
-    createdBy: Parse.User.current(),
-    residency: Parse.User.current().get("residency"),
-    effectiveMonth: new Date().firstDayOfMonth(),
-    maintDues: "0.00"
-  };
+  $scope.maintTypeList=[
+    {label: "Fixed - Everyone pay same amount", value: 0},
+    {label: "Variable - Multiple categories; May charge per square feet or bed room", value: 1}
+  ];
+
+  $scope.input=FinancialService.getTransferFinancialDueSetup();
   $scope.duesAction="Setup Fee";
 
-  if($stateParams.duesId!="SETUP") {
-    FinancialService.getDuesByObjectId($stateParams.duesId).then(function(dues) {
-      console.log(JSON.stringify(dues));
-      $scope.input.notes=dues.get("notes");
-      $scope.input.effectiveMonth=dues.get("effectiveMonth");
-      $scope.input.maintDues=dues.get("maintDues").toFixed(2);
-      $scope.duesAction="Update Fee";
-    }, function(error) {
-      SettingsService.setAppErrorMessage("Unable to get upcoming maintenance fee to edit.");
-      $state.go("tab.dues-list");
-    });
+  if($scope.input==null) {
+    $scope.input={
+      maintTypeIndex: 0, 
+      createdBy: Parse.User.current(),
+      residency: Parse.User.current().get("residency"),
+      effectiveMonth: new Date().firstDayOfMonth(),
+      maintDues: "0.00",
+      maintCategories: [
+        {
+          name: "General Maintenance",
+          fee: 1000,
+          variable: false
+        },
+        {
+          name: "Water",
+          fee: 2,
+          variable: true, 
+          variableType: 0
+        }
+      ]
+    };    
+
+    if($stateParams.duesId!="SETUP" && FinancialService.getTransferFinancialDueSetup()==null) {
+      FinancialService.getDuesByObjectId($stateParams.duesId).then(function(dues) {
+        console.log(JSON.stringify(dues));
+        if(dues.get("maintType")=='FIXED') {
+          $scope.input.maintTypeIndex=0;
+          $scope.input.maintDues=dues.get("maintDues").toFixed(2);          
+        } else {
+          $scope.input.maintTypeIndex=1;
+          $scope.input.maintCategories=dues.get("maintCategories");                
+        }
+        $scope.input.notes=dues.get("notes");
+        $scope.input.effectiveMonth=dues.get("effectiveMonth");
+
+        $scope.duesAction="Update Fee";
+      }, function(error) {
+        SettingsService.setAppErrorMessage("Unable to get upcoming maintenance fee to edit.");
+        $state.go("tab.dues-list");
+      });
+    }    
+  } else {
+    console.log("Flow is either from due category management page or setup page " + JSON.stringify($scope.input));
   }
+
+  $scope.$on('choiceSelectionComplete', function(e,data) {  
+    if(data.choiceName=="maintType") {
+      $scope.input.maintTypeIndex=data.selected;  
+    }
+  });
+
+  $scope.openChoiceModalOfMaintType=function() {
+    $scope.$parent.openChoiceModal("maintType", $scope.maintTypeList);
+  };    
 
   $scope.updateDues=function() {
     SettingsService.trackEvent("Financial", "UpdateDuesInititation");
@@ -1297,7 +1401,7 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter effective month.");
       return;
     }
-    if($scope.input.maintDues==null || isNaN($scope.input.maintDues) || parseFloat($scope.input.maintDues)<1) {
+    if($scope.input.variable==false && ($scope.input.maintDues==null || isNaN($scope.input.maintDues) || parseFloat($scope.input.maintDues)<1)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter maintenance fee amount.");
       return;
     }
@@ -1305,19 +1409,93 @@ angular.module('starter.controllers')
     if($stateParams.duesId=="SETUP") {
       FinancialService.setupDues($scope.input).then(function(dues) {
         SettingsService.setAppSuccessMessage("Maintenance fee has been recorded.");
-        $state.go("tab.dues-list");
+        $ionicHistory.goBack(-1);
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup maintenance fee.");
       });
     } else {
       FinancialService.updateDues($stateParams.duesId, $scope.input).then(function(dues) {
         SettingsService.setAppSuccessMessage("Maintenance fee has been updated.");
-        $state.go("tab.dues-list");
+        $ionicHistory.goBack(-1);
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update maintenance fee.");
       });      
     }
   };
+
+  $scope.manageDueCategory=function(categoryIndex) {
+    SettingsService.trackEvent("Financial", "GotoManageDueCategory");
+    FinancialService.setTransferFinancialDueSetup($scope.input);
+    FinancialService.setTransferFinancialDueCategoryIndex(categoryIndex);
+    $state.go("tab.manage-due-category");
+  };
+
+  $scope.cancel=function() {
+    $ionicHistory.goBack(-1);
+  };
+
+})
+
+.controller('ManageDueCategoryCtrl', function($scope, $http, $stateParams, $state, SettingsService, FinancialService, $ionicHistory) {
+  SettingsService.trackView("Manage Due Category controller");
+
+    $scope.financialDue=FinancialService.getTransferFinancialDueSetup();
+    $scope.categoryIndex=FinancialService.getTransferFinancialDueCategoryIndex();
+    if($scope.categoryIndex>-1) {
+      $scope.existingCategory=true;
+      $scope.input=$scope.financialDue.maintCategories[$scope.categoryIndex];
+    } else {
+      $scope.existingCategory=false;
+      $scope.input={
+        name: "",
+        fee: "0.00", 
+        variable: false,
+        variableType: 0
+      };      
+    }
+    
+  $scope.addDueCategory=function() {
+    SettingsService.trackEvent("Financial", "AddDueCategory");    
+    if($scope.validateInput()) {
+      $scope.financialDue.maintCategories.push($scope.input);
+      $scope.goBackToFinancialDueSetup();                
+    }
+  };
+
+  $scope.updateDueCategory=function() {
+    SettingsService.trackEvent("Financial", "UpdateDueCategory");
+    if($scope.validateInput()) {
+      $scope.financialDue.maintCategories[$scope.categoryIndex]=$scope.input;
+      $scope.goBackToFinancialDueSetup();                
+    }    
+  };
+
+  $scope.deleteDueCategory=function() {
+    SettingsService.trackEvent("Financial", "DeleteDueCategory");
+    $scope.financialDue.maintCategories.splice($scope.categoryIndex, 1);
+    $scope.goBackToFinancialDueSetup();
+  };
+
+  $scope.validateInput=function() {
+    if($scope.input.name==null || $scope.input.name.trim().length<1) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid category name");    
+      return false; 
+    }
+
+    if($scope.input.fee==null || isNaN($scope.input.fee) || parseFloat($scope.input.fee)<1) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid category fee");
+      return false; 
+    }
+
+    $scope.input.fee=parseFloat($scope.input.fee);     
+    return true;
+  };
+
+  $scope.goBackToFinancialDueSetup=function() {
+    FinancialService.setTransferFinancialDueSetup($scope.financialDue);    
+    console.log(JSON.stringify($scope.input));
+    $ionicHistory.goBack(-1);
+  }
 
   $scope.cancel=function() {
     $ionicHistory.goBack(-1);

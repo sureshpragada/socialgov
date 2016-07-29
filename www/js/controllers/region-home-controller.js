@@ -55,8 +55,15 @@ angular.module('starter.controllers')
   SettingsService.trackView("Home detail controller ");    
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing home residents"));
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
-  $scope.homeNo=$stateParams.homeNo;
+  $scope.homeNo=$stateParams.homeNo; 
   $scope.appMessage=SettingsService.getAppMessage();    
+
+  AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home){
+    $scope.home=home;
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get details of this home.");
+  });
+
   AccountService.getResidentsOfHome(AccountService.getUserResidency(), $stateParams.homeNo).then(function(neighborList) {
     $scope.neighborList=neighborList;
     if($scope.neighborList.length==0) {
@@ -92,17 +99,13 @@ angular.module('starter.controllers')
 
   $scope.deleteHome=function() {
     SettingsService.trackEvent("Home", "Delete");
-    AccountService.getHomeByHomeNo($scope.homeNo).then(function(home){
-      home.destroy().then(function(deletedHome){
-        SettingsService.setAppSuccessMessage("Home " + $scope.homeNo + " has been deleted from your community.");
-        AccountService.refreshHomesCache(AccountService.getUserResidency());        
-        $ionicHistory.goBack(-1);
-      }, function(error){
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete home from this community.");
-      });
+    $scope.home.destroy().then(function(deletedHome){
+      SettingsService.setAppSuccessMessage("Home " + $scope.home.get("homeNo") + " has been deleted from your community.");
+      AccountService.refreshHomesCache(AccountService.getUserResidency());        
+      $ionicHistory.goBack(-1);
     }, function(error){
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to find home in this community.");
-    });    
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete home from this community.");
+    });
   };
 
 })
@@ -123,6 +126,8 @@ angular.module('starter.controllers')
       if(homes[i].get("homeNo")==$stateParams.homeNo) {
         $scope.home=homes[i];
         $scope.input.homeNo=$scope.home.get("homeNo");
+        $scope.input.noOfSqFt=$scope.home.get("noOfSqFt");
+        $scope.input.noOfBedRooms=$scope.home.get("noOfBedRooms");
         break;
       }
     }
@@ -139,22 +144,27 @@ angular.module('starter.controllers')
   $scope.editHome=function() {  
     SettingsService.trackEvent("Home", "Edit");  
     // Validate home number for null and duplicates
-    if($scope.input.homeNo!=null && $scope.input.homeNo.length>0 && $scope.input.homeNo!=$scope.home.get("homeNo")){      
-      for(var i=0;i<$scope.homeList.length;i++) {
-        if($scope.input.homeNo==$scope.homeList[i].get("homeNo")) {
-          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Home number exists in the system.");    
-          return;
-        }         
-      }   
+    if($scope.input.homeNo!=null && $scope.input.homeNo.length>0){      
+      if($scope.input.homeNo!=$scope.home.get("homeNo")) {
+        for(var i=0;i<$scope.homeList.length;i++) {
+          if($scope.input.homeNo==$scope.homeList[i].get("homeNo")) {
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Home number exists in the system.");    
+            return;
+          }         
+        }  
+        $scope.input.homeNumberChanged=true;  
+      } else {
+        $scope.input.homeNumberChanged=false;  
+      }
       // Update home and resident object
       AccountService.updateHomeNumber($scope.home, $scope.input).then(function(updatedHomeNumber){
-        SettingsService.setAppSuccessMessage("Home " + $scope.homeNo + " details have been updated.");
+        SettingsService.setAppSuccessMessage("Home " + $scope.input.homeNo + " details have been updated.");
         $ionicHistory.goBack(-2);
       }, function(error){
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update home number.");
       })
     } else {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter new home number.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter home number.");
     }
   };
 
@@ -166,7 +176,9 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
   $scope.input={
-    homeData: null
+    homeData: null, 
+    noOfBedRooms: null,
+    noOfSqFt: null
   };  
 
   $scope.submit=function(){
@@ -179,6 +191,16 @@ angular.module('starter.controllers')
         $scope.input.blockNo=$scope.input.blockNo.replace(/block/gi,'').trim();
       }
     } 
+
+    // Validate sq ft and bed rooms if they are mandatory
+    // if(false) {
+    //   if($scope.input.blockNo==null || $scope.input.blockNo.trim().length<1) {
+    //     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter block number of these homes.");
+    //     return;
+    //   } else {
+    //     $scope.input.blockNo=$scope.input.blockNo.replace(/block/gi,'').trim();
+    //   }            
+    // }
 
     if($scope.input.homeData!=null && $scope.input.homeData.length>0){      
       var inputHomes=[];
@@ -230,7 +252,7 @@ angular.module('starter.controllers')
   };
 
   $scope.addHomes=function(finalHomeList) {
-    AccountService.addHomes(AccountService.getUserResidency(), finalHomeList, $scope.input.blockNo).then(function(newHomes){
+    AccountService.addHomes(AccountService.getUserResidency(), finalHomeList, $scope.input.blockNo, $scope.input.noOfSqFt, $scope.input.noOfBedRooms).then(function(newHomes){
       console.log("new homes " + JSON.stringify(newHomes));
       if(newHomes.length>1) {
         SettingsService.setAppSuccessMessage(newHomes.length + " homes have been added to community.");

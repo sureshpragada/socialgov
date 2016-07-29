@@ -1,0 +1,33 @@
+<ion-view view-title="Manage Category">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>		
+		<div class="list">		
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Category name</span>
+				<input type="text" name="categoryName" ng-model="input.name" class="textAlignLeft">
+			</label>   	        			      
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Category fee</span>
+				<input type="text" name="categoryFee" ng-model="input.fee" class="textAlignLeft">
+			</label>
+			<ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="input.variable">
+				Does this fee calculated per square feet or bed room?
+			</ion-checkbox>	
+			<ion-list ng-if="input.variable">
+			  <ion-radio ng-model="input.variableType" ng-value="0">Square Feet</ion-radio>
+			  <ion-radio ng-model="input.variableType" ng-value="1">Bed Room</ion-radio>
+			</ion-list>						  	
+			<div class="row">
+				<div class="col" ng-if="existingCategory" >
+					<a class="button button-block button-assertive" ng-click="deleteDueCategory()">Delete</a>	
+				</div>													
+				<div class="col">
+					<a ng-if="!existingCategory" class="button button-block button-balanced" ng-click="addDueCategory()">Add</a>	
+					<a ng-if="existingCategory" class="button button-block button-calm" ng-click="updateDueCategory()">Update</a>	
+				</div>					
+			</div>
+		</div>
+	</ion-content>
+</ion-view>
+
+

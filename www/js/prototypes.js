@@ -13,6 +13,14 @@ Array.prototype.convertToFlatString = function() {
     return result;
 };
 
+Array.prototype.removeSpecialSymbol = function() {
+  for(var j=0; j<this.length; j++){
+    delete this[j].$$hashKey;
+  }
+  return this;
+};
+
+
 Array.prototype.removeDuplicates = function() {
     return this.sort().reduce(function(a, b){ 
         if (b != a[0]) 

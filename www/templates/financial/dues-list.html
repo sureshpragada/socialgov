@@ -6,14 +6,27 @@
       <div class="row">
         <div class="col content-center">
           <h4>Maintenance Fee</h4>
-          <p ng-if="currentDues">[ Since : {{currentDues.get("effectiveMonth") | date:'MMM yyyy'}} ]</p>          
-          <h2 class="royal" ng-if="currentDues">
-            {{currentDues.get("maintDues") | formatCurrency}}
-<!--             &nbsp;<i class="icon ion-arrow-up-a balanced"></i> -->
-          </h2>
+          <p ng-if="currentDues">[ Effective : {{currentDues.get("effectiveMonth") | date:'MMM yyyy'}} ]</p>          
           <h2 class="royal" ng-if="!currentDues">NA</h2>
+          <h2 class="royal" ng-if="currentDues.get('maintType')=='FIXED'">
+            {{currentDues.get("maintDues") | formatCurrency}}
+          </h2>          
+          <h2 class="royal" ng-if="currentDues.get('maintType')=='VARIABLE' && estimatedFee">
+            {{estimatedFee | formatCurrency}}
+          </h2>
         </div>
       </div>  
+      <ion-list ng-if="currentDues.get('maintType')=='VARIABLE'">
+        <ion-item class="item-divider item-royal">
+          Fee Breakdown
+        </ion-item>
+        <ion-item class="item-text-wrap" ng-repeat="cat in currentDues.get('maintCategories')">
+          {{cat.name}}
+          <span class="item-note" ng-if="cat.variable && cat.variableType==0">&nbsp;/ Sq Ft</span>          
+          <span class="item-note" ng-if="cat.variable && cat.variableType==1">&nbsp;/ Bed Room</span>                         
+          <span class="item-note">{{cat.fee | formatCurrency}}</span>
+        </ion-item>           
+      </ion-list>      
       <div class="row" ng-if="currentDues.get('notes')">
         <div class="col content-center">
           <p style="color: grey;">
@@ -21,61 +34,38 @@
           </p>
         </div>
       </div>
-      <div class="padding" ng-if="isAdmin">
-        <!-- Show when there are no current and upcoming dues, first time setting up the community -->
-        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP" ng-if="!currentDues && !upcomingDues">
-          Setup Maintenance Fee
-        </a>        
-        <!-- Show when current dues available and not upcoming dues. If there are upcoming dues, it has capability to edit and delete -->
-        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP" ng-if="currentDues && !upcomingDues">
-          Setup Upcoming Fee
-        </a>                
-      </div>      
-    </div>    
-
-    <div class="card" ng-if="upcomingDues">
-      <div class="row">
-        <div class="col content-center">
-          <h4>Upcoming Maintenance Fee</h4>
-          <p>[ Effective : {{upcomingDues.get("effectiveMonth") | date:'MMM yyyy'}} ]</p>
-<!--             <p><span style="color: grey; font-size: 12px;">( Effective : {{upcomingDues.get("effectiveMonth") | date:'MMM yyyy'}} ) </span></p> -->
-          <h2 class="royal">
-            {{upcomingDues.get("maintDues") | formatCurrency}}&nbsp;
-            <i class="icon ion-arrow-up-a balanced" ng-if="upcomingDues.get('maintDues')>currentDues.get('maintDues')"></i>
-            <i class="icon ion-arrow-down-a assertive" ng-if="upcomingDues.get('maintDues')<currentDues.get('maintDues')"></i>
-          </h2>
-        </div>
-      </div>  
-      <div class="row" ng-if="upcomingDues.get('notes')">
-        <div class="col content-center">
-          <p style="color: grey;">
-            <span style="font-weight: bold;" class="balanced">Note:</span> {{upcomingDues.get("notes")}}
-          </p>
-        </div>
-      </div>      
-      <div class="row" ng-if="isAdmin">
+      <!-- Show edit and delete option if dues been setup -->
+      <div class="row" ng-if="isAdmin" ng-if="currentDues">
         <div class="col">
-          <a class="button button-assertive button-block button-small" ng-click="deleteUpcomingDues()">
+          <a class="button button-assertive button-block button-small" ng-click="deleteDues()">
             Delete
           </a>                  
         </div>
         <div class="col">
-          <a class="button button-calm button-block button-small" href="#/tab/manage-dues/{{upcomingDues.id}}">
+          <a class="button button-calm button-block button-small" href="#/tab/manage-dues/{{currentDues.id}}">
             Edit
           </a>                  
         </div>
+      </div> 
+      <!-- Show option to setup fees if they have not been setup -->
+      <div class="padding" ng-if="!currentDues">
+        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP">
+          Setup Maintenance Fee
+        </a>        
       </div>      
-    </div>        
+    </div>       
 
-    <div class="card" ng-if="duesHistory.length>0">
-      <div class="item item-divider">Fee History</div>
+<!--     <div class="card" ng-if="duesHistory.length>0">
+      <div class="item item-divider item-energized">Fee History</div>
       <ion-list can-swipe="true">
         <ion-item ng-repeat="dues in duesHistory">
-          {{dues.get("effectiveMonth") | date:'MMM yyyy'}} <span class="item-note">{{dues.get("maintDues")  | formatCurrency}}</span>
+          {{dues.get("effectiveMonth") | date:'MMM yyyy'}} 
+          <span class="item-note" ng-if="dues.get('maintType')=='FIXED'">{{dues.get("maintDues")  | formatCurrency}}</span>
+          <span class="item-note" ng-if="dues.get('maintType')=='VARIABLE'">Variable</span>
           <ion-option-button class="button-info button-assertive" ng-click="deleteMaintenanceFeeAudit($index)">Delete</ion-option-button>  
         </ion-item>            
       </ion-list>
-    </div>        
+    </div>         -->
 
   </ion-content>
 </ion-view>

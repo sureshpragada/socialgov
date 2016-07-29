@@ -1,7 +1,7 @@
 <div class="modal">	
 	<ion-list>
 <!-- 		<h4 class="padding">What is the purpose of this action?</h4> -->
-		<ion-item ng-repeat="modalChoice in modalChoices" class="item-icon-right" ng-click="selectModalChoice($index)">
+		<ion-item ng-repeat="modalChoice in modalChoices" class="item-icon-right item-text-wrap" ng-click="selectModalChoice($index)">
 			<i class="icon ion-chevron-right icon-accessory"></i>
 			{{modalChoice.label}}
 			<p ng-if="modalChoice.opt">{{modalChoice.opt}}</p>

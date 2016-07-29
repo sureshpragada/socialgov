@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'financial.services', 'service-contact.services', 'activity.services', 'region.services', 'region-financial.services', 'notification.services', 'log.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle', 'ngImgCrop', 'utility.services'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'settings.services', 'account.services', 'financial.services', 'service-contact.services', 'activity.services', 'region.services', 'region-financial.services', 'notification.services', 'log.services', 'starter.filters', 'ngCordova', 'ngSanitize', 'angular-cache','pascalprecht.translate', 'ngIOS9UIWebViewPatch', 'ngGentle', 'ngImgCrop', 'utility.services', 'ng-walkthrough'])
 .run(function($rootScope, $ionicPlatform, $cordovaPush, NotificationService, LogService, RegionService, AccountService, $state, $ionicHistory, SettingsService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -769,6 +769,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         "tab-financial": {
           templateUrl: 'templates/financial/manage-dues.html',
           controller: 'ManageDuesCtrl'        
+        }
+      }
+    })                        
+
+    .state('tab.manage-due-category', {
+      url: '/manage-due-category',
+      cache: false,
+      views: {
+        "tab-financial": {
+          templateUrl: 'templates/financial/manage-due-category.html',
+          controller: 'ManageDueCategoryCtrl'        
         }
       }
     })                        

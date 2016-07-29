@@ -11,8 +11,16 @@
 			<label class="item item-input">
 				<textarea placeholder="Enter home numbers separated by comma. Use colon to group multiple numbers.
 
-Ex: 101,102,103,201:216,301:316" rows="10" ng-model="input.homeData"></textarea>
+Ex: 101,102,103,201:216,301:316" rows="5" ng-model="input.homeData"></textarea>
 		    </label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Number of Bed Rooms</span>
+				<input type="text" name="bedrooms" class="textAlignLeft" ng-model="input.noOfBedRooms">
+			</label>										        				    					    
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Square Footage of Home</span>
+				<input type="text" name="sqft" class="textAlignLeft" ng-model="input.noOfSqFt">
+			</label>										        				    
 		</ion-list>
 		<div class="padding" >
         	<button class="button button-block button-balanced" ng-click="submit()">Add Home(s)</button>
