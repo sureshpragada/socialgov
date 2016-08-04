@@ -1,5 +1,15 @@
 <ion-view>
-  <ion-nav-title>{{region.get("name")}}</ion-nav-title>
+  <ion-nav-title>
+    <span ng-if="!titleActions.canEditTitle">{{region.get("name")}}</span> 
+    <span>
+      <input type="text" class="textAlignLeft" style="background-color:#00bfff" ng-if="titleActions.canEditTitle" ng-model="titleActions.regionTitle"/>
+    </span>
+  </ion-nav-title>
+  <ion-nav-buttons side="primary">
+    <a class="button button-icon icon ion-edit" ng-if="!titleActions.canEditTitle && isSuperAdmin" ng-click="editTitle()"></a>
+    <a class="button button-icon icon ion-close-round" ng-if="titleActions.canEditTitle" ng-click="cancel()"></a>
+    <a class="button button-icon icon ion-checkmark-round" ng-if="titleActions.canEditTitle" ng-click="saveTitle()"></a>
+  </ion-nav-buttons>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
