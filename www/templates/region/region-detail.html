@@ -1,5 +1,8 @@
 <ion-view>
   <ion-nav-title>{{region.get("name")}}</ion-nav-title>
+  <ion-nav-buttons side="secondary">
+    <a class="button button-icon icon ion-ios-help-outline" ng-click="showHelp()"></a>      
+  </ion-nav-buttons>  
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
@@ -20,27 +23,27 @@
           Add Cover Photo 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                 -->
-      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin">
+      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin" id="resident-id">
           <i class="icon ion-ios-people-outline royal"></i>
           Residents 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>          
-      <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber">
+      <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber" id="resident-id">
           <i class="icon ion-ios-home-outline royal"></i>
           Residences
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                
-      <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt!='SELF'">
+      <ion-item href="#/tab/legis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt!='SELF'" id="legi-id">
         <i class="icon ion-ios-person-outline royal"></i>
           {{'LegContact' | translate}}
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>      
-      <ion-item href="#/tab/selflegis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt=='SELF'">
+      <ion-item href="#/tab/selflegis/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" ng-if="regionSettings.legislativeMgmt=='SELF'" id="legi-id">
         <i class="icon ion-ios-person-outline royal"></i>
           {{'LegContact' | translate}}      
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+      <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" id="service-id">
         <i class="icon ion-ios-flame-outline royal"></i>
           Service Contacts
         <i class="icon ion-chevron-right icon-accessory"></i>
@@ -55,7 +58,7 @@
         {{'InvitePage' | translate}}        
         <i class="icon ion-chevron-right icon-accessory"></i>                                   
       </ion-item>                              
-      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right">
+      <ion-item href="#/tab/demo/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" id="demo-id">
         <i class="icon ion-ios-world-outline royal"></i>      
           Demography
           <i class="icon ion-chevron-right icon-accessory"></i>    
@@ -71,5 +74,44 @@
           <i class="icon ion-chevron-right icon-accessory"></i>    
       </ion-item>                                           -->
   	</ion-list>
+    <walkthrough
+            id="Demo1"
+            walkthrough-type="transparency"
+            focus-element-selector="#{{regionWalkthrough[0].id}}"
+            icon="single_tap"
+            main-caption="{{regionWalkthrough[0].text}}"
+            icon-padding-left="30"
+            icon-padding-top="0"
+            force-caption-location="TOP"
+            is-active="regionWalkthrough[0].active"
+            on-walkthrough-hide="nextRegionWalkthrough()"
+            use-button="false">
+      </walkthrough>      
+    <walkthrough
+            id="Demo2"
+            walkthrough-type="transparency"
+            focus-element-selector="#{{regionWalkthrough[1].id}}"
+            icon="single_tap"
+            main-caption="{{regionWalkthrough[1].text}}"
+            icon-padding-left="30"
+            icon-padding-top="0"
+            force-caption-location="TOP"
+            is-active="regionWalkthrough[1].active"
+            on-walkthrough-hide="nextRegionWalkthrough()"
+            is-round="false"
+            use-button="false">
+      </walkthrough>
+    <walkthrough
+            id="Demo3"
+            walkthrough-type="transparency"
+            focus-element-selector="#{{regionWalkthrough[2].id}}"
+            main-caption="{{regionWalkthrough[2].text}}"
+            icon-padding-left="30"
+            icon-padding-top="0"
+            force-caption-location="TOP"
+            is-active="regionWalkthrough[2].active"
+            on-walkthrough-hide="nextRegionWalkthrough()"
+            use-button="false">
+      </walkthrough>     
   </ion-content>
 </ion-view>

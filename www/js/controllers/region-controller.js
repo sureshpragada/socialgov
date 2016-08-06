@@ -10,7 +10,7 @@ angular.module('starter.controllers')
 .controller('RegionDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, SettingsService, PictureManagerService, $ionicLoading) {
   SettingsService.trackView("Region detail controller");
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading community"));
-  $scope.user=Parse.User.current();  
+  $scope.user=AccountService.getUser();  
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
   $scope.isAdmin=AccountService.canUpdateRegion();
@@ -28,11 +28,54 @@ angular.module('starter.controllers')
     $scope.updateCoverPhotoIfAvailable($scope.region);
     $scope.posterImages=$scope.region.get("posterImages");
     $ionicLoading.hide();
+    $scope.manageHelpGuide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve region information.");
     console.log("Error retrieving region " + JSON.stringify(error));
     $ionicLoading.hide();
   });  
+
+  $scope.regionWalkthroughIndex = 0;
+  $scope.regionWalkthrough = [
+    {
+      id: "resident-id",
+      text: "Manage residences in your community here. You will be able to add the residences and then invite the residents into the respective homes.",
+      active: false
+    },
+    {
+      id: "legi-id",
+      text: "Once you have residents added to the system, you can setup your community legislative board here. You will be able to manage titles and their order.",
+      active: false
+    },
+    {
+      id: "service-id",
+      text: "Do you know or in need of a plumber or electrician? Recommend service providers that you have used to your neighbors here.",
+      active: false
+    }
+  ];
+
+  $scope.nextRegionWalkthrough = function() {
+    console.log("Walkthrough is hidden " + $scope.regionWalkthroughIndex);
+    if($scope.regionWalkthroughIndex < 2) {
+        $scope.regionWalkthrough[$scope.regionWalkthroughIndex].active=false; 
+        $scope.regionWalkthroughIndex++;
+        $scope.regionWalkthrough[$scope.regionWalkthroughIndex].active=true; 
+    }
+  };
+
+  $scope.showHelp=function() {
+    $scope.regionWalkthroughIndex=0; 
+    $scope.regionWalkthrough[$scope.regionWalkthroughIndex].active=true; 
+    console.log("Setting the value " + JSON.stringify($scope.regionWalkthrough[$scope.regionWalkthroughIndex]));
+  };
+
+  $scope.manageHelpGuide=function() {
+    if($scope.user.get("tourGuide")=="PEND") {
+      $scope.showHelp();
+      $scope.user.set("tourGuide", "COMP");
+      $scope.user.save();
+    }
+  };
 
   $scope.updateCoverPhoto=function() {
     SettingsService.trackEvent("Region", "UploadCoverPhoto");    

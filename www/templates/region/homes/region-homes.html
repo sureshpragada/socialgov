@@ -21,8 +21,10 @@
           <span ng-if="home.noOfTenants>0">{{home.noOfTenants}} Tenants</span>
         </p>      
         <p ng-if="home.noOfResidents<1"><span class="assertive">No Residents</span></p>              
-<!-- 	      <p ng-if="home.noOfResidents>0">{{home.noOfResidents}} Residents</p>      
-        <p ng-if="home.noOfResidents<1"><span class="assertive">No Residents</span></p>       -->
+        <p ng-if="home.noOfBedRooms || home.noOfSqFt">
+          <span ng-if="home.noOfBedRooms">{{home.noOfBedRooms}} Bed Rooms;</span>
+          <span ng-if="home.noOfSqFt">{{home.noOfSqFt}} Sq Ft;</span>
+        </p>
 		  <i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>
     </ion-list>

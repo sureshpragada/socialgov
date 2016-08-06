@@ -431,12 +431,13 @@ angular.module('financial.services', [])
         if(homesList!=null && homesList.length>0) {
           var revenueObjects=[];          
           for(var i=0;i<homesList.length;i++) {
+            var feeAndNote=self.getMaintenanceFeeAndNoteForHome(dues, homesList[i]);
             var revenueInputData={
               residency: balanceSheet.get("residency"),
               createdBy: balanceSheet.get("openedBy"),
-              revenueAmount: self.getMaintenanceFeeForHome(dues, homesList[i]),
+              revenueAmount: feeAndNote[0],
               revenueDate: balanceSheet.get("startDate"),
-              note: "System generated payment ",
+              note: feeAndNote[1],
               category: true,
               revenueSource: $filter("formatHomeNumber")(homesList[i].get("homeNo")),
               balanceSheet: balanceSheet,
@@ -461,32 +462,67 @@ angular.module('financial.services', [])
       });      
       return deferred.promise;
     },
-    getMaintenanceFeeForHome: function(dues, home) {
-      console.log("Generate fee 1 : " + JSON.stringify(home));
-      console.log("Generate fee 2 : " + JSON.stringify(dues));
+    getMaintenanceFeeAndNoteForHome: function(dues, home) {
+      // console.log("Generate fee 1 : " + JSON.stringify(home));
+      // console.log("Generate fee 2 : " + JSON.stringify(dues));
       // Calculate fee
       var fee=0;
+      var note="";
       if(dues.get("maintType")=="FIXED") {
         fee=dues.get("maintDues");
+        note="System generated payment; Fee is fixed for all residents;";
       } else {
+        note="System generated payment; Fee varies between residents; Stats used for this payment are : \n\n";
         var maintCategories=dues.get("maintCategories");
         for(var j=0;j<maintCategories.length;j++) {
           if(maintCategories[j].variable==true) {
             if(maintCategories[j].variableType==0) { // Sq Ft
               if(home.get("noOfSqFt")!=null && home.get("noOfSqFt")>0) {
                 fee+=home.get("noOfSqFt")*maintCategories[j].fee;
+                note+=maintCategories[j].name+" : "+ home.get("noOfSqFt") + " Sq Ft x " + $filter("formatCurrency")(maintCategories[j].fee)+" per Sq Ft\n";
               }                   
             } else if(maintCategories[j].variableType==1) {
               if(home.get("noOfBedRooms")!=null && home.get("noOfBedRooms")>0) {
                 fee+=home.get("noOfBedRooms")*maintCategories[j].fee;
+                note+=maintCategories[j].name+" : "+ home.get("noOfBedRooms") + " Bed Rooms x " + $filter("formatCurrency")(maintCategories[j].fee)+" per Bed Room\n";
               }  
             }
           } else {
             fee+=maintCategories[j].fee;
+            note+=maintCategories[j].name+" : "+$filter("formatCurrency")(maintCategories[j].fee)+" (fixed)\n";
           }
         }
       }
-      return fee;
+      return [fee, note];
+    },
+    isCommunityMissingAttributesForVariableFee: function(dues) {
+      var deferred = $q.defer();
+      AccountService.getAllHomes(AccountService.getUserResidency()).then(function(homes){
+        var maintCategories=dues.get("maintCategories");
+        for(var j=0;j<maintCategories.length;j++) {
+          if(maintCategories[j].variable==true) {
+            if(maintCategories[j].variableType==0) { // Sq Ft
+              for(var i=0;i<homes.length;i++){
+                console.log("SqFt size : " + JSON.stringify(homes[i].get("noOfSqFt"))); 
+                if(homes[i].get("noOfSqFt")==null || homes[i].get("noOfSqFt").length<1) {
+                  deferred.resolve("Homes in this community are missing square feet values to use variable maintenance fee feature.");  
+                }
+              }
+            } else if(maintCategories[j].variableType==1) {
+              for(var i=0;i<homes.length;i++){
+                console.log("Bed room size : " + JSON.stringify(homes[i].get("noOfBedRooms"))); 
+                if(homes[i].get("noOfBedRooms")==null || homes[i].get("noOfBedRooms").length<1) {
+                  deferred.resolve("Homes in this community are missing bed room values to use variable maintenance fee feature.");  
+                }
+              }
+            }
+          } 
+        }
+        deferred.resolve(null);
+      },function(error){
+        deferred.resolve("Unable to verify the requirements to use variable maintenance fee of this community.");
+      });
+      return deferred.promise;
     },
     getBalanceSheetByObjectId: function(balanceSheetObjectId){
       var self=this;

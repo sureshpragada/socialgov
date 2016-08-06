@@ -1120,12 +1120,24 @@ angular.module('starter.controllers')
     console.log("Unable to get balance sheets to calculate start date of balance sheet.");
   });
 
+  $scope.communityMissingAttributesMessage=null;
   // Dues calculation
   FinancialService.getAllDues($scope.user.get("residency")).then(function(duesList) {    
     if(duesList!=null && duesList.length>0) {
       $scope.dues=FinancialService.getCurrentDues(duesList);
       if($scope.dues==null) {
         $scope.dues=FinancialService.getUpcomingDues(duesList);
+      }
+      if($scope.dues!=null && $scope.dues.get("maintType")=="VARIABLE") {
+        FinancialService.isCommunityMissingAttributesForVariableFee($scope.dues).then(function(message){
+          console.log("Return value from calc " + message);
+          if(message!=null) {
+            $scope.communityMissingAttributesMessage=SettingsService.getControllerErrorMessage(message);  
+          }          
+        }, function(error){
+          console.log("Error calculating home requirements " + JSON.stringify(error));
+          $scope.communityMissingAttributesMessage=SettingsService.getControllerErrorMessage("Unable to verify the requirements to use variable maintenance fee of this community.");
+        });
       }
     } else {
       $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Setting up maintenance payment will simplify managing home owner payments.");  
@@ -1279,7 +1291,7 @@ angular.module('starter.controllers')
       // Calculate approxiate fee for this house
       if($scope.currentDues!=null && $scope.currentDues.get("maintType")=="VARIABLE") {
         AccountService.getHomeByHomeNo(AccountService.getUser().get("homeNo")).then(function(home) {
-          $scope.estimatedFee=FinancialService.getMaintenanceFeeForHome($scope.currentDues, home);
+          $scope.estimatedFee=FinancialService.getMaintenanceFeeAndNoteForHome($scope.currentDues, home)[0];
         }, function(error) {
           console.log("Unable to get home number to calcuate estimated fee");
         });
@@ -1336,7 +1348,7 @@ angular.module('starter.controllers')
   ];
 
   $scope.input=FinancialService.getTransferFinancialDueSetup();
-  $scope.duesAction="Setup Fee";
+  $scope.duesAction=$stateParams.duesId=="SETUP"?"Setup Fee":"Update Fee";
 
   if($scope.input==null) {
     $scope.input={
@@ -1361,24 +1373,22 @@ angular.module('starter.controllers')
     };    
 
     if($stateParams.duesId!="SETUP" && FinancialService.getTransferFinancialDueSetup()==null) {
-      FinancialService.getDuesByObjectId($stateParams.duesId).then(function(dues) {
-        console.log(JSON.stringify(dues));
-        if(dues.get("maintType")=='FIXED') {
-          $scope.input.maintTypeIndex=0;
-          $scope.input.maintDues=dues.get("maintDues").toFixed(2);          
-        } else {
-          $scope.input.maintTypeIndex=1;
-          $scope.input.maintCategories=dues.get("maintCategories");                
-        }
-        $scope.input.notes=dues.get("notes");
-        $scope.input.effectiveMonth=dues.get("effectiveMonth");
-
-        $scope.duesAction="Update Fee";
-      }, function(error) {
-        SettingsService.setAppErrorMessage("Unable to get upcoming maintenance fee to edit.");
-        $state.go("tab.dues-list");
-      });
-    }    
+        FinancialService.getDuesByObjectId($stateParams.duesId).then(function(dues) {
+          console.log(JSON.stringify(dues));
+          if(dues.get("maintType")=='FIXED') {
+            $scope.input.maintTypeIndex=0;
+            $scope.input.maintDues=dues.get("maintDues").toFixed(2);          
+          } else {
+            $scope.input.maintTypeIndex=1;
+            $scope.input.maintCategories=dues.get("maintCategories");                
+          }
+          $scope.input.notes=dues.get("notes");
+          $scope.input.effectiveMonth=dues.get("effectiveMonth");
+        }, function(error) {
+          SettingsService.setAppErrorMessage("Unable to get upcoming maintenance fee to edit.");
+          $state.go("tab.dues-list");
+        });
+      } 
   } else {
     console.log("Flow is either from due category management page or setup page " + JSON.stringify($scope.input));
   }
@@ -1480,6 +1490,8 @@ angular.module('starter.controllers')
     if($scope.input.name==null || $scope.input.name.trim().length<1) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid category name");    
       return false; 
+    } else {
+      $scope.input.name=$scope.input.name.capitalizeFirstLetter();
     }
 
     if($scope.input.fee==null || isNaN($scope.input.fee) || parseFloat($scope.input.fee)<1) {

@@ -37,7 +37,9 @@ angular.module('starter.controllers')
         noOfResidents: residentCount, 
         noOfHomeOwners: homeOwnerCount,
         noOfTenants: tenantCount,
-        search: searchString
+        search: searchString,
+        noOfBedRooms: homes[i].get("noOfBedRooms"),
+        noOfSqFt: homes[i].get("noOfSqFt")
       });
     }
     if($scope.homeList.length<2) {

@@ -23,8 +23,8 @@
 				<ion-item class="item-icon-right item-text-wrap" ng-click="manageDueCategory($index)" ng-repeat="category in input.maintCategories">
 					<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
 					{{category.name}}
-					<span class="item-note" ng-if="category.variableType==0">&nbsp;/ Sq Ft</span>					
-					<span class="item-note" ng-if="category.variableType==1">&nbsp;/ Bed Room</span>								
+					<span class="item-note" ng-if="category.variable && category.variableType==0">&nbsp;/ Sq Ft</span>					
+					<span class="item-note" ng-if="category.variable && category.variableType==1">&nbsp;/ Bed Room</span>						
 					<span class="item-note">{{category.fee  | formatCurrency}}</span>
 				</ion-item>		
 			</div>

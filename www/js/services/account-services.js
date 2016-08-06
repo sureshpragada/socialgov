@@ -383,6 +383,7 @@ angular.module('account.services', [])
       newUser.set("deviceReg", "N");
       newUser.set("homeOwner", inputUser.homeOwner==true?true:false);
       newUser.set("homeNo", inputUser.homeNumber);
+      newUser.set("tourGuide", "PEND");      
       return newUser;
     },
     addLookUpContact: function(lookUpUser) {
@@ -712,6 +713,7 @@ angular.module('account.services', [])
       user.set("status","A");
       user.set("deviceReg", "N");
       user.set("homeOwner",this.yourInfo.homeOwner);      
+      user.set("tourGuide", "PEND");
       return user.signUp();
     },
     convertToLowerAndAppendUndScore:function(inputString){

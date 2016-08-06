@@ -34,24 +34,13 @@
           </p>
         </div>
       </div>
-      <!-- Show edit and delete option if dues been setup -->
-      <div class="row" ng-if="isAdmin" ng-if="currentDues">
-        <div class="col">
-          <a class="button button-assertive button-block button-small" ng-click="deleteDues()">
-            Delete
-          </a>                  
-        </div>
-        <div class="col">
-          <a class="button button-calm button-block button-small" href="#/tab/manage-dues/{{currentDues.id}}">
-            Edit
-          </a>                  
-        </div>
-      </div> 
-      <!-- Show option to setup fees if they have not been setup -->
-      <div class="padding" ng-if="!currentDues">
-        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP">
+      <div class="padding" ng-if="isAdmin">
+        <a class="button button-calm button-block" href="#/tab/manage-dues/SETUP"  ng-if="!currentDues">
           Setup Maintenance Fee
-        </a>        
+        </a>  
+        <a class="button button-calm button-block" href="#/tab/manage-dues/{{currentDues.id}}" ng-if="currentDues">
+          Change Maintenance Fee
+        </a>                                
       </div>      
     </div>       
 
