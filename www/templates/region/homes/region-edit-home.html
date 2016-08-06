@@ -2,10 +2,18 @@
   <ion-content>
     <my-app-message info="controllerMessage"></my-app-message>  
     <my-app-message info="appMessage"></my-app-message>      
- 		<label class="item item-input" ng-if="home">
+ 		<label class="item item-input item-stacked-label">
 			<span class="input-label">Home number</span>
-		  <input type="text" ng-model="input.homeNo">
+		  <input type="text" name="homeno" ng-model="input.homeNo" class="textAlignLeft">
 	  </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Number of Bed Rooms</span>
+        <input type="text" name="bedrooms" class="textAlignLeft" ng-model="input.noOfBedRooms">
+      </label>                                                      
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Square Footage of Home</span>
+        <input type="text" name="sqft" class="textAlignLeft" ng-model="input.noOfSqFt">
+      </label>                                        
 	  <div class="padding-horizontal" >
       	<button class="button button-block button-balanced" ng-click="editHome()">Submit</button>
    	</div>

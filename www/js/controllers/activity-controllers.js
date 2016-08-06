@@ -33,7 +33,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
 })
 
-.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal, $ionicScrollDelegate) {
+.controller('DashboardCtrl', function($scope, $state, $http, $ionicLoading, NotificationService, LogService, ActivityService, RegionService, $cordovaDialogs, $ionicActionSheet, $timeout, AccountService, SettingsService, $ionicModal, $ionicScrollDelegate, $cordovaClipboard) {
   SettingsService.trackView("Activity controller");
   $scope.debateList=[];
   $scope.legiContactsList=[];
@@ -123,6 +123,14 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.$on('$destroy', function() {
     $scope.commentsModal.remove();
   });
+
+  $scope.copyActivityMessage=function(activityIndex) {
+    $cordovaClipboard.copy($scope.activities[activityIndex].get("notifyMessage")).then(function () {
+      $cordovaDialogs.alert('Activity is copied to the clipboard.', 'Copy Success', 'OK');   
+    }, function () {
+      $cordovaDialogs.alert('Unable to copy activity to clipboard.', 'Copy Failure', 'OK');   
+    });
+  };  
 
   $scope.beginDebate=function(activityId, index) {
     SettingsService.trackEvent("Activity", "BeginDebate");

@@ -15,7 +15,8 @@
     <my-app-message info="controllerMessage"></my-app-message>
     <ion-list>
       <div class="item item-image" ng-if="posterImages.length==0">
-        <img ng-src="img/picture_template.png">
+        <!-- <img ng-src="img/picture_template.png"> -->
+        <img ng-src="img/default-background.jpg">
       </div>     
       <div ng-if="posterImages.length>0">
         <ion-slide-box>          
@@ -24,11 +25,11 @@
           </ion-slide>
         </ion-slide-box>
       </div>    
-      <ion-item ng-click="updateCoverPhoto()" class="item-icon-left item-icon-right" ng-if="posterImages.length==0 && isAdmin">
+<!--       <ion-item ng-click="updateCoverPhoto()" class="item-icon-left item-icon-right" ng-if="posterImages.length==0 && isAdmin">
           <i class="icon ion-ios-camera-outline royal"></i>
           Add Cover Photo 
           <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>                
+      </ion-item>                 -->
       <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin">
           <i class="icon ion-ios-people-outline royal"></i>
           Residents 

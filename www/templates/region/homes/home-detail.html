@@ -8,7 +8,20 @@
 	<my-app-message info="appMessage"></my-app-message>  
 	<my-app-message info="controllerMessage"></my-app-message>  
   	<my-app-message info="residentsNotAvailableMessage"></my-app-message>  	
-
+  	<ion-item>
+  		Home Number
+  		<span class="item-note">{{home.get("homeNo")}}</span>
+  	</ion-item>
+  	<ion-item>
+  		Bed Rooms
+  		<span class="item-note" ng-if="home.get('noOfBedRooms')">{{home.get("noOfBedRooms")}}</span>
+  		<span class="item-note" ng-if="!home.get('noOfBedRooms')">NA</span>
+  	</ion-item>    	
+  	<ion-item>
+  		Square Footage
+  		<span class="item-note" ng-if="home.get('noOfSqFt')">{{home.get("noOfSqFt")}}</span>
+  		<span class="item-note" ng-if="!home.get('noOfSqFt')">NA</span>
+  	</ion-item>	
   	<ion-list ng-if="neighborList.length>0">
   		<ion-item class="item-divider" ng-if="homeOwnerList.length>0">Home Owners</ion-item>
 	    <div ng-repeat="neighbor in homeOwnerList">
@@ -21,7 +34,7 @@
     </ion-list>
     <div class="padding">
 		<a class="button button-block button-balanced" ng-click="gotoInvite()">Add Resident</a>	
-		<a class="button button-block button-outline" ng-click="editHome()" ng-if="neighborList.length!=0 && regionSettings.multiBlock==false">Edit Home</a>    		
+		<a class="button button-block button-outline" ng-click="editHome()" ng-if="neighborList.length!=0">Edit Home</a>    		
 		<a class="button button-block button-assertive" ng-click="deleteHome()" ng-if="neighborList.length==0">Delete Home</a>    	
     </div>
   </ion-content>

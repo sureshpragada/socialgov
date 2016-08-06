@@ -1,4 +1,7 @@
 <ion-view view-title="Financial">
+  <ion-nav-buttons side="secondary">
+    <a class="button button-icon icon ion-ios-help-outline" ng-click="showHelp()"></a>      
+  </ion-nav-buttons>
   <ion-content class="visible-cards">
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
@@ -20,7 +23,7 @@
           <h3 class="positive" ng-if="paymentStatus=='NA'">{{paymentStatus}}</h3>
         </div>
       </div>
-      <ion-item class="item-icon-right" href="#/tab/payment-history" ng-if="regionSettings.financialMgmt=='SELF'">
+      <ion-item class="item-icon-right" href="#/tab/payment-history" ng-if="regionSettings.financialMgmt=='SELF'"  id="my-payment-history">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         My Payment History
         <span class="badge badge-balanced">{{noOfPaymentsInHistory}}</span>
@@ -33,7 +36,7 @@
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
     <div class="card">
       <div class="item item-divider">Community</div>
-      <ion-item class="item-icon-right" href="#/tab/balance-sheet-list" ng-if="regionSettings.financialMgmt=='SELF'">
+      <ion-item class="item-icon-right" href="#/tab/balance-sheet-list" ng-if="regionSettings.financialMgmt=='SELF'" id="manage-balance-sheet">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Balance Sheets
       </ion-item>                  
@@ -48,10 +51,11 @@
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                 -->
 
-      <ion-item class="item-icon-right" href="#/tab/dues-list">
+      <ion-item class="item-icon-right" href="#/tab/dues-list" id="setup-maint-fee">
         <i class="icon ion-chevron-right icon-accessory"></i>                           
         Maintenance Fee
-        <span class="item-note" ng-if="currentDues">{{currentDues.get('maintDues')  | formatCurrency}}</span>
+        <span class="item-note" ng-if="currentDues.get('maintType')=='FIXED'">{{currentDues.get('maintDues')  | formatCurrency}}</span>
+        <span class="item-note" ng-if="currentDues.get('maintType')=='VARIABLE'">Variable</span>
         <span class="item-note assertive" ng-if="!currentDues && isAdmin">Setup</span>
       </ion-item>      
 
@@ -68,8 +72,64 @@
         Reserve Fund
         <span class="item-note">{{reserve | formatCurrency}}</span>
       </ion-item>      
-    </div>        
+    </div>       
 
+<!-- <walkthrough
+            id="Demo1"
+            walkthrough-type="transparency"
+            focus-element-selector="#{{accountsWalkthrough[accountsWalkthroughIndex].id}}"
+            icon="single_tap"
+            main-caption="{{accountsWalkthrough[accountsWalkthroughIndex].text}}"
+            icon-padding-left="30"
+            icon-padding-top="0"
+            force-caption-location="TOP"
+            is-active="accountsWalkthrough[accountsWalkthroughIndex].active"
+            on-walkthrough-hide="nextAccountsWalkthrough()"
+            use-button="false"
+            is-round="false"
+            has-backdrop="false"
+            has-glow="false">
+      </walkthrough>   
+ -->
+    <walkthrough
+            id="Demo1"
+            walkthrough-type="transparency"
+            focus-element-selector="#{{accountsWalkthrough[0].id}}"
+            icon="single_tap"
+            main-caption="{{accountsWalkthrough[0].text}}"
+            icon-padding-left="30"
+            icon-padding-top="0"
+            force-caption-location="TOP"
+            is-active="accountsWalkthrough[0].active"
+            on-walkthrough-hide="nextAccountsWalkthrough()"
+            use-button="false">
+      </walkthrough>      
+    <walkthrough
+            id="Demo2"
+            walkthrough-type="transparency"
+            focus-element-selector="#{{accountsWalkthrough[1].id}}"
+            icon="single_tap"
+            main-caption="{{accountsWalkthrough[1].text}}"
+            icon-padding-left="30"
+            icon-padding-top="0"
+            force-caption-location="TOP"
+            is-active="accountsWalkthrough[1].active"
+            on-walkthrough-hide="nextAccountsWalkthrough()"
+            is-round="false"
+            use-button="false">
+      </walkthrough>
+    <walkthrough
+            id="Demo3"
+            walkthrough-type="transparency"
+            focus-element-selector="#{{accountsWalkthrough[2].id}}"
+            main-caption="{{accountsWalkthrough[2].text}}"
+            icon-padding-left="30"
+            icon-padding-top="0"
+            force-caption-location="TOP"
+            is-active="accountsWalkthrough[2].active"
+            on-walkthrough-hide="nextAccountsWalkthrough()"
+            use-button="true">
+      </walkthrough>            
   </ion-content>
 </ion-view>
  

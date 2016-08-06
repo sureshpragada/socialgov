@@ -23,7 +23,7 @@
         <a ng-click="showActivityImage(activityIndex)">
           <img class="full-image" ng-src="{{activity.get('images')[0]}}" ng-if="activity.get('images')">
         </a>        
-        <p ng-bind-html="activity.get('notifyMessage') | nl2br">
+        <p ng-bind-html="activity.get('notifyMessage') | nl2br" on-hold="copyActivityMessage(activityIndex)">
         </p>
         <p ng-repeat="choice in activity.get('choices')" ng-init="choiceIndex = $index">{{choiceIndex+1}}. {{choice}}</p>
         <a ng-if="activity.get('activityType')=='POLL'" class="button button-block button-balanced button-outline" ng-click="respondToPoll(activity.id, activityIndex)">

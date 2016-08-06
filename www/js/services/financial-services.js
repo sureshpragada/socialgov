@@ -102,7 +102,16 @@ angular.module('financial.services', [])
       this.refreshDuesCache(inputDues.residency);
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
-      dues.set("maintDues", parseFloat(inputDues.maintDues));
+      dues.set("maintType", inputDues.maintType);      
+      if(inputDues.maintTypeIndex==0) {
+        dues.set("maintType", "FIXED");              
+        dues.set("maintDues", parseFloat(inputDues.maintDues));
+        dues.set("maintCategories", null);        
+      } else {
+        dues.set("maintType", "VARIABLE");                      
+        dues.set("maintDues", null);        
+        dues.set("maintCategories", inputDues.maintCategories.removeSpecialSymbol());
+      }
       dues.set("effectiveMonth", inputDues.effectiveMonth);
       dues.set("notes", inputDues.notes);
       dues.set("residency", inputDues.residency);
@@ -113,7 +122,16 @@ angular.module('financial.services', [])
       this.refreshDuesCache(inputDues.residency);      
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
-      dues.set("maintDues", parseFloat(inputDues.maintDues));
+      dues.set("maintType", inputDues.maintType);      
+      if(inputDues.maintTypeIndex==0) {
+        dues.set("maintType", "FIXED");              
+        dues.set("maintDues", parseFloat(inputDues.maintDues));
+        dues.set("maintCategories", null);        
+      } else {
+        dues.set("maintType", "VARIABLE");                      
+        dues.set("maintDues", null);        
+        dues.set("maintCategories", inputDues.maintCategories.removeSpecialSymbol());
+      }
       dues.set("effectiveMonth", inputDues.effectiveMonth);
       dues.set("notes", inputDues.notes);
       dues.set("residency", inputDues.residency);
@@ -302,7 +320,7 @@ angular.module('financial.services', [])
       }
       return categoryList[0];
     },
-    openBalanceSheet: function(inputBalanceSheet) {
+    openBalanceSheet: function(inputBalanceSheet, dues) {
       this.refreshBalanceSheetCache(inputBalanceSheet.residency);
       var BalanceSheet = Parse.Object.extend("BalanceSheet");
       var balanceSheet=new BalanceSheet();
@@ -311,6 +329,12 @@ angular.module('financial.services', [])
       balanceSheet.set("residency", inputBalanceSheet.residency);
       balanceSheet.set("openedBy", inputBalanceSheet.openedBy);
       balanceSheet.set("generateHomeOwnerPayments", inputBalanceSheet.generateHomeOwnerPayments);                  
+      balanceSheet.set("maintType", dues.get("maintType"));              
+      if(dues.get("maintType")=="FIXED") {
+        balanceSheet.set("maintDues", dues.get("maintDues"));
+      } else {
+        balanceSheet.set("maintCategories", dues.get("maintCategories").removeSpecialSymbol());        
+      }
       return balanceSheet.save();
     },
     closeBalanceSheet: function(balanceSheetObjectId, inputBalanceSheet) {
@@ -400,26 +424,26 @@ angular.module('financial.services', [])
       });
       return deferred.promise;            
     },
-    generateHomeOwnerPayments: function(balanceSheet, due) {
+    generateHomeOwnerPayments: function(balanceSheet, dues) {
       var self=this;
       var deferred = $q.defer();
-      AccountService.getListOfHomesInCommunity(balanceSheet.get("residency")).then(function(homesList) {
+      AccountService.getAllHomes(balanceSheet.get("residency")).then(function(homesList) {
         if(homesList!=null && homesList.length>0) {
-          var revenueObjects=[];
+          var revenueObjects=[];          
           for(var i=0;i<homesList.length;i++) {
             var revenueInputData={
               residency: balanceSheet.get("residency"),
               createdBy: balanceSheet.get("openedBy"),
-              revenueAmount: due,
+              revenueAmount: self.getMaintenanceFeeForHome(dues, homesList[i]),
               revenueDate: balanceSheet.get("startDate"),
               note: "System generated payment ",
               category: true,
-              revenueSource: $filter("formatHomeNumber")(homesList[i].value),
+              revenueSource: $filter("formatHomeNumber")(homesList[i].get("homeNo")),
               balanceSheet: balanceSheet,
               status: "PENDING",
-              homeNo: homesList[i].value
+              homeNo: homesList[i].get("homeNo")
             };
-            console.log("Creating payments for home no " + homesList[i].value);
+            console.log("Creating payments for home no " + homesList[i].get("homeNo"));
             revenueObjects.push(self.populateRevenueObjectFromInput(revenueInputData));
           }
           Parse.Object.saveAll(revenueObjects).then(function(revenueObjects) {
@@ -436,6 +460,33 @@ angular.module('financial.services', [])
         deferred.reject("Unable to get available home number");
       });      
       return deferred.promise;
+    },
+    getMaintenanceFeeForHome: function(dues, home) {
+      console.log("Generate fee 1 : " + JSON.stringify(home));
+      console.log("Generate fee 2 : " + JSON.stringify(dues));
+      // Calculate fee
+      var fee=0;
+      if(dues.get("maintType")=="FIXED") {
+        fee=dues.get("maintDues");
+      } else {
+        var maintCategories=dues.get("maintCategories");
+        for(var j=0;j<maintCategories.length;j++) {
+          if(maintCategories[j].variable==true) {
+            if(maintCategories[j].variableType==0) { // Sq Ft
+              if(home.get("noOfSqFt")!=null && home.get("noOfSqFt")>0) {
+                fee+=home.get("noOfSqFt")*maintCategories[j].fee;
+              }                   
+            } else if(maintCategories[j].variableType==1) {
+              if(home.get("noOfBedRooms")!=null && home.get("noOfBedRooms")>0) {
+                fee+=home.get("noOfBedRooms")*maintCategories[j].fee;
+              }  
+            }
+          } else {
+            fee+=maintCategories[j].fee;
+          }
+        }
+      }
+      return fee;
     },
     getBalanceSheetByObjectId: function(balanceSheetObjectId){
       var self=this;
@@ -481,6 +532,18 @@ angular.module('financial.services', [])
       var balanceSheet=new BalanceSheet();      
       balanceSheet.set("objectId", balanceSheetObjectId);
       return balanceSheet;
+    },
+    setTransferFinancialDueCategoryIndex: function(dueCategoryIndex) {
+      this.dueCategoryIndex=dueCategoryIndex;
+    },
+    getTransferFinancialDueCategoryIndex: function() {
+      return this.dueCategoryIndex;
+    },    
+    setTransferFinancialDueSetup: function(financialDueSetup) {
+      this.financialDueSetup=financialDueSetup;
+    },
+    getTransferFinancialDueSetup: function() {
+      return this.financialDueSetup;
     }        
   };
 }]);

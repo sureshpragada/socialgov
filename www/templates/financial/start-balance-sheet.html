@@ -1,24 +1,38 @@
 <ion-view view-title="Start Balance Sheet">
-	<ion-content class="visible-cards">			
+	<ion-content>			
 		<my-app-message info="appMessage"></my-app-message>
 		<my-app-message info="controllerMessage"></my-app-message>
-		<div class="list card">	
+		<div class="list" ng-if="dues">	
 			<label class="item item-input">
 				<span class="input-label">Effective Month</span>
 				<input type="month" name="startDate"  ng-model="input.startDate">
 			</label>						
+	        <ion-item class="item-text-wrap" ng-if="dues.get('maintType')=='FIXED'">
+	          Maintenance Fee
+	          <p>Fixed - {{dues.get("maintDues") | formatCurrency}}</p>
+	        </ion-item>           
+			<div  ng-if="dues.get('maintType')=='VARIABLE'">
+				<ion-item class="item-divider">
+					Maintenance Fee - Variable
+				</ion-item>			
+				<ion-item class="item-icon-right item-text-wrap" ng-repeat="category in dues.get('maintCategories')">
+					{{category.name}}
+					<span class="item-note" ng-if="category.variableType==0">&nbsp;/ Sq Ft</span>					
+					<span class="item-note" ng-if="category.variableType==1">&nbsp;/ Bed Room</span>								
+					<span class="item-note">{{category.fee  | formatCurrency}}</span>
+				</ion-item>		
+			</div>	       
 			<ion-checkbox class="checkbox-balanced item-text-wrap" ng-model="input.generateHomeOwnerPayments">
 				Generate monthly maintenance payments for all home owners 
-			</ion-checkbox>	
-			<label class="item item-input" ng-if="input.generateHomeOwnerPayments">
-				<span class="input-label">Payment Amount</span>
-				<input type="number" step="any" name="maintenanceDues" ng-model="input.maintDues">
-			</label>																
+			</ion-checkbox>				 
 			<div class="padding">
 				<a class="button button-block button-balanced" ng-click="startBalanceSheet()">Start Balance Sheet</a>	
 				<a class="button button-block button-assertive" ng-click="cancel()">Cancel</a>				
 			</div>
 		</div>
+	      <div class="padding" ng-if="!dues">
+	          <a class="button button-block button-balanced" href="#/tab/manage-dues/SETUP">Setup Maintenance Fee</a>
+	      </div>      
 	</ion-content>
 </ion-view>
 

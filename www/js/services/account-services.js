@@ -765,7 +765,7 @@ angular.module('account.services', [])
       home.set("residency", inputHome.residency);
       return home.save();
     },
-    addHomes: function(regionUniqueName, inputHomes, blockNo) {
+    addHomes: function(regionUniqueName, inputHomes, blockNo, noOfSqFt, noOfBedRooms) {
       this.refreshHomesCache(regionUniqueName);
       var homesArray=[];
       for(var i=0;i<inputHomes.length;i++) {
@@ -777,6 +777,12 @@ angular.module('account.services', [])
         if(blockNo!=null && blockNo.trim().length>0) {
           home.set("blockNo", blockNo.trim().toUpperCase());
         }        
+        if(noOfSqFt>0) {
+          home.set("noOfSqFt", noOfSqFt);
+        }        
+        if(noOfBedRooms>0) {
+          home.set("noOfBedRooms", noOfBedRooms);
+        }
         homesArray.push(home);
       }
       return Parse.Object.saveAll(homesArray);
@@ -800,33 +806,45 @@ angular.module('account.services', [])
       var self=this;            
       var oldHomeNo=home.get("homeNo");
       home.set("homeNo", inputHome.homeNo);
+      home.set("noOfSqFt", inputHome.noOfSqFt);
+      home.set("noOfBedRooms", inputHome.noOfBedRooms);
       home.save().then(function(updatedHome){
         console.log("Home number updated");
         self.refreshHomesCache(inputHome.residency);
-        // Update residents in this home
-        var residentsToUpdatePromises=[];
-        self.getResidentsOfHome(inputHome.residency, oldHomeNo).then(function(residents){
-          for(var i=0;i<residents.length;i++){
-            residentsToUpdatePromises.push(
-              Parse.Cloud.run('modifyUser', { targetUserId: residents[i].id, userObjectKey: 'homeNo', userObjectValue: inputHome.homeNo}));
-          }
-          if(residentsToUpdatePromises.length>0){
-            console.log("No of users being updated " + residentsToUpdatePromises.length);
-            $q.all(residentsToUpdatePromises).then(function(result){
-              console.log("User update is success "  + JSON.stringify(updatedHome));
-              self.refreshResidentCache(inputHome.residency);                          
+        if(inputHome.homeNumberChanged==true) {
+          // Update residents in this home
+          var residentsToUpdatePromises=[];
+          self.getResidentsOfHome(inputHome.residency, oldHomeNo).then(function(residents){
+            console.log("Looking for " + inputHome.residency + " home no " + oldHomeNo);
+            for(var i=0;i<residents.length;i++){
+              console.log("Modify user : " + residents[i].id);
+              residents[i].set("homeNo", inputHome.homeNo);
+              residentsToUpdatePromises.push(residents[i].save());
+              // residentsToUpdatePromises.push(
+              //   Parse.Cloud.run('modifyUser', { targetUserId: residents[i].id, userObjectKey: 'homeNo', userObjectValue: inputHome.homeNo})
+              // );              
+            }
+            if(residentsToUpdatePromises.length>0){
+              console.log("No of users being updated " + residentsToUpdatePromises.length);
+              $q.all(residentsToUpdatePromises).then(function(result){
+                console.log("User update is success "  + JSON.stringify(updatedHome));
+                self.refreshResidentCache(inputHome.residency);                          
+                deferred.resolve(updatedHome);
+              }, function(error){
+                console.log("User update is failed");
+                deferred.reject(error);
+              });
+            } else {
+              console.log("No need to update any " + JSON.stringify(updatedHome));
               deferred.resolve(updatedHome);
-            }, function(error){
-              console.log("User update is failed");
-              deferred.reject(error);
-            });
-          } else {
-            console.log("No need to update any " + JSON.stringify(updatedHome));
-            deferred.resolve(updatedHome);
-          }
-        }, function(error){
-          deferred.reject(error);
-        });
+            }
+          }, function(error){
+            deferred.reject(error);
+          });
+        } else {
+          console.log("No need to update home numbers.");
+          deferred.resolve(updatedHome);
+        }
       },function(error){
         deferred.reject(error);
       });
