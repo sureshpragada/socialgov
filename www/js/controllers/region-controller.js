@@ -14,7 +14,9 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();  
   $scope.canLogout=AccountService.isLogoutAllowed($scope.user);
   $scope.isAdmin=AccountService.canUpdateRegion();
-
+  $scope.titleActions={canEditTitle:false, regionTitle:""};
+  $scope.isSuperAdmin=AccountService.isSuperAdmin();
+  console.log($scope.isSuperAdmin);
   var residency=$stateParams.regionUniqueName;
   if(residency==null || residency.trim().length==0 || residency=="native") {
     residency=$scope.user.get("residency");
@@ -23,10 +25,12 @@ angular.module('starter.controllers')
   $scope.posterImages=[];
   RegionService.getRegion(residency).then(function(data) {
     $scope.region=data;
-    $scope.regionSettings=RegionService.getRegionSettings(residency);              
+    $scope.regionSettings=RegionService.getRegionSettings(residency);    
+    console.log(JSON.stringify($scope.regionSettings));
     $scope.canControlSettings=AccountService.isFunctionalAdmin($scope.regionSettings, "Settings");        
     $scope.updateCoverPhotoIfAvailable($scope.region);
     $scope.posterImages=$scope.region.get("posterImages");
+    $scope.titleActions.regionTitle=$scope.region.get("name");
     $ionicLoading.hide();
     $scope.manageHelpGuide();
   }, function(error) {
@@ -89,6 +93,33 @@ angular.module('starter.controllers')
     } 
   };
 
+  $scope.editTitle=function(){
+    if(!$scope.titleActions.canEditTitle && $scope.isSuperAdmin) {
+      $scope.titleActions.canEditTitle=true;
+    }
+  };
+
+  $scope.saveTitle=function(){
+    console.log("Entering save title");
+    $scope.region.set("name", $scope.titleActions.regionTitle);
+    $scope.region.save(null, {
+      success: function(region){
+        $scope.$apply(function(){ // To refresh the view with the edit
+          RegionService.updateRegion(region.get("uniqueName"), region);
+          $scope.titleActions.canEditTitle=false;
+          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Community name has been edited.");
+          console.log("Edit is success");
+        });
+      },
+      error: function(error){
+        $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Unable to edit community name.");
+      }
+    });
+  };
+
+  $scope.cancel=function(){
+    $scope.titleActions.canEditTitle=false;
+  };
 })
 
 .controller('RegionOfficeDetailCtrl', function($scope, $stateParams, RegionService, AccountService, SettingsService, $state, $ionicPopover, $cordovaDialogs) {
