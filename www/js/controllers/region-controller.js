@@ -174,7 +174,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('AddContactToOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
+.controller('AddContactToOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService, $ionicLoading) {
   SettingsService.trackView("AddContactToOfficeCtrl");
 
   $scope.contact={name:"",title:"",phoneNum:"",email:""};
@@ -205,13 +205,12 @@ angular.module('starter.controllers')
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter 10 digit phone number.");
       return; 
     }
-    // else if($scope.contact.email!=null && $scope.contact.email.trim().length>0) {
-    //   if($scope.contact.email.indexOf('@')==-1||$scope.contact.email.indexOf('.')==-1){
-    //     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter proper Email Id.");
-    //     return; 
-    //   }
-    // }
+    else if($scope.contact.email!="" && ($scope.contact.email.indexOf('@')==-1 || $scope.contact.email.indexOf('.')==-1)) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter proper Email Id.");
+        return; 
+    }
     else {
+      $ionicLoading.show(SettingsService.getLoadingMessage("Adding contact"));
       $scope.contact.name=$scope.contact.name.capitalizeFirstLetter();
       $scope.contact.title=$scope.contact.title.capitalizeFirstLetter();
       for(var i=0;i<$scope.region.get('execOffAddrList').length;i++){
@@ -231,10 +230,12 @@ angular.module('starter.controllers')
             RegionService.updateRegion(region.get("uniqueName"), region);
             SettingsService.setAppSuccessMessage("Contact has been added.");
             $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
+            $ionicLoading.hide();
           },
           error: function(region, error) {
             console.log("Error in saving the office details " + error.message);
             $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add contact."); 
+            $ionicLoading.hide();
           }
       });
     }
@@ -245,7 +246,7 @@ angular.module('starter.controllers')
 })
 
 
-.controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService) {
+.controller('AddOfficeCtrl', function($scope, $stateParams, $state, RegionService, AccountService, SettingsService, $ionicLoading) {
   SettingsService.trackView("Add office controller");  
   RegionService.getRegion($stateParams.regionUniqueName).then(function(data) {
     $scope.region=data;
@@ -298,6 +299,7 @@ angular.module('starter.controllers')
         // }
         // $scope.newOfficeObj.execAdmin.push($scope.newExecAdminObj);
         // execOffAddr.push($scope.newOfficeObj);
+        $ionicLoading.show(SettingsService.getLoadingMessage("Adding office"));
         $scope.newOfficeObj.name=$scope.newOfficeObj.name.capitalizeFirstLetter();
         $scope.newOfficeObj.addressLine1=$scope.newOfficeObj.addressLine1.capitalizeFirstLetter();
         $scope.newOfficeObj.addressLine2=$scope.newOfficeObj.addressLine2.capitalizeFirstLetter();
@@ -309,10 +311,12 @@ angular.module('starter.controllers')
             RegionService.updateRegion(region.get("uniqueName"), region);
             SettingsService.setAppSuccessMessage("New executive has been added.");
             $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});
+            $ionicLoading.hide();
           },
           error: function(region, error) {
             console.log("Error in saving the office details " + error.message);
             $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to submit your add request."); 
+            $ionicLoading.hide();
           }
         });
     }
@@ -323,7 +327,7 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('EditOfficeDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, SettingsService, $state) {
+.controller('EditOfficeDetailsCtrl', function($scope, $stateParams, RegionService, AccountService, SettingsService, $state, $ionicLoading) {
   SettingsService.trackView("Edit office controller");  
   // $scope.newExecObj={};
   // $scope.newOfficeObj={};
@@ -340,6 +344,7 @@ angular.module('starter.controllers')
     // for(var i=0; i < $scope.newOfficeObj.execAdmin.length;i++){ 
     //   delete $scope.newOfficeObj.execAdmin[i].$$hashKey;
     // }
+    $ionicLoading.show(SettingsService.getLoadingMessage("Updating office"));
     var officesList=$scope.region.get('execOffAddrList');
     for(var i=0; i <officesList.length;i++){
       delete officesList[i].$$hashKey;
@@ -373,7 +378,8 @@ angular.module('starter.controllers')
           console.log("edit is success " + JSON.stringify(region));          
           RegionService.updateRegion(region.get("uniqueName"), region);          
           SettingsService.setAppSuccessMessage("Office has been updated.");
-          $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName});          
+          $state.go("tab.offices",{regionUniqueName: $stateParams.regionUniqueName}); 
+          $ionicLoading.hide();         
         }
     });
   };
@@ -882,7 +888,7 @@ angular.module('starter.controllers')
   });  
 })
 
-.controller('UpdateCommunityRulesCtrl', function($scope, $state, $http, RegionService, SettingsService, $ionicHistory, AccountService) {
+.controller('UpdateCommunityRulesCtrl', function($scope, $state, $http, RegionService, SettingsService, $ionicHistory, AccountService, $ionicLoading) {
   SettingsService.trackView("Update community rules controller");  
   $scope.input={ communityRules: "1. Do not play loud noises after 10 PM.\n\n2. Do not dry your clothes on the balcony."};
   RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
@@ -896,18 +902,21 @@ angular.module('starter.controllers')
 
   $scope.updateCommunityRules=function() {
     SettingsService.trackEvent("Region", "UpdateCommunityRules");    
-    if($scope.input.communityRules!=null && $scope.input.communityRules.length>0) {
+    if($scope.input.communityRules!=null && $scope.input.communityRules.length>20) {
+      $ionicLoading.show(SettingsService.getLoadingMessage("Updating community rules and regulations"));
       $scope.region.set("communityRules", $scope.input.communityRules);
       $scope.region.save().then(function(newRegion){
         RegionService.updateRegion(newRegion.get("uniqueName"), newRegion);
         SettingsService.setAppSuccessMessage("Community rules and regulations have been updated.");
         $state.go("tab.community-rules");
+        $ionicLoading.hide();
       }, function(error){
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update community rules and regulations.");
         LogService.log({type:"ERROR", message: "Unable to update community rules " + JSON.stringify(error)});           
+        $ionicLoading.hide();
       });      
     } else {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter community rules and regulations.");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Community rules and regulations should be atleast 20 characters.");
     }
   };
 
