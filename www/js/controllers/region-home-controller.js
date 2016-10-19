@@ -298,7 +298,53 @@ angular.module('starter.controllers')
 .controller('UploadNeighborsCtrl', function($scope, $stateParams, $q, AccountService, RegionService, $state, SettingsService, LogService) {
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.input={
-    neighborData: null
+    neighborData: null,
+    blockNo: "4-W1",
+    regionName: "metropolis_flat_owners_welfare_association_3_17_77_hyderabad"
+  };
+  //aug_6th_7_6_311_dublin_
+  //metropolis_flat_owners_welfare_association_3_17_77_hyderabad
+  $scope.splitName=function(fullName) {
+    var splitNames={
+      firstName: "",
+      lastName: ""
+    };
+    if(fullName!=null & fullName.length>0) {
+        var nameArray = fullName.split(' ');
+        if(nameArray.length>1) {
+          splitNames.lastName=nameArray[nameArray.length-1].toLowerCase().capitalizeFirstLetter();
+          for(var i=0;i<nameArray.length-1;i++) {
+            splitNames.firstName=splitNames.firstName+nameArray[i]+" ";
+          }
+          splitNames.firstName=splitNames.firstName.trim().toLowerCase().capitalizeFirstLetter();
+        } else {
+          splitNames.firstName=nameArray[0].toLowerCase().capitalizeFirstLetter();
+        }
+    }
+    return splitNames;
+  } ; 
+
+
+  $scope.getVehicleInfo=function(neighborLine) {
+    var vehicleInfo={
+      twoWheeler: null,
+      fourWheeler: null
+    };
+    var neighborLineSplitArray = neighborLine.split('"');
+    console.log(JSON.stringify(neighborLineSplitArray));
+    if(neighborLineSplitArray.length==1) {
+      var neighborLineCommaSplitArray=neighborLine.split(',');
+      vehicleInfo.twoWheeler=neighborLineCommaSplitArray[7];
+      vehicleInfo.fourWheeler=neighborLineCommaSplitArray[8];
+    } else if(neighborLineSplitArray.length==3) {
+      vehicleInfo.twoWheeler=neighborLineSplitArray[1];
+      var neighborLineCommaSplitArray=neighborLine.split(',');      
+      vehicleInfo.fourWheeler=neighborLineCommaSplitArray[neighborLineCommaSplitArray.length-1];      
+    } else if(neighborLineSplitArray.length==5) {
+      vehicleInfo.twoWheeler=neighborLineSplitArray[1];
+      vehicleInfo.fourWheeler=neighborLineSplitArray[3];
+    }
+    return vehicleInfo;
   };
 
   $scope.submit=function(){
@@ -311,39 +357,121 @@ angular.module('starter.controllers')
       var neighborLines = $scope.input.neighborData.split('\n');
       var userPromises=[];
       for(var i=0; i < neighborLines.length; i++){
-        var neighborLine = neighborLines[i].split(',');
-        console.log(JSON.stringify(neighborLine));
-
-        var newUser=new Parse.User();
-        newUser.set("username", "91"+neighborLine[3]);
-        newUser.set("password", "custom");
-        newUser.set("residency", $scope.input.regionName);
-        newUser.set("firstName", neighborLine[1].length>0?neighborLine[1]:neighborLine[0]);
-        newUser.set("lastName", neighborLine[2].length>0?neighborLine[2]:neighborLine[0]);
-        newUser.set("phoneNum", neighborLine[3]);
-        newUser.set("countryCode", "91");
-        newUser.set("role", "CTZEN");
-        newUser.set("notifySetting", true);
-        newUser.set("deviceReg", "N");
-        newUser.set("homeOwner", true);
-        newUser.set("homeNo", neighborLine[0]);
-        newUser.set("status", "P");
-        userPromises.push(newUser.save());
+        $scope.createHomeAndUser(neighborLines[i])
       }
-      $q.all(userPromises).then(function(results){
-        SettingsService.setAppSuccessMessage("Upload of neighbor data is successful.");
-        AccountService.refreshResidentCache();
-        $state.go("tab.region", {regionUniqueName: "native"});          
-      },function(error){
-        // console.log("Error creating users " + JSON.stringify(error));
-        SettingsService.setAppInfoMessage("Upload of neighbor data is partially failed. Please check neighbors and then adjust the data. " + JSON.stringify(error));
-        AccountService.refreshResidentCache();
-        $state.go("tab.region", {regionUniqueName: "native"});                    
-      });
+      console.log("Submitted all the homes");
+
     } else {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Enter neighbor information in comma separated format");
     }
   };
+
+  $scope.createHomeAndUser=function(neighborLines) {
+        var neighborLine = neighborLines.split(',');
+        console.log(JSON.stringify(neighborLine));
+
+        var vehicleInfo=$scope.getVehicleInfo(neighborLines);
+        console.log(JSON.stringify(vehicleInfo));
+
+        var inputHome={
+          residency: $scope.input.regionName,
+          blockNo: $scope.input.blockNo,
+          unitNo: neighborLine[0]
+        };
+
+        // Add Home
+        console.log("Adding home " + inputHome.unitNo);
+        AccountService.addHome(inputHome).then(function(newHome){
+          console.log("new home " + JSON.stringify(newHome));
+
+          if(neighborLine[2]!=null && neighborLine[2].trim().length>0) {
+            var newUser=new Parse.User();
+            newUser.set("username", "91"+neighborLine[2]);
+            newUser.set("password", "custom");
+            newUser.set("residency", inputHome.residency);
+            var splitNames=$scope.splitName(neighborLine[1]);          
+            newUser.set("firstName", splitNames.firstName);
+            newUser.set("lastName", splitNames.lastName);
+            newUser.set("phoneNum", neighborLine[2]);
+            newUser.set("countryCode", "91");
+            newUser.set("role", "CTZEN");
+            newUser.set("notifySetting", true);
+            newUser.set("deviceReg", "N");
+            newUser.set("homeOwner", true);
+            newUser.set("homeNo", newHome.get("homeNo"));
+            newUser.set("tourGuide", "PEND");      
+            newUser.set("status", "P");
+
+            if(neighborLine[3]!=null && neighborLine[3].trim().length>0) {
+              newUser.set("email", neighborLine[3].trim());
+            }
+
+            if(neighborLine[4]!=null && neighborLine[4].trim().length==0) {
+              newUser.set("vehicleInfo", vehicleInfo);
+            }
+
+            // Add User
+            console.log("Saving owner " + splitNames.firstName);
+            newUser.save().then(function(newUser) {
+              // Add user residency
+              console.log("Saving user residency "  + splitNames.firstName);
+              AccountService.createUserResidency(newUser).then(function(userResidency){
+              }, function(error) {
+                $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to create user residency. " + JSON.stringify(error));
+              }); 
+            }, function(error) {
+              $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add user in community. " + JSON.stringify(error));
+            });    
+          }
+
+          // Add tenant
+          if(neighborLine[4]!=null && neighborLine[4].trim().length>0) {
+            console.log("Adding tenant user " + neighborLine[4]);
+            var tenantUser=new Parse.User();
+            tenantUser.set("username", "91"+neighborLine[5]);
+            tenantUser.set("password", "custom");
+            tenantUser.set("residency", inputHome.residency);
+            var tenantSplitNames=$scope.splitName(neighborLine[4]);          
+            tenantUser.set("firstName", tenantSplitNames.firstName);
+            tenantUser.set("lastName", tenantSplitNames.lastName);
+            tenantUser.set("phoneNum", neighborLine[5]);
+            tenantUser.set("countryCode", "91");
+            tenantUser.set("role", "CTZEN");
+            tenantUser.set("notifySetting", true);
+            tenantUser.set("deviceReg", "N");
+            tenantUser.set("homeOwner", false);
+            tenantUser.set("homeNo", newHome.get("homeNo"));
+            tenantUser.set("tourGuide", "PEND");      
+            tenantUser.set("status", "P");
+
+            if(neighborLine[6]!=null && neighborLine[6].trim().length>0) {
+              tenantUser.set("email", neighborLine[6].trim());
+            }
+            tenantUser.set("vehicleInfo", vehicleInfo);
+
+            // Add User
+            console.log("Adding tenant user " + neighborLine[4]);
+            tenantUser.save().then(function(tenantNewUser) {
+              // Add user residency
+              console.log("Adding tenant user residency");
+              AccountService.createUserResidency(tenantNewUser).then(function(userResidency){
+              }, function(error) {
+                $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to create tenant user residency. " + JSON.stringify(error));
+              }); 
+            }, function(error) {
+              $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add tenant user in community. " + JSON.stringify(error));
+            });                
+
+          } else {
+            console.log("Tenant not available");
+          }
+
+
+        },function(error){
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add home(s) in your community. " + JSON.stringify(error));
+        });
+  };
+
 
   $scope.cancel=function(){
     $state.go("tab.region",{regionUniqueName: "native"});          
