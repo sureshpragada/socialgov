@@ -20,4 +20,14 @@ angular.module('starter.directives', [])
   };
 })
 
+.directive('vehicle', function() {
+  return {
+    restrict: 'E',
+    scope: {
+      user: '=info'
+    },  
+    templateUrl: 'templates/directives/vehicle-directive.html'
+  };
+})
+
 ;

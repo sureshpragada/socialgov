@@ -31,7 +31,8 @@
         <span class="item-note custom-badge" ng-if="user.get('bloodGroup')">{{user.get("bloodGroup")}}</span>  
         <!-- <span class="item-note custom-badge" ng-if="!user.get('bloodGroup')">NA</span>             -->
         <span class="item-note assertive" ng-if="!user.get('bloodGroup')">Not Provided</span>
-      </ion-item>            
+      </ion-item>     
+      <vehicle info="user"></vehicle>       
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
     <div class="card">

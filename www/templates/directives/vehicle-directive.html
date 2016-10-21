@@ -1,0 +1,13 @@
+<div ng-if="user.get('vehicleInfo')">
+  <ion-item class="item-divider">Vehicle Information</ion-item>
+  <ion-item>
+    Two Wheeler
+    <span class="item-note" ng-if="user.get('vehicleInfo').twoWheeler">{{user.get('vehicleInfo').twoWheeler}}</span>
+    <span class="item-note" ng-if="!user.get('vehicleInfo').twoWheeler">NA</span>
+  </ion-item>
+  <ion-item>
+    Four Wheeler
+    <span class="item-note" ng-if="user.get('vehicleInfo').fourWheeler">{{user.get('vehicleInfo').fourWheeler}}</span>
+    <span class="item-note" ng-if="!user.get('vehicleInfo').fourWheeler">NA</span>
+  </ion-item>          
+</div>

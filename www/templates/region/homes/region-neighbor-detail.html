@@ -10,6 +10,8 @@
         <img src="img/avatar2.png" ng-if="!user.get('images')">
         <a href="#/tab/admin-neighbor-update/{{user.id}}" ng-if="isAdmin && user.id!=operatingUser.id"><i class="icon ion-compose royal"></i></a>     
         <h2>{{user.get("firstName")}}&nbsp;{{user.get("lastName")}}</h2>
+        <p ng-if="userResidency.get('homeOwner')">Home Owner</p>            
+        <p ng-if="!userResidency.get('homeOwner')">Tenant</p>            
         <p ng-if="userResidency.get('homeNo')">{{userResidency.get("homeNo") | formatHomeNumber}}</p>
       </div>
       <ion-item ng-if="isNeighborAdmin">
@@ -22,23 +24,39 @@
       <ion-item>
         {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
       </ion-item>      
+      <ion-item ng-if="user.get('email')">
+        Email<span class="item-note">{{user.get("email")}}</span>            
+      </ion-item>            
       <ion-item>
         Blood Group
         <span class="item-note custom-badge" ng-if="user.get('bloodGroup')">{{user.get("bloodGroup")}}</span>
         <span class="item-note custom-badge" ng-if="!user.get('bloodGroup')">NA</span>            
       </ion-item>                  
-      <ion-item>
+<!--       <ion-item>
         Resident
         <span class="item-note" ng-if="userResidency.get('homeOwner')">Owner</span>            
         <span class="item-note" ng-if="!userResidency.get('homeOwner')">Tenant</span>            
+      </ion-item>             -->
 <!--         <i class="icon ion-checkmark-circled balanced" ng-if="user.get('homeOwner')"></i>     
-        <i class="icon ion-android-cancel assertive" ng-if="!user.get('homeOwner')"></i> -->
-      </ion-item>            
+        <i class="icon ion-android-cancel assertive" ng-if="!user.get('homeOwner')"></i> -->      
        <ion-item>
           Invitation Status 
           <span class="item-note" ng-if="user.get('status')=='P'">Pending</span>
           <span class="item-note" ng-if="user.get('status')!='P'">Accepted</span>
         </ion-item>      
+        <vehicle info="user"></vehicle>
+<!--         <div ng-if="user.get('vehicleInfo')">
+          <ion-item class="item-divider">Vehicle Information</ion-item>
+          <ion-item>
+            Two Wheeler
+            <span class="item-note" ng-if="user.get('vehicleInfo').twoWheeler">{{user.get('vehicleInfo').twoWheeler}}</span>
+            <span class="item-note" ng-if="!user.get('vehicleInfo').twoWheeler">NA</span>
+          </ion-item>
+          <ion-item>
+            Four Wheeler<span class="item-note" ng-if="user.get('vehicleInfo').fourWheeler">{{user.get('vehicleInfo').fourWheeler}}</span>
+            Four Wheeler<span class="item-note" ng-if="!user.get('vehicleInfo').fourWheeler">NA</span>
+          </ion-item>          
+        </div> -->
     </div>    
 
 <!--     <my-app-message info="copyStatusMessage"></my-app-message>
