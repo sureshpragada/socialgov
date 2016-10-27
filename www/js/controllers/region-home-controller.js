@@ -231,11 +231,12 @@ angular.module('starter.controllers')
       console.log("Removed duplicates 1 " + JSON.stringify(inputHomes));      
       AccountService.getAllHomes(AccountService.getUserResidency()).then(function(existingHomes){
         for(var i=0;i<existingHomes.length;i++) {
+          var inputHomeindex=inputHomes.indexOf(existingHomes[i].get("unitNo"));
           if($scope.regionSettings.multiBlock==true && existingHomes[i].get("blockNo")==$scope.input.blockNo && 
-              inputHomes.indexOf(existingHomes[i].get("unitNo"))) {
-                inputHomes.splice(index, 1);
-          } else if($scope.regionSettings.multiBlock==false && inputHomes.indexOf(existingHomes[i].get("unitNo"))!=-1) {
-              inputHomes.splice(index, 1);
+              inputHomeindex!=-1) {
+                inputHomes.splice(inputHomeindex, 1);
+          } else if($scope.regionSettings.multiBlock==false && inputHomeindex!=-1) {
+              inputHomes.splice(inputHomeindex, 1);
           } 
         }
         console.log("Removed duplicates 2 " + JSON.stringify(inputHomes));      
@@ -299,8 +300,9 @@ angular.module('starter.controllers')
   $scope.appMessage=SettingsService.getAppMessage();
   $scope.input={
     neighborData: null,
-    blockNo: "4-W1",
-    regionName: "metropolis_flat_owners_welfare_association_3_17_77_hyderabad"
+    blockNo: "8-W3",
+    // regionName: "metropolis_flat_owners_welfare_association_3_17_77_hyderabad"
+    regionName: "aug_6th_7_6_311_dublin_"
   };
   //aug_6th_7_6_311_dublin_
   //metropolis_flat_owners_welfare_association_3_17_77_hyderabad

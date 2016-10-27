@@ -60,20 +60,39 @@ angular.module('account.services', [])
         var userQuery = new Parse.Query(UserResidency);
         userQuery.equalTo("residency", regionUniqueName);
         userQuery.ascending("homeNo");        
-        userQuery.include("user");        
+        userQuery.include("user");    
+        userQuery.limit(1000);
         userQuery.find(function(userResidencyList) {
+          if(userResidencyList!=null && userResidencyList.length==1000) {
+            userQuery.skip(1000);
+            userQuery.find(function(userResidencyList1) {
+              console.log("Found user residencies 2 " + userResidencyList1!=null?userResidencyList1.length:-1);
+              var finalUserResidencies=userResidencyList.concat(userResidencyList1);
+              residentCache.remove(regionUniqueName);
+              residentCache.put(regionUniqueName, finalUserResidencies);          
+              deferred.resolve(finalUserResidencies);              
+            }, function(error) {
+              if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+                console.log("Returning cached residents");
+                deferred.resolve(residentCache.get(regionUniqueName));  
+              } else {
+                deferred.reject(error);
+              }
+            });
+          } else {
             console.log("Found user residencies " + userResidencyList!=null?userResidencyList.length:-1);
             residentCache.remove(regionUniqueName);
             residentCache.put(regionUniqueName, userResidencyList);          
             deferred.resolve(userResidencyList);
-          }, function(error) {
-            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
-              console.log("Returning cached residents");
-              deferred.resolve(residentCache.get(regionUniqueName));  
-            } else {
-              deferred.reject(error);
-            }
-          }); 
+          }
+        }, function(error) {
+          if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+            console.log("Returning cached residents");
+            deferred.resolve(residentCache.get(regionUniqueName));  
+          } else {
+            deferred.reject(error);
+          }
+        }); 
       }
       return deferred.promise;
     },            
@@ -735,19 +754,38 @@ angular.module('account.services', [])
         var query = new Parse.Query(Home);
         query.equalTo("residency",regionUniqueName);
         query.ascending("homeNo");
+        query.limit(1000);
         query.find(function(homes) {
+          if(homes!=null && homes.length==1000) {
+            query.skip(1000);
+            query.find(function(homes1) {
+              homesCache.remove(regionUniqueName);
+              var finalHomes=homes.concat(homes1);
+              homesCache.put(regionUniqueName, finalHomes);          
+              console.log("Queried homes to cache greater than 1000");
+              deferred.resolve(finalHomes);              
+            }, function(error) {
+              if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+                console.log("Failed to get homes from cache");
+                deferred.resolve(homesCache.get(regionUniqueName));  
+              } else {
+                deferred.reject(error);
+              }
+            });
+          } else {
             homesCache.remove(regionUniqueName);
             homesCache.put(regionUniqueName, homes);          
-            console.log("Queried homes to cache");
+            console.log("Queried homes to cache less than 1000");
             deferred.resolve(homes);
-          }, function(error) {
-            if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
-              console.log("Failed to get homes from cache");
-              deferred.resolve(homesCache.get(regionUniqueName));  
-            } else {
-              deferred.reject(error);
-            }
-          }); 
+          }
+        }, function(error) {
+          if(cachedObjectInfo!=null && cachedObjectInfo.isExpired) {
+            console.log("Failed to get homes from cache");
+            deferred.resolve(homesCache.get(regionUniqueName));  
+          } else {
+            deferred.reject(error);
+          }
+        }); 
       }
       return deferred.promise;
     },        

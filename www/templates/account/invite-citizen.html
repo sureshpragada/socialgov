@@ -1,8 +1,8 @@
 <ion-view view-title="Invite">
-	<ion-nav-buttons side="secondary" ng-if="!communityHomesLoadError">
+	<ion-nav-buttons side="secondary">
 <!-- 		<a class="button button-icon icon ion-person-add icon-assertive" ng-click="pickContact()"></a> -->
 <!-- 		<a class="button button-icon icon ion-ios-personadd icon-assertive" ng-click="pickContact()"></a> -->
-		<a class="button button-light button-outline"  style="border-color: #fff; color: #fff;" ng-click="pickContact()">Contacts</a>    
+		<a class="button button-light button-outline"  style="border-color: #fff; color: #fff;" ng-click="pickContact()"  ng-if="!communityHomesLoadError">Contacts</a>    
 	</ion-nav-buttons>
 	<ion-content>			
 		<my-app-message info="controllerMessage"></my-app-message>

@@ -1,6 +1,6 @@
 angular.module('starter.controllers')
 
-.controller('TestCtrl', function($scope, $ionicPopover, $ionicActionSheet, $timeout, NotificationService, AccountService) {
+.controller('TestCtrl', function($scope, $ionicPopover, $ionicActionSheet, $timeout, NotificationService, AccountService, LogService) {
   /////////////////// Test 1 : Working with select boxes
   $scope.colors = [
       {name:'black', shade:'dark'},
@@ -76,6 +76,23 @@ var hideSheet = $ionicActionSheet.show({
       console.log("Send email error " + JSON.stringify(error));
     });
   };
+
+  $scope.testLoadMoreThan1000Records=function () {
+    console.log("Loading all homes");
+    // AccountService.getAllHomes("aug_6th_7_6_311_dublin_").then(function(homesList) {
+    //   console.log("Length of homes : " + homesList.length);
+    // }, function(error) {
+    //   console.log("Error occurred while loading : " + JSON.stringify(error));
+    // });
+    LogService.getAuditLog().then(function(logList) {
+      console.log("Length of homes : " + logList.length);
+    }, function(error) {
+      console.log("Error occurred while loading : " + JSON.stringify(error));
+    });
+
+    console.log("List of homes requested");
+  };
+
 
   $scope.testPopulateUserResidency=function() {
     console.log("testPopulateUserResidency called");
