@@ -38,6 +38,16 @@ angular.module('starter.controllers')
     $ionicLoading.hide();
   });  
 
+  $scope.showResidencesList=function(){
+    var regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());   
+    if(regionSettings.multiBlock==false){
+      $state.go("tab.homes");
+    }
+    else{
+      $state.go("tab.blocks");
+    }
+  }
+
   $scope.updateCoverPhoto=function() {
     SettingsService.trackEvent("Region", "UploadCoverPhoto");    
     RegionService.gotoCoverPhoto();

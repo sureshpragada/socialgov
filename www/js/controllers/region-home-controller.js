@@ -1,44 +1,48 @@
 angular.module('starter.controllers')
 
-.controller('RegionHomesCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading) {
+.controller('RegionHomesCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading, RegionService) {
   SettingsService.trackView("Region homes controller");    
+  var blockNo=$stateParams.blockNo;
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing your homes"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.control={
     requestedSearch: true,
     searchStr: ""
   };
-
+  
   $q.all([
     AccountService.getAllHomes(AccountService.getUserResidency()),
     AccountService.getResidentsInCommunity(AccountService.getUserResidency())
   ]).then(function(results){
     var homes=results[0];
     var residents=results[1];
-    $scope.homeList=[];    
+    $scope.homeList=[];
     for(var i=0;i<homes.length;i++) {
-      var residentCount=0, homeOwnerCount=0, tenantCount=0;
-      var searchString=homes[i].get("homeNo");
-      console.log("Residents length " + residents.length);
-      for(var j=0;j<residents.length;j++) {  
-        // console.log("Resident : " + JSON.stringify(residents[j]));
-        if(homes[i].get("homeNo")==residents[j].get("homeNo")) {
-          residentCount++;
-          if(residents[j].get("homeOwner")==true) {
-            homeOwnerCount++;
-          } else {
-            tenantCount++;
-          }
-          searchString=searchString + " " + residents[j].get("user").get("firstName") + " " + residents[j].get("user").get("lastName") + " " + residents[j].get("user").get("bloodGroup");
+        var residentCount=0, homeOwnerCount=0, tenantCount=0;
+        var searchString=homes[i].get("homeNo");
+        console.log("Residents length " + residents.length);
+        if(blockNo!=null && blockNo!="" && homes[i].get("blockNo")!=blockNo) {
+          continue;
         }
-      }
-      $scope.homeList.push({
-        homeNo: homes[i].get("homeNo"),
-        noOfResidents: residentCount, 
-        noOfHomeOwners: homeOwnerCount,
-        noOfTenants: tenantCount,
-        search: searchString
-      });
+        for(var j=0;j<residents.length;j++) {  
+          // console.log("Resident : " + JSON.stringify(residents[j]));
+          if(homes[i].get("homeNo")==residents[j].get("homeNo")) {
+            residentCount++;
+            if(residents[j].get("homeOwner")==true) {
+              homeOwnerCount++;
+            } else {
+              tenantCount++;
+            }
+            searchString=searchString + " " + residents[j].get("user").get("firstName") + " " + residents[j].get("user").get("lastName") + " " + residents[j].get("user").get("bloodGroup");
+          }
+        }
+        $scope.homeList.push({
+          homeNo: homes[i].get("homeNo"),
+          noOfResidents: residentCount, 
+          noOfHomeOwners: homeOwnerCount,
+          noOfTenants: tenantCount,
+          search: searchString
+        });
     }
     if($scope.homeList.length<2) {
       $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Enter home details to invite residents and get started on financials.");
@@ -46,6 +50,21 @@ angular.module('starter.controllers')
     $ionicLoading.hide();    
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get homes in community.");
+    $ionicLoading.hide();
+  });
+
+})
+
+
+.controller('RegionBlocksCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading, RegionService ) {
+  SettingsService.trackView("Region blocks controller");    
+
+  $ionicLoading.show(SettingsService.getLoadingMessage("Listing your blocks"));
+  AccountService.getAllHomes(AccountService.getUserResidency()).then(function(homes){
+    $scope.uniqueBlocks=AccountService.getUniqueBlocks(homes);
+    $ionicLoading.hide();
+  },function(error){
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get blocks in community.");
     $ionicLoading.hide();
   });
 

@@ -748,7 +748,18 @@ angular.module('account.services', [])
           }); 
       }
       return deferred.promise;
-    },        
+    },    
+    getUniqueBlocks: function(homes){
+      var blocks=[];
+      for(var i=0; i<homes.length; i++){
+        blocks.push(homes[i].get("blockNo"));
+      }
+      var uniqueBlocks=blocks.filter(this.filterUniqueBlocks);
+      return uniqueBlocks;
+    }, 
+    filterUniqueBlocks: function(value, index, self){
+      return self.indexOf(value) === index;
+    },   
     refreshHomesCache: function(regionUniqueName) {
       console.log("homes removed from cache");
       homesCache.remove(regionUniqueName);
@@ -786,7 +797,7 @@ angular.module('account.services', [])
         homesArray.push(home);
       }
       return Parse.Object.saveAll(homesArray);
-    },    
+    },  
     getHomeByHomeNo: function(homeNo){
       var deferred = $q.defer();
       this.getAllHomes(this.getUserResidency()).then(function(homes){
