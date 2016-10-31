@@ -83,6 +83,7 @@ angular.module('starter.controllers')
 
   $scope.showResidencesList=function(){
     var regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());   
+    console.log("Test : " + JSON.stringify(regionSettings));
     if(regionSettings.multiBlock==false){
       $state.go("tab.homes");
     }

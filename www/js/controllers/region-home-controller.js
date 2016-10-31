@@ -36,22 +36,21 @@ angular.module('starter.controllers')
             searchString=searchString + " " + residents[j].get("user").get("firstName") + " " + residents[j].get("user").get("lastName") + " " + residents[j].get("user").get("bloodGroup");
           }
         }
+        $scope.homeList.push({
+          homeNo: homes[i].get("homeNo"),
+          noOfResidents: residentCount, 
+          noOfHomeOwners: homeOwnerCount,
+          noOfTenants: tenantCount,
+          search: searchString,
+          noOfBedRooms: homes[i].get("noOfBedRooms"),
+          noOfSqFt: homes[i].get("noOfSqFt")
+        });        
       }
-      $scope.homeList.push({
-        homeNo: homes[i].get("homeNo"),
-        noOfResidents: residentCount, 
-        noOfHomeOwners: homeOwnerCount,
-        noOfTenants: tenantCount,
-        search: searchString,
-        noOfBedRooms: homes[i].get("noOfBedRooms"),
-        noOfSqFt: homes[i].get("noOfSqFt")
-      });
-    }
-    if($scope.homeList.length<2) {
-      $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Enter home details to invite residents and get started on financials.");
-    }
-    $ionicLoading.hide();    
-  }, function(error) {
+      if($scope.homeList.length<2) {
+        $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Enter home details to invite residents and get started on financials.");
+      }
+      $ionicLoading.hide();          
+    }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get homes in community.");
     $ionicLoading.hide();
   });

@@ -79,25 +79,7 @@
     var ENV="TEST";
     //var REGION_JSON_URL="http://socialgov-dev.parseapp.com/js/region.json";
 
-    /**
-    https://pg-app-rp4qm7f3mdk8cdbqe6wcxcx8g49sfw.scalabl.cloud/1/
-
-    Parse.initialize(
-  "zUP9CMglZmyt7mw2CvnGYWe7hcRdM0PjHytnjh3o",
-  "b21dF5uF9s2heZbKHCDpdVoTlCH0kzTWR9WiffZD"
-);
-Parse.serverURL = 'https://pg-app-rp4qm7f3mdk8cdbqe6wcxcx8g49sfw.scalabl.cloud/1/';
-
-
-
-    */
-
-
     Parse.initialize(PARSE_APPLICATION_KEY, PARSE_JAVASCRIPT_KEY);  
-    // https://api.parse.com/1/classes/Activity
-    // Parse.serverURL = 'http://YOUR_PARSE_SERVER:1337/parse'
-    // Parse.serverURL = 'https://api.parse.com/1'
-
     var COUNTRY_LIST=[{countryCode: "91", name: "India", locale: "en-IN"},{countryCode: "1", name: "United States", locale: "en-US"}];
     var REG_TOP_REGION_TYPES=["city", "mandal"];
     var INITIAL_REGION_TYPE="village";
