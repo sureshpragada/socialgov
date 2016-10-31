@@ -45,7 +45,8 @@
           Residents 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>          
-      <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber" id="resident-id">
+<!--       <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber" id="resident-id"> -->
+      <ion-item ng-click="showResidencesList()" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber">
           <i class="icon ion-ios-home-outline royal"></i>
           Residences
           <i class="icon ion-chevron-right icon-accessory"></i>
