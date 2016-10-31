@@ -488,7 +488,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })
 
     .state('tab.homes', {
-      url: '/homes',
+      url: '/homes/{blockNo}',
       cache: false,      
       views: {
         'tab-region': {
@@ -497,6 +497,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })             
+
+    .state('tab.blocks', {
+      url: '/blocks',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/homes/region-blocks.html',
+          controller: 'RegionBlocksCtrl'
+        }
+      }
+    })
 
     .state('tab.add-homes', {
       url: '/add-homes',
