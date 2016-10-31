@@ -498,12 +498,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })             
 
-    .state('tab.blocks', {
-      url: '/blocks',
+    .state('tab.residences-blocks', {
+      url: '/residences-blocks',
       cache: false,      
       views: {
         'tab-region': {
-          templateUrl: 'templates/region/homes/region-blocks.html',
+          templateUrl: 'templates/region/homes/region-residences-blocks.html',
           controller: 'RegionBlocksCtrl'
         }
       }
@@ -543,7 +543,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })             
 
     .state('tab.neighbors', {
-      url: '/neighbors',
+      url: '/neighbors/{blockNo}',
       cache: false,      
       views: {
         'tab-region': {
@@ -552,6 +552,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })             
+
+
+    .state('tab.residents-blocks', {
+      url: '/residents-blocks',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/homes/region-residents-blocks.html',
+          controller: 'RegionBlocksCtrl'
+        }
+      }
+    })
 
     .state('tab.neighbor-detail', {
       url: '/neighbor-detail/{userId}',

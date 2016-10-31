@@ -55,7 +55,6 @@ angular.module('starter.controllers')
 
 })
 
-
 .controller('RegionBlocksCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading, RegionService ) {
   SettingsService.trackView("Region blocks controller");    
 
@@ -470,9 +469,19 @@ angular.module('starter.controllers')
     requestedSearch: true,
     searchStr: ""
   };  
+  var blockNo=$stateParams.blockNo;
   $scope.appMessage=SettingsService.getAppMessage();    
   AccountService.getResidentsInCommunity(Parse.User.current().get("residency")).then(function(neighborList) {
-    $scope.neighborList=neighborList;
+    $scope.neighborList=[];
+    for(var i=0; i<neighborList.length; i++){
+      if(blockNo!=null && blockNo!=''){
+        var blockNoFromHomeNum=neighborList[i].get("homeNo").substring(6, neighborList[i].get("homeNo").indexOf(";"));
+        if(blockNoFromHomeNum!=blockNo){
+          continue;
+        }
+      }
+      $scope.neighborList.push(neighborList[i]);
+    }
     // TODO :: Filter blocked users from the list
     if($scope.neighborList!=null && $scope.neighborList.length<2) {
       $scope.controllerMessage=SettingsService.getControllerIdeaMessage("Start building your community by inviting other residents.");
