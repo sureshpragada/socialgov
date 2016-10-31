@@ -758,7 +758,7 @@ angular.module('account.services', [])
       return uniqueBlocks;
     }, 
     filterUniqueBlocks: function(value, index, self){
-      return self.indexOf(value) === index;
+      return value!=null && self.indexOf(value) === index;
     },   
     refreshHomesCache: function(regionUniqueName) {
       console.log("homes removed from cache");
