@@ -16,9 +16,9 @@
       <ion-item>
         {{'PhNum' | translate}}<span class="item-note">{{user.get("username")}}</span>            
       </ion-item>            
-      <ion-item>
+<!--       <ion-item>
         Residency<span class="item-note">{{regionDisplayName}}</span>                  
-      </ion-item>                              
+      </ion-item>                               -->
       <ion-item ng-if="!privs.isCitizen">
          {{'Role' | translate}}
           <span class="item-note">{{getRoleNameFromRoleCode(user.get("role"))}}</span>                  

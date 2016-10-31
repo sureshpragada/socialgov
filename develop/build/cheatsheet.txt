@@ -94,6 +94,7 @@ CloudKit or Cloudmine
 http://julienrenaux.fr/2016/01/29/complete-parse-server-migration-guide/
 https://cordova.apache.org/docs/en/4.0.0/guide/cli/
 https://github.com/iblank/ngImgCrop
+https://github.com/ParsePlatform/PushTutorial/blob/master/iOS/README.md#1-creating-the-ssl-certificate
 
 
 Replies to Apple : 
