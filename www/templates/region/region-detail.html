@@ -40,12 +40,11 @@
           Add Cover Photo 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                 -->
-      <ion-item href="#/tab/neighbors" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin" id="resident-id">
+      <ion-item ng-click="showResidentsList()" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin">
           <i class="icon ion-ios-people-outline royal"></i>
           Residents 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>          
-<!--       <ion-item href="#/tab/homes" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber" id="resident-id"> -->
       <ion-item ng-click="showResidencesList()" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && isAdmin && regionSettings.supportHomeNumber">
           <i class="icon ion-ios-home-outline royal"></i>
           Residences

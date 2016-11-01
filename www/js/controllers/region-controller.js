@@ -83,12 +83,20 @@ angular.module('starter.controllers')
 
   $scope.showResidencesList=function(){
     var regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());   
-    console.log("Test : " + JSON.stringify(regionSettings));
-    if(regionSettings.multiBlock==false){
+    if(regionSettings.multiBlock==true){
+      $state.go("tab.residences-blocks");
+    }else{
       $state.go("tab.homes");
     }
+  }
+
+  $scope.showResidentsList=function(){
+    var regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());   
+    if(regionSettings.multiBlock==true){
+      $state.go("tab.residents-blocks");
+    }
     else{
-      $state.go("tab.blocks");
+      $state.go("tab.neighbors");
     }
   }
 
