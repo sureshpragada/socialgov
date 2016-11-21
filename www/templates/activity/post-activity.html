@@ -36,7 +36,9 @@
 			  <a class="item item-thumbnail-left item-icon-right"  ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded!=null">
 			    <img ng-src="{{pictureUploaded}}">
 			    <i class="icon ion-android-cloud-done balanced"></i>
-			  </a>			  
+			  </a>		
+			  <ion-checkbox ng-model="pushNotifs.onlyToHomeOwners">Notify home owners only?</ion-checkbox>
+			  <ion-checkbox ng-if="regionSettings.multiBlock" ng-model="pushNotifs.onlyToMyBlock">Notify your block only?</ion-checkbox>
 		</div>
 		<div class="row">
 			<div class="col">

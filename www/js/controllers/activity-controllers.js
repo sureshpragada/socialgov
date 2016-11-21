@@ -639,7 +639,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         }
       });
   });
-
 })
 
 .controller('ActivityCtrl', function($scope, $http, $stateParams, NotificationService, LogService, ActivityService, SettingsService) {
@@ -674,7 +673,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   SettingsService.trackView("Post Activity controller");
   var user=AccountService.getUser();  
   var stateData=PictureManagerService.getState();
+  $scope.pushNotifs={"onlyToHomeOwners":false, "onlyToMyBlock":false};
   console.log(JSON.stringify(stateData));
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
 
   $scope.post={
     notifyMessage: stateData.data.message!=null?stateData.data.message:"",
@@ -738,7 +739,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               // Send notification only board members
               AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
-            } else {
+            } else if($scope.pushNotifs.onlyToHomeOwners || $scope.pushNotifs.onlyToMyBlock) {
+              // Send the push notification only to specific memebers in community
+              AccountService.sendNotificationToSpecificMembers($scope.post.notifyMessage, $scope.pushNotifs);              
+              SettingsService.setAppSuccessMessage("Activity has been posted.");            
+            }
+            else {
               // Send the push notification to everyone in community
               NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted.");            

@@ -348,6 +348,37 @@ angular.module('account.services', [])
           LogService.log({type:"ERROR", message: "Error while finding admins " + JSON.stringify(err) + " Message : " + message}); 
         }
       });    
+    },
+    sendNotificationToSpecificMembers: function(message, pushNotifs) {
+      var userQuery = new Parse.Query(Parse.User);
+      if(pushNotifs.onlyToHomeOwners) {
+        userQuery.equalTo("homeOwner", true);
+      }
+      userQuery.equalTo("residency", Parse.User.current().get("residency"));
+      // userQuery.descending("role");
+      userQuery.find({
+        success: function(members) {
+          if(members!=null & members.length>0){
+            var membersList=[];
+            var blockNo = Parse.User.current().get("homeNo").substring(6, Parse.User.current().get("homeNo").indexOf(";"));
+            for(var i=0;i<members.length;i++){
+              if(pushNotifs.onlyToMyBlock){
+                var blockNoFromHomeNum=members[i].get("homeNo").substring(6, members[i].get("homeNo").indexOf(";"));
+                if(blockNoFromHomeNum!=blockNo){
+                  continue;
+                }
+              }
+              membersList.push(members[i].id);              
+            }
+            console.log("Members list to notify : " + JSON.stringify(membersList));
+            NotificationService.pushNotificationToUserList(membersList, message);    
+          } else {
+            LogService.log({type:"ERROR", message: "No home owners found to report spam"}); 
+          }          
+        }, error: function(err) {
+          LogService.log({type:"ERROR", message: "Error while finding home owners " + JSON.stringify(err) + " Message : " + message}); 
+        }
+      });    
     },    
     flagUserAbusive: function(userId) {
       Parse.Cloud.run('modifyUser', { targetUserId: userId, userObjectKey: 'status', userObjectValue: 'S' }, {
