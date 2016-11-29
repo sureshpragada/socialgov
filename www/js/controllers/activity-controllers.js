@@ -39,6 +39,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.legiContactsList=[];
   $scope.user=AccountService.getUser();
   $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.isHomeOwner=AccountService.isHomeOwner();
   $scope.appMessage=SettingsService.getAppMessage();
 
   $ionicLoading.show(SettingsService.getLoadingMessage("Finding activity"));
@@ -55,6 +56,15 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
         } else if($scope.activities[j].get("status")=="P" && $scope.activities[j].get("user").id!=$scope.user.id) {
           // Residents do not see pending posts; unless they have posted the message
           filterActivity=true;
+        } else if($scope.activities[j].get("notifyHomeOwners")==true && !$scope.isHomeOwner) {
+          // Tenants do not see the posts that are posted for home owners
+          filterActivity=true;
+        } else if($scope.activities[j].get("blockToNotify")!=null && $scope.activities[j].get("blockToNotify")!="ALL") {
+          // Residents do not see the posts of other blocks, if blockToNotify is specified
+          var currentBlockNo=Parse.User.current().get("homeNo").substring(6, Parse.User.current().get("homeNo").indexOf(";"));
+          if(currentBlockNo!=$scope.activities[j].get("blockToNotify")){
+            filterActivity=true;
+          }
         } else {
           // Filter by activity type
           if($scope.activities[j].get("activityType")=="POLL" && $scope.activities[j].get("pollSettings").whoCanVote=="HOME_OWNER" && $scope.user.get("homeOwner")==false) {
@@ -676,14 +686,15 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.pushNotifs={"onlyToHomeOwners":false, "onlyToMyBlock":false};
   console.log(JSON.stringify(stateData));
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
-
+  $scope.blockIndex=0;
   $scope.post={
     notifyMessage: stateData.data.message!=null?stateData.data.message:"",
     activityType: stateData.data.activityType!=null?stateData.data.activityType:$stateParams.activityType,
     user: AccountService.getUser(),
     support: 0,
     oppose: 0,
-    debate: 0    
+    debate: 0,
+    notifyHomeOwners: false    
   };
   $scope.activitySettings={
     communityProblem: true
@@ -694,7 +705,30 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.postErrorMessage=null;
   $scope.allowImageUpload=ionic.Platform.isWebView();
   $scope.pictureUploaded=stateData.imageUrl;
-  $scope.regionSettings=RegionService.getRegionSettings(user.get("residency"));
+
+  if($scope.regionSettings.multiBlock){
+    AccountService.getAllHomes(AccountService.getUserResidency()).then(function(homes){
+      $scope.uniqueBlocks=[{label: "ALL"}];
+      var blocks=AccountService.getUniqueBlocks(homes);
+      for(var i=0; i<blocks.length; i++){
+        $scope.uniqueBlocks.push({
+          label: blocks[i] 
+        });
+      }
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get blocks in community.");
+    });
+  }
+
+  $scope.$on('choiceSelectionComplete', function(e,data) {  
+    if(data.choiceName=="blocksType") {
+      $scope.blockIndex=data.selected;  
+    }
+  });
+
+  $scope.openChoiceModalOfBlocksType=function(){
+     $scope.$parent.openChoiceModal("blocksType", $scope.uniqueBlocks);
+  };
 
   displayActivityWarnMessage();
   $scope.submitPost=function() {
@@ -728,7 +762,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           $scope.post.problemStatus="OPEN";
           $scope.post.problemType=$scope.activitySettings.communityProblem==true?"COMMUNITY":"PERSONAL";
         }
-
+        if($scope.regionSettings.multiBlock){
+          $scope.post.blockToNotify=$scope.uniqueBlocks[$scope.blockIndex].label;
+        }
         // alert(JSON.stringify($scope.post));
         var Activity = Parse.Object.extend("Activity");
         var activity = new Activity();
@@ -739,9 +775,9 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               // Send notification only board members
               AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
-            } else if($scope.pushNotifs.onlyToHomeOwners || $scope.pushNotifs.onlyToMyBlock) {
+            } else if($scope.post.notifyHomeOwners || $scope.post.blockToNotify!=null) {
               // Send the push notification only to specific memebers in community
-              AccountService.sendNotificationToSpecificMembers($scope.post.notifyMessage, $scope.pushNotifs);              
+              AccountService.sendNotificationToSpecificMembers($scope.post.notifyMessage, $scope.post.notifyHomeOwners, $scope.post.blockToNotify);              
               SettingsService.setAppSuccessMessage("Activity has been posted.");            
             }
             else {
