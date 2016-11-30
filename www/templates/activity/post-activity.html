@@ -37,11 +37,11 @@
 			    <img ng-src="{{pictureUploaded}}">
 			    <i class="icon ion-android-cloud-done balanced"></i>
 			  </a>		
-			  <ion-checkbox ng-model="post.notifyHomeOwners">Notify home owners only?</ion-checkbox>
+			  <ion-checkbox ng-model="post.notifyHomeOwners">Post activity to home owners only</ion-checkbox>
 			  <ion-item class="item-icon-right item-text-wrap" ng-click="openChoiceModalOfBlocksType()" ng-if="regionSettings.multiBlock">
 				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
-				Want to notify a specific block?<p>{{uniqueBlocks[blockIndex].label}}</p>
-			</ion-item>	
+				Post activity to block(s)<p>{{uniqueBlocks[blockIndex].label}}</p>
+			  </ion-item>	
 		</div>
 		<div class="row">
 			<div class="col">
