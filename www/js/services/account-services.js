@@ -221,6 +221,14 @@ angular.module('account.services', [])
         return false;
       }
     },
+    isHomeOwner: function(){
+      var user=this.getUser();
+      if(user!=null && user.get("homeOwner")==true){
+        return true;
+      }else{
+        return false;
+      }
+    },
     canOtherUserUpdateRegion: function(user){
       if(user!=null && user.get("role")=="JNLST" || user.get("role")=="SUADM" || user.get("role")=="SOACT" || user.get("superAdmin")==true){
         return true;
@@ -346,6 +354,37 @@ angular.module('account.services', [])
           }          
         }, error: function(err) {
           LogService.log({type:"ERROR", message: "Error while finding admins " + JSON.stringify(err) + " Message : " + message}); 
+        }
+      });    
+    },
+    sendNotificationToSpecificMembers: function(message, notifyHomeOwners, blockToNotify) {
+      var userQuery = new Parse.Query(Parse.User);
+      if(notifyHomeOwners) {
+        userQuery.equalTo("homeOwner", true);
+      }
+      userQuery.equalTo("residency", Parse.User.current().get("residency"));
+      // userQuery.descending("role");
+      userQuery.find({
+        success: function(members) {
+          if(members!=null & members.length>0){
+            var membersList=[];
+            var blockNo = Parse.User.current().get("homeNo").substring(6, Parse.User.current().get("homeNo").indexOf(";"));
+            for(var i=0;i<members.length;i++){
+              if(blockToNotify!=null && blockToNotify!="ALL"){
+                var blockNoFromHomeNum=members[i].get("homeNo").substring(6, members[i].get("homeNo").indexOf(";"));
+                if(blockNoFromHomeNum!=blockToNotify){
+                  continue;
+                }
+              }
+              membersList.push(members[i].id);              
+            }
+            console.log("Members list to notify : " + JSON.stringify(membersList));
+            NotificationService.pushNotificationToUserList(membersList, message);    
+          } else {
+            LogService.log({type:"ERROR", message: "No home owners found to report spam"}); 
+          }          
+        }, error: function(err) {
+          LogService.log({type:"ERROR", message: "Error while finding home owners " + JSON.stringify(err) + " Message : " + message}); 
         }
       });    
     },    
