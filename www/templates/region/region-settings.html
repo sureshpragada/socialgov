@@ -12,6 +12,12 @@
       <ion-toggle ng-model="inputSettings.reserveVisibility" ng-change="notifySettingChanged()">
           Show reserves to everyone
       </ion-toggle>                
+      <ion-toggle ng-model="inputSettings.residencesVisibility" ng-change="notifySettingChanged()">
+          Show residences to everyone
+      </ion-toggle>                      
+      <ion-toggle ng-model="inputSettings.serviceContactsVisibility" ng-change="notifySettingChanged()">
+          Share service contacts
+      </ion-toggle>                            
       <ion-item class="item-icon-right" ng-click="updateCoverPhoto()" >
           Update Community Picture 
           <i class="icon ion-chevron-right icon-accessory"></i>
