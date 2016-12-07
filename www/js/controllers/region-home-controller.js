@@ -20,7 +20,7 @@ angular.module('starter.controllers')
     for(var i=0;i<homes.length;i++) {
         var residentCount=0, homeOwnerCount=0, tenantCount=0;
         var searchString=homes[i].get("homeNo");
-        console.log("Residents length " + residents.length);
+        // console.log("Residents length " + residents.length);
         if(blockNo!=null && blockNo!="" && homes[i].get("blockNo")!=blockNo) {
           continue;
         }

@@ -28,6 +28,9 @@ angular.module('starter.controllers')
     $scope.regionSettings=RegionService.getRegionSettings(residency);    
     console.log(JSON.stringify($scope.regionSettings));
     $scope.canControlSettings=AccountService.isFunctionalAdmin($scope.regionSettings, "Settings");        
+    // $scope.canViewResidences=false;
+    // TODO :: Write functionality 
+
     $scope.updateCoverPhotoIfAvailable($scope.region);
     $scope.posterImages=$scope.region.get("posterImages");
     $scope.titleActions.regionTitle=$scope.region.get("name");
@@ -793,6 +796,8 @@ angular.module('starter.controllers')
   console.log("Region settings : " + JSON.stringify(regionSettings));
   $scope.inputSettings={
     reserveVisibility: regionSettings.reserveVisibility=="OPEN"?true:false,
+    residencesVisibility: regionSettings.residencesVisibility=="OPEN"?true:false,
+    serviceContactsVisibility: regionSettings.serviceContactsVisibility=="OPEN"?true:false,
     activityModeration: regionSettings.activityModeration
   };
 
@@ -807,6 +812,8 @@ angular.module('starter.controllers')
 
       currentRegionSettings.activityModeration=$scope.inputSettings.activityModeration;
       currentRegionSettings.reserveVisibility=$scope.inputSettings.reserveVisibility==true?"OPEN":"CLOSED";
+      currentRegionSettings.residencesVisibility=$scope.inputSettings.residencesVisibility==true?"OPEN":"CLOSED";
+      currentRegionSettings.serviceContactsVisibility=$scope.inputSettings.serviceContactsVisibility==true?"OPEN":"CLOSED";      
       region.set("settings", currentRegionSettings);
 
       region.save().then(function(updatedRegion){

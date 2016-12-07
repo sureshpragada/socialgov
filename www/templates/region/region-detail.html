@@ -40,7 +40,7 @@
           Add Cover Photo 
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                 -->
-      <ion-item ng-click="showResidentsList()" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin">
+      <ion-item ng-click="showResidentsList()" class="item-icon-left item-icon-right" ng-if="regionSettings.hoa && regionSettings.supportHomeNumber && !isAdmin && regionSettings.residencesVisibility!='CLOSED'">
           <i class="icon ion-ios-people-outline royal"></i>
           Residents 
           <i class="icon ion-chevron-right icon-accessory"></i>
@@ -60,7 +60,7 @@
           {{'LegContact' | translate}}      
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
-      <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" id="service-id">
+      <ion-item href="#/tab/service/{{region.get('uniqueName')}}" class="item-icon-left item-icon-right" id="service-id" ng-if="regionSettings.serviceContactsVisibility!='CLOSED'">
         <i class="icon ion-ios-flame-outline royal"></i>
           Service Contacts
         <i class="icon ion-chevron-right icon-accessory"></i>
