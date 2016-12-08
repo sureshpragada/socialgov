@@ -798,7 +798,8 @@ angular.module('starter.controllers')
     reserveVisibility: regionSettings.reserveVisibility=="OPEN"?true:false,
     residencesVisibility: regionSettings.residencesVisibility=="OPEN"?true:false,
     serviceContactsVisibility: regionSettings.serviceContactsVisibility=="OPEN"?true:false,
-    activityModeration: regionSettings.activityModeration
+    activityModeration: regionSettings.activityModeration,
+    allCanControlServiceContacts: regionSettings.allCanControlServiceContacts=="OPEN"?true:false
   };
 
   $scope.whoControlFinancial=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "Financial").convertToFlatString();  
@@ -814,6 +815,7 @@ angular.module('starter.controllers')
       currentRegionSettings.reserveVisibility=$scope.inputSettings.reserveVisibility==true?"OPEN":"CLOSED";
       currentRegionSettings.residencesVisibility=$scope.inputSettings.residencesVisibility==true?"OPEN":"CLOSED";
       currentRegionSettings.serviceContactsVisibility=$scope.inputSettings.serviceContactsVisibility==true?"OPEN":"CLOSED";      
+      currentRegionSettings.allCanControlServiceContacts=$scope.inputSettings.allCanControlServiceContacts==true?"OPEN":"CLOSED";      
       region.set("settings", currentRegionSettings);
 
       region.save().then(function(updatedRegion){

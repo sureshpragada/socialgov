@@ -18,6 +18,9 @@
       <ion-toggle ng-model="inputSettings.serviceContactsVisibility" ng-change="notifySettingChanged()">
           Share service contacts
       </ion-toggle>                            
+      <ion-toggle ng-model="inputSettings.allCanControlServiceContacts" ng-change="notifySettingChanged()">
+          Residents can control service contacts
+      </ion-toggle>                            
       <ion-item class="item-icon-right" ng-click="updateCoverPhoto()" >
           Update Community Picture 
           <i class="icon ion-chevron-right icon-accessory"></i>
