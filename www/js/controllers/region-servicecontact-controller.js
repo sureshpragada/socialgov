@@ -8,6 +8,8 @@ angular.module('starter.controllers')
     searchStr: ""
   };
   
+  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.regionSettings=RegionService.getRegionSettings($stateParams.regionUniqueName);          
   // $scope.personalServiceContacts=null;
   ServiceContactService.getServiceContacts($stateParams.regionUniqueName).then(function(serviceContacts){
     console.log("Received : " + JSON.stringify(serviceContacts));
@@ -32,6 +34,9 @@ angular.module('starter.controllers')
   SettingsService.trackView("Region service contact detail controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading service contact"));
+
+  $scope.isAdmin=AccountService.canUpdateRegion();
+  $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
     console.log("region controller received contact");
     $scope.serviceContact=contact;
