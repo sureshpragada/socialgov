@@ -8,6 +8,14 @@ angular.module('starter.controllers')
     searchStr: ""
   };
   
+  var regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
+  $scope.allowServiceContactManagement=true;
+  if(regionSettings.serviceContactsVisibility=='CLOSED') {
+    if(!AccountService.isFunctionalAdmin(regionSettings, SERVICE_CONTACTS_FUNCTIONAL_NAME)) {
+      $scope.allowServiceContactManagement=false;
+    }
+  }
+
   // $scope.personalServiceContacts=null;
   ServiceContactService.getServiceContacts($stateParams.regionUniqueName).then(function(serviceContacts){
     console.log("Received : " + JSON.stringify(serviceContacts));
@@ -32,6 +40,15 @@ angular.module('starter.controllers')
   SettingsService.trackView("Region service contact detail controller");
   $scope.appMessage=SettingsService.getAppMessage();
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading service contact"));
+
+  var regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());    
+  $scope.allowServiceContactManagement=true;
+  if(regionSettings.serviceContactsVisibility=='CLOSED') {
+    if(!AccountService.isFunctionalAdmin(regionSettings, SERVICE_CONTACTS_FUNCTIONAL_NAME)) {
+      $scope.allowServiceContactManagement=false;
+    }
+  }
+
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
     console.log("region controller received contact");
     $scope.serviceContact=contact;

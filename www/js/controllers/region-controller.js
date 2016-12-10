@@ -802,6 +802,7 @@ angular.module('starter.controllers')
   };
 
   $scope.whoControlFinancial=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "Financial").convertToFlatString();  
+  $scope.whoControlServiceContacts=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "ServiceContacts").convertToFlatString();  
   $scope.whoControlSettings=RegionService.getFunctionControllersFromRegionSettings(regionSettings, "Settings").convertToFlatString();  
 
   $scope.saveSettings=function() {
@@ -840,13 +841,21 @@ angular.module('starter.controllers')
     RegionService.gotoCoverPhoto();
   };
 
-  $scope.updateFinancialManagers=function(functionName) {
-    $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "Financial"});
+  $scope.updateFunctionalManagers=function(functionNameValue) {
+    $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: functionNameValue});
   };
 
-  $scope.updateSettingsManagers=function(functionName) {
-    $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "Settings"});
-  };
+  // $scope.updateFinancialManagers=function(functionName) {
+  //   $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "Financial"});
+  // };
+
+  // $scope.updateSettingsManagers=function(functionName) {
+  //   $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "Settings"});
+  // };
+
+  // $scope.updateServiceContactManagers=function(functionName) {
+  //   $state.go("tab.region-settings-function", {regionUniqueName: $stateParams.regionUniqueName, functionName: "ServiceContacts"});
+  // }
 
 })
 
