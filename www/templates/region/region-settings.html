@@ -5,6 +5,10 @@
   <ion-content class="visible-cards">
     <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
+      <ion-item class="item-icon-right" ng-click="updateCoverPhoto()" >
+          Update Community Picture 
+          <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>                                
       <ion-toggle ng-model="inputSettings.activityModeration" ng-change="notifySettingChanged()">
           Activity Moderation
           <p>Enable board to review the posts</p>
@@ -15,22 +19,20 @@
       <ion-toggle ng-model="inputSettings.residencesVisibility" ng-change="notifySettingChanged()">
           Show residences to everyone
       </ion-toggle>                      
-      <ion-toggle ng-model="inputSettings.serviceContactsVisibility" ng-change="notifySettingChanged()">
-          Share service contacts
+      <ion-toggle ng-model="inputSettings.serviceContactsVisibility" ng-change="notifySettingChanged()" class="item-text-wrap">
+          Allow everyone to share service contacts
       </ion-toggle>                            
-      <ion-toggle ng-model="inputSettings.allCanControlServiceContacts" ng-change="notifySettingChanged()">
-          Residents can control service contacts
-      </ion-toggle>                            
-      <ion-item class="item-icon-right" ng-click="updateCoverPhoto()" >
-          Update Community Picture 
+      <ion-item class="item-icon-right" ng-click="updateFunctionalManagers('ServiceContacts')" ng-if="!inputSettings.serviceContactsVisibility">
+          Service Contacts Access Controls
+          <p>{{whoControlServiceContacts}}</p>
           <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>                            
-      <ion-item class="item-icon-right" ng-click="updateFinancialManagers()">
+      </ion-item>                                  
+      <ion-item class="item-icon-right" ng-click="updateFunctionalManagers('Financial')">
           Financial Access Controls
           <p>{{whoControlFinancial}}</p>
           <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>                            
-      <ion-item class="item-icon-right" ng-click="updateSettingsManagers()">
+      <ion-item class="item-icon-right" ng-click="updateFunctionalManagers('Settings')">
           Settings Access Controls
           <p>{{whoControlSettings}}</p>
           <i class="icon ion-chevron-right icon-accessory"></i>

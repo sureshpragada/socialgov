@@ -76,9 +76,29 @@ angular.module('service-contact.services', [])
       return serviceContact.save(inputServiceContact);
     },
     updateServiceContact: function(inputServiceContact) {
+      var deferred = $q.defer();
+      console.log("input service contact " + JSON.stringify(inputServiceContact));
       var ServiceContact = Parse.Object.extend("ServiceContact");
-      var serviceContact = new ServiceContact();
-      return serviceContact.save(inputServiceContact);
+      var query = new Parse.Query(ServiceContact);
+      query.equalTo("objectId", inputServiceContact.objectId); 
+      query.include("user");
+      query.first().then(function(personalServiceContact) {
+        console.log("retrieved personal service contact");
+        personalServiceContact.set("serviceName", inputServiceContact.serviceName);
+        personalServiceContact.set("type", inputServiceContact.type);
+        personalServiceContact.set("serviceAddressLine1", inputServiceContact.serviceAddressLine1);
+        personalServiceContact.set("serviceAddressLine2", inputServiceContact.serviceAddressLine2);
+        personalServiceContact.set("servicePhoneNumber", inputServiceContact.servicePhoneNumber);
+        personalServiceContact.set("otherCategoryName", inputServiceContact.otherCategoryName);
+        personalServiceContact.save().then(function(savedObject) {
+          deferred.resolve(savedObject);  
+        }, function(error) {
+          deferred.reject(error);  
+        });         
+      },function(error) {
+          deferred.reject(error);
+      }); 
+      return deferred.promise;         
     }
   };
 }])

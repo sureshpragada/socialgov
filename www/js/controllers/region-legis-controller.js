@@ -39,17 +39,19 @@ angular.module('starter.controllers')
 
 })
 
-.controller('SelfLegisDetailCtrl', function($scope, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {
+.controller('SelfLegisDetailCtrl', function($scope, $ionicLoading, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService) {
   SettingsService.trackView("Region self legis details controller");
   $scope.canUpdateRegion=AccountService.canUpdateRegion();
   $scope.appMessage=SettingsService.getAppMessage();
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading board members"));
   AccountService.getSelfLegisContacts($stateParams.regionUniqueName).then(function(legisList){
     $scope.legisList = legisList;
     if($scope.legisList==null || $scope.legisList.length==0) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Legislative board is not established in your community.");
       if($scope.canUpdateRegion==true) {
         $scope.ideaMessage=SettingsService.getControllerIdeaMessage("Looking to establish the board? Use controls above to manage titles and appoint residents on the board.");
-      }      
+      }     
+      $ionicLoading.hide(); 
     } else {
       RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
         var legiTitles=region.get('legiTitles');
@@ -62,14 +64,17 @@ angular.module('starter.controllers')
           }
         }
         $scope.legisList=sortedLegiList;
+        $ionicLoading.hide();
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to present your board in appropriate order.");
         LogService.log({type:"ERROR", message: "Unable to present your board in appropriate order " + JSON.stringify(error)}); 
+        $ionicLoading.hide();
       });    
     }
   },function(error){
     console.log("Unable to get legislative contacts " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to retrieve legislative contacts.");
+    $ionicLoading.hide();
   });
 
 })

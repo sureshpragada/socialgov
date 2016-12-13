@@ -20,7 +20,7 @@
         <p>{{serviceContact.user.firstName}} {{serviceContact.user.lastName}}</p>        
       </ion-item>                
     </div>    
-    <div class="padding" ng-if="regionSettings.allCanControlServiceContacts=='OPEN' || isAdmin">
+    <div class="padding" ng-if="allowServiceContactManagement">
       <button class="button button-balanced button-block" ng-click="gotoEditServiceContact()">
         Edit Service Contact
       </button>

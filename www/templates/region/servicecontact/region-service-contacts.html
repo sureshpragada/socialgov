@@ -1,6 +1,6 @@
 <ion-view title="Service Contacts">
   <ion-nav-buttons side="secondary">
-    <a class="button button-icon icon ion-ios-plus-outline" ng-click="gotoAddServiceContact()" ng-if="personalServiceContacts.length>=4"></a>
+    <a class="button button-icon icon ion-ios-plus-outline" ng-click="gotoAddServiceContact()" ng-if="personalServiceContacts.length>=4 && allowServiceContactManagement"></a>
   </ion-nav-buttons>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
@@ -21,7 +21,7 @@
 	      <i class="icon ion-chevron-right icon-accessory"></i>	      	      	      	      
 	    </ion-item>
     </ion-list>
-	<div class="card" ng-if="personalServiceContacts.length<4 && (regionSettings.allCanControlServiceContacts=='OPEN' || isAdmin)">
+	<div class="card" ng-if="personalServiceContacts.length<4 && allowServiceContactManagement">
 	  <div class="item item-text-wrap success"> 
 	    Have you received a good service recently?<br><br>
 	    <a class="button button-calm button-block" ng-click="gotoAddServiceContact()">Recommend Service</a>
