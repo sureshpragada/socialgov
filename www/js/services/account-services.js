@@ -682,6 +682,11 @@ angular.module('account.services', [])
         LogService.log({type:"ERROR", message: "Failed to send payment notifications " + JSON.stringify(error) + " residency : " + residency + " homeNo : " + homeNo}); 
       });
     },
+    sendNotificationToResident: function(message, userId) {
+      var residentIdList=[];
+      residentIdList.push(userId);
+      NotificationService.pushNotificationToUserList(residentIdList, message);  
+    },
     getSelfLegisContacts:function(residency) {
       var deferred = $q.defer();      
       this.getResidentsInCommunity(residency).then(function(neighborList) {

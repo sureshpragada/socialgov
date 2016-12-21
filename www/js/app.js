@@ -173,7 +173,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       url: '/post/{activityType}',
       cache: false,
       views: {
-        'tab-dash': {
+        'tab-dash': { 
+          templateUrl: 'templates/activity/post-activity.html',
+          controller: 'PostActivityCtrl'
+        }
+      }
+    })
+
+    .state('tab.resident-post', {
+      url: '/resident-post/{activityType}/{userId}',
+      cache: false,
+      views: {
+        'tab-region': { 
           templateUrl: 'templates/activity/post-activity.html',
           controller: 'PostActivityCtrl'
         }
@@ -552,7 +563,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })             
-
 
     .state('tab.residents-blocks', {
       url: '/residents-blocks',
