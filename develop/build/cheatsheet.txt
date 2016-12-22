@@ -142,6 +142,8 @@ OurBlock Team
 </widget>
 
 
+http://blog.mailgun.com/how-to-send-transactional-emails-in-a-nodejs-app-using-the-mailgun-api/
+https://www.npmjs.com/package/mailgun-js
 
 curl -s --user 'api:key-89bea41ee44564cc479f013433d927c8' \
     https://api.mailgun.net/v3/sandbox8642ade5619d489a884f27cca01ba1a0.mailgun.org/messages \

@@ -1,13 +1,15 @@
-<div class="modal">	
-	<ion-list>
-<!-- 		<h4 class="padding">What is the purpose of this action?</h4> -->
-		<ion-item ng-repeat="modalChoice in modalChoices" class="item-icon-right item-text-wrap" ng-click="selectModalChoice($index)">
-			<i class="icon ion-chevron-right icon-accessory"></i>
-			{{modalChoice.label}}
-			<p ng-if="modalChoice.opt">{{modalChoice.opt}}</p>
-		</ion-item>
-	</ion-list>
-	<div class="padding">
-		<a class="button button-block button-assertive" ng-click="closeChoiceModal()">Never mind</a>
-	</div>
-</div>
+<ion-modal-view>
+    <ion-content>
+		<ion-list>
+	<!-- 		<h4 class="padding">What is the purpose of this action?</h4> -->
+			<ion-item ng-repeat="modalChoice in modalChoices" class="item-icon-right item-text-wrap" ng-click="selectModalChoice($index)">
+				<i class="icon ion-chevron-right icon-accessory"></i>
+				{{modalChoice.label}}
+				<p ng-if="modalChoice.opt">{{modalChoice.opt}}</p>
+			</ion-item>
+		</ion-list>
+      	<div class="padding">
+			<a class="button button-block button-assertive" ng-click="closeChoiceModal()">Never mind</a>
+		</div>			
+    </ion-content>
+</ion-modal-view>

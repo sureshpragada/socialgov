@@ -32,10 +32,10 @@
 	    	<resident info="neighbor"></resident>
 	    </div>	    	    
     </ion-list>
-    <div class="padding">
-		<a class="button button-block button-balanced" ng-click="gotoInvite()">Add Resident</a>	
-		<a class="button button-block button-positive" ng-click="editHome()">Edit Home</a>    		
-		<a class="button button-block button-assertive" ng-click="deleteHome()" ng-if="neighborList.length==0">Delete Home</a>    	
+    <div class="padding" ng-if="canManageHomes">
+  		<a class="button button-block button-balanced" ng-click="gotoInvite()">Add Resident</a>	
+  		<a class="button button-block button-positive" ng-click="editHome()">Edit Home</a>    		
+  		<a class="button button-block button-assertive" ng-click="deleteHome()" ng-if="neighborList.length==0">Delete Home</a>   	
     </div>
   </ion-content>
 </ion-view>
