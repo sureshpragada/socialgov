@@ -506,6 +506,7 @@ angular.module('starter.controllers')
   $scope.operatingUser=AccountService.getUser();
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.user=null;
+  $scope.canSendMessage=$stateParams.userId==Parse.User.current().id?false:true;
   AccountService.getUserById(AccountService.getUserResidency(), $stateParams.userId).then(function(neighbor) {
     // console.log("Got the neighbor " + JSON.stringify(neighbor));
     $scope.userResidency=neighbor;
@@ -593,6 +594,9 @@ angular.module('starter.controllers')
     });
   };
 
+  $scope.sendMessage=function() {
+    $state.go("tab.resident-post", {"activityType":"NOTIF", "userId":$stateParams.userId});
+  };
 })
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {

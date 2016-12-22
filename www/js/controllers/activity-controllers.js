@@ -41,7 +41,6 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.isAdmin=AccountService.canUpdateRegion();
   $scope.isHomeOwner=AccountService.isHomeOwner();
   $scope.appMessage=SettingsService.getAppMessage();
-
   $ionicLoading.show(SettingsService.getLoadingMessage("Finding activity"));
   ActivityService.getActivityDataForDashboard().then(function(activityDashboardData){
     $scope.activities=activityDashboardData[0];
@@ -64,6 +63,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
           var currentBlockNo=Parse.User.current().get("homeNo").substring(6, Parse.User.current().get("homeNo").indexOf(";"));
           if(currentBlockNo!=$scope.activities[j].get("blockToNotify")){
             filterActivity=true;
+          }
+        } else if($scope.activities[j].get("userToNotify")!=null && !$scope.isAdmin) {
+          var currentUserId=Parse.User.current().id;
+          if(currentUserId!=$scope.activities[j].get("userToNotify")){
+            filterActivity=true; 
           }
         } else {
           // Filter by activity type
@@ -694,7 +698,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     support: 0,
     oppose: 0,
     debate: 0,
-    notifyHomeOwners: false    
+    notifyHomeOwners: false,
+    userToNotify:$stateParams.userId    
   };
   $scope.activitySettings={
     communityProblem: true
@@ -775,12 +780,14 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               // Send notification only board members
               AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
+            } else if($scope.post.userToNotify!=null && $scope.post.userToNotify!=""){
+              AccountService.sendNotificationToResident($scope.post.notifyMessage, $scope.post.userToNotify);              
+              SettingsService.setAppSuccessMessage("Activity has been posted for resident.");            
             } else if($scope.post.notifyHomeOwners || $scope.post.blockToNotify!=null) {
               // Send the push notification only to specific memebers in community
               AccountService.sendNotificationToSpecificMembers($scope.post.notifyMessage, $scope.post.notifyHomeOwners, $scope.post.blockToNotify);              
               SettingsService.setAppSuccessMessage("Activity has been posted.");            
-            }
-            else {
+            } else {
               // Send the push notification to everyone in community
               NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted.");            
@@ -788,7 +795,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
             ActivityService.refreshActivityCache();
             $ionicLoading.hide();                      
             PictureManagerService.reset();
-            $ionicHistory.goBack(-2);
+            if($scope.post.userToNotify!=null && $scope.post.userToNotify!=""){
+              $ionicHistory.goBack(-1);
+            } else {
+              $ionicHistory.goBack(-2);
+            }
           },
           error: function(activity, error) {
             console.log("Error in posting message " + error.message);
@@ -811,13 +822,17 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     if(($scope.post.notifyMessage!=null && $scope.post.notifyMessage.length>10) || PictureManagerService.getState().imageUrl!=null) {
       $cordovaDialogs.confirm('Do you want to abort posting?', 'Cancel Post', ['Abort Post','Continue Edit']).then(function(buttonIndex) { 
         if(buttonIndex==1) {
-          $ionicHistory.goBack(-2);
+          if($scope.post.userToNotify!=null && $scope.post.userToNotify!=""){
+            $ionicHistory.goBack(-1);
+          } else {
+            $ionicHistory.goBack(-2);
+          }
         } else {
           console.log("Canceled posting of activity");
         }
       });      
     } else {
-      $ionicHistory.goBack(-1);
+        $ionicHistory.goBack(-1);
     }
   };
 
