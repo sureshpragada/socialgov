@@ -48,6 +48,7 @@ angular.module('starter.controllers')
       $scope.allowServiceContactManagement=false;
     }
   }
+
   ServiceContactService.getServiceContactByObjectId(AccountService.getUserResidency(), $stateParams.serviceContactId).then(function(contact){
     console.log("region controller received contact");
     $scope.serviceContact=contact;
