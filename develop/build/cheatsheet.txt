@@ -156,4 +156,45 @@ You can see a record of this email in your logs: https://mailgun.com/cp/log
 
 You can send up to 300 emails/day from this sandbox server. Next, you should add your own domain so you can send 10,000 emails/month for free.'
     
+
+Parse.Cloud.useMasterKey() is not available in Parse Server Cloud Code. Instead, pass { useMasterKey: true } as an option to any operation that requires the use of the master key to bypass ACLs and/or CLPs.
+(https://github.com/ParsePlatform/parse-server/wiki/Compatibility-with-Hosted-Parse#master-key-must-be-passed-explicitly)
     
+
+
+Parse.initialize("key", "key");
+
+var products = Parse.Object.extend("products");
+
+var base64 = "V29ya2luZyBhdCBQYXJzZSBpcyBncmVhdCE=";
+var file = new Parse.File("mypic.png", { base64: base64 });
+file.save({
+    success: function(file) {
+        alert('File saved, now saving product with file reference...');
+
+        var prod = new products();
+        // to fill the columns 
+        prod.set("productID", 1337);
+        prod.set("price", 10);
+        //I guess it need some fixing here
+        prod.set("picture", file);
+        prod.set("productName", "shampoo");
+        prod.set("productDescribe", "200 ml");
+
+        prod.save(null, {
+            success: function(prod) {
+                // Execute any logic that should take place after the object is saved.
+
+                alert('New object created with objectId: ' + prod.id);
+            },
+            error: function(error) {
+                // Execute any logic that should take place if the save fails.
+                // error is a Parse.Error with an error code and description.
+                alert('Failed to create new object, with error code: ' + error.description);
+            }
+        });
+    },
+    error: function(error) {
+        alert('Failed to save file: ' + error.description);
+    }
+});    

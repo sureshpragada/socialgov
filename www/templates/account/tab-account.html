@@ -33,7 +33,7 @@
         <span class="item-note assertive" ng-if="!user.get('bloodGroup')">Not Provided</span>
       </ion-item>     
       <!-- TODO :: Should we show option like "Register your vehicles when the count is zero -->
-      <ion-item  class="item-icon-right" href="#/tab/account-vehicle-list/{{user.id}}">
+      <ion-item  class="item-icon-right" href="#/tab/account-vehicle-list/{{user.get('homeNo')}}">
         <i class="icon ion-chevron-right icon-accessory"></i> 
         Vehicle Registration
 <!--         <span class="badge badge-balanced">2</span> -->

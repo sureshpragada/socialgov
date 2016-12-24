@@ -22,6 +22,11 @@
   		<span class="item-note" ng-if="home.get('noOfSqFt')">{{home.get("noOfSqFt")}}</span>
   		<span class="item-note" ng-if="!home.get('noOfSqFt')">NA</span>
   	</ion-item>	
+    <ion-item  class="item-icon-right" href="#/tab/region-vehicle-list/{{home.get('homeNo')}}">
+      <i class="icon ion-chevron-right icon-accessory"></i> 
+      Vehicle Registration
+      <span class="badge badge-royal">{{home.get("vehicleList").length}}</span>
+    </ion-item>    
   	<ion-list ng-if="neighborList.length>0">
   		<ion-item class="item-divider" ng-if="homeOwnerList.length>0">Home Owners</ion-item>
 	    <div ng-repeat="neighbor in homeOwnerList">
