@@ -246,6 +246,39 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })        
 
+    .state('tab.account-vehicle-list', {
+      url: '/account-vehicle-list/{userId}',
+      cache: false,
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/account/vehicle-list.html',
+          controller: 'VehicleListCtrl'
+        }
+      }
+    })        
+
+    .state('tab.region-vehicle-list', {
+      url: '/region-vehicle-list/{userId}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/account/vehicle-list.html',
+          controller: 'VehicleListCtrl'
+        }
+      }
+    })            
+
+    .state('tab.account-vehicle-add', {
+      url: '/account-vehicle-add',
+      cache: false,
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/account/vehicle-add.html',
+          controller: 'VehicleAddCtrl'
+        }
+      }
+    })        
+
     .state('tab.regions', {
       url: '/regions',
       views: {

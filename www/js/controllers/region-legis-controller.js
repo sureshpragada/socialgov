@@ -153,7 +153,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('BoardAppointmentCtrl', function($scope, $interval, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicListDelegate, $ionicLoading, $ionicHistory) {
+.controller('BoardAppointmentCtrl', function($scope, $interval, $stateParams, RegionService, AccountService, $state, $ionicPopover, $cordovaDialogs, SettingsService, $ionicListDelegate, $ionicLoading, $ionicHistory, $ionicModal) {
   SettingsService.trackView("Region board appointment controller");
   $scope.legiTitleSelectedIndex=0;  
   $scope.legiTitleList=[];
