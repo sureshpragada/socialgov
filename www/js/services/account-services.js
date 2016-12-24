@@ -464,6 +464,7 @@ angular.module('account.services', [])
       user.set("lastName", inputUser.lastName);
       // user.set("homeNo", inputUser.homeNumber);
       user.set("bloodGroup", inputUser.bloodGroup!=null?inputUser.bloodGroup.toUpperCase():"");
+      user.set("email", inputUser.email!=null?inputUser.email:"");
       return user.save();
     },
     updateNeighborAccount: function(inputUser, neighbor, userResidency) {
@@ -492,6 +493,10 @@ angular.module('account.services', [])
         promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'username', userObjectValue: inputUser.country.countryCode+""+inputUser.phoneNum }));        
         console.log("Updating username");
       }                  
+      if(inputUser.email!=neighbor.get("email")) {
+        promises.push(Parse.Cloud.run('modifyUser', { targetUserId: neighbor.id, userObjectKey: 'email', userObjectValue: inputUser.email }));
+        console.log("Updating email");
+      }
 
       userResidency.set("homeNo", inputUser.home.value);
       userResidency.set("homeOwner", inputUser.homeOwner);

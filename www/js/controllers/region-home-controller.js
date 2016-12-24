@@ -594,7 +594,7 @@ angular.module('starter.controllers')
   };
 
   $scope.sendMessage=function() {
-    $state.go("tab.resident-post", {"activityType":"NOTIF", "userId":$stateParams.userId});
+    $state.go("tab.resident-post", {"activityType":"NOTF", "userId":$stateParams.userId});
   };
 })
 
@@ -644,6 +644,7 @@ angular.module('starter.controllers')
     $scope.inputUser.userId=$scope.user.id;
     $scope.inputUser.phoneNum=$scope.user.get("phoneNum");
     $scope.inputUser.homeOwner=$scope.userResidency.get("homeOwner");
+    $scope.inputUser.email=$scope.user.get("email");
     $scope.inputUser.country=AccountService.getCountryFromCountryList($scope.user.get("countryCode"), $scope.countryList);
 
     AccountService.getListOfHomesInCommunity(AccountService.getUserResidency()).then(function(homesList) {
@@ -689,6 +690,10 @@ angular.module('starter.controllers')
       return;
     }
 
+    if($scope.inputUser.email!=null && $scope.inputUser.email!="" && ($scope.inputUser.email.indexOf(".")==-1 || $scope.inputUser.email.indexOf("@")==-1 || $scope.inputUser.email.indexOf("@")<$scope.inputUser.email.indexOf("."))) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter proper email.");
+      return;
+    }
     // if($scope.regionSettings.supportHomeNumber==true) {
     //   if($scope.inputUser.homeNo==null || $scope.inputUser.homeNo.length<=0) {
     //     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter home, unit or apt number.");
