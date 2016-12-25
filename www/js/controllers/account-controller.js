@@ -483,7 +483,8 @@ angular.module('starter.controllers')
     firstName: user.get("firstName"), 
     lastName: user.get("lastName"),
     homeNumber: user.get("homeNo"),
-    bloodGroup: user.get("bloodGroup")
+    bloodGroup: user.get("bloodGroup"),
+    email: user.get("email")
   };
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());  
 
@@ -502,6 +503,8 @@ angular.module('starter.controllers')
 
     if($scope.inputUser.firstName==null || $scope.inputUser.lastName==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
+    } else if($scope.inputUser.email!=null && $scope.inputUser.email!="" && ($scope.inputUser.email.indexOf(".")==-1 || $scope.inputUser.email.indexOf("@")==-1 || $scope.inputUser.email.indexOf("@")<$scope.inputUser.email.indexOf("."))) {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter proper email.");
     } else {
       AccountService.updateAccount($scope.inputUser).then(function(newUser) {
         SettingsService.setAppSuccessMessage("Account update is successful.");
