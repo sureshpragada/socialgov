@@ -77,6 +77,7 @@ angular.module('starter.controllers')
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
   $scope.homeNo=$stateParams.homeNo; 
   $scope.appMessage=SettingsService.getAppMessage();    
+  $scope.canManageHomes=AccountService.canUpdateRegion();
 
   AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home){
     $scope.home=home;

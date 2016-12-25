@@ -86,6 +86,7 @@ angular.module('service-contact.services', [])
         console.log("retrieved personal service contact");
         personalServiceContact.set("serviceName", inputServiceContact.serviceName);
         personalServiceContact.set("type", inputServiceContact.type);
+        personalServiceContact.set("status", inputServiceContact.status);
         personalServiceContact.set("serviceAddressLine1", inputServiceContact.serviceAddressLine1);
         personalServiceContact.set("serviceAddressLine2", inputServiceContact.serviceAddressLine2);
         personalServiceContact.set("servicePhoneNumber", inputServiceContact.servicePhoneNumber);

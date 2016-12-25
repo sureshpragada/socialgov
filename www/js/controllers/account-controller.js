@@ -267,6 +267,7 @@ angular.module('starter.controllers')
     isLogoutAllowed: AccountService.isLogoutAllowed($scope.user), 
     isDeviceRegistered: ionic.Platform.isWebView() && $scope.user.get('deviceReg')=='Y'
   };
+
   console.log("Register device : " + $scope.user.get('deviceReg') + " Privs : " + $scope.privs.isDeviceRegistered);
   $scope.appVersion=APP_VERSION;
 
@@ -1150,4 +1151,83 @@ angular.module('starter.controllers')
     });
   };
 
-});
+})
+
+.controller('VehicleListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs) {
+  SettingsService.trackView("Vehicle list controller");        
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.controllerMessage=null;    
+
+  $scope.vehicleList=null;
+  AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
+    $scope.home=home;
+    $scope.vehicleList=$scope.home.get("vehicleList");
+    if($scope.vehicleList==null || $scope.vehicleList.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not registered any vehicles in this community.");
+    }
+    $scope.selfUser=($stateParams.homeNo==AccountService.getUser().get("homeNo"));
+    console.log("Self user " + $scope.selfUser + " current user " + $stateParams.homeNo + " other user " + AccountService.getUser().get("homeNo"));
+  }, function(error) {
+    console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get vehicle details. Check your internet connection.");  
+  });  
+
+  $scope.removeVehicle=function(index) {
+    $cordovaDialogs.confirm('Do you want to remove this vehicle?', 'Remove Vehicle', ['Remove','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        SettingsService.trackEvent("Account", "VehicleRemove");
+        console.log("Removing vehicle " + index);
+        var currentVehicleList=$scope.home.get("vehicleList");
+        currentVehicleList.splice(index, 1); 
+        $scope.home.set("vehicleList", currentVehicleList);
+        $scope.home.save().then(function(updatedHome){
+          SettingsService.setAppSuccessMessage("Removed your registered vehicle.");
+          $ionicHistory.goBack(-1);      
+        }, function(error){
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete the vehicle.");
+        });    
+      } else {
+        console.log("Canceled removal of vehicle");
+      }
+    });
+  };
+
+})
+
+.controller('VehicleAddCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory) {
+  SettingsService.trackView("Vehicle list controller");        
+  $scope.controllerMessage=null;  
+
+  $scope.vehicle={
+    type: 2,
+    licensePlate: "",
+    communityRegNumber: "",
+    model: "",
+    color: ""
+  };
+
+
+  $scope.addVehicle=function() {
+    SettingsService.trackEvent("Account", "VehicleAdd");
+    console.log("Adding vehicle")
+    AccountService.getHomeByHomeNo(AccountService.getUser().get("homeNo")).then(function(home){
+      AccountService.addVehicleToUser(home, $scope.vehicle).then(function(updatedHome) {
+        SettingsService.setAppSuccessMessage("Vehicle has been added.");
+        $ionicHistory.goBack(-1);
+      }, function(error){
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add vehicle");
+      });    
+    }, function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your residency details.");
+    });
+  };
+
+  $scope.cancel=function() {
+    $ionicHistory.goBack(-1);      
+  };
+  
+})
+
+
+;

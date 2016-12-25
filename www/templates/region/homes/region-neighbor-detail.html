@@ -44,19 +44,6 @@
           <span class="item-note" ng-if="user.get('status')=='P'">Pending</span>
           <span class="item-note" ng-if="user.get('status')!='P'">Accepted</span>
         </ion-item>      
-        <vehicle info="user"></vehicle>
-<!--         <div ng-if="user.get('vehicleInfo')">
-          <ion-item class="item-divider">Vehicle Information</ion-item>
-          <ion-item>
-            Two Wheeler
-            <span class="item-note" ng-if="user.get('vehicleInfo').twoWheeler">{{user.get('vehicleInfo').twoWheeler}}</span>
-            <span class="item-note" ng-if="!user.get('vehicleInfo').twoWheeler">NA</span>
-          </ion-item>
-          <ion-item>
-            Four Wheeler<span class="item-note" ng-if="user.get('vehicleInfo').fourWheeler">{{user.get('vehicleInfo').fourWheeler}}</span>
-            Four Wheeler<span class="item-note" ng-if="!user.get('vehicleInfo').fourWheeler">NA</span>
-          </ion-item>          
-        </div> -->
     </div>    
 
 <!--     <my-app-message info="copyStatusMessage"></my-app-message>
