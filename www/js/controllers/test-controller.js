@@ -77,6 +77,62 @@ var hideSheet = $ionicActionSheet.show({
     });
   };
 
+  $scope.testMoveVehicle=function() {
+    var blockInterested="Block 8-W2";
+    AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(residents) {
+      for(var i=0;i<residents.length;i++) {
+        if(residents[i].get("user").get("vehicleInfo")!=null && 
+            residents[i].get("user").get("homeNo").startsWith(blockInterested)) {
+          console.log(JSON.stringify(residents[i].get("user").get("vehicleInfo")));    
+          var vehicleList=[];
+
+          var twoWheelers=residents[i].get("user").get("vehicleInfo").twoWheeler;
+          if(twoWheelers.length>0) {
+            var line = twoWheelers.split(',');
+            for(var j=0;j<line.length;j++) {
+              vehicleList.push({
+                type: 2,
+                licensePlate: "",
+                communityRegNumber: line[j],
+                model: "",
+                color: ""
+              });
+            }
+          }
+          var fourWheelers=residents[i].get("user").get("vehicleInfo").fourWheeler;
+          if(fourWheelers.length>0) {
+            var line1 = fourWheelers.split(',');
+            for(var j=0;j<line1.length;j++) {
+              vehicleList.push({
+                type: 4,
+                licensePlate: "",
+                communityRegNumber: line1[j],
+                model: "",
+                color: ""
+              });
+            }
+          }
+
+          // var homesToSave=[];
+          AccountService.getHomeByHomeNo(residents[i].get("user").get("homeNo")).then(function(home) {
+            home.set("vehicleList", vehicleList);
+            // homesToSave.push(home);
+            home.save();
+            console.log("Vehcile list " + JSON.stringify(vehicleList));
+          }, function(error) {
+            console.log("Unable to save vehicle list " + residents[i].get("user").get("homeNo"));
+          });
+
+        } else {
+          console.log("No errors for " + residents[i].get("user").get("firstName"));
+        }        
+      }      
+    }, function(error) {
+      console.log(JSON.stringify(error));
+    });
+
+  };
+
   $scope.testLoadMoreThan1000Records=function () {
     console.log("Loading all homes");
     // AccountService.getAllHomes("aug_6th_7_6_311_dublin_").then(function(homesList) {

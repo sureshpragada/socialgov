@@ -1159,18 +1159,14 @@ angular.module('starter.controllers')
   $scope.controllerMessage=null;    
 
   $scope.vehicleList=null;
-  AccountService.getUserById(AccountService.getUserResidency(), $stateParams.userId).then(function(neighbor) {
-    $scope.userResidency=neighbor;
-    $scope.user=neighbor.get("user");        
-    $scope.vehicleList=$scope.userResidency.get("vehicleList");
+  AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
+    $scope.home=home;
+    $scope.vehicleList=$scope.home.get("vehicleList");
     if($scope.vehicleList==null || $scope.vehicleList.length==0) {
-      console.log("No vehicles for this user.");
       $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not registered any vehicles in this community.");
-    } else {
-      console.log("Found some vehicles " + JSON.stringify($scope.vehicleList));
     }
-    $scope.selfUser=($scope.user.id==AccountService.getUser().id);
-    console.log("Self user " + $scope.selfUser + " current user " + $scope.user.id + " other user " + AccountService.getUser().id);
+    $scope.selfUser=($stateParams.homeNo==AccountService.getUser().get("homeNo"));
+    console.log("Self user " + $scope.selfUser + " current user " + $stateParams.homeNo + " other user " + AccountService.getUser().get("homeNo"));
   }, function(error) {
     console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get vehicle details. Check your internet connection.");  
@@ -1182,10 +1178,10 @@ angular.module('starter.controllers')
       if(buttonIndex==1) {
         SettingsService.trackEvent("Account", "VehicleRemove");
         console.log("Removing vehicle " + index);
-        var currentVehicleList=$scope.userResidency.get("vehicleList");
+        var currentVehicleList=$scope.home.get("vehicleList");
         currentVehicleList.splice(index, 1); 
-        $scope.userResidency.set("vehicleList", currentVehicleList);
-        $scope.userResidency.save().then(function(updatedUserResidency){
+        $scope.home.set("vehicleList", currentVehicleList);
+        $scope.home.save().then(function(updatedHome){
           SettingsService.setAppSuccessMessage("Removed your registered vehicle.");
           $ionicHistory.goBack(-1);      
         }, function(error){
@@ -1215,8 +1211,8 @@ angular.module('starter.controllers')
   $scope.addVehicle=function() {
     SettingsService.trackEvent("Account", "VehicleAdd");
     console.log("Adding vehicle")
-    AccountService.getUserResidenciesOfSpecificResidency(AccountService.getUser(), AccountService.getUserResidency()).then(function(userResidency){
-      AccountService.addVehicleToUser(userResidency, $scope.vehicle).then(function(updatedUserResidency) {
+    AccountService.getHomeByHomeNo(AccountService.getUser().get("homeNo")).then(function(home){
+      AccountService.addVehicleToUser(home, $scope.vehicle).then(function(updatedHome) {
         SettingsService.setAppSuccessMessage("Vehicle has been added.");
         $ionicHistory.goBack(-1);
       }, function(error){
@@ -1230,7 +1226,6 @@ angular.module('starter.controllers')
   $scope.cancel=function() {
     $ionicHistory.goBack(-1);      
   };
-
   
 })
 

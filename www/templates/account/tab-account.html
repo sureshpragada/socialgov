@@ -36,16 +36,7 @@
         Email
         <span class="item-note">{{user.get("email")}}</span>  
       </ion-item>     
-      <!-- TODO :: Should we show option like "Register your vehicles when the count is zero -->
-      <ion-item  class="item-icon-right" href="#/tab/account-vehicle-list/{{user.id}}">
-        <i class="icon ion-chevron-right icon-accessory"></i> 
-        Vehicle Registration
-<!--         <span class="badge badge-balanced">2</span> -->
-      </ion-item>
-
-<!--       <vehicle info="user"></vehicle>        -->
-
-
+      <ion-item  class="item-icon-right" href="#/tab/account-vehicle-list/{{user.get('homeNo')}}">      
     </div>    
 <!--     <h4>&nbsp;&nbsp;&nbsp;&nbsp;Settings</h4> -->
     <div class="card">

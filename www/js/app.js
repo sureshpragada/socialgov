@@ -247,7 +247,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })        
 
     .state('tab.account-vehicle-list', {
-      url: '/account-vehicle-list/{userId}',
+      url: '/account-vehicle-list/{homeNo}',
       cache: false,
       views: {
         'tab-account': {
@@ -258,7 +258,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })        
 
     .state('tab.region-vehicle-list', {
-      url: '/region-vehicle-list/{userId}',
+      url: '/region-vehicle-list/{homeNo}',
       cache: false,
       views: {
         'tab-region': {

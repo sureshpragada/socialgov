@@ -1008,9 +1008,9 @@ angular.module('account.services', [])
     removeUserResidency: function(userResidency) {
       return userResidency.destroy();
     },
-    addVehicleToUser: function(userResidency, vehicle) {
+    addVehicleToUser: function(home, vehicle) {
       var user = this.getUser();
-      var currentVehicleList=userResidency.get("vehicleList");
+      var currentVehicleList=home.get("vehicleList");
       if(currentVehicleList!=null && currentVehicleList.length>0) {
         currentVehicleList.push(vehicle);
       } else {
@@ -1018,8 +1018,8 @@ angular.module('account.services', [])
           vehicle
         ];
       }
-      userResidency.set("vehicleList", currentVehicleList);
-      return userResidency.save();
+      home.set("vehicleList", currentVehicleList);
+      return home.save();
     }
   };
 }]);
