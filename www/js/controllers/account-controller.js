@@ -475,7 +475,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AccountUpdateCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService) {
+.controller('AccountUpdateCtrl', function($scope, $state, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, UtilityService) {
   SettingsService.trackView("Account update controller");  
 
   var user=AccountService.getUser();
@@ -503,7 +503,7 @@ angular.module('starter.controllers')
 
     if($scope.inputUser.firstName==null || $scope.inputUser.lastName==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter first and last name.");
-    } else if($scope.inputUser.email!=null && $scope.inputUser.email!="" && ($scope.inputUser.email.indexOf(".")==-1 || $scope.inputUser.email.indexOf("@")==-1 || $scope.inputUser.email.indexOf("@")<$scope.inputUser.email.indexOf("."))) {
+    } else if(!UtilityService.isValidEmail($scope.inputUser.email)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter proper email.");
     } else {
       AccountService.updateAccount($scope.inputUser).then(function(newUser) {

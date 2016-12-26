@@ -9,7 +9,11 @@
 			<label class="item item-input">
 				<span class="input-label">Last Name</span>
 				<input type="text" name="lastName" ng-model="inputUser.lastName">
-			</label>					
+			</label>
+			<label class="item item-input">
+				<span class="input-label">Email</span>
+				<input type="text" name="email" ng-model="inputUser.email">
+			</label>															
 			<!-- Changing home number is not supported for residents, admin should change  -->
 <!-- 			<label class="item item-input" ng-if="!regionSettings.supportHomeNumber">
 				<span class="input-label">Home/Unit/Apt #</span>
@@ -19,10 +23,6 @@
 				<span class="input-label">Blood Group</span>
 				<input type="text" size="4" name="bloodGroup" ng-model="inputUser.bloodGroup">
 			</label>
-			<label class="item item-input">
-				<span class="input-label">Email</span>
-				<input type="text" name="email" ng-model="inputUser.email">
-			</label>										
 			<div class="row">
 				<div class="col">
 					<a class="button button-block" href="#/tab/account">Cancel</a>	
