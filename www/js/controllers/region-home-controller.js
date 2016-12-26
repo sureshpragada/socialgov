@@ -33,9 +33,10 @@ angular.module('starter.controllers')
             } else {
               tenantCount++;
             }
-            searchString=searchString + " " + residents[j].get("user").get("firstName") + " " + residents[j].get("user").get("lastName") + " " + residents[j].get("user").get("bloodGroup");
+            searchString=searchString + " " + residents[j].get("user").get("firstName") + " " + residents[j].get("user").get("lastName") + " " + residents[j].get("user").get("bloodGroup") + " ";
           }
         }
+        searchString+=$scope.getVehcileSearchStr(homes[i].get("vehicleList"));
         $scope.homeList.push({
           homeNo: homes[i].get("homeNo"),
           noOfResidents: residentCount, 
@@ -54,6 +55,16 @@ angular.module('starter.controllers')
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get homes in community.");
     $ionicLoading.hide();
   });
+
+  $scope.getVehcileSearchStr=function(vehicleList) {
+    var vehcileSearchStr="";
+    if(vehicleList!=null && vehicleList.length>0) {
+      for(var i=0;i<vehicleList.length;i++) {
+        vehcileSearchStr=vehcileSearchStr + " " + vehicleList[i].licensePlate + " " + vehicleList[i].communityRegNumber;
+      }      
+    }
+    return vehcileSearchStr;
+  };
 
 })
 
