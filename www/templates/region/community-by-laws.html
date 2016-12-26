@@ -1,0 +1,16 @@
+<ion-view view-title="By Laws">
+  <ion-content class="visible-cards">
+  <my-app-message info="appMessage"></my-app-message>
+  <my-app-message info="controllerMessage"></my-app-message>
+    <div class="card padding" ng-if="communityByLaws">
+      <h4>
+        Community By Laws :
+      </h4>
+      <div ng-bind-html="communityByLaws | nl2br" style="margin-bottom: 20px;"></div>    
+    </div>
+      <div class="padding" ng-if="isAdmin">
+        <a class="button button-block button-royal" href="#/tab/update-community-by-laws">Update By Laws</a>
+      </div>    
+  </ion-content>
+</ion-view>
+

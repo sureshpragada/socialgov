@@ -388,6 +388,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })        
 
+    .state('tab.community-by-laws', {
+      url: '/community-by-laws',
+      cache: false,
+      views: {
+        "tab-region": {
+          templateUrl: 'templates/region/community-by-laws.html',
+          controller: 'CommunityByLawsCtrl'        
+        }
+      }
+    })
+
+    .state('tab.update-community-by-laws', {
+      url: '/update-community-by-laws',
+      cache: false,
+      views: {
+        "tab-region": {
+          templateUrl: 'templates/region/update-community-by-laws.html',
+          controller: 'UpdateCommunityByLawsCtrl'        
+        }
+      }
+    })            
+
     .state('tab.region-settings', {
       url: '/region-settings/{regionUniqueName}',
       cache: false,      
