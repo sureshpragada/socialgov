@@ -13,6 +13,14 @@ angular.module('utility.services', [])
     	} else {
     		return unitNo;
     	}
+    },
+    isValidEmail: function(email){
+        var atPos=email.indexOf("@");
+        var dotPos=email.lastIndexOf(".");
+        if(email!=null && email!="" && (dotPos==-1 || atPos==-1 || atPos+1>=dotPos || dotPos+1==email.length)){
+            return false;
+        }
+        return true;
     }
   };
 }]);

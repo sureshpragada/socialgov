@@ -782,7 +782,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
             } else if($scope.post.userToNotify!=null && $scope.post.userToNotify!=""){
               AccountService.sendNotificationToResident($scope.post.notifyMessage, $scope.post.userToNotify);              
-              SettingsService.setAppSuccessMessage("Activity has been posted for resident.");            
+              SettingsService.setAppSuccessMessage("Message has been sent.");            
             } else if($scope.post.notifyHomeOwners || $scope.post.blockToNotify!=null) {
               // Send the push notification only to specific memebers in community
               AccountService.sendNotificationToSpecificMembers($scope.post.notifyMessage, $scope.post.notifyHomeOwners, $scope.post.blockToNotify);              

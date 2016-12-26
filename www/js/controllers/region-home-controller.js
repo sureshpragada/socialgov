@@ -642,7 +642,7 @@ angular.module('starter.controllers')
 
 })
 
-.controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicLoading) {
+.controller('AdminNeighborUpdateCtrl', function($scope, $state, $stateParams, SettingsService, LogService, AccountService, $cordovaContacts, NotificationService, RegionService, $ionicLoading, UtilityService) {
   console.log("Admin Neighbor Account update controller");
   $scope.inputUser={};
   $scope.countryList=COUNTRY_LIST;
@@ -702,7 +702,7 @@ angular.module('starter.controllers')
       return;
     }
 
-    if($scope.inputUser.email!=null && $scope.inputUser.email!="" && ($scope.inputUser.email.indexOf(".")==-1 || $scope.inputUser.email.indexOf("@")==-1 || $scope.inputUser.email.indexOf("@")<$scope.inputUser.email.indexOf("."))) {
+    if(!UtilityService.isValidEmail($scope.inputUser.email)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter proper email.");
       return;
     }
