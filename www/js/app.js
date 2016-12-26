@@ -269,7 +269,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })            
 
     .state('tab.account-vehicle-add', {
-      url: '/account-vehicle-add',
+      url: '/account-vehicle-add/{homeNo}',
       cache: false,
       views: {
         'tab-account': {
@@ -278,6 +278,39 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })        
+
+    .state('tab.region-vehicle-add', {
+      url: '/region-vehicle-add/{homeNo}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/account/vehicle-add.html',
+          controller: 'VehicleAddCtrl'
+        }
+      }
+    })            
+
+    .state('tab.account-vehicle-update', {
+      url: '/account-vehicle-update/{homeNo}/{vehicleIndex}',
+      cache: false,
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/account/vehicle-update.html',
+          controller: 'VehicleUpdateCtrl'
+        }
+      }
+    })            
+
+    .state('tab.region-vehicle-update', {
+      url: '/region-vehicle-update/{homeNo}/{vehicleIndex}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/account/vehicle-update.html',
+          controller: 'VehicleUpdateCtrl'
+        }
+      }
+    })            
 
     .state('tab.regions', {
       url: '/regions',
