@@ -1153,6 +1153,77 @@ angular.module('starter.controllers')
 
 })
 
+.controller('DocumentProofListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading, PictureManagerService) {
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading proof documents..."));  
+  SettingsService.trackView("Document proof list controller");        
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.homeNo=$stateParams.homeNo;
+
+  AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
+    $scope.home=home;
+    $scope.docList=$scope.home.get("proofDocList");    
+
+    var stateData=PictureManagerService.getState();
+    if(stateData.imageUrl!=null) {
+      var doc={
+        url: stateData.imageUrl,
+        name: ""
+      };
+      if($scope.docList!=null && $scope.docList.length>0) {
+        $scope.docList.push(doc);
+      } else {
+        $scope.docList=[doc];
+      }
+      $scope.home.set("proofDocList", $scope.docList);
+      $scope.home.save();
+      PictureManagerService.reset();
+    }
+
+    if($scope.docList==null || $scope.docList.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not uploaded any proof documents.");
+    }    
+    $ionicLoading.hide();
+  }, function(error) {
+    LogService.log({type:"ERROR", message: "Unable to retrieve proof documents : " + JSON.stringify(error)});       
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get proof documents. Check your internet connection.");  
+    $ionicLoading.hide();
+  });  
+
+  $scope.gotoProofUpload=function() {
+    SettingsService.trackEvent("Account", "UploadProofDocuments");        
+    PictureManagerService.reset();
+    PictureManagerService.setFromPage("tab.account-proof-docs");
+    PictureManagerService.setFromPagePathParamValue({homeNo: $stateParams.homeNo});
+    $state.go("tab.account-picman");        
+  };
+
+  $scope.deleteProof=function(index) {
+    $cordovaDialogs.confirm('Do you want to delete this proof?', 'Delete Proof', ['Delete','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        SettingsService.trackEvent("Account", "DeleteProof");
+        $ionicLoading.show(SettingsService.getLoadingMessage("Deleting proof document")); 
+        $scope.docList.splice(index, 1); 
+        $scope.home.set("proofDocList", $scope.docList);
+        $scope.home.save().then(function(updatedHome){
+          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Deleted proof document.");
+          $ionicLoading.hide();
+        }, function(error){
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete proof document.");
+          $ionicLoading.hide();
+        });    
+      } else {
+        console.log("Canceled deletion of proof document");
+      }
+    });
+  };
+
+  $scope.showProofDocument=function(index) {
+    console.log("Will show the proof in modal");
+  };
+
+})
+
 .controller('VehicleListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading) {
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading vehicle information"));  
   SettingsService.trackView("Vehicle list controller");        
@@ -1166,7 +1237,7 @@ angular.module('starter.controllers')
     }    
     $ionicLoading.hide();
   }, function(error) {
-    console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
+    LogService.log({type:"ERROR", message: "Unable to get vehicle details : " + JSON.stringify(error)});       
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get vehicle details. Check your internet connection.");  
     $ionicLoading.hide();
   });  

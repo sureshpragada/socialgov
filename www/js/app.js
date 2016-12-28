@@ -246,6 +246,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })        
 
+    .state('tab.account-proof-docs', {
+      url: '/account-proof-docs/{homeNo}',
+      cache: false,
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/account/document-proof-list.html',
+          controller: 'DocumentProofListCtrl'
+        }
+      }
+    })        
+
+    .state('tab.region-proof-docs', {
+      url: '/region-proof-docs/{homeNo}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/account/document-proof-list.html',
+          controller: 'DocumentProofListCtrl'
+        }
+      }
+    })        
+
     .state('tab.account-vehicle-list', {
       url: '/account-vehicle-list/{homeNo}',
       cache: false,
