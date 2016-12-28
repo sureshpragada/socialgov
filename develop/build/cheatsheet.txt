@@ -161,6 +161,7 @@ Parse.Cloud.useMasterKey() is not available in Parse Server Cloud Code. Instead,
 (https://github.com/ParsePlatform/parse-server/wiki/Compatibility-with-Hosted-Parse#master-key-must-be-passed-explicitly)
     
 
+http://stackoverflow.com/questions/23463012/how-to-save-an-image-in-parse-com-via-javascript
 
 Parse.initialize("key", "key");
 
@@ -198,3 +199,8 @@ file.save({
         alert('Failed to save file: ' + error.description);
     }
 });    
+
+
+
+http://stackoverflow.com/questions/32434553/creating-and-showing-pdf-in-ionic
+

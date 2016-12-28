@@ -246,6 +246,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })        
 
+    .state('tab.account-proof-docs', {
+      url: '/account-proof-docs/{homeNo}',
+      cache: false,
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/account/document-proof-list.html',
+          controller: 'DocumentProofListCtrl'
+        }
+      }
+    })        
+
+    .state('tab.region-proof-docs', {
+      url: '/region-proof-docs/{homeNo}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/account/document-proof-list.html',
+          controller: 'DocumentProofListCtrl'
+        }
+      }
+    })        
+
     .state('tab.account-vehicle-list', {
       url: '/account-vehicle-list/{homeNo}',
       cache: false,
@@ -269,7 +291,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     })            
 
     .state('tab.account-vehicle-add', {
-      url: '/account-vehicle-add',
+      url: '/account-vehicle-add/{homeNo}',
       cache: false,
       views: {
         'tab-account': {
@@ -278,6 +300,39 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })        
+
+    .state('tab.region-vehicle-add', {
+      url: '/region-vehicle-add/{homeNo}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/account/vehicle-add.html',
+          controller: 'VehicleAddCtrl'
+        }
+      }
+    })            
+
+    .state('tab.account-vehicle-update', {
+      url: '/account-vehicle-update/{homeNo}/{vehicleIndex}',
+      cache: false,
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/account/vehicle-update.html',
+          controller: 'VehicleUpdateCtrl'
+        }
+      }
+    })            
+
+    .state('tab.region-vehicle-update', {
+      url: '/region-vehicle-update/{homeNo}/{vehicleIndex}',
+      cache: false,
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/account/vehicle-update.html',
+          controller: 'VehicleUpdateCtrl'
+        }
+      }
+    })            
 
     .state('tab.regions', {
       url: '/regions',
@@ -354,6 +409,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       }
     })        
+
+    .state('tab.community-by-laws', {
+      url: '/community-by-laws',
+      cache: false,
+      views: {
+        "tab-region": {
+          templateUrl: 'templates/region/community-by-laws.html',
+          controller: 'CommunityByLawsCtrl'        
+        }
+      }
+    })
+
+    .state('tab.update-community-by-laws', {
+      url: '/update-community-by-laws',
+      cache: false,
+      views: {
+        "tab-region": {
+          templateUrl: 'templates/region/update-community-by-laws.html',
+          controller: 'UpdateCommunityByLawsCtrl'        
+        }
+      }
+    })            
 
     .state('tab.region-settings', {
       url: '/region-settings/{regionUniqueName}',

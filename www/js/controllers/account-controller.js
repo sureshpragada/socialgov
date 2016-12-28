@@ -1153,52 +1153,101 @@ angular.module('starter.controllers')
 
 })
 
-.controller('VehicleListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs) {
-  SettingsService.trackView("Vehicle list controller");        
+.controller('DocumentProofListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading, PictureManagerService) {
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading proof documents..."));  
+  SettingsService.trackView("Document proof list controller");        
   $scope.appMessage=SettingsService.getAppMessage();
-  $scope.controllerMessage=null;    
+  $scope.homeNo=$stateParams.homeNo;
 
-  $scope.vehicleList=null;
   AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
     $scope.home=home;
-    $scope.vehicleList=$scope.home.get("vehicleList");
-    if($scope.vehicleList==null || $scope.vehicleList.length==0) {
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not registered any vehicles in this community.");
+    $scope.docList=$scope.home.get("proofDocList");    
+
+    var stateData=PictureManagerService.getState();
+    if(stateData.imageUrl!=null) {
+      var doc={
+        url: stateData.imageUrl,
+        name: ""
+      };
+      if($scope.docList!=null && $scope.docList.length>0) {
+        $scope.docList.push(doc);
+      } else {
+        $scope.docList=[doc];
+      }
+      $scope.home.set("proofDocList", $scope.docList);
+      $scope.home.save();
+      PictureManagerService.reset();
     }
-    $scope.selfUser=($stateParams.homeNo==AccountService.getUser().get("homeNo"));
-    console.log("Self user " + $scope.selfUser + " current user " + $stateParams.homeNo + " other user " + AccountService.getUser().get("homeNo"));
+
+    if($scope.docList==null || $scope.docList.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not uploaded any proof documents.");
+    }    
+    $ionicLoading.hide();
   }, function(error) {
-    console.log("Unable to retrieve neighbor : " + JSON.stringify(error));
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get vehicle details. Check your internet connection.");  
+    LogService.log({type:"ERROR", message: "Unable to retrieve proof documents : " + JSON.stringify(error)});       
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get proof documents. Check your internet connection.");  
+    $ionicLoading.hide();
   });  
 
-  $scope.removeVehicle=function(index) {
-    $cordovaDialogs.confirm('Do you want to remove this vehicle?', 'Remove Vehicle', ['Remove','Cancel'])
+  $scope.gotoProofUpload=function() {
+    SettingsService.trackEvent("Account", "UploadProofDocuments");        
+    PictureManagerService.reset();
+    PictureManagerService.setFromPage("tab.account-proof-docs");
+    PictureManagerService.setFromPagePathParamValue({homeNo: $stateParams.homeNo});
+    $state.go("tab.account-picman");        
+  };
+
+  $scope.deleteProof=function(index) {
+    $cordovaDialogs.confirm('Do you want to delete this proof?', 'Delete Proof', ['Delete','Cancel'])
     .then(function(buttonIndex) {      
       if(buttonIndex==1) {
-        SettingsService.trackEvent("Account", "VehicleRemove");
-        console.log("Removing vehicle " + index);
-        var currentVehicleList=$scope.home.get("vehicleList");
-        currentVehicleList.splice(index, 1); 
-        $scope.home.set("vehicleList", currentVehicleList);
+        SettingsService.trackEvent("Account", "DeleteProof");
+        $ionicLoading.show(SettingsService.getLoadingMessage("Deleting proof document")); 
+        $scope.docList.splice(index, 1); 
+        $scope.home.set("proofDocList", $scope.docList);
         $scope.home.save().then(function(updatedHome){
-          SettingsService.setAppSuccessMessage("Removed your registered vehicle.");
-          $ionicHistory.goBack(-1);      
+          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Deleted proof document.");
+          $ionicLoading.hide();
         }, function(error){
-          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete the vehicle.");
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete proof document.");
+          $ionicLoading.hide();
         });    
       } else {
-        console.log("Canceled removal of vehicle");
+        console.log("Canceled deletion of proof document");
       }
     });
   };
 
+  $scope.showProofDocument=function(index) {
+    console.log("Will show the proof in modal");
+  };
+
 })
 
-.controller('VehicleAddCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory) {
+.controller('VehicleListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading) {
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading vehicle information"));  
   SettingsService.trackView("Vehicle list controller");        
-  $scope.controllerMessage=null;  
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.homeNo=$stateParams.homeNo;
 
+  AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
+    $scope.vehicleList=home.get("vehicleList");
+    if($scope.vehicleList==null || $scope.vehicleList.length==0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not registered any vehicles in this community.");
+    }    
+    $ionicLoading.hide();
+  }, function(error) {
+    LogService.log({type:"ERROR", message: "Unable to get vehicle details : " + JSON.stringify(error)});       
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get vehicle details. Check your internet connection.");  
+    $ionicLoading.hide();
+  });  
+
+})
+
+.controller('VehicleAddCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $ionicLoading) {
+  SettingsService.trackView("Vehicle add controller");        
+  $scope.canAddCommunityRegNumber=AccountService.canUpdateRegion();
+  $scope.ideaMessage=SettingsService.getControllerInfoMessage("Add your vehicle information. Board will update community registration number to this vehicle.");
   $scope.vehicle={
     type: 2,
     licensePlate: "",
@@ -1207,21 +1256,88 @@ angular.module('starter.controllers')
     color: ""
   };
 
-
   $scope.addVehicle=function() {
     SettingsService.trackEvent("Account", "VehicleAdd");
-    console.log("Adding vehicle")
-    AccountService.getHomeByHomeNo(AccountService.getUser().get("homeNo")).then(function(home){
+    $ionicLoading.show(SettingsService.getLoadingMessage("Adding vehicle to your home")); 
+    AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home){
       AccountService.addVehicleToUser(home, $scope.vehicle).then(function(updatedHome) {
         SettingsService.setAppSuccessMessage("Vehicle has been added.");
+        $ionicLoading.hide();
         $ionicHistory.goBack(-1);
       }, function(error){
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to add vehicle");
+        $ionicLoading.hide();
       });    
     }, function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your residency details.");
+      $ionicLoading.hide();
     });
   };
+
+  $scope.cancel=function() {
+    $ionicHistory.goBack(-1);      
+  };
+  
+})
+
+.controller('VehicleUpdateCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading) {
+  SettingsService.trackView("Vehicle update controller");        
+  $scope.canAddCommunityRegNumber=AccountService.canUpdateRegion();
+
+  AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home){    
+    $scope.home=home;
+    var targetVehicle=home.get("vehicleList")[$stateParams.vehicleIndex];
+    console.log("Target vehicle " + JSON.stringify(targetVehicle));
+    $scope.vehicle={
+      type: targetVehicle.type,
+      licensePlate: targetVehicle.licensePlate,
+      communityRegNumber: targetVehicle.communityRegNumber,
+      model: targetVehicle.model,
+      color: targetVehicle.color
+    };
+  }, function(error){
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your vehicle details.");
+  });
+
+  $scope.updateVehicle=function() {
+    SettingsService.trackEvent("Account", "VehicleUpdate");
+    $ionicLoading.show(SettingsService.getLoadingMessage("Updating vehicle information")); 
+    var currentVehicleList=$scope.home.get("vehicleList");
+    currentVehicleList.splice($stateParams.vehicleIndex, 1); 
+    currentVehicleList.unshift($scope.vehicle);
+    $scope.home.set("vehicleList", currentVehicleList);
+    $scope.home.save().then(function(updatedHome){
+      SettingsService.setAppSuccessMessage("Updated your vehicle information.");
+      $ionicLoading.hide();
+      $ionicHistory.goBack(-1);      
+    }, function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete the vehicle.");
+      $ionicLoading.hide();
+    });    
+  };
+
+  $scope.deleteVehicle=function() {
+    $cordovaDialogs.confirm('Do you want to remove this vehicle?', 'Remove Vehicle', ['Remove','Cancel'])
+    .then(function(buttonIndex) {      
+      if(buttonIndex==1) {
+        SettingsService.trackEvent("Account", "VehicleRemove");
+        $ionicLoading.show(SettingsService.getLoadingMessage("Deleting vehicle information")); 
+        var currentVehicleList=$scope.home.get("vehicleList");
+        currentVehicleList.splice($stateParams.vehicleIndex, 1); 
+        $scope.home.set("vehicleList", currentVehicleList);
+        $scope.home.save().then(function(updatedHome){
+          SettingsService.setAppSuccessMessage("Removed your registered vehicle.");
+          $ionicLoading.hide();
+          $ionicHistory.goBack(-1);      
+        }, function(error){
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete the vehicle.");
+          $ionicLoading.hide();
+        });    
+      } else {
+        console.log("Canceled removal of vehicle");
+      }
+    });
+  };  
 
   $scope.cancel=function() {
     $ionicHistory.goBack(-1);      

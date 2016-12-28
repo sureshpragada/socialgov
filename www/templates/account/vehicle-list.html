@@ -1,6 +1,6 @@
 <ion-view view-title="Vehicles">
   <ion-nav-buttons side="secondary" >
-    <a class="button button-icon icon ion-ios-plus-outline" ng-if="selfUser" href="#/tab/account-vehicle-add"></a>      
+    <a class="button button-icon icon ion-ios-plus-outline" href="#/tab/account-vehicle-add/{{homeNo}}"></a>      
   </ion-nav-buttons>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
@@ -8,7 +8,7 @@
     <ion-list ng-repeat="vehicle in vehicleList track by $index">
     	<ion-item class="item-divider item-icon-right" >
     		{{vehicle.type}} Wheeler <span ng-if="vehicle.model">- {{vehicle.model}}</span>
-    		<a  ng-if="selfUser" ng-click="removeVehicle($index)"><i class="icon ion-ios-trash-outline assertive"></i></a>
+    		<a href="#/tab/account-vehicle-update/{{homeNo}}/{{$index}}"><i class="icon ion-ios-compose-outline calm"></i></a>
     	</ion-item>
 		<ion-item >
 			Licence Plate Number

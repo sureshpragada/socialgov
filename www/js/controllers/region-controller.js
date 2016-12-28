@@ -1002,5 +1002,53 @@ angular.module('starter.controllers')
 
 })
 
+.controller('CommunityByLawsCtrl', function($scope, $http, RegionService, SettingsService, AccountService) {
+  SettingsService.trackView("Community by laws controller");  
+  $scope.appMessage=SettingsService.getAppMessage();
+  $scope.isAdmin=AccountService.canUpdateRegion();
+  RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+    $scope.communityByLaws=region.get("communityByLaws");
+    if($scope.communityByLaws==null || $scope.communityByLaws.length<=0) {
+      $scope.controllerMessage=SettingsService.getControllerInfoMessage("Community by laws have not been published for your community.");  
+    }
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get community by laws.");
+  });  
+})
+
+.controller('UpdateCommunityByLawsCtrl', function($scope, $state, $http, RegionService, SettingsService, $ionicHistory, AccountService, $ionicLoading) {
+  SettingsService.trackView("Update community by laws controller");  
+  $scope.input={ communityByLaws: "1. Board will have 5 members.\n\n2. Board term will be for 5 years."};
+  RegionService.getRegion(AccountService.getUserResidency()).then(function(region) {
+    if(region.get("communityByLaws")!=null && region.get("communityByLaws").length>0) {
+      $scope.input.communityByLaws=region.get("communityByLaws");  
+    }    
+    $scope.region=region;
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get community by laws.");
+  });  
+
+  $scope.updateCommunityRules=function() {
+    SettingsService.trackEvent("Region", "UpdateCommunityByLaws");    
+    if($scope.input.communityByLaws!=null && $scope.input.communityByLaws.length>20) {
+      $ionicLoading.show(SettingsService.getLoadingMessage("Updating community by laws"));
+      $scope.region.set("communityByLaws", $scope.input.communityByLaws);
+      $scope.region.save().then(function(newRegion){
+        RegionService.updateRegion(newRegion.get("uniqueName"), newRegion);
+        SettingsService.setAppSuccessMessage("Community by laws have been updated.");
+        $state.go("tab.community-by-laws");
+        $ionicLoading.hide();
+      }, function(error){
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update community by laws.");
+        LogService.log({type:"ERROR", message: "Unable to update community by laws " + JSON.stringify(error)});           
+        $ionicLoading.hide();
+      });      
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Community by laws should be atleast 20 characters.");
+    }
+  };
+
+})
+
 
 ;

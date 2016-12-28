@@ -1,0 +1,21 @@
+<ion-view view-title="Update By Laws">
+	<ion-content>			
+		<my-app-message info="controllerMessage"></my-app-message>
+		<div class="list">		
+			<ion-item class="item-text-wrap">Provide community by laws...</ion-item>
+			  <label class="item item-input">
+			    <textarea rows="12" ng-model="input.communityByLaws"></textarea>
+			  </label>									
+			<div class="row">
+				<div class="col">
+					<a class="button button-block button-assertive" href="#/tab/community-rules">Cancel</a>	
+				</div>
+				<div class="col">
+					<a class="button button-block button-calm" ng-click="updateCommunityRules()">Update</a>	
+				</div>					
+			</div>
+		</div>
+	</ion-content>
+</ion-view>
+
+
