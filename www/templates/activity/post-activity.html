@@ -33,6 +33,7 @@
 			    Picture
 			    <i class="icon ion-upload royal"></i>
 			  </a>			  	  
+			  <a class="item item-thumbnail-left item-icon-right"  ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded!=null || !post.userToNotify">
 			    <img ng-src="{{pictureUploaded}}">
 			    <i class="icon ion-android-cloud-done balanced"></i>
 			  </a>		
