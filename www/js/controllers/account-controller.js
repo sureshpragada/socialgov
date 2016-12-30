@@ -1153,41 +1153,69 @@ angular.module('starter.controllers')
 
 })
 
-.controller('DocumentProofListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading, PictureManagerService) {
-  $ionicLoading.show(SettingsService.getLoadingMessage("Loading proof documents..."));  
+.controller('DocumentProofListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading, PictureManagerService, $ionicModal, LogService) {
+  $ionicLoading.show(SettingsService.getLoadingMessage("Loading proof documents"));  
   SettingsService.trackView("Document proof list controller");        
   $scope.appMessage=SettingsService.getAppMessage();
+  $scope.controllerMessage=null;
   $scope.homeNo=$stateParams.homeNo;
+  $scope.docList=[];
 
+  console.log("Input values : " + $scope.homeNo);
   AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
-    $scope.home=home;
-    $scope.docList=$scope.home.get("proofDocList");    
-
+    var currentDocList=home.get("proofDocList");    
     var stateData=PictureManagerService.getState();
     if(stateData.imageUrl!=null) {
+      console.log("Image URL : " + stateData.imageUrl);
       var doc={
         url: stateData.imageUrl,
         name: ""
       };
-      if($scope.docList!=null && $scope.docList.length>0) {
-        $scope.docList.push(doc);
+      if(currentDocList!=null && currentDocList.length>0) {
+        currentDocList.push(doc);
       } else {
-        $scope.docList=[doc];
+        currentDocList=[doc];
       }
-      $scope.home.set("proofDocList", $scope.docList);
-      $scope.home.save();
-      PictureManagerService.reset();
+      for(var i=0; i <currentDocList.length;i++){
+        delete currentDocList[i].$$hashKey;
+      }  
+      PictureManagerService.reset();                                  
+      home.set("proofDocList", currentDocList);
+      home.save().then(function(updatedHome) {
+        console.log("Saved the document successfully");
+        $scope.docList=$scope.getDisplayableDocList(updatedHome.get("proofDocList"));
+        $ionicLoading.hide();
+      }, function(error) {
+        console.log("Error while saving home " + JSON.stringify(error));
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to save your proof document.");  
+        $scope.docList=$scope.getDisplayableDocList(currentDocList);
+        $ionicLoading.hide();
+      });
+    } else {
+      $scope.docList=$scope.getDisplayableDocList(currentDocList);
+      if($scope.docList==null || $scope.docList.length==0) {
+        $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not uploaded any proof documents.");
+      }          
+      $ionicLoading.hide();
     }
-
-    if($scope.docList==null || $scope.docList.length==0) {
-      $scope.controllerMessage=SettingsService.getControllerInfoMessage("You have not uploaded any proof documents.");
-    }    
-    $ionicLoading.hide();
   }, function(error) {
-    LogService.log({type:"ERROR", message: "Unable to retrieve proof documents : " + JSON.stringify(error)});       
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get proof documents. Check your internet connection.");  
     $ionicLoading.hide();
+    LogService.log({type:"ERROR", message: "Unable to retrieve proof documents : " + JSON.stringify(error)});           
   });  
+
+  $scope.getDisplayableDocList=function(docList) {
+    var dispDocList=[];
+    if(docList!=null && docList.length>0) {
+      for(var i=0;i<docList.length;i++) {
+        dispDocList.push({
+          url: docList[i].url,
+          name: docList[i].name
+        });
+      }
+    } 
+    return dispDocList;
+  };
 
   $scope.gotoProofUpload=function() {
     SettingsService.trackEvent("Account", "UploadProofDocuments");        
@@ -1203,31 +1231,88 @@ angular.module('starter.controllers')
       if(buttonIndex==1) {
         SettingsService.trackEvent("Account", "DeleteProof");
         $ionicLoading.show(SettingsService.getLoadingMessage("Deleting proof document")); 
-        $scope.docList.splice(index, 1); 
-        $scope.home.set("proofDocList", $scope.docList);
-        $scope.home.save().then(function(updatedHome){
-          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Deleted proof document.");
+        AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
+          var curDocList=home.get("proofDocList");
+          curDocList.splice(index, 1);           
+          home.set("proofDocList", curDocList);
+          home.save().then(function(updatedHome){
+            $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Deleted proof document.");
+            $scope.docList=$scope.getDisplayableDocList(updatedHome.get("proofDocList"));
+            $ionicLoading.hide();
+          }, function(error){
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete proof document.");
+            $ionicLoading.hide();
+          });    
+        }, function(error) {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get proof document to delete. Check your internet connection.");  
           $ionicLoading.hide();
-        }, function(error){
-          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete proof document.");
-          $ionicLoading.hide();
-        });    
+          LogService.log({type:"ERROR", message: "Unable to get proof documents to delete : " + JSON.stringify(error)});           
+        });  
       } else {
         console.log("Canceled deletion of proof document");
       }
     });
   };
 
-  $scope.showProofDocument=function(index) {
-    console.log("Will show the proof in modal");
+
+  $ionicModal.fromTemplateUrl('templates/picture-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  })  
+
+  $scope.closeModal = function() {
+    $scope.modal.hide();
   };
+
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
+  $scope.showProofDocument=function(index) {
+    $scope.imageUrl=$scope.docList[index].url;
+    $scope.modal.show();
+  };
+
+  $scope.updateDocumentName=function(index) {
+    $cordovaDialogs.prompt('Enter name to this proof document', 'Update Name', ['Update','Cancel'])
+    .then(function(result) {   
+      console.log("Button index : " + JSON.stringify(result));
+      if(result.buttonIndex==1) {
+        SettingsService.trackEvent("Account", "UpdateProofDocumentName");
+        $ionicLoading.show(SettingsService.getLoadingMessage("Updating proof document")); 
+        AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
+          var curDocList=home.get("proofDocList");
+          curDocList[index].name=result.input1;
+          home.set("proofDocList", curDocList);
+          home.save().then(function(updatedHome){
+            $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Updated name of proof document.");
+            $scope.docList=$scope.getDisplayableDocList(updatedHome.get("proofDocList"));
+            $ionicLoading.hide();
+          }, function(error){
+            $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update name of proof document.");
+            $ionicLoading.hide();
+          });              
+        }, function(error) {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get proof document to update name. Check your internet connection.");  
+          $ionicLoading.hide();
+          LogService.log({type:"ERROR", message: "Unable to get proof documents to delete : " + JSON.stringify(error)});           
+        });  
+
+      } else {
+        console.log("Canceled updation of proof document");
+      }
+    });    
+  };  
 
 })
 
-.controller('VehicleListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading) {
+.controller('VehicleListCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading, LogService) {
   $ionicLoading.show(SettingsService.getLoadingMessage("Loading vehicle information"));  
   SettingsService.trackView("Vehicle list controller");        
   $scope.appMessage=SettingsService.getAppMessage();
+  $scope.controllerMessage=null;
   $scope.homeNo=$stateParams.homeNo;
 
   AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home) {
@@ -1237,16 +1322,17 @@ angular.module('starter.controllers')
     }    
     $ionicLoading.hide();
   }, function(error) {
-    LogService.log({type:"ERROR", message: "Unable to get vehicle details : " + JSON.stringify(error)});       
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get vehicle details. Check your internet connection.");  
-    $ionicLoading.hide();
+    $ionicLoading.hide();    
+    LogService.log({type:"ERROR", message: "Unable to get home details " + $stateParams.homeNo + " for vehicle list : " + JSON.stringify(error)});       
   });  
 
 })
 
-.controller('VehicleAddCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $ionicLoading) {
+.controller('VehicleAddCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $ionicLoading, LogService) {
   SettingsService.trackView("Vehicle add controller");        
   $scope.canAddCommunityRegNumber=AccountService.canUpdateRegion();
+  $scope.controllerMessage=null;
   $scope.ideaMessage=SettingsService.getControllerInfoMessage("Add your vehicle information. Board will update community registration number to this vehicle.");
   $scope.vehicle={
     type: 2,
@@ -1271,6 +1357,7 @@ angular.module('starter.controllers')
     }, function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your residency details.");
       $ionicLoading.hide();
+      LogService.log({type:"ERROR", message: "Unable to get home details  " + $stateParams.homeNo + " to add vehicle : " + JSON.stringify(error)});       
     });
   };
 
@@ -1280,10 +1367,12 @@ angular.module('starter.controllers')
   
 })
 
-.controller('VehicleUpdateCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading) {
+.controller('VehicleUpdateCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, $ionicHistory, $cordovaDialogs, $ionicLoading, LogService) {
   SettingsService.trackView("Vehicle update controller");        
   $scope.canAddCommunityRegNumber=AccountService.canUpdateRegion();
+  $scope.controllerMessage=null;
 
+  $ionicLoading.show(SettingsService.getLoadingMessage("Retrieving vehicle information")); 
   AccountService.getHomeByHomeNo($stateParams.homeNo).then(function(home){    
     $scope.home=home;
     var targetVehicle=home.get("vehicleList")[$stateParams.vehicleIndex];
@@ -1295,8 +1384,11 @@ angular.module('starter.controllers')
       model: targetVehicle.model,
       color: targetVehicle.color
     };
+    $ionicLoading.hide();
   }, function(error){
-    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your vehicle details.");
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get your vehicle details.");    
+    $ionicLoading.hide();
+    LogService.log({type:"ERROR", message: "Unable to get home details  " + $stateParams.homeNo + " to show update vehicle : " + JSON.stringify(error)});           
   });
 
   $scope.updateVehicle=function() {
@@ -1313,6 +1405,7 @@ angular.module('starter.controllers')
     }, function(error){
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete the vehicle.");
       $ionicLoading.hide();
+      LogService.log({type:"ERROR", message: "Unable to save home details  " + $stateParams.homeNo + " to update vehicle : " + JSON.stringify(error)});           
     });    
   };
 

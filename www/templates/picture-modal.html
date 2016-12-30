@@ -1,10 +1,12 @@
 <div class="modal padding">
   <ion-scroll zooming="true" direction="xy" scrollbar-x="false" scrollbar-y="false" min-zoom="1" id="scrolly"  style="width: 100%; height: 100%;" ng-click="closeModal($event)">
     <img class="full-image" ng-src="{{imageUrl}}">
-  </ion-scroll>
+  </ion-scroll> 
   <div>
   	<a class="button button-block button-calm" ng-click="uploadProfilePicture()" ng-if="changeProfilePic">Upload Profile Picture</a>
   	<a class="button button-block button-calm" ng-click="deleteExpenseReceipt()" ng-if="removeExpenseReceipt">Delete Expense Receipt</a>
   	<a class="button button-block button-assertive" ng-click="closeModal($event)">Close Window</a>
   </div>
 </div>
+
+<!-- https://c6.staticflickr.com/2/1670/24498080709_1a745e7b3b_z.jpg -->

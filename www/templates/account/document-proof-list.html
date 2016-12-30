@@ -5,12 +5,32 @@
   <ion-content class="visible-cards">
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
-    <div class="list card" ng-repeat="doc in docList" ng-init="docIndex = $index">
+    <div class="list" ng-repeat="doc in docList" ng-init="docIndex = $index">
+      <div class="item" ng-if="doc.name">
+        <h2>{{doc.name}}</h2>
+      </div>    
       <div class="item item-body">
         <a ng-click="showProofDocument(docIndex)">
           <img class="full-image" ng-src="{{doc.url}}">
         </a>        
       </div>                
+      <div class="item tabs tabs-secondary tabs-icon-left">
+        <a class="tab-item" ng-click="updateDocumentName(docIndex)" ng-if="!doc.name">
+          <i class="icon ion-ios-compose-outline royal"></i>
+          Add Name
+        </a>
+        <a class="tab-item" ng-click="updateDocumentName(docIndex)" ng-if="doc.name">
+          <i class="icon ion-ios-compose-outline royal"></i>
+          Edit Name
+        </a>        
+        <a class="tab-item" ng-click="deleteProof(docIndex)">
+          <i class="icon ion-ios-trash-outline assertive"></i>
+          Delete Proof
+        </a>
+      </div>            
     </div>
   </ion-content>
 </ion-view>
+
+
+<!-- [{"name":"Driver License","url":"http://i.imgur.com/xLuI1P8.jpg"},{"name":"","url":"http://i.imgur.com/xLuI1P8.jpg"}] -->

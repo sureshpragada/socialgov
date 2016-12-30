@@ -34,9 +34,11 @@ angular.module('starter.controllers')
    $scope.result={
       myCroppedImage: ""
    }           
-   var fromPage=PictureManagerService.getState().fromPage;   
-   if(fromPage=="tab.expense-detail" || fromPage=="tab.account") {
+   $scope.fromPage=PictureManagerService.getState().fromPage;   
+   if($scope.fromPage=="tab.expense-detail" || $scope.fromPage=="tab.account") {
       $scope.aspectRatio="1x1"; 
+   } else if($scope.fromPage=="tab.account-proof-docs") {
+      $scope.aspectRatio="3x4"; 
    } else {
       $scope.aspectRatio="4x3"; 
    }
@@ -85,8 +87,13 @@ angular.module('starter.controllers')
           saveToPhotoAlbum: false
       };
       $cordovaCamera.getPicture(options).then(function(imageData) {
+        // if($scope.fromPage=="tab.account-proof-docs") {
+        //   $scope.result.myCroppedImage="data:image/jpeg;base64," +imageData;          
+        //   $scope.uploadPicture();
+        // } else {
          $scope.pictureSelected=true;
          $scope.myImage="data:image/jpeg;base64," +imageData;
+        // }
       }, function(error) {
           console.log("Error getting picture " + JSON.stringify(error));
       });  
