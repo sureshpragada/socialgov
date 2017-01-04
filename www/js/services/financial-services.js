@@ -118,10 +118,11 @@ angular.module('financial.services', [])
       dues.set("createdBy", inputDues.createdBy);
       return dues.save();
     },
-    updateDues: function(duesId, inputDues) {
+    updateDues: function(duesId, inputDues) {      
       this.refreshDuesCache(inputDues.residency);      
       var Dues = Parse.Object.extend("Dues");
       var dues=new Dues();
+      dues.set("objectId", duesId);      
       dues.set("maintType", inputDues.maintType);      
       if(inputDues.maintTypeIndex==0) {
         dues.set("maintType", "FIXED");              
@@ -136,7 +137,6 @@ angular.module('financial.services', [])
       dues.set("notes", inputDues.notes);
       dues.set("residency", inputDues.residency);
       dues.set("createdBy", inputDues.createdBy);
-      dues.set("objectId", duesId);
       return dues.save();
     },
     getDuesByObjectId: function(duesObjectId){

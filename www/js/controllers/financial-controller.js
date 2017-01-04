@@ -1406,7 +1406,7 @@ angular.module('starter.controllers')
   $scope.updateDues=function() {
     SettingsService.trackEvent("Financial", "UpdateDuesInititation");
 
-    console.log("Input : " + JSON.stringify($scope.input));
+    console.log("Updating dues, input : " + JSON.stringify($scope.input));
     if($scope.input.effectiveMonth==null) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter effective month.");
       return;
@@ -1416,6 +1416,13 @@ angular.module('starter.controllers')
       return;
     }
 
+    // FinancialService.setupDues($scope.input).then(function(dues) {
+    //   SettingsService.setAppSuccessMessage("Maintenance fee has been recorded.");
+    //   $ionicHistory.goBack(-1);
+    // }, function(error) {
+    //   $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup maintenance fee.");
+    // });
+
     if($stateParams.duesId=="SETUP") {
       FinancialService.setupDues($scope.input).then(function(dues) {
         SettingsService.setAppSuccessMessage("Maintenance fee has been recorded.");
@@ -1424,13 +1431,15 @@ angular.module('starter.controllers')
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to setup maintenance fee.");
       });
     } else {
-      FinancialService.updateDues($stateParams.duesId, $scope.input).then(function(dues) {
+      FinancialService.updateDues($stateParams.duesId, $scope.input).then(function(newDues) {
+        console.log("New dues object " + JSON.stringify(newDues));
         SettingsService.setAppSuccessMessage("Maintenance fee has been updated.");
         $ionicHistory.goBack(-1);
       }, function(error) {
         $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update maintenance fee.");
       });      
     }
+    
   };
 
   $scope.manageDueCategory=function(categoryIndex) {

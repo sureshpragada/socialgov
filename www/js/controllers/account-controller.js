@@ -1242,7 +1242,7 @@ angular.module('starter.controllers')
           }, function(error){
             $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to delete proof document.");
             $ionicLoading.hide();
-          });    
+          });     
         }, function(error) {
           $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get proof document to delete. Check your internet connection.");  
           $ionicLoading.hide();
