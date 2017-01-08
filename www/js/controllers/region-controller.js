@@ -33,7 +33,6 @@ angular.module('starter.controllers')
 
     $scope.updateCoverPhotoIfAvailable($scope.region);
     $scope.posterImages=$scope.region.get("posterImages");
-    $scope.titleActions.regionTitle=$scope.region.get("name");
     $ionicLoading.hide();
     $scope.manageHelpGuide();
   }, function(error) {
@@ -117,12 +116,17 @@ angular.module('starter.controllers')
 
   $scope.editTitle=function(){
     if(!$scope.titleActions.canEditTitle && $scope.isSuperAdmin) {
+      $scope.titleActions.regionTitle=$scope.region.get("name");
       $scope.titleActions.canEditTitle=true;
     }
   };
 
   $scope.saveTitle=function(){
-    console.log("Entering save title");
+    console.log("Saving the title");
+    if($scope.titleActions.regionTitle.length==0){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Community name cannot be empty");
+      return;
+    }
     $scope.region.set("name", $scope.titleActions.regionTitle);
     $scope.region.save(null, {
       success: function(region){
