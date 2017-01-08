@@ -35,9 +35,9 @@ angular.module('starter.controllers')
       myCroppedImage: ""
    }           
    $scope.fromPage=PictureManagerService.getState().fromPage;   
-   if($scope.fromPage=="tab.expense-detail" || $scope.fromPage=="tab.account") {
+   if($scope.fromPage=="tab.account") {
       $scope.aspectRatio="1x1"; 
-   } else if($scope.fromPage=="tab.account-proof-docs") {
+   } else if($scope.fromPage=="tab.expense-detail" || $scope.fromPage=="tab.account-proof-docs") {
       $scope.aspectRatio="3x4"; 
    } else {
       $scope.aspectRatio="4x3"; 

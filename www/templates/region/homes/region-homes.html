@@ -2,8 +2,9 @@
   <ion-nav-buttons side="secondary">
 <!-- 	<a class="button button-light button-outline" style="border-color: #fff; color: #fff;" href="#/tab/add-homes">&nbsp;New&nbsp;Home&nbsp;</a>    	 -->
 <!--     <a class="button button-icon icon ion-ios-search" ng-click="control.requestedSearch = !control.requestedSearch"></a>   -->
-    <a class="button button-icon icon ion-ios-paper-outline" href="#/tab/neighbors"></a>
+<!--     <a class="button button-icon icon ion-ios-paper-outline" href="#/tab/neighbors"></a> -->
     <a class="button button-icon icon ion-ios-plus-outline" href="#/tab/add-homes"></a>
+    <a class="button button-icon icon ion-ios-information-outline" href="#/tab/home-stats" ng-if="isAdmin"></a>
   </ion-nav-buttons>
   <ion-content>
   <my-app-message info="appMessage"></my-app-message>  

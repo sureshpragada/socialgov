@@ -2,7 +2,8 @@ angular.module('starter.controllers')
 
 .controller('RegionHomesCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading, RegionService) {
   SettingsService.trackView("Region homes controller");    
-  var blockNo=$stateParams.blockNo;
+  $scope.isAdmin=AccountService.canUpdateRegion();  
+  var blockNo=$stateParams.blockNo;  
   $ionicLoading.show(SettingsService.getLoadingMessage("Listing your homes"));
   $scope.appMessage=SettingsService.getAppMessage();    
   $scope.control={
@@ -64,7 +65,7 @@ angular.module('starter.controllers')
       }      
     }
     return vehcileSearchStr;
-  };
+  }; 
 
 })
 
@@ -79,6 +80,55 @@ angular.module('starter.controllers')
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get blocks in community.");
     $ionicLoading.hide();
   });
+
+})
+
+.controller('RegionHomeStatsCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading, RegionService, NotificationService, UtilityService) {
+  SettingsService.trackView("Region home stats controller");    
+  $scope.exportOptions={
+    email: ""
+  };
+
+  $ionicLoading.show(SettingsService.getLoadingMessage("Mining stats for you"));
+  $scope.stats={};  
+  AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(neighborList) {
+    $scope.stats.total=neighborList.length;
+    var activeResidents=0;
+    for(var i=0; i<neighborList.length; i++){
+      if(neighborList[i].get("user").get("status")=='A'){
+        activeResidents++;
+      }
+    }
+    $scope.stats.active=activeResidents;
+    $scope.stats.inactive=$scope.stats.total-activeResidents;
+    $ionicLoading.hide();
+  }, function(error) {
+    $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get resident stats");
+    $ionicLoading.hide();
+  });
+
+  $scope.sendResidentData=function() {
+    SettingsService.trackEvent("Financial", "EmailBalanceSheet");    
+    if($scope.exportOptions.email.length>0 && UtilityService.isValidEmail($scope.exportOptions.email)) {
+      $ionicLoading.show(SettingsService.getLoadingMessage("Generating report to email"));
+      AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(neighborList) {
+        var report="Resident Data\n";
+        for(var i=0; i<neighborList.length; i++){
+          var user=neighborList[i].get("user"); 
+          report=report+user.get("homeNo")+","+user.get("firstName")+","+user.get("lastName")+","+user.get("phoneNum")+"\n";
+        }
+        NotificationService.sendEmail($scope.exportOptions.email, "", "Resident Data", report);
+        $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Resident data has been emailed.");          
+        $ionicLoading.hide();
+      }, function(error) {
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get resident data to email");
+        $ionicLoading.hide();
+      });
+    } else {
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter email address");
+      $ionicLoading.hide();
+    }
+  };
 
 })
 
