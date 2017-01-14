@@ -91,16 +91,16 @@ angular.module('starter.controllers')
 
   $ionicLoading.show(SettingsService.getLoadingMessage("Mining stats for you"));
   $scope.stats={};  
+  var activeHomes = new Set();  
   AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(neighborList) {
-    $scope.stats.total=neighborList.length;
-    var activeResidents=0;
     for(var i=0; i<neighborList.length; i++){
       if(neighborList[i].get("user").get("status")=='A'){
-        activeResidents++;
+        activeHomes.add(neighborList[i].get("homeNo"));
       }
     }
-    $scope.stats.active=activeResidents;
-    $scope.stats.inactive=$scope.stats.total-activeResidents;
+    $scope.stats.total=AccountService.getHomesCount(AccountService.getUserResidency());
+    $scope.stats.active=activeHomes.size;
+    $scope.stats.inactive=$scope.stats.total-$scope.stats.active;
     $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get resident stats");
@@ -111,21 +111,39 @@ angular.module('starter.controllers')
     SettingsService.trackEvent("Financial", "EmailBalanceSheet");    
     if($scope.exportOptions.email.length>0 && UtilityService.isValidEmail($scope.exportOptions.email)) {
       $ionicLoading.show(SettingsService.getLoadingMessage("Generating report to email"));
-      AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(neighborList) {
-        var report="Resident Data\n";
-        for(var i=0; i<neighborList.length; i++){
-          var user=neighborList[i].get("user"); 
-          report=report+user.get("homeNo")+","+user.get("firstName")+","+user.get("lastName")+","+user.get("phoneNum")+"\n";
-        }
-        NotificationService.sendEmail($scope.exportOptions.email, "", "Resident Data", report);
-        $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Resident data has been emailed.");          
-        $ionicLoading.hide();
+      AccountService.getAllHomes(AccountService.getUserResidency()).then(function(homeList){
+        AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(neighborList) {
+          var report="Resident Data\n";
+          for(var j=0;j<homeList.length;j++) {
+            report+=homeList[j].get("homeNo")+",";
+            for(var i=0; i<neighborList.length; i++){
+              if(homeList[j].get("homeNo")==neighborList[i].get("user").get("homeNo")) {
+                var user=neighborList[i].get("user"); 
+                report+=user.get("firstName")+","+user.get("lastName")+","+user.get("phoneNum")+","+user.get("homeOwner")+",";                
+              }
+            }              
+            var vehicleList=homeList[j].get("vehicleList");
+            if(vehicleList!=null && vehicleList.length>0) {
+              for(var k=0;k<vehicleList.length;k++) {
+                report+=vehicleList[k].licensePlate+","+vehicleList[k].communityRegNumber+",";
+              }
+            }
+            report+="\n";
+          }
+          // console.log("Report : " + report);
+          NotificationService.sendEmail($scope.exportOptions.email, "", "Home and resident report", report);
+          $scope.controllerMessage=SettingsService.getControllerSuccessMessage("Home and resident report has been emailed.");          
+          $ionicLoading.hide();
+        }, function(error) {
+          $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get resident data to generate report.");
+          $ionicLoading.hide();
+        });        
       }, function(error) {
-        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get resident data to email");
+        $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get home data to generate report.");
         $ionicLoading.hide();
       });
     } else {
-      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter email address");
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter valid email address");
       $ionicLoading.hide();
     }
   };

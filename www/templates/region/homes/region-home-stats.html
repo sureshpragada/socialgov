@@ -1,17 +1,17 @@
 <ion-view>
-  <ion-nav-title>Region Stats</ion-nav-title>
+  <ion-nav-title>Stats</ion-nav-title>
   <ion-content>
     <my-app-message info="appMessage"></my-app-message>
     <my-app-message info="controllerMessage"></my-app-message>
     <div class="card">
-      <ion-item class="item-divider">
-         Resident Stats
+      <ion-item class="item-divider ">
+         Home Activations
       </ion-item>                        
       <ion-item>
-        Total Residents<span class="item-note">{{stats.total}}</span>                        
+        Total homes<span class="item-note">{{stats.total}}</span>                        
       </ion-item>                       
       <ion-item>
-        Activated Residents<span class="item-note">{{stats.active}}</span>                        
+        Activated homes<span class="item-note">{{stats.active}}</span>                        
       </ion-item>                       
       <ion-item>
         Pending Activations<span class="item-note">{{stats.inactive}}</span>                        
@@ -22,12 +22,12 @@
          Export Resident Data
       </ion-item>                            
       <div class="padding">
-        <label class="item item-input">
-          <span class="input-label">Email</span>
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">Enter Your Email</span>
           <input type="text" name="email" class="textAlignLeft" ng-model="exportOptions.email">
         </label>                                        
-        <button class="button button-positive button-block" ng-click="sendResidentData()" ng-if="stats.total>10">
-          Email Resident Data
+        <button class="button button-royal button-block" ng-click="sendResidentData()" ng-if="stats.total>10">
+          Email Report
         </button>      
       </div>
     </div>

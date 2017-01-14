@@ -6,7 +6,7 @@ angular.module('notification.services', ['ionic'])
       var paramsRequest={"where":{"objectId":installationId}};
       var req = {
        method: 'GET',
-       url: 'https://api.parse.com/1/installations',
+       url: PARSE_SERVER_URL+'installations',
        headers: {
         'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
        },
@@ -73,7 +73,7 @@ angular.module('notification.services', ['ionic'])
     addAndroidInstallation: function(userObjectId, deviceToken, channelArray) {
       var req = {
        method: 'POST',
-       url: 'https://api.parse.com/1/installations',
+       url: PARSE_SERVER_URL+'installations',
        headers: {
         'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
        },
@@ -102,7 +102,7 @@ angular.module('notification.services', ['ionic'])
     addIOSInstallation: function(userObjectId, deviceToken, channelArray) {
       var req = {
        method: 'POST',
-       url: 'https://api.parse.com/1/installations',
+       url: PARSE_SERVER_URL+'installations',
        headers: {
         'X-Parse-Application-Id': PARSE_APPLICATION_KEY,'X-Parse-REST-API-Key': PARSE_REST_API_KEY
        },

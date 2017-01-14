@@ -852,7 +852,15 @@ angular.module('account.services', [])
     refreshHomesCache: function(regionUniqueName) {
       console.log("homes removed from cache");
       homesCache.remove(regionUniqueName);
-    },    
+    },   
+    getHomesCount: function(regionUniqueName) {
+      var homes=homesCache.get(regionUniqueName);
+      if(homes!=null) {
+        return homes.length;
+      } else {
+        return 0;
+      }
+    },
     addHome: function(inputHome) {
       this.refreshHomesCache(inputHome.residency);
       var Home = Parse.Object.extend("Home");
