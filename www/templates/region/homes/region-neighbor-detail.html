@@ -58,6 +58,9 @@
       <button class="button button-positive button-block" ng-click="sendMessage()" ng-if="canSendMessage">
         Send Message
       </button>
+      <button class="button button-positive button-block" ng-click="sendViaMessage()" ng-if="canSendMessage">
+        Send via Message
+      </button>
       <button class="button button-balanced button-block" ng-click="appointOnBoard()" ng-if="userResidency.get('role')!='LEGI'">
         Appoint on Board
       </button>

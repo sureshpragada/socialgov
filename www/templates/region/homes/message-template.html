@@ -1,0 +1,17 @@
+<ion-view view-title="Send Message">
+	<ion-content>
+		<my-app-message info="postErrorMessage"></my-app-message>
+		<ion-item class="item-divider">Message</ion-item>
+		<label class="item item-input">
+			<textarea placeholder="Type in your message..." rows="10" ng-model="messageInfo.msg"></textarea>
+		</label>
+	<div class="row">
+			<div class="col">
+				<button class="button button-block button-assertive" ng-click="cancelMessage()">Cancel</button>
+			</div>					
+			<div class="col">
+				<button class="button button-block button-calm" ng-click="sendMessage()">Send Message</button>
+			</div>
+	</div>
+	</ion-content>
+</ion-view>
