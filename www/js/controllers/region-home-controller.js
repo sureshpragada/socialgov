@@ -83,28 +83,32 @@ angular.module('starter.controllers')
 
 })
 
-.controller('RegionHomeStatsCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading, RegionService, NotificationService, UtilityService) {
+.controller('RegionHomeStatsCtrl', function($scope, $state, $q, $stateParams, AccountService, SettingsService, $ionicLoading, RegionService, NotificationService, UtilityService, LogService) {
   SettingsService.trackView("Region home stats controller");    
+  $scope.controllerMessage=null;
   $scope.exportOptions={
     email: ""
   };
 
   $ionicLoading.show(SettingsService.getLoadingMessage("Mining stats for you"));
   $scope.stats={};  
-  var activeHomes = new Set();  
+  var activeHomes = [];  
   AccountService.getResidentsInCommunity(AccountService.getUserResidency()).then(function(neighborList) {
     for(var i=0; i<neighborList.length; i++){
       if(neighborList[i].get("user").get("status")=='A'){
-        activeHomes.add(neighborList[i].get("homeNo"));
+        if(activeHomes.indexOf(neighborList[i].get("homeNo"))==-1) {
+          activeHomes.push(neighborList[i].get("homeNo"));  
+        }        
       }
     }
     $scope.stats.total=AccountService.getHomesCount(AccountService.getUserResidency());
-    $scope.stats.active=activeHomes.size;
+    $scope.stats.active=activeHomes.length;
     $scope.stats.inactive=$scope.stats.total-$scope.stats.active;
     $ionicLoading.hide();
   }, function(error) {
     $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to get resident stats");
     $ionicLoading.hide();
+    LogService.log({type:"ERROR", message: "Unable to get resident stats  " + JSON.stringify(error) }); 
   });
 
   $scope.sendResidentData=function() {

@@ -164,6 +164,19 @@ angular.module('notification.services', ['ionic'])
         });
       }
     },    
+    sendTextMessageToResident: function(regionName, phoneNumbers, message) {
+      console.log("Send text message : " + message + " Phone number : " + phoneNumbers + " Region name : " + regionName);
+      if(ENV=="PROD") {        
+        //sendSmsTextLocal
+        Parse.Cloud.run('sendSMSViaTextLocalV1', {"phoneNumbers": phoneNumbers, "message": message, "regionName": regionName}).then(function(response) {
+          console.log("Response from sendSmsTextLocal : " + JSON.stringify(response));
+          LogService.log({type:"INFO", message: "SMS Send is success " + JSON.stringify(response)}); 
+        }, function(error) {
+          console.log("Response from sendSmsTextLocal : " + JSON.stringify(error));
+          LogService.log({type:"ERROR", message: "SMS send is failed " + JSON.stringify(error)}); 
+        });
+      }
+    },        
     openEmailClient: function(subject, body, attachment, attachmentName) {
       if(ionic.Platform.isWebView()) {        
         $cordovaEmailComposer.addAlias('gmail', 'com.google.android.gm');

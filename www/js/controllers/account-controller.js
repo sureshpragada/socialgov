@@ -817,7 +817,7 @@ angular.module('starter.controllers')
   
 })
 
-.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading) {
+.controller('YourInfoCtrl', function($scope, $stateParams, $state, AccountService, SettingsService, LogService, NotificationService, RegionService, ActivityService, $ionicLoading, $cordovaDialogs) {
   SettingsService.trackView("Your info controller");          
   $scope.tipMessage=SettingsService.getControllerInfoMessage("Tell us about yourself; You will be setup as admin to build community;");        
   $scope.controllerMessage=null;
@@ -861,6 +861,33 @@ angular.module('starter.controllers')
 
     $ionicLoading.show(SettingsService.getLoadingMessage("Registering your community"));      
     AccountService.setYourInfo($scope.user);
+
+    AccountService.getUserObjectByPhoneNumber($scope.user.phoneNum).then(function(user){
+      if(user!=null) {
+        console.log("Found the user, so asking for permission");
+        // Get confirmation before signing up
+        $cordovaDialogs.confirm('You are part of another community. Do you still want to register a new community?', 'Register Community', ['Register','Cancel'])
+        .then(function(buttonIndex) {      // no button = 0, 'OK' = 1, 'Cancel' = 2          
+          if(buttonIndex==1) {
+            $scope.handleRegistration();
+          } else {
+            $scope.tipMessage=SettingsService.getControllerErrorMessage("Please go back to home screen; Login to your current community using this phone number.");                    
+            $ionicLoading.hide();
+          }
+        });        
+      } else {
+        console.log("User not found, so going ahead with registration");
+        $scope.handleRegistration();
+      }
+    },function(error){
+      $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to validate your phone number to sign you up for the service.");
+      $ionicLoading.hide();
+      LogService.log({type:"ERROR", message: debugMessage + JSON.stringify(error) + " data 1 : " + JSON.stringify(AccountService.getYourInfo()) });                
+    });
+  
+  };
+
+  $scope.handleRegistration=function() {
     AccountService.createNewCommunity().then(function(regionData){
       AccountService.createNewCommunityAdmin(regionData).then(function(userData){
         AccountService.addHome({
@@ -903,7 +930,7 @@ angular.module('starter.controllers')
         $ionicLoading.hide();
         LogService.log({type:"ERROR", message: "Unable to setup your community  " + JSON.stringify(error) + " data : " + JSON.stringify(AccountService.getCommunityAddress()) }); 
     });
-  
+
   };
 
   $scope.handleRegistrationError=function(regionData, error, debugMessage) {

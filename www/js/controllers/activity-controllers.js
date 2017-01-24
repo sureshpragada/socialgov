@@ -699,7 +699,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     oppose: 0,
     debate: 0,
     notifyHomeOwners: false,
-    userToNotify:$stateParams.userId    
+    userToNotify:$stateParams.userId,
+    notifyViaText: false    
   };
   $scope.activitySettings={
     communityProblem: true
@@ -710,6 +711,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.postErrorMessage=null;
   $scope.allowImageUpload=ionic.Platform.isWebView();
   $scope.pictureUploaded=stateData.imageUrl;
+
+  $scope.smsEnabled=$scope.regionSettings.smsSettings!=null?$scope.regionSettings.smsSettings.smsEnabled:false;
 
   if($scope.regionSettings.multiBlock){
     AccountService.getAllHomes(AccountService.getUserResidency()).then(function(homes){
@@ -781,7 +784,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               AccountService.sendNotificationToBoard($scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted; Board will review and enable this to community.");            
             } else if($scope.post.userToNotify!=null && $scope.post.userToNotify!=""){
-              AccountService.sendNotificationToResident($scope.post.notifyMessage, $scope.post.userToNotify);              
+              AccountService.sendNotificationToResident($scope.post.notifyMessage, $scope.post.userToNotify, $scope.post.notifyViaText);              
               SettingsService.setAppSuccessMessage("Message has been sent.");            
             } else if($scope.post.notifyHomeOwners || $scope.post.blockToNotify!=null) {
               // Send the push notification only to specific memebers in community
@@ -791,7 +794,8 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
               // Send the push notification to everyone in community
               NotificationService.pushNotification($scope.post.regionUniqueName, $scope.post.notifyMessage);              
               SettingsService.setAppSuccessMessage("Activity has been posted.");            
-            }            
+            }     
+
             ActivityService.refreshActivityCache();
             $ionicLoading.hide();                      
             PictureManagerService.reset();
