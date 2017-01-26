@@ -619,6 +619,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     })             
 
+    .state('tab.home-stats', {
+      url: '/home-stats',
+      cache: false,      
+      views: {
+        'tab-region': {
+          templateUrl: 'templates/region/homes/region-home-stats.html',
+          controller: 'RegionHomeStatsCtrl'
+        }
+      }
+    })                 
+
     .state('tab.residences-blocks', {
       url: '/residences-blocks',
       cache: false,      

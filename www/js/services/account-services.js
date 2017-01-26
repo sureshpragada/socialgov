@@ -672,7 +672,7 @@ angular.module('account.services', [])
       });    
       return deferred.promise;      
     },    
-    sendNotificationToHomeOwner: function(homeNo, message) {
+    sendNotificationToHomeOwner: function(homeNo, message) {      
       this.getResidentsOfHome(Parse.User.current().get("residency"), homeNo).then(function(residents) {
         var residentIdList=[];
         if(residents!=null && residents.length>0) {
@@ -687,10 +687,19 @@ angular.module('account.services', [])
         LogService.log({type:"ERROR", message: "Failed to send payment notifications " + JSON.stringify(error) + " residency : " + residency + " homeNo : " + homeNo}); 
       });
     },
-    sendNotificationToResident: function(message, userId) {
-      var residentIdList=[];
-      residentIdList.push(userId);
-      NotificationService.pushNotificationToUserList(residentIdList, message);  
+    sendNotificationToResident: function(message, userId, sendViaText) {
+      var self=this;      
+      if(sendViaText==true) {
+        self.getUserById(self.getUserResidency(), userId).then(function(userResidency) {
+          NotificationService.sendTextMessageToResident(userResidency.get("user").get("residency"), userResidency.get("user").get("username"), message);
+        }, function(error) {
+          console.log("Unable to find the user to send text message " + JSON.stringify(error));
+        });        
+      } else {
+        var residentIdList=[];
+        residentIdList.push(userId);
+        NotificationService.pushNotificationToUserList(residentIdList, message);                  
+      }
     },
     getSelfLegisContacts:function(residency) {
       var deferred = $q.defer();      
@@ -852,7 +861,15 @@ angular.module('account.services', [])
     refreshHomesCache: function(regionUniqueName) {
       console.log("homes removed from cache");
       homesCache.remove(regionUniqueName);
-    },    
+    },   
+    getHomesCount: function(regionUniqueName) {
+      var homes=homesCache.get(regionUniqueName);
+      if(homes!=null) {
+        return homes.length;
+      } else {
+        return 0;
+      }
+    },
     addHome: function(inputHome) {
       this.refreshHomesCache(inputHome.residency);
       var Home = Parse.Object.extend("Home");

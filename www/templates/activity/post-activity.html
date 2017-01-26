@@ -42,6 +42,7 @@
 				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
 				Post activity to block(s)<p>{{uniqueBlocks[blockIndex].label}}</p>
 			  </ion-item>	
+			  <ion-checkbox ng-if="post.userToNotify && smsEnabled" ng-model="post.notifyViaText">Deliver this message as SMS</ion-checkbox>			  
 		</div>
 		<div class="row">
 			<div class="col">
