@@ -1,4 +1,4 @@
-<ion-view view-title="Activity">
+<ion-view view-title="Wall Board">
   <ion-nav-buttons side="secondary">
     <a class="button button-icon icon ion-compose" href="#/tab/pick-activity-type" ng-if="user.get('status')!='S'"></a>
 <!--     <a class="button button-icon icon ion-compose" href="#/tab/post" ng-if="user.get('status')!='S'"></a> -->
@@ -43,10 +43,21 @@
             <span class="positive">Problem is assigned to {{activity.get("assignedTo").get("firstName")}}&nbsp{{activity.get("assignedTo").get("lastName")}}</span>
           </p>          
 
-          <a ng-if="activity.get('problemStatus')=='OPEN' && !isAdmin && user.id==activity.get('user').id" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Resolved</a>
-          <a ng-if="activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="assignProblem(activity.id, activityIndex)">Assign the problem</a>
-           <a ng-if="activity.get('problemStatus')=='IN_PROGRESS' && isAdmin" class="button button-block button-balanced button-outline" ng-click="assignProblem(activity.id, activityIndex)">Reassign the problem</a>            
-          <a ng-if="activity.get('problemStatus')=='IN_PROGRESS' || activity.get('problemStatus')=='OPEN' && isAdmin" class="button button-block button-balanced button-outline" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Problem Resolved</a>                    
+          <div class="row">
+            <div class="col" ng-if="activity.get('problemStatus')=='OPEN' && !isAdmin && user.id==activity.get('user').id" >
+              <a class="button button-balanced button-outline button-small button-block" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Resolved</a>            
+            </div>
+            <div class="col" ng-if="activity.get('problemStatus')=='OPEN' && isAdmin">
+              <a class="button button-small button-royal button-outline button-block" ng-click="assignProblem(activity.id, activityIndex)">Assign problem</a>
+            </div>
+            <div class="col" ng-if="activity.get('problemStatus')=='IN_PROGRESS' && isAdmin">
+              <a class="button button-small button-royal button-outline button-block" ng-click="assignProblem(activity.id, activityIndex)">Reassign problem</a>            
+            </div>           
+            <div class="col" ng-if="activity.get('problemStatus')=='IN_PROGRESS' || activity.get('problemStatus')=='OPEN' && isAdmin">
+              <a class="button button-small button-balanced button-outline button-block" ng-click="markProblemResolved(activity.id, activityIndex)">Mark Resolved</a>              
+            </div>             
+          </div>
+
         </p>                        
         <p>{{activity.createdAt | date:'mediumDate'}}&nbsp;{{activity.createdAt | date:'shortTime'}}</p>        
         <p ng-if="activity.get('status')=='S'" >
@@ -55,17 +66,6 @@
         <p ng-if="activity.get('status')=='P'" >
           <span class="assertive">* Activity is visible to only board members.</span>
         </p>        
-      </div>
-      <div class="item item-text-wrap" ng-if="activity.get('lastActionBy')!=null">
-<!--         <p ng-if="activity.get('lastActionBy')==null">
-          Be the first one to react on this.
-        </p> -->
-        <p ng-if="(activity.get('support')+activity.get('oppose'))==1">
-          {{activity.get("lastActionBy")}} reacted.
-        </p>
-        <p ng-if="(activity.get('support')+activity.get('oppose'))>1" ng-click="openReactedPeopleList(activity.id)">
-          <span class="positive">{{activity.get("lastActionBy")}} and {{activity.get("support")+activity.get("oppose")-1}} resident(s) reacted.</span>
-        </p>
       </div>
       <div class="item tabs tabs-secondary tabs-icon-left" ng-if="activity.get('activityType')=='IDEA' || activity.get('activityType')=='ISSU'">
         <a class="tab-item" ng-click="respond(activity.id, 'support')">
@@ -111,6 +111,20 @@
           Answer ({{activity.get("debate")}})
         </a>
       </div>                  
+      <div class="item item-text-wrap" ng-if="activity.get('lastActionBy')!=null">
+<!--         <p ng-if="activity.get('lastActionBy')==null">
+          Be the first one to react on this.
+        </p> -->
+        <p ng-if="(activity.get('support')+activity.get('oppose'))==1">
+          {{activity.get("lastActionBy")}} reacted.
+        </p>
+        <p ng-if="(activity.get('support')+activity.get('oppose'))>1" ng-click="openReactedPeopleList(activity.id)">
+          <span class="positive">{{activity.get("lastActionBy")}} and {{activity.get("support")+activity.get("oppose")-1}} resident(s) reacted.</span>
+        </p>
+      </div>
+      <div class="item item-text-wrap" ng-if="activity.get('lastComment')!=null" ng-click="beginDebate(activity.id, activityIndex)"> <!-- Use item-body as needed -->
+        <p>{{activity.get("lastComment").get("argument")}}</p>
+      </div>            
     </div>
   </ion-content>
 </ion-view>

@@ -205,3 +205,7 @@ file.save({
 http://stackoverflow.com/questions/32434553/creating-and-showing-pdf-in-ionic
 https://equityzen.com
 
+https://play.google.com/apps/publish/?dev_acc=07461453155898548593#ApkPlace:p=com.ourblock
+
+
+

@@ -1,4 +1,4 @@
-<ion-view view-title="Post Activity">
+<ion-view view-title="Draft Post">
 	<ion-content>
 		<my-app-message info="postErrorMessage"></my-app-message>
 		<div class="list">
@@ -7,7 +7,7 @@
 		    <div ng-bind-html="postWarnMessage | translate"></div>
 		  </ion-item>          		
 			<li class="item item-toggle" ng-if="post.activityType=='ISSU'">
-			 Community Problem
+			 Is this community problem?
 			 <label class="toggle toggle-balanced">
 			   <input type="checkbox" ng-model="activitySettings.communityProblem">
 			   <div class="track">
@@ -15,34 +15,46 @@
 			   </div>
 			 </label>
 			</li>
-<!-- 	        <ion-toggle class="toggle-assertive" ng-model="activitySettings.communityProblem" ng-if="post.activityType=='ISSU'">
-	          Community Problem
-	        </ion-toggle>      -->     			
-			<label class="item item-input item-select" ng-hide="allowedRegions.length==1">
-			    <div class="input-label">
-			      Region
-			    </div>
-			    <select ng-model="selectChoices.selectedRegion" ng-options="region.label for region in allowedRegions">
-			    </select>
-			  </label>
+
+			<li class="item item-toggle" ng-if="!post.userToNotify">
+			 Send to only home owners
+			 <label class="toggle toggle-balanced">
+			   <input type="checkbox" ng-model="post.notifyHomeOwners">
+			   <div class="track">
+			     <div class="handle"></div>
+			   </div>
+			 </label>
+			</li>
+
+			  <ion-item class="item-icon-right item-text-wrap" ng-click="openChoiceModalOfBlocksType()" ng-if="regionSettings.multiBlock && !post.userToNotify">
+				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
+				Post activity to block(s)<p>{{uniqueBlocks[blockIndex].label}}</p>
+			  </ion-item>			
+
 			  <ion-item class="item-divider">Message</ion-item>
 			  <label class="item item-input">
 			    <textarea placeholder="Type in your message..." rows="10" ng-model="post.notifyMessage"></textarea>
 			  </label>
-			  <a class="item item-icon-right" ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded==null">
-			    Picture
+
+			  <a class="item item-icon-right" ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded==null && !post.userToNotify"">
+			    Upload Picture
 			    <i class="icon ion-upload royal"></i>
 			  </a>			  	  
-			  <a class="item item-thumbnail-left item-icon-right"  ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded!=null || !post.userToNotify">
+			  <a class="item item-thumbnail-left item-icon-right"  ng-click="goToAttachPicture()" ng-if="allowImageUpload && pictureUploaded!=null">
 			    <img ng-src="{{pictureUploaded}}">
 			    <i class="icon ion-android-cloud-done balanced"></i>
 			  </a>		
-			  <ion-checkbox ng-if="!post.userToNotify" ng-model="post.notifyHomeOwners">Post activity to home owners only</ion-checkbox>
-			  <ion-item class="item-icon-right item-text-wrap" ng-click="openChoiceModalOfBlocksType()" ng-if="regionSettings.multiBlock && !post.userToNotify">
-				<i class="icon ion-chevron-right icon-accessory" style="color: #11c1f3;"></i>
-				Post activity to block(s)<p>{{uniqueBlocks[blockIndex].label}}</p>
-			  </ion-item>	
-			  <ion-checkbox ng-if="post.userToNotify && smsEnabled" ng-model="post.notifyViaText">Deliver this message as SMS</ion-checkbox>			  
+
+			<li class="item item-toggle" ng-if="post.userToNotify && smsEnabled">
+			 Deliver this message as SMS
+			 <label class="toggle toggle-balanced">
+			   <input type="checkbox" ng-model="post.notifyViaText">
+			   <div class="track">
+			     <div class="handle"></div>
+			   </div>
+			 </label>
+			</li>	
+
 		</div>
 		<div class="row">
 			<div class="col">

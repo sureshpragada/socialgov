@@ -621,10 +621,11 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   AccountService.getSelfLegisContacts(AccountService.getUserResidency()).then(function(legiContacts){
     $scope.legiContacts=legiContacts;
     for(var i=0;i<legiContacts.length;i++) {
+        var user=legiContacts[i].get("user");
         $scope.legiContactsList.push({
-          label: legiContacts[i].get("firstName") + " " + legiContacts[i].get("lastName"),
-          value: legiContacts[i].get("firstName") + " " + legiContacts[i].get("lastName"),
-          opt: legiContacts[i].get("title"),
+          label: user.get("firstName") + " " + user.get("lastName"),
+          value: user.get("firstName") + " " + user.get("lastName"),
+          opt: user.get("title"),
         });
       }
   },function(error){
@@ -640,12 +641,12 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
 
   $scope.$on('choiceSelectionComplete', function(e,data) {  
       $scope.legiContactSelectedIndex=data.selected; 
-      $scope.activities[$scope.activityIndex].set("assignedTo", $scope.legiContacts[$scope.legiContactSelectedIndex]);
+      $scope.activities[$scope.activityIndex].set("assignedTo", $scope.legiContacts[$scope.legiContactSelectedIndex].get("user"));
       $scope.activities[$scope.activityIndex].set("problemStatus", "IN_PROGRESS");
       $scope.activities[$scope.activityIndex].save(null, {
         success: function(activity) {
           NotificationService.pushNotificationToUserList([$scope.activities[$scope.activityIndex].get("user").id], "Your problem has been assigned to "+$scope.legiContacts[$scope.legiContactSelectedIndex].get("firstName")+" "+$scope.legiContacts[$scope.legiContactSelectedIndex].get("lastName"));
-          NotificationService.pushNotificationToUserList([$scope.legiContacts[$scope.legiContactSelectedIndex].id], "You have been assigned to a problem of "+$scope.activities[$scope.activityIndex].get("user").get("firstName")+" "+$scope.activities[$scope.activityIndex].get("user").get("lastName"));
+          NotificationService.pushNotificationToUserList([$scope.legiContacts[$scope.legiContactSelectedIndex].get("user").id], "You have been assigned to a problem of "+$scope.activities[$scope.activityIndex].get("user").get("firstName")+" "+$scope.activities[$scope.activityIndex].get("user").get("lastName"));
           $scope.controllerMessage=SettingsService.getControllerInfoMessage("Assigned problem successfully.");
         },
         error: function(activity, error) {
@@ -690,7 +691,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.pushNotifs={"onlyToHomeOwners":false, "onlyToMyBlock":false};
   console.log(JSON.stringify(stateData));
   $scope.regionSettings=RegionService.getRegionSettings(AccountService.getUserResidency());      
-  $scope.blockIndex=0;
+  $scope.blockIndex=stateData.data.blockIndex>=0?stateData.data.blockIndex:0;
   $scope.post={
     notifyMessage: stateData.data.message!=null?stateData.data.message:"",
     activityType: stateData.data.activityType!=null?stateData.data.activityType:$stateParams.activityType,
@@ -698,19 +699,20 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     support: 0,
     oppose: 0,
     debate: 0,
-    notifyHomeOwners: false,
+    notifyHomeOwners: stateData.data.notifyHomeOwners!=null?stateData.data.notifyHomeOwners:false,
     userToNotify:$stateParams.userId,
     notifyViaText: false    
   };
   $scope.activitySettings={
-    communityProblem: true
+    communityProblem: stateData.data.communityProblem!=null?stateData.data.communityProblem:true
   };
-  $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
-  $scope.selectChoices={selectedRegion: $scope.allowedRegions[0]};  
+  // $scope.allowedRegions=AccountService.getRegionsAllowedToPost(user.get("role"), user.get("residency"));
+  // $scope.selectChoices={selectedRegion: $scope.allowedRegions[0]};  
 
   $scope.postErrorMessage=null;
   $scope.allowImageUpload=ionic.Platform.isWebView();
   $scope.pictureUploaded=stateData.imageUrl;
+  console.log("Picture uploaded : " + $scope.pictureUploaded);
 
   $scope.smsEnabled=$scope.regionSettings.smsSettings!=null?$scope.regionSettings.smsSettings.smsEnabled:false;
 
@@ -757,7 +759,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
     $cordovaDialogs.confirm('Do you want to post this activity?', 'Post Activity', ['Post','Continue Edit']).then(function(buttonIndex) { 
       if(buttonIndex==1) {       
         $ionicLoading.show(SettingsService.getLoadingMessage("Posting activity"));
-        $scope.post.regionUniqueName=$scope.selectChoices.selectedRegion.id;   
+        $scope.post.regionUniqueName=AccountService.getUserResidency();   
         if($scope.regionSettings.activityModeration==true) {
           $scope.post.status="P";
         } else {
@@ -843,7 +845,7 @@ angular.module('starter.controllers', ['ngCordova', 'ionic'])
   $scope.goToAttachPicture=function() {
     SettingsService.trackEvent("Activity", "AttachImageToPostActivity");    
     PictureManagerService.setFromPage("tab.post");
-    PictureManagerService.setData({message: $scope.post.notifyMessage});
+    PictureManagerService.setData({message: $scope.post.notifyMessage, activityType: $scope.post.activityType, communityProblem: $scope.activitySettings.communityProblem, blockIndex: $scope.blockIndex, notifyHomeOwners: $scope.post.notifyHomeOwners});
     $state.go("tab.activity-picman");
   };
 

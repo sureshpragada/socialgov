@@ -24,6 +24,7 @@ angular.module('activity.services', [])
         query.containedIn("status", ["P", "A", "S"]);        
         query.include("user");
         query.include("assignedTo");
+        query.include("lastComment");
         query.descending("createdAt");
         query.find().then(function(activityList){
           activityCache.remove("activityList");
@@ -98,12 +99,15 @@ angular.module('activity.services', [])
       var deferred = $q.defer();
       var Debate = Parse.Object.extend("Debate");
       var debate = new Debate();
-      debate.set("user", AccountService.getUser());
+      var activityUser=AccountService.getUser();
+      debate.set("user", activityUser);
       debate.set("activity", activity);
       debate.set("status", "A");
       debate.set("argument", newComment);    
       debate.save().then(function(newDebate) {
         activity.increment("debate", 1);
+        activity.set("lastComment", newDebate);
+        activity.set("lastActionBy", activityUser.get("firstName") + " " + activityUser.get("lastName"));
         activity.save();              
         deferred.resolve(newDebate);
       },
@@ -195,12 +199,11 @@ angular.module('activity.services', [])
       return this.postActivity(post);
     },
     getAllowedActivities: function(user) {
-      var allowedActivities=[ACTIVITY_LIST[0], ACTIVITY_LIST[1], ACTIVITY_LIST[2]];
+      var allowedActivities=[ACTIVITY_LIST[2], ACTIVITY_LIST[5], ACTIVITY_LIST[0], ACTIVITY_LIST[1]];
       if(user!=null && user.get("role")!="CTZEN" || user.get("superAdmin")==true) {
-        allowedActivities.unshift(ACTIVITY_LIST[3]);        
-        allowedActivities.unshift(ACTIVITY_LIST[4]);
+        allowedActivities.push(ACTIVITY_LIST[3]);        
+        allowedActivities.push(ACTIVITY_LIST[4]);
       }
-      allowedActivities.push(ACTIVITY_LIST[5]);
       return allowedActivities;
     },
     getActivityTypeInAList: function(activityId, activityList) {
