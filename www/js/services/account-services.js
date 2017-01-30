@@ -690,12 +690,14 @@ angular.module('account.services', [])
     sendNotificationToResident: function(message, userId, sendViaText) {
       var self=this;      
       if(sendViaText==true) {
+        console.log("Sending the messave via text " + userId + " " + sendViaText + " " + message);
         self.getUserById(self.getUserResidency(), userId).then(function(userResidency) {
           NotificationService.sendTextMessageToResident(userResidency.get("user").get("residency"), userResidency.get("user").get("username"), message);
         }, function(error) {
           console.log("Unable to find the user to send text message " + JSON.stringify(error));
         });        
       } else {
+        console.log("Sending the messave via push " + userId + " " + sendViaText + " " + message);
         var residentIdList=[];
         residentIdList.push(userId);
         NotificationService.pushNotificationToUserList(residentIdList, message);                  

@@ -165,9 +165,10 @@ angular.module('notification.services', ['ionic'])
       }
     },    
     sendTextMessageToResident: function(regionName, phoneNumbers, message) {
+      // phoneNumbers="919652533122";      
       console.log("Send text message : " + message + " Phone number : " + phoneNumbers + " Region name : " + regionName);
+
       if(ENV=="PROD") {        
-        //sendSmsTextLocal
         Parse.Cloud.run('sendSMSViaTextLocalV1', {"phoneNumbers": phoneNumbers, "message": message, "regionName": regionName}).then(function(response) {
           console.log("Response from sendSmsTextLocal : " + JSON.stringify(response));
           LogService.log({type:"INFO", message: "SMS Send is success " + JSON.stringify(response)}); 

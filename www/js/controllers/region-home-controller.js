@@ -774,7 +774,7 @@ angular.module('starter.controllers')
       return;
     }
 
-    if(!UtilityService.isValidEmail($scope.inputUser.email)) {
+    if($scope.inputUser.email!=null && !UtilityService.isValidEmail($scope.inputUser.email)) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Please enter proper email.");
       return;
     }
@@ -787,11 +787,14 @@ angular.module('starter.controllers')
     //   }
     // }    
 
+    $ionicLoading.show(SettingsService.getLoadingMessage("Updating neighbor data"));
     AccountService.updateNeighborAccount($scope.inputUser, $scope.user, $scope.userResidency).then(function(newUser) {
       SettingsService.setAppSuccessMessage("Neighbor information update is successful.");
+      $ionicLoading.hide();
       $state.go("tab.neighbor-detail", {userId: $scope.user.id});
     }, function(error) {
       $scope.controllerMessage=SettingsService.getControllerErrorMessage("Unable to update neighbor information.");  
+      $ionicLoading.hide();
     });
   };
 })
