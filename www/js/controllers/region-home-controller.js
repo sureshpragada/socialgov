@@ -680,6 +680,29 @@ angular.module('starter.controllers')
   $scope.sendMessage=function() {
     $state.go("tab.resident-post", {"activityType":"NOTF", "userId":$stateParams.userId});
   };
+
+  $scope.sendViaMessage=function(){
+    $state.go("tab.send-via-message", {"phoneNum":$scope.user.get("phoneNum"), "email":$scope.user.get("email")});
+  };
+})
+
+.controller('SendViaMessageCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading, $ionicHistory, MessageService) {
+  SettingsService.trackView("Send via message controller");
+  console.log($stateParams.phoneNum+"    "+$stateParams.email);
+  $scope.messageInfo={"phoneNum":$stateParams.phoneNum, "email":$stateParams.eamil, "msg":null};
+  $scope.cancelMessage=function(){
+    $ionicHistory.goBack(-1);
+  };
+
+  $scope.sendMessage=function(){
+    if($scope.messageInfo.msg!=null && $scope.messageInfo.msg.length>5){
+      console.log("Entered into method");
+      MessageService.sendViaMessage($scope.messageInfo);
+    } else {
+      console.log("Error");
+      $scope.controllerMessage = SettingsService.getControllerErrorMessage("Please enter a message.");
+    }
+  };
 })
 
 .controller('NeighborListCtrl', function($scope, $state, $stateParams, AccountService, SettingsService, $ionicLoading) {
